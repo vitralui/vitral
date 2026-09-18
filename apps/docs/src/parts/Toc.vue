@@ -26,7 +26,24 @@ function observe() {
 }
 
 onMounted(observe);
-watch(() => props.items, () => requestAnimationFrame(observe), { deep: true });
+
+watch(
+    () => props.items,
+    () => {
+        /*
+         * A new page starts at its first heading. The observer only speaks when
+         * something crosses the viewport, so on its own the list arrives with
+         * nothing marked — the headings are read off the page after mount, and
+         * by then the reader is already at the top and nothing is going to
+         * cross anything. Worse, after a move it went on marking the heading of
+         * the page before, an id that is not even in the new list.
+         */
+        current.value = props.items[0]?.id ?? '';
+        requestAnimationFrame(observe);
+    },
+    { deep: true }
+);
+
 onBeforeUnmount(() => observer?.disconnect());
 
 function go(event: MouseEvent, id: string) {
