@@ -35,7 +35,14 @@ const settings = ref({ updates: true, digest: false, mentions: true });
 const alerts = ref(true);
 const reviewers = ['A', 'G', 'K'];
 const trend = [{ name: 'Revenue', data: [18, 22, 21, 26, 29, 27, 33, 36, 34, 41, 44, 48] }];
-const sparkline: ChartOptions = { chart: { sparkline: { enabled: true }, height: 56 }, stroke: { width: 2, curve: 'smooth' }, tooltip: { x: { show: false } } };
+// The card is the library in the reader's own theme, so the line follows the
+// primary colour they picked rather than the first colour of the chart palette.
+const sparkline: ChartOptions = {
+    chart: { sparkline: { enabled: true }, height: 56 },
+    colors: ['var(--vt-primary-color)'],
+    stroke: { width: 2, curve: 'smooth' },
+    tooltip: { x: { show: false } }
+};
 
 // ---- the bands ----------------------------------------------------------------------
 
