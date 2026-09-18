@@ -24,6 +24,7 @@ export * from './Cropper';
 export * from './DataTable';
 export * from './DataView';
 export * from './DatePicker';
+export * from './DateRange';
 export * from './Dialog';
 export * from './Divider';
 export * from './Dock';

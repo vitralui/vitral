@@ -24,6 +24,7 @@ import cropper from './cropper';
 import datatable from './datatable';
 import dataview from './dataview';
 import datepicker from './datepicker';
+import daterange from './daterange';
 import dialog from './dialog';
 import divider from './divider';
 import dock from './dock';
@@ -130,6 +131,7 @@ export const components = {
     datatable,
     dataview,
     datepicker,
+    daterange,
     dialog,
     divider,
     dock,

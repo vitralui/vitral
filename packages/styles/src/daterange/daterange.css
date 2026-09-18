@@ -1,0 +1,157 @@
+/* Two dates and the days between them: the date picker's chrome, with a span. */
+.vt-daterange {
+    cursor: pointer;
+}
+
+.vt-daterange-input {
+    cursor: inherit;
+}
+
+.vt-daterange-panel {
+    padding: var(--vt-daterange-padding);
+}
+
+.vt-daterange-inline {
+    display: inline-block;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-daterange-border-radius);
+    background: var(--vt-daterange-background);
+}
+
+/* Side by side while there is room; stacked on a phone, where there is not. */
+.vt-daterange-months {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vt-daterange-month-gap);
+}
+
+.vt-daterange-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    min-height: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+/* The title holds the middle whether or not this month carries an arrow. */
+.vt-daterange-title {
+    flex: 1;
+    font-size: var(--vt-daterange-title-font-size);
+    font-weight: var(--vt-daterange-title-font-weight);
+    text-align: center;
+}
+
+.vt-daterange-grid {
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.vt-daterange-weekday {
+    padding: 0.25rem 0;
+    width: var(--vt-daterange-day-size);
+    font-size: var(--vt-daterange-weekday-font-size);
+    font-weight: var(--vt-daterange-weekday-font-weight);
+    color: var(--vt-daterange-weekday-color);
+}
+
+.vt-daterange-day {
+    position: relative;
+    width: var(--vt-daterange-day-size);
+    height: var(--vt-daterange-day-size);
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+}
+
+/*
+ * The span is drawn behind the days as one continuous band rather than as a
+ * background on each, so it does not break into squares between them. The ends
+ * round it off, and a single-day range is round on both sides.
+ */
+.vt-daterange-day-in-range::before,
+.vt-daterange-day-start::before,
+.vt-daterange-day-end::before {
+    content: '';
+    position: absolute;
+    inset: 2px 0;
+    background: var(--vt-daterange-band-background);
+}
+
+.vt-daterange-day-start::before {
+    inset-inline-start: 50%;
+    border-start-start-radius: var(--vt-daterange-day-border-radius);
+    border-end-start-radius: var(--vt-daterange-day-border-radius);
+}
+
+.vt-daterange-day-end::before {
+    inset-inline-end: 50%;
+    border-start-end-radius: var(--vt-daterange-day-border-radius);
+    border-end-end-radius: var(--vt-daterange-day-border-radius);
+}
+
+/* One day chosen twice: a band with no middle, so no band at all. */
+.vt-daterange-day-start.vt-daterange-day-end::before {
+    display: none;
+}
+
+/* While the other end is only being pointed at, the band is quieter. */
+.vt-daterange-day-preview::before {
+    background: var(--vt-daterange-preview-background);
+}
+
+.vt-daterange-day-label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--vt-daterange-day-border-radius);
+    font-size: var(--vt-daterange-day-font-size);
+    color: var(--vt-daterange-day-color);
+}
+
+.vt-daterange-day:not(.vt-daterange-day-disabled):hover .vt-daterange-day-label {
+    background: var(--vt-daterange-day-hover-background);
+}
+
+.vt-daterange-day-start .vt-daterange-day-label,
+.vt-daterange-day-end .vt-daterange-day-label {
+    color: var(--vt-daterange-end-color);
+    background: var(--vt-daterange-end-background);
+    font-weight: 600;
+}
+
+.vt-daterange-day-today:not(.vt-daterange-day-start):not(.vt-daterange-day-end) .vt-daterange-day-label {
+    box-shadow: inset 0 0 0 1px var(--vt-daterange-today-border-color);
+}
+
+.vt-daterange-day-other-month .vt-daterange-day-label {
+    color: var(--vt-daterange-other-month-color);
+}
+
+.vt-daterange-day-disabled {
+    cursor: default;
+}
+
+.vt-daterange-day-disabled .vt-daterange-day-label {
+    opacity: var(--vt-disabled-opacity);
+    text-decoration: line-through;
+}
+
+.vt-daterange-day:focus-visible .vt-daterange-day-label {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+.vt-daterange-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--vt-content-border-color);
+}

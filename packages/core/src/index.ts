@@ -46,6 +46,7 @@ export * from './data/reorder';
 export * from './data/board';
 
 export * from './date/calendar';
+export * from './date/range';
 export * from './date/datepicker';
 export * from './date/recurrence';
 export * from './date/schedule';

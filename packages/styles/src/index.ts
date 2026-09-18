@@ -25,6 +25,7 @@ export * from './cropper';
 export * from './datatable';
 export * from './dataview';
 export * from './datepicker';
+export * from './daterange';
 export * from './dialog';
 export * from './divider';
 export * from './dock';

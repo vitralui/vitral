@@ -41,6 +41,7 @@ export const componentNames = [
     'DataTable',
     'DataView',
     'DatePicker',
+    'DateRange',
     'Dialog',
     'Divider',
     'Dock',
