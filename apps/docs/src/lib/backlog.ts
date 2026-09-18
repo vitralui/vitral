@@ -33,6 +33,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'Password', group: 'Form', note: 'A text box with a reveal toggle and a strength meter.' },
     { vitral: 'InputMask', group: 'Form', note: 'A pattern a value is typed into: dates, documents, phone numbers.' },
     { vitral: 'InputOtp', group: 'Form', note: 'One box per digit, with paste across them.' },
+    { vitral: 'InputTag', group: 'Form', note: 'A list of short strings as removable tags, typed one at a time or pasted as a line.' },
     { vitral: 'SelectButton', group: 'Form', note: 'A segmented control: a radio group that looks like buttons.' },
     { vitral: 'ToggleButton', group: 'Form', note: 'A button that stays pressed.' },
     { vitral: 'Rating', group: 'Form', note: 'Stars, as a radio group.' },

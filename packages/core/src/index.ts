@@ -60,6 +60,7 @@ export * from './input/mask';
 export * from './input/password';
 export * from './input/otp';
 export * from './input/files';
+export * from './input/tags';
 
 export * from './locale/locale';
 export * from './config';

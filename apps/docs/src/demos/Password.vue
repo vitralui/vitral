@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Password',
     category: 'Form',
     description:
-        'A password box with a reveal button and a strength meter. The meter opens while the box has focus; its grade is a polite live region that describes the box, so it is heard as it changes. The reveal button is a real button whose name says what it will do.'
+        'A password box with a reveal button and a strength meter. The meter opens while the box has focus; its grade is a polite live region that describes the box, so it is heard as it changes. The reveal button is a real button whose name says what it will do. Exported twice, as `Password` and as `InputPassword` — the second is the name that lines up with `InputText`, `InputNumber` and `InputTag`, and they are the same component.'
 };
 </script>
 

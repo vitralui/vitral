@@ -49,6 +49,7 @@ export * from './InputGroupAddon';
 export * from './InputMask';
 export * from './InputNumber';
 export * from './InputOtp';
+export * from './InputTag';
 export * from './InputText';
 export * from './Knob';
 export * from './Label';

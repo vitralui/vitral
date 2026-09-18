@@ -1,0 +1,93 @@
+/*
+ * A field whose value is a list: the tags sit inside the field's chrome, in
+ * front of a text box that takes the rest of the line. The field grows down as
+ * the list fills, so a long list wraps instead of scrolling sideways.
+ */
+.vt-inputtag {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vt-inputtag-gap);
+    padding-block: var(--vt-inputtag-padding-y);
+    height: auto;
+    cursor: text;
+}
+
+.vt-inputtag.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-inputtag-list {
+    display: contents;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-inputtag-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-inputtag-tag-gap);
+    max-width: 100%;
+    padding: var(--vt-inputtag-tag-padding-y) var(--vt-inputtag-tag-padding-x);
+    font-size: var(--vt-inputtag-tag-font-size);
+    line-height: 1.4;
+    color: var(--vt-inputtag-tag-color);
+    background: var(--vt-inputtag-tag-background);
+    border-radius: var(--vt-inputtag-tag-border-radius);
+}
+
+/* The tag the keyboard is on, walked to with the arrow keys. */
+.vt-inputtag-tag-focused {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-inputtag-tag-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vt-inputtag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-inputtag-remove-size);
+    height: var(--vt-inputtag-remove-size);
+    margin-inline-end: calc(var(--vt-inputtag-tag-padding-x) * -0.4);
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-inputtag-remove-border-radius);
+    cursor: pointer;
+}
+
+.vt-inputtag-remove:hover {
+    background: var(--vt-inputtag-remove-hover-background);
+}
+
+.vt-inputtag-remove:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+.vt-inputtag-remove .vt-icon {
+    width: var(--vt-inputtag-remove-icon-size);
+    height: var(--vt-inputtag-remove-icon-size);
+}
+
+/* The box takes what is left of the line, and at least enough for a word. */
+.vt-inputtag-input {
+    flex: 1 1 var(--vt-inputtag-input-min-width);
+    min-width: var(--vt-inputtag-input-min-width);
+    padding-block: 0;
+}
+
+.vt-inputtag-full .vt-inputtag-input {
+    /* Full: the box stays for the reader to see why nothing is being added. */
+    opacity: var(--vt-inputtag-full-input-opacity);
+}

@@ -90,6 +90,8 @@ export const componentNames = [
     'InputMask',
     'InputNumber',
     'InputOtp',
+    'InputPassword',
+    'InputTag',
     'InputText',
     'Knob',
     'Label',

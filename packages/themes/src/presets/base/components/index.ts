@@ -48,6 +48,7 @@ import inputgroupaddon from './inputgroupaddon';
 import inputmask from './inputmask';
 import inputnumber from './inputnumber';
 import inputotp from './inputotp';
+import inputtag from './inputtag';
 import inputtext from './inputtext';
 import knob from './knob';
 import label from './label';
@@ -155,6 +156,7 @@ export const components = {
     inputmask,
     inputnumber,
     inputotp,
+    inputtag,
     inputtext,
     knob,
     label,
