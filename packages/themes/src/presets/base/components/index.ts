@@ -48,6 +48,7 @@ import inputgroupaddon from './inputgroupaddon';
 import inputmask from './inputmask';
 import inputnumber from './inputnumber';
 import inputotp from './inputotp';
+import inputpassword from './inputpassword';
 import inputtag from './inputtag';
 import inputtext from './inputtext';
 import knob from './knob';
@@ -65,7 +66,6 @@ import overlaybadge from './overlaybadge';
 import paginator from './paginator';
 import panel from './panel';
 import panelmenu from './panelmenu';
-import password from './password';
 import picklist from './picklist';
 import popover from './popover';
 import progressbar from './progressbar';
@@ -156,6 +156,7 @@ export const components = {
     inputmask,
     inputnumber,
     inputotp,
+    inputpassword,
     inputtag,
     inputtext,
     knob,
@@ -173,7 +174,6 @@ export const components = {
     paginator,
     panel,
     panelmenu,
-    password,
     picklist,
     popover,
     progressbar,

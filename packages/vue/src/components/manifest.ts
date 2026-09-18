@@ -109,7 +109,6 @@ export const componentNames = [
     'Paginator',
     'Panel',
     'PanelMenu',
-    'Password',
     'PickList',
     'Popover',
     'ProgressBar',

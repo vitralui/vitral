@@ -195,6 +195,12 @@ describe('the site', () => {
         }
     });
 
+    it('sends a page that was renamed to the name it has now', () => {
+        const wrapper = mountSite('/components/password');
+        expect(location.pathname).toBe('/components/inputpassword/');
+        expect(wrapper.find('.doc-head h1').text()).toBe('InputPassword');
+    });
+
     it('opens a guide', () => {
         const wrapper = mountSite('/docs/theming');
         expect(wrapper.find('.doc-head h1').text()).toBe('Theming');

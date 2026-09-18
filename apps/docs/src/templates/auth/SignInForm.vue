@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { globe } from '@vitral/icons';
-import { Button, Checkbox, Divider, InputText, Message, Password } from '@vitral/vue';
+import { Button, Checkbox, Divider, InputText, Message, InputPassword } from '@vitral/vue';
 import { reactive, ref, useId } from 'vue';
 
 /**
@@ -40,7 +40,7 @@ function submit() {
                 <label :for="field('password')" class="tp-label">Password</label>
                 <button type="button" class="tp-auth-link" @click="emit('recover')">Forgotten it?</button>
             </div>
-            <Password
+            <InputPassword
                 :id="field('password')"
                 v-model="form.password"
                 :feedback="false"

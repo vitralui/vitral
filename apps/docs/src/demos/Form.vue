@@ -26,7 +26,7 @@ import {
     Knob,
     Listbox,
     MultiSelect,
-    Password,
+    InputPassword,
     RadioButton,
     RadioGroup,
     Rating,
@@ -182,7 +182,7 @@ const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').t
                 <InputText type="email" autocomplete="email" fluid />
             </Form.Field>
             <Form.Field name="password" label="Password" required :rules="rules.minLength(8)">
-                <Password autocomplete="new-password" toggle-mask fluid />
+                <InputPassword autocomplete="new-password" toggle-mask fluid />
             </Form.Field>
             <Form.Field name="confirm" label="Repeat the password" required :rules="rules.equalsField('password')">
                 <InputText type="password" autocomplete="new-password" fluid />
@@ -349,7 +349,7 @@ const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').t
                     <InputOtp :length="4" integer-only />
                 </Form.Field>
                 <Form.Field name="secret" label="Password" required>
-                    <Password :feedback="false" toggle-mask fluid />
+                    <InputPassword :feedback="false" toggle-mask fluid />
                 </Form.Field>
                 <Form.Field name="city" label="Select" required>
                     <Select :options="cities" option-label="name" option-value="code" placeholder="Choose" fluid />

@@ -14,7 +14,7 @@ import IconField from '../IconField/IconField.vue';
 import InputNumber from '../InputNumber/InputNumber.vue';
 import InputText from '../InputText/InputText.vue';
 import MultiSelect from '../MultiSelect/MultiSelect.vue';
-import Password from '../Password/Password.vue';
+import InputPassword from '../InputPassword/InputPassword.vue';
 import RadioButton from '../RadioButton/RadioButton.vue';
 import RadioGroup from '../RadioGroup/RadioGroup.vue';
 import Rating from '../Rating/Rating.vue';
@@ -762,7 +762,7 @@ describe('Form.Field with every kind of control', () => {
         const cases: [string, Component, Record<string, unknown>, unknown, string][] = [
             ['bio', Textarea, {}, 'Hello', 'textarea'],
             ['age', InputNumber, {}, 42, 'input'],
-            ['secret', Password, { feedback: false }, 'pw', 'input'],
+            ['secret', InputPassword, { feedback: false }, 'pw', 'input'],
             ['langs', MultiSelect, { options: ['pt', 'en'] }, ['pt'], '[role="combobox"]'],
             ['volume', Slider, {}, 30, '[role="slider"]'],
             ['stars', Rating, {}, 3, '[role="radiogroup"]'],

@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt } from '../../../test/utils';
-import Password from './Password.vue';
+import InputPassword from './InputPassword.vue';
 
 function mountPassword(props: Record<string, unknown> = {}) {
     const value = ref<string | null | undefined>((props.modelValue as string | undefined) ?? '');
     const wrapper = mountVt(
         defineComponent(() => () => [
             h('label', { for: 'pw' }, 'Password'),
-            h(Password, { id: 'pw', ...props, modelValue: value.value, 'onUpdate:modelValue': (v: string | null | undefined) => (value.value = v) })
+            h(InputPassword, { id: 'pw', ...props, modelValue: value.value, 'onUpdate:modelValue': (v: string | null | undefined) => (value.value = v) })
         ])
     );
     const input = () => document.querySelector<HTMLInputElement>('#pw')!;
@@ -17,7 +17,7 @@ function mountPassword(props: Record<string, unknown> = {}) {
     return { wrapper, value, input, status };
 }
 
-describe('Password', () => {
+describe('InputPassword', () => {
     it('is a labelled password box that binds v-model', async () => {
         const { input, value } = mountPassword();
         expect(input().type).toBe('password');
@@ -50,7 +50,7 @@ describe('Password', () => {
         value.value = 'abc';
         await nextTick();
         expect(status()!.textContent).toBe('Weak');
-        expect(document.querySelector('.vt-password-meter-weak')).not.toBeNull();
+        expect(document.querySelector('.vt-inputpassword-meter-weak')).not.toBeNull();
         value.value = 'abc123';
         await nextTick();
         expect(status()!.textContent).toBe('Medium');

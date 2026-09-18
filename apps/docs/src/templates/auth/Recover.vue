@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, InputOtp, InputText, Message, Password, Step, StepList, StepPanel, StepPanels, Stepper } from '@vitral/vue';
+import { Button, InputOtp, InputText, Message, InputPassword, Step, StepList, StepPanel, StepPanels, Stepper } from '@vitral/vue';
 import { computed, onBeforeUnmount, reactive, ref, useId, watch } from 'vue';
 import { useTemplate } from '../kit/context';
 
@@ -83,7 +83,7 @@ const sentTo = computed(() => form.email || 'your email');
                             <Message v-if="done" severity="success" :closable="false">Your password has been changed. You can sign in with it now.</Message>
                             <div class="tp-field tp-span">
                                 <label :for="field('new')" class="tp-label">New password</label>
-                                <Password :id="field('new')" v-model="form.password" toggle-mask autocomplete="new-password" fluid />
+                                <InputPassword :id="field('new')" v-model="form.password" toggle-mask autocomplete="new-password" fluid />
                             </div>
                             <Button v-if="!done" label="Change the password" :disabled="!form.password" fluid @click="done = true" />
                             <Button v-else label="Back to sign in" fluid @click="go('signin')" />

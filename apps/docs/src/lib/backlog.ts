@@ -30,7 +30,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'DatePicker', group: 'Form' },
     { vitral: 'AutoComplete', group: 'Form', note: 'The editable combobox: suggestions as you type, over the same list behaviour Select already has.' },
     { vitral: 'MultiSelect', group: 'Form', note: 'Select with checkboxes, a chip display and select-all.' },
-    { vitral: 'Password', group: 'Form', note: 'A text box with a reveal toggle and a strength meter.' },
+    { vitral: 'InputPassword', group: 'Form', note: 'A text box with a reveal toggle and a strength meter.' },
     { vitral: 'InputMask', group: 'Form', note: 'A pattern a value is typed into: dates, documents, phone numbers.' },
     { vitral: 'InputOtp', group: 'Form', note: 'One box per digit, with paste across them.' },
     { vitral: 'InputTag', group: 'Form', note: 'A list of short strings as removable tags, typed one at a time or pasted as a line.' },

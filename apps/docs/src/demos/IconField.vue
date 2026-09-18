@@ -10,7 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
-import { IconField, InputIcon, InputNumber, InputText, Password } from '@vitral/vue';
+import { IconField, InputIcon, InputNumber, InputText, InputPassword } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
@@ -53,7 +53,7 @@ const amount = ref<number | null>(120);
         </IconField>
         <IconField>
             <InputIcon icon="spinner" spin />
-            <Password aria-label="Password" :feedback="false" />
+            <InputPassword aria-label="Password" :feedback="false" />
         </IconField>
     </DemoSection>
 </template>

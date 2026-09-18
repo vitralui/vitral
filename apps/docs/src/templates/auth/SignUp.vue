@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { globe } from '@vitral/icons';
-import { Button, Checkbox, Divider, InputText, Message, Password } from '@vitral/vue';
+import { Button, Checkbox, Divider, InputText, Message, InputPassword } from '@vitral/vue';
 import { reactive, ref, useId } from 'vue';
 import { useTemplate } from '../kit/context';
 
@@ -44,14 +44,14 @@ function submit() {
 
                 <div class="tp-field tp-span">
                     <label :for="field('password')" class="tp-label">Password</label>
-                    <Password :id="field('password')" v-model="form.password" toggle-mask autocomplete="new-password" :invalid="missing(form.password)" fluid>
+                    <InputPassword :id="field('password')" v-model="form.password" toggle-mask autocomplete="new-password" :invalid="missing(form.password)" fluid>
                         <template #footer>
                             <ul class="tp-auth-rules">
                                 <li>At least eight characters</li>
                                 <li>A number and a capital</li>
                             </ul>
                         </template>
-                    </Password>
+                    </InputPassword>
                 </div>
 
                 <div class="tp-field tp-span tp-auth-remember">

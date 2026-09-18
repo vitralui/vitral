@@ -36,6 +36,14 @@ export interface DataSourceLike {
     load(options: LoadOptionsLike): Promise<{ items: any[]; total: number }>;
 }
 
+/** A table's column layout: the order, the widths, what is hidden and what is pinned. */
+export interface ColumnLayoutLike {
+    order?: string[];
+    widths?: Record<string, number>;
+    hidden?: string[];
+    pinned?: Record<string, 'left' | 'right'>;
+}
+
 export interface DataTableProps extends BaseProps {
     /** The rows; with `lazy`, only the current page. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,6 +77,15 @@ export interface DataTableProps extends BaseProps {
     filterDelay?: number;
 
     selectionMode?: 'single' | 'multiple';
+
+    /** A handle on every column's trailing edge, dragged (or keyed) to set its width. */
+    resizableColumns?: boolean;
+    /** `'fit'` takes the width from the next column, keeping the table's own; `'expand'` widens the table. */
+    columnResizeMode?: 'fit' | 'expand';
+    /** Columns can be dragged by their header into another order, or moved with Ctrl and an arrow key. */
+    reorderableColumns?: boolean;
+    /** A button that opens the list of columns, each with a checkbox. */
+    columnToggle?: boolean;
 
     stripedRows?: boolean;
     showGridlines?: boolean;
@@ -122,8 +139,23 @@ export interface DataTableSelectAllEvent {
     data: unknown[];
 }
 
+export interface DataTableColumnEvent {
+    originalEvent?: Event;
+    /** The column, by `columnKey` or `field`. */
+    key: string;
+    layout: ColumnLayoutLike;
+}
+
 export type DataTableEmits = {
     page: [event: DataTablePageEvent];
+    /** A column was widened or narrowed. */
+    'column-resize': [event: DataTableColumnEvent & { width: number }];
+    /** A column was moved. */
+    'column-reorder': [event: DataTableColumnEvent & { order: string[] }];
+    /** A column was shown or hidden. */
+    'column-toggle': [event: DataTableColumnEvent & { visible: boolean }];
+    /** A column was stuck to an edge, or let go. */
+    'column-pin': [event: DataTableColumnEvent & { side: 'left' | 'right' | null }];
     sort: [event: DataTableSortEvent];
     filter: [event: DataTableFilterEvent];
     'lazy-load': [event: LoadOptionsLike];
@@ -146,6 +178,16 @@ export interface DataTableSlots {
 }
 
 export interface ColumnProps {
+    /** This column can be resized; every column can when the table says so. Set `false` to pin its width. */
+    resizable?: boolean;
+    /** The smallest this column may be dragged to, in pixels. */
+    minWidth?: number;
+    /** Its width to start from, in pixels, before the reader changes it. */
+    width?: number;
+    /** Stick this column to an edge while the rest scrolls. */
+    pinned?: 'left' | 'right';
+    /** Offer this column in the column list. Defaults to true; a selection column is never offered. */
+    toggleable?: boolean;
     /** Identifies the column when `field` does not (two columns on one field, or none). */
     columnKey?: string;
     /** The field (dotted path) a cell shows, sorts and filters by. */

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { passwordStrength } from '@vitral/core';
-import { passwordStyle } from '@vitral/styles';
+import { inputpasswordStyle } from '@vitral/styles';
 import { computed, mergeProps, ref, useId } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import { useOverlay } from '../../composables/useOverlay';
 import Icon from '../Icon/Icon.vue';
-import type { PasswordEmits, PasswordProps, PasswordSlots } from './types';
+import type { InputPasswordEmits, InputPasswordProps, InputPasswordSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 // A native password box. The reveal button is a real button in the tab order
@@ -13,9 +13,9 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 // box while it has focus; its label is a polite live region and describes the
 // box, so the grade is heard as it changes without moving focus anywhere.
 
-defineOptions({ name: 'VtPassword', inheritAttrs: false });
+defineOptions({ name: 'VtInputPassword', inheritAttrs: false });
 
-const props = withDefaults(defineProps<PasswordProps>(), {
+const props = withDefaults(defineProps<InputPasswordProps>(), {
     unstyled: undefined,
     variant: undefined,
     feedback: true,
@@ -24,10 +24,10 @@ const props = withDefaults(defineProps<PasswordProps>(), {
 });
 const overlayTarget = useOverlayTarget(() => props.appendTo);
 const model = defineModel<string | null>();
-const emit = defineEmits<PasswordEmits>();
-defineSlots<PasswordSlots>();
+const emit = defineEmits<InputPasswordEmits>();
+defineSlots<InputPasswordSlots>();
 
-const { part, config, locale } = useComponent(passwordStyle, props);
+const { part, config, locale } = useComponent(inputpasswordStyle, props);
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 const infoId = `${useId()}-strength`;
 

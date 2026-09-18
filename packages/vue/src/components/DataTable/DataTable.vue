@@ -1,5 +1,24 @@
 <script setup lang="ts">
-import { formatMessage, getField, isBlankFilter, isSelected, queryData, selectionState, selectRows, toggleSelection, toggleSort, type DataSource } from '@vitral/core';
+import {
+    dropTarget,
+    formatMessage,
+    getField,
+    isBlankFilter,
+    isSelected,
+    moveColumn,
+    orderColumns,
+    pinColumn,
+    queryData,
+    resizeColumn,
+    selectionState,
+    selectRows,
+    stickyOffsets,
+    toggleColumn,
+    toggleSelection,
+    toggleSort,
+    type ColumnLayout,
+    type DataSource
+} from '@vitral/core';
 import { datatableStyle } from '@vitral/styles';
 import { camelize, computed, Fragment, mergeProps, onBeforeUnmount, onMounted, ref, shallowRef, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
 import { useComponent } from '../../base/useComponent';
@@ -9,6 +28,7 @@ import InputText from '../InputText/InputText.vue';
 import Paginator from '../Paginator/Paginator.vue';
 import Column from './Column.vue';
 import type {
+    ColumnLayoutLike,
     CompositeFilterLike,
     DataTableEmits,
     DataTableFilterMeta,
@@ -39,7 +59,8 @@ const props = withDefaults(defineProps<DataTableProps>(), {
     filterDelay: 300,
     pageLinkSize: 5,
     paginatorPosition: 'bottom',
-    alwaysShowPaginator: true
+    alwaysShowPaginator: true,
+    columnResizeMode: 'fit'
 });
 const first = defineModel<number>('first', { default: 0 });
 const rows = defineModel<number>('rows', { default: 10 });
@@ -48,6 +69,9 @@ const sortOrder = defineModel<number | null>('sortOrder', { default: null });
 const multiSortMeta = defineModel<SortMetaLike[] | null>('multiSortMeta', { default: null });
 const filters = defineModel<DataTableFilterMeta>('filters');
 const selection = defineModel<unknown>('selection');
+// The layout is a plain object an application can store and hand back: the
+// order, the widths, what is hidden and what is pinned.
+const columnLayout = defineModel<ColumnLayoutLike | null>('columnLayout');
 const emit = defineEmits<DataTableEmits>();
 const slots = defineSlots<DataTableSlots>();
 

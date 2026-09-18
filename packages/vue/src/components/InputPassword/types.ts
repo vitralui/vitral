@@ -1,6 +1,6 @@
 import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
 
-export interface PasswordProps extends BaseProps {
+export interface InputPasswordProps extends BaseProps {
     /** Show a strength meter while the box has focus. Defaults to true. */
     feedback?: boolean;
     /** Add a button that shows the password as plain text, and back. */
@@ -28,13 +28,13 @@ export interface PasswordProps extends BaseProps {
     appendTo?: string;
 }
 
-export type PasswordEmits = {
+export type InputPasswordEmits = {
     focus: [event: FocusEvent];
     blur: [event: FocusEvent];
     clear: [];
 };
 
-export interface PasswordSlots {
+export interface InputPasswordSlots {
     /** Above the meter. */
     header?: () => unknown;
     /** Below the meter: the rules a password has to follow. */

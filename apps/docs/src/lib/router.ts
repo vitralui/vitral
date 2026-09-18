@@ -34,6 +34,9 @@ export function href(path: string): string {
 
 const retired = /^\/themes(\/|$)/;
 
+/** Pages that moved: a link written before the move still lands on the page. */
+const renamed: Record<string, string> = { '/components/password': '/components/inputpassword' };
+
 /** The path part of a URL, without the base. */
 function pathOf(url: URL): string {
     const path = url.pathname.startsWith(base) ? url.pathname.slice(base.length) : url.pathname;
@@ -46,9 +49,10 @@ function pathOf(url: URL): string {
  */
 function settle(): string {
     const url = new URL(location.href);
-    const moved = url.hash.startsWith('#/') ? url.hash.slice(1).replace(/\/+$/, '') || '/' : retired.test(pathOf(url)) ? '/templates' : null;
+    const path = pathOf(url);
+    const moved = url.hash.startsWith('#/') ? url.hash.slice(1).replace(/\/+$/, '') || '/' : retired.test(path) ? '/templates' : (renamed[path] ?? null);
     if (moved) history.replaceState(null, '', href(moved) + url.search);
-    return moved ?? pathOf(url);
+    return moved ?? path;
 }
 
 const current = ref('/');

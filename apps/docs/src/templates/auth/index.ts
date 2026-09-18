@@ -37,7 +37,7 @@ export const template: TemplateMeta = {
             answer: 'A stepper shows how much is left and makes going back one step free. Linear mode keeps the reader from skipping the code.'
         }
     ],
-    components: ['Button', 'Checkbox', 'Dialog', 'Divider', 'InputOtp', 'InputText', 'Message', 'Password', 'Select', 'Stepper', 'Tag'],
+    components: ['Button', 'Checkbox', 'Dialog', 'Divider', 'InputOtp', 'InputText', 'Message', 'InputPassword', 'Select', 'Stepper', 'Tag'],
     layout: defineAsyncComponent(() => import('./Layout.vue')),
     screens
 };
