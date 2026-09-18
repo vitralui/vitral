@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Barrels are up to date
+        run: node scripts/gen-index.mjs --check
+
+      - name: Types
+        run: pnpm typecheck
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      # The whole server-rendering path, in a real Nuxt application: the styles
+      # in the head of the first response, the scheme cookie, and a page that
+      # hydrates without a warning. Chrome comes with the runner.
+      - name: Nuxt playground
+        run: pnpm check:nuxt
+        env:
+          CHROME: /usr/bin/google-chrome
