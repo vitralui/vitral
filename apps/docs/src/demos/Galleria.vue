@@ -58,7 +58,7 @@ const fullIndex = ref(0);
     </DemoSection>
 
     <DemoSection title="Indicators and rotation">
-        <Galleria :value="photos" :show-thumbnails="false" show-indicators circular auto-play :transition-interval="3000" aria-label="Photographs, rotating" style="max-width: 32rem">
+        <Galleria :value="photos" :show-thumbnails="false" show-indicators auto-play :transition-interval="3000" aria-label="Photographs, rotating" style="max-width: 32rem">
             <template #item="{ item }">
                 <img :src="`https://picsum.photos/id/${(item as { id: number }).id}/640/360`" :alt="(item as { alt: string }).alt" style="display: block; width: 100%" />
             </template>

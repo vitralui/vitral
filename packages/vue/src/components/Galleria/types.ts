@@ -18,6 +18,11 @@ export interface GalleriaProps extends BaseProps {
     /** Dots under the item. */
     showIndicators?: boolean;
     /** Wrap from the last item to the first. */
+    /**
+     * Wrap round: the last item is followed by the first. On by default —
+     * a gallery that stops dead at the end sends the reader back through
+     * everything they have just seen to reach the other end of it.
+     */
     circular?: boolean;
     /** Rotate through the items; a pause button comes with it. */
     autoPlay?: boolean;

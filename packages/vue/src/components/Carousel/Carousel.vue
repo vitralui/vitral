@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<CarouselProps>(), {
     unstyled: undefined,
     value: () => [],
     numVisible: 1,
+    circular: true,
     numScroll: 1,
     orientation: 'horizontal',
     verticalViewPortHeight: '20rem',

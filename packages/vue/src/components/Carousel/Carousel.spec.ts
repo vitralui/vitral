@@ -35,8 +35,8 @@ describe('Carousel', () => {
         expect(slides()[2]!.hasAttribute('inert')).toBe(true);
     });
 
-    it('pages with the navigators and the slide pickers, stopping at the ends unless circular', async () => {
-        const { page, shown, button } = mountCarousel({ numVisible: 2, numScroll: 2 });
+    it('pages with the navigators and the slide pickers, and stops at the ends when told not to wrap', async () => {
+        const { page, shown, button } = mountCarousel({ numVisible: 2, numScroll: 2, circular: false });
         expect(button('Previous').disabled).toBe(true);
         button('Next').click();
         await nextTick();
@@ -51,7 +51,7 @@ describe('Carousel', () => {
     });
 
     it('pages on a swipe, with the track following the pointer, and ignores a short drag', async () => {
-        const { page, button } = mountCarousel();
+        const { page, button } = mountCarousel({ circular: false });
         const viewport = document.querySelector<HTMLElement>('.vt-carousel-viewport')!;
         const track = document.querySelector<HTMLElement>('.vt-carousel-track')!;
         const pointer = (type: string, x: number) => viewport.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: 10, pointerId: 1, bubbles: true }));
@@ -82,6 +82,7 @@ describe('Carousel', () => {
     });
 
     it('wraps when circular', async () => {
+        // Wrapping is the default; this is the same behaviour asked for by name.
         const { page, button } = mountCarousel({ circular: true });
         button('Previous').click();
         await nextTick();

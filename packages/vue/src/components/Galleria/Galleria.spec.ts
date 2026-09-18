@@ -92,7 +92,8 @@ describe('Galleria', () => {
     });
 
     it('moves to the neighbouring item on a swipe', async () => {
-        const { index, slide } = mountGalleria();
+        // Not circular here, so the ends are ends: the wrap is tested by itself.
+        const { index, slide } = mountGalleria({ circular: false });
         const swipe = async (from: number, to: number) => {
             const el = slide()!;
             el.dispatchEvent(new PointerEvent('pointerdown', { clientX: from, clientY: 0, pointerId: 1, bubbles: true }));
@@ -107,7 +108,7 @@ describe('Galleria', () => {
         expect(slide()!.getAttribute('aria-label')).toBe('2 of 5');
         await swipe(100, 250);
         expect(index.value).toBe(0);
-        // Not circular: nothing before the first.
+        // Told not to wrap: nothing before the first.
         await swipe(100, 250);
         expect(index.value).toBe(0);
     });

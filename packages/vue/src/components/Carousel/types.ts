@@ -21,6 +21,11 @@ export interface CarouselProps extends BaseProps {
     /** The viewport's height when vertical. Defaults to `'20rem'`. */
     verticalViewPortHeight?: string;
     /** Wrap from the last page to the first. */
+    /**
+     * Wrap round: the last item is followed by the first. On by default —
+     * a gallery that stops dead at the end sends the reader back through
+     * everything they have just seen to reach the other end of it.
+     */
     circular?: boolean;
     /** Milliseconds between automatic steps; 0 (the default) turns it off. */
     autoplayInterval?: number;

@@ -25,6 +25,7 @@ const props = withDefaults(defineProps<GalleriaProps>(), {
     showThumbnails: true,
     thumbnailsPosition: 'bottom',
     showThumbnailNavigators: true,
+    circular: true,
     transitionInterval: 4000,
     transition: 'none'
 });

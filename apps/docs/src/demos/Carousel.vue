@@ -64,7 +64,7 @@ const responsive = [
     >
         <div class="demo-stack demo-wide" style="gap: 0.75rem">
             <SelectButton v-model="preset" :options="presetOptions" option-label="label" option-value="value" size="small" :allow-empty="false" aria-label="Transition" />
-            <Carousel :value="photos" :num-visible="1" :num-scroll="1" :transition="preset" circular aria-label="Photographs, with a transition">
+            <Carousel :value="photos" :num-visible="1" :num-scroll="1" :transition="preset" aria-label="Photographs, with a transition">
                 <template #item="{ data }">
                     <figure style="margin: 0">
                         <img :src="`https://picsum.photos/id/${(data as { id: number }).id}/800/400`" :alt="(data as { title: string }).title" style="display: block; width: 100%" />
