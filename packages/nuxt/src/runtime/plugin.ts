@@ -23,6 +23,7 @@ export default defineNuxtPlugin({
             locale: locale ?? undefined,
             unstyled: options.unstyled,
             inputVariant: options.inputVariant,
+            direction: options.direction,
             cssLayer: options.cssLayer
         });
 
@@ -43,6 +44,11 @@ export default defineNuxtPlugin({
 
         const attrs = colorSchemeAttrs(context.theme?.getState().dark ?? false, options.darkModeSelector);
         if (Object.keys(attrs).length) head.push({ htmlAttrs: attrs });
+        // The direction belongs on the document, where the styles' logical
+        // properties read it, and it has to be in the server's HTML: a page
+        // that arrives left to right and turns round on hydration has already
+        // been seen the wrong way round.
+        if (options.direction === 'rtl') head.push({ htmlAttrs: { dir: 'rtl' } });
 
         // `'system'` is the one scheme a server cannot resolve, and it has to be
         // resolved before the first paint or a dark page flashes white.

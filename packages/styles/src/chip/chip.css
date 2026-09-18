@@ -16,7 +16,7 @@
 .vt-chip-image {
     width: var(--vt-chip-image-size);
     height: var(--vt-chip-image-size);
-    margin-left: calc(var(--vt-chip-padding-x) * -0.5);
+    margin-inline-start: calc(var(--vt-chip-padding-x) * -0.5);
     object-fit: cover;
     border-radius: 50%;
 }
@@ -33,7 +33,7 @@
     flex-shrink: 0;
     width: var(--vt-chip-remove-button-size);
     height: var(--vt-chip-remove-button-size);
-    margin-right: calc(var(--vt-chip-padding-x) * -0.4);
+    margin-inline-end: calc(var(--vt-chip-padding-x) * -0.4);
     padding: 0;
     font: inherit;
     color: inherit;

@@ -55,6 +55,20 @@
     stroke-width: var(--vt-icon-stroke-width, 2);
 }
 
+/*
+ * An icon whose drawing means the direction of travel rather than a side turns
+ * round where the page reads right to left: a chevron that means "next" points
+ * the way the reader is going, while `alignLeft` keeps pointing left. Which
+ * icons those are is decided in `@vitral/icons`, and the `mirrored` prop
+ * settles any disagreement. The hook is the `dir` attribute, the same thing the
+ * components measure when they work out which arrow key moves forward, so set
+ * `dir` on the element you mount in rather than only the `direction` property.
+ */
+[dir='rtl'] .vt-icon-mirrored,
+[dir='rtl'].vt-icon-mirrored {
+    transform: scaleX(-1);
+}
+
 /* SVG markup handed in as a string fills the icon box. */
 .vt-icon-markup > svg {
     display: block;

@@ -22,7 +22,7 @@ export { colorSchemeAttrs, colorSchemeScript, parseDarkModeSelector, applyDarkMo
 export type { ColorSchemeScriptOptions, DarkModeTarget } from '@vitral/themes';
 export type { ColorScheme, Palette, Preset, ThemeOptions } from '@vitral/themes';
 export { en, ptBR, FilterMatchMode, FilterService, createDataSource, formatMessage } from '@vitral/core';
-export type { DataSource, LoadOptions, LoadResult, Locale, SortMeta, TreeNode } from '@vitral/core';
+export type { DataSource, Direction, LoadOptions, LoadResult, Locale, SortMeta, TreeNode } from '@vitral/core';
 // Validation: the rules and the schema adapters the Form parts take.
 export { createForm, rules, functionResolver, zodResolver, yupResolver, valibotResolver, superstructResolver, standardSchemaResolver } from '@vitral/forms';
 export type { FieldArrayApi, FieldOptions, FormApi, FormErrors, FormMessages, FormOptions, FormState, Resolver, ResolverResult, Rule, RuleContext, ValidateOn, ValidationResult } from '@vitral/forms';

@@ -4,6 +4,7 @@ import {
     defaultBaseConfig,
     defaultZIndex,
     type BaseConfig,
+    type Direction,
     type EventBus,
     type Locale,
     type StyleRegistry,
@@ -38,6 +39,13 @@ export interface VitralOptions {
     unstyled?: boolean;
     pt?: GlobalPassThrough;
     locale?: Locale;
+    /**
+     * The reading direction, `'ltr'` unless you say otherwise. Set the matching
+     * `dir` on the element you mount in: this is what the library assumes where
+     * there is no layout to measure — a popup teleported to `<body>`, and the
+     * server.
+     */
+    direction?: Direction;
     zIndex?: Partial<ZIndexConfig>;
     inputVariant?: InputVariant;
     cssLayer?: string | false;
@@ -75,6 +83,7 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
         unstyled: options.unstyled ?? false,
         pt: options.pt ?? {},
         locale: options.locale ?? defaultBaseConfig.locale,
+        direction: options.direction ?? defaultBaseConfig.direction,
         zIndex: { ...defaultZIndex, ...options.zIndex },
         inputVariant: options.inputVariant ?? 'outlined',
         cssLayer: options.cssLayer ?? false,

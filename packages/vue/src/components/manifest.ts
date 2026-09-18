@@ -161,6 +161,7 @@ export const composableNames = [
     'useConfirm',
     'useDataSource',
     'useDialog',
+    'useDirection',
     'useEditor',
     'useFocusTrap',
     'useForm',

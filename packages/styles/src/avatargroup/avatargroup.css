@@ -10,5 +10,5 @@
 }
 
 .vt-avatargroup > .vt-avatar + .vt-avatar {
-    margin-left: var(--vt-avatargroup-offset);
+    margin-inline-start: var(--vt-avatargroup-offset);
 }

@@ -1,4 +1,4 @@
-import type { ColorScheme, InputVariant } from '@vitral/vue';
+import type { ColorScheme, Direction, InputVariant } from '@vitral/vue';
 
 // The module's options, plus the two pure things it does with them: write the
 // file the runtime plugin reads, and work out which components to register.
@@ -33,6 +33,12 @@ export interface VitralModuleOptions {
     /** A shipped locale by name, a module that default-exports one, or `false` for the default English. */
     locale: LocaleName | (string & {}) | false;
     inputVariant: InputVariant;
+    /**
+     * The reading direction. It is put on `<html>` as `dir`, so the server
+     * renders the page the right way round and the styles, which are written in
+     * logical properties, follow.
+     */
+    direction: Direction;
     unstyled: boolean;
     /** Prefix for the registered component names: `'Vt'` gives `<VtButton>`, `''` gives `<Button>`. */
     prefix: string;
@@ -50,6 +56,7 @@ export const defaults: VitralModuleOptions = {
     cssLayer: false,
     locale: 'en',
     inputVariant: 'outlined',
+    direction: 'ltr',
     unstyled: false,
     prefix: 'Vt',
     components: true,
@@ -91,6 +98,7 @@ export function optionsTemplate(options: VitralModuleOptions, directives: readon
         darkModeSelector: options.darkModeSelector,
         cssLayer: options.cssLayer,
         inputVariant: options.inputVariant,
+        direction: options.direction,
         unstyled: options.unstyled
     };
 

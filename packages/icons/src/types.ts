@@ -13,6 +13,14 @@ export interface IconDef {
     viewBox?: string;
     /** One of `iconCategories` for the built-in set; free for your own. */
     category?: string;
+    /**
+     * Whether the drawing means the reading direction rather than a side, and
+     * so is flipped horizontally in right-to-left: a chevron that means "next",
+     * not `alignLeft`, which means the left. For the built-in set this is
+     * answered by `mirroredIcons` and only needs setting to disagree with it;
+     * on an icon of your own it is the whole answer. See {@link isMirrored}.
+     */
+    mirrored?: boolean;
     /** English search keywords, beside the name. */
     tags?: readonly string[];
 }

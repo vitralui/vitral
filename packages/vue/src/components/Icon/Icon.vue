@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from '@vitral/icons';
+import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX, isMirrored, type IconDef } from '@vitral/icons';
 import { computed, toRaw, type Component } from 'vue';
 import type { IconProps } from './types';
 
@@ -11,7 +11,10 @@ import type { IconProps } from './types';
 
 defineOptions({ name: 'VtIcon' });
 
-const props = defineProps<IconProps>();
+// `mirrored` has three answers, not two: told to, told not to, and not told,
+// which is the usual one and leaves it to the icon. Vue would otherwise cast an
+// absent boolean prop to `false` and every icon would stop turning round.
+const props = withDefaults(defineProps<IconProps>(), { mirrored: undefined });
 
 const isDef = (value: unknown): value is IconDef => typeof value === 'object' && value !== null && typeof (value as IconDef).body === 'string';
 const isMarkup = (value: string) => /^\s*<svg[\s>]/i.test(value);
@@ -42,7 +45,13 @@ const style = computed(() => {
 });
 
 const a11y = computed(() => (props.label ? { role: 'img', 'aria-label': props.label } : { 'aria-hidden': 'true' as const }));
-const classes = computed(() => ['vt-icon', { 'vt-icon-spin': props.spin }]);
+
+// Which way round the icon goes is left to CSS, keyed off the `dir` the page
+// already carries: nothing here reads the layout, so it is the same on the
+// server and it follows a `dir` changed at runtime without re-rendering.
+// An icon that is not ours cannot be asked, so it mirrors only if told to.
+const mirrored = computed(() => props.mirrored ?? (resolved.value.kind === 'def' && isMirrored(resolved.value.def)));
+const classes = computed(() => ['vt-icon', { 'vt-icon-spin': props.spin, 'vt-icon-mirrored': mirrored.value }]);
 </script>
 
 <template>

@@ -44,10 +44,16 @@ function measure() {
     }
     const outer = root.getBoundingClientRect();
     const inner = tab.getBoundingClientRect();
+    // The indicator is placed from the left of the strip's content, so the
+    // measurement has to be too. Reading right to left the browser reports
+    // `scrollLeft` as 0 at the far right and negative going left, which is the
+    // distance from the other end; this is the same number in both.
+    const scrolled =
+        getComputedStyle(root).direction === 'rtl' ? root.scrollLeft + root.scrollWidth - root.clientWidth : root.scrollLeft;
     box.value =
         orientation.value === 'vertical'
             ? { offset: inner.top - outer.top + root.scrollTop, size: inner.height }
-            : { offset: inner.left - outer.left + root.scrollLeft, size: inner.width };
+            : { offset: inner.left - outer.left + scrolled, size: inner.width };
     if (!animated.value && box.value.size > 0) afterPaint(() => (animated.value = true));
     // Follow the selected tab's own size too: a label that changes, a font that loads.
     if (observer && observed !== tab) {

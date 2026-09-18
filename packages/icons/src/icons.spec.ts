@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { iconCategories } from './categories';
 import * as barrel from './icons/index';
 import { sets } from './icons/all';
+import { isMirrored, mirroredIcons } from './direction';
 import { baseIcons, getIcon, registerIcons, renderSvg } from './runtime';
 import { categories, iconList, icons } from './registry';
 import type { IconDef } from './types';
@@ -327,6 +328,29 @@ describe('the runtime', () => {
         const mine: IconDef = { name: 'mine', body: '<circle cx="12" cy="12" r="4"/>' };
         registerIcons({ mine });
         expect(getIcon('mine')).toBe(mine);
+    });
+
+    it('mirrors only icons that exist, and only ones that mean a direction', () => {
+        for (const name of mirroredIcons) expect(icons, name).toHaveProperty(name);
+        // A side is a side in every language: these point where they say.
+        for (const [name, def] of all.filter(([name]) => ['alignLeft', 'alignRight', 'toggleLeft', 'toggleRight', 'rotateLeft', 'rotateRight', 'play', 'rewind', 'fastForward'].includes(name))) {
+            expect(isMirrored(def), name).toBe(false);
+        }
+        expect(isMirrored(icons.chevronRight!)).toBe(true);
+        // An icon of your own answers for itself, either way.
+        expect(isMirrored({ name: 'mine', body: '<path d="M4 12h16"/>', mirrored: true })).toBe(true);
+        expect(isMirrored({ ...icons.chevronRight!, mirrored: false })).toBe(false);
+    });
+
+    it('flips a mirrored icon inside its own grid when the page reads right to left', () => {
+        const rtl = new DOMParser().parseFromString(renderSvg(icons.chevronRight!, {}, { direction: 'rtl' }), 'image/svg+xml').documentElement;
+        const group = rtl.children[0]!;
+        expect(group.tagName).toBe('g');
+        expect(group.getAttribute('transform')).toBe('translate(24 0) scale(-1 1)');
+        expect(group.children[0]!.getAttribute('d')).toBe(icons.chevronRight!.body.match(/d="([^"]*)"/)![1]);
+        // Left to right is the drawing as it was, and an icon that does not mirror never moves.
+        expect(renderSvg(icons.chevronRight!)).toContain(icons.chevronRight!.body);
+        expect(renderSvg(icons.alignLeft!, {}, { direction: 'rtl' })).toContain(icons.alignLeft!.body);
     });
 
     it('covers every severity with a base icon', () => {

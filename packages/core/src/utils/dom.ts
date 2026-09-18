@@ -34,3 +34,20 @@ export function focus(el: HTMLElement | null | undefined, options: FocusOptions 
 export function getActiveElement(): HTMLElement | null {
     return isClient ? (document.activeElement as HTMLElement | null) : null;
 }
+
+/**
+ * The direction an element is laid out in, which is what its keyboard has to
+ * agree with: in right-to-left, Left is forward. It reads the computed
+ * `direction`, so it sees a `dir` attribute anywhere above the element as well
+ * as a direction set in CSS, and it answers `'ltr'` where there is nothing to
+ * measure — off the document, or on the server.
+ */
+export function directionOf(el: Element | null | undefined): 'ltr' | 'rtl' {
+    if (!isClient || !el) return 'ltr';
+    return getComputedStyle(el).direction === 'rtl' ? 'rtl' : 'ltr';
+}
+
+/** Whether `el` is laid out right to left. The shorthand the keyboard helpers take. */
+export function isRtl(el: Element | null | undefined): boolean {
+    return directionOf(el) === 'rtl';
+}

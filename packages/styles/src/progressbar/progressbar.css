@@ -25,8 +25,10 @@
 .vt-progressbar-indeterminate .vt-progressbar-value {
     position: absolute;
     inset-block: 0;
-    left: 0;
+    inset-inline-start: 0;
     width: 40%;
+    /* The sweep starts where the reading does, so it runs the other way in right-to-left. */
+    --vt-progressbar-sweep: 1;
     animation: vt-progressbar-slide var(--vt-progressbar-animation-duration) cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
@@ -40,13 +42,17 @@
     text-align: end;
 }
 
+[dir='rtl'] .vt-progressbar-indeterminate .vt-progressbar-value {
+    --vt-progressbar-sweep: -1;
+}
+
 @keyframes vt-progressbar-slide {
     from {
-        transform: translateX(-100%);
+        transform: translateX(calc(-100% * var(--vt-progressbar-sweep, 1)));
     }
 
     to {
-        transform: translateX(250%);
+        transform: translateX(calc(250% * var(--vt-progressbar-sweep, 1)));
     }
 }
 

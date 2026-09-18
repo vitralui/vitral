@@ -56,7 +56,7 @@
 .vt-form-summary {
     padding: var(--vt-form-summary-padding);
     border: var(--vt-form-summary-border-width) solid var(--vt-form-summary-border-color);
-    border-left: var(--vt-form-summary-accent-width) solid var(--vt-form-summary-accent-color);
+    border-inline-start: var(--vt-form-summary-accent-width) solid var(--vt-form-summary-accent-color);
     border-radius: var(--vt-form-summary-border-radius);
     background: var(--vt-form-summary-background);
     color: var(--vt-form-summary-color);

@@ -8,5 +8,5 @@ declare module '#build/vitral-options.mjs' {
     export const preset: Preset | null;
     export const locale: Locale | null;
     export const directives: Record<string, Directive>;
-    export const options: Pick<VitralModuleOptions, 'colorScheme' | 'cookie' | 'darkModeSelector' | 'cssLayer' | 'inputVariant' | 'unstyled'>;
+    export const options: Pick<VitralModuleOptions, 'colorScheme' | 'cookie' | 'darkModeSelector' | 'cssLayer' | 'inputVariant' | 'direction' | 'unstyled'>;
 }

@@ -202,7 +202,7 @@
 .vt-datatable-row-selected > td:first-child::before {
     content: '';
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 50%;
     width: 3px;
     height: 1rem;

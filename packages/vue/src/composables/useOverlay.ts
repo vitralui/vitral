@@ -1,4 +1,4 @@
-import { anchorTo, pushLayer, ZIndex, type Placement, type ZIndexConfig } from '@vitral/core';
+import { anchorTo, directionOf, pushLayer, ZIndex, type Placement, type ZIndexConfig } from '@vitral/core';
 import { toValue, watch, type MaybeRefOrGetter, type Ref } from 'vue';
 import { useVitral } from '../config/config';
 
@@ -33,6 +33,15 @@ export function useOverlay(options: UseOverlayOptions): void {
             if (!el) return;
             const cleanups: (() => void)[] = [];
             const anchor = toValue(options.anchor);
+            // The overlay is teleported to <body>, outside whatever `dir` the
+            // application carries, so a right-to-left page would open a popup
+            // that lays out left to right. It takes the direction of what it
+            // belongs to, or the configured one when it belongs to the page
+            // rather than to an anchor (a dialog).
+            if (!el.hasAttribute('dir')) {
+                el.setAttribute('dir', anchor ? directionOf(anchor) : config.direction);
+                cleanups.push(() => el.removeAttribute('dir'));
+            }
             if (options.position !== false && anchor) {
                 cleanups.push(
                     anchorTo(anchor, el, {

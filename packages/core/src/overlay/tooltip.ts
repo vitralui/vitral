@@ -1,4 +1,4 @@
-import { isClient } from '../utils/dom';
+import { directionOf, isClient } from '../utils/dom';
 import { ZIndex } from '../utils/zindex';
 import { anchorTo, type Placement } from './position';
 import { overlayContainerOf } from './scope';
@@ -107,6 +107,9 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
         el = document.createElement('div');
         textEl = document.createElement('div');
         el.appendChild(textEl);
+        // Built in <body>, away from the application's `dir`: it reads the way
+        // the element it describes does.
+        el.dir = directionOf(host);
         paint();
         el.addEventListener('mouseenter', onTipEnter);
         el.addEventListener('mouseleave', onLeave);

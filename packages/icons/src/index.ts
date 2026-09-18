@@ -5,6 +5,7 @@
  */
 export * from './icons/index';
 export { iconCategories, type IconCategoryId } from './categories';
-export { baseIcons, getIcon, registerIcons, renderSvg } from './runtime';
+export { baseIcons, getIcon, registerIcons, renderSvg, type RenderSvgOptions } from './runtime';
+export { isMirrored, mirroredIcons } from './direction';
 export { ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from './types';
 export type { IconName } from './registry';

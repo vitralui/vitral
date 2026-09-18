@@ -3,6 +3,7 @@ export * from './useCollapseTransition';
 export * from './useConfirm';
 export * from './useDataSource';
 export * from './useDialog';
+export * from './useDirection';
 export * from './useEditor';
 export * from './useForm';
 export * from './useFormField';

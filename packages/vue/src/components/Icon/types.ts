@@ -13,5 +13,12 @@ export interface IconProps {
     strokeWidth?: string | number;
     /** Gives the icon a name of its own. Without one it is decorative and hidden from assistive technology. */
     label?: string;
+    /**
+     * Whether to flip the icon horizontally where the page reads right to left.
+     * Our own icons already know (a chevron that means "next" turns round, an
+     * `alignLeft` does not); set it for an icon from somewhere else, or to
+     * disagree about one of ours.
+     */
+    mirrored?: boolean;
     spin?: boolean;
 }

@@ -1,6 +1,6 @@
 .vt-scrolltop {
     position: fixed;
-    right: var(--vt-scrolltop-offset);
+    inset-inline-end: var(--vt-scrolltop-offset);
     bottom: var(--vt-scrolltop-offset);
     z-index: 1;
     width: var(--vt-scrolltop-size);
@@ -13,7 +13,7 @@
     position: sticky;
     display: flex;
     margin-inline-start: auto;
-    right: auto;
+    inset-inline-end: auto;
 }
 
 .vt-scrolltop-enter-active,

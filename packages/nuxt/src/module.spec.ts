@@ -20,6 +20,7 @@ describe('the generated options module', () => {
             darkModeSelector: '.vt-dark',
             cssLayer: false,
             inputVariant: 'outlined',
+            direction: 'ltr',
             unstyled: false
         });
     });

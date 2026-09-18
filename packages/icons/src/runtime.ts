@@ -1,3 +1,4 @@
+import { isMirrored } from './direction';
 import {
     arrowDown, arrowLeft, arrowRight, arrowUp, bell, calendar, check, chevronDown, chevronLeft, chevronRight, chevronsDown,
     chevronsLeft, chevronsRight, chevronsUp, chevronUp, circle, clock, copy, download, error, externalLink, eye, eyeOff, file,
@@ -39,8 +40,23 @@ export function getIcon(name: string): IconDef | undefined {
     return registry().get(name);
 }
 
+export interface RenderSvgOptions {
+    /**
+     * The direction the icon is read in. In `'rtl'` a mirrored icon (see
+     * {@link isMirrored}) is flipped about the middle of its own grid, so it
+     * points the way the reader is going.
+     */
+    direction?: 'ltr' | 'rtl';
+}
+
+/** Flips the drawing inside its viewBox, rather than the element, so any SVG reader shows it mirrored. */
+function flip(body: string, viewBox: string): string {
+    const [minX = 0, , width = 24] = viewBox.trim().split(/[\s,]+/).map(Number);
+    return `<g transform="translate(${minX * 2 + width} 0) scale(-1 1)">${body}</g>`;
+}
+
 /** The icon as a standalone SVG string, for code that is not using a component. */
-export function renderSvg(def: IconDef, attrs: Record<string, string> = {}): string {
+export function renderSvg(def: IconDef, attrs: Record<string, string> = {}, options: RenderSvgOptions = {}): string {
     const all: Record<string, string> = {
         xmlns: 'http://www.w3.org/2000/svg',
         viewBox: def.viewBox ?? ICON_VIEWBOX,
@@ -55,5 +71,7 @@ export function renderSvg(def: IconDef, attrs: Record<string, string> = {}): str
     const rendered = Object.entries(all)
         .map(([k, v]) => `${k}="${v.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`)
         .join(' ');
-    return `<svg ${rendered}>${def.body}</svg>`;
+    const viewBox = all.viewBox ?? ICON_VIEWBOX;
+    const body = options.direction === 'rtl' && isMirrored(def) ? flip(def.body, viewBox) : def.body;
+    return `<svg ${rendered}>${body}</svg>`;
 }

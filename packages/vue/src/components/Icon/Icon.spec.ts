@@ -20,6 +20,24 @@ const Wrapped = () => h('svg', { 'data-lib': 'wrapped', viewBox: '0 0 512 512' }
 const svg = () => document.querySelector('.vt-icon')!;
 
 describe('Icon', () => {
+    it('marks the icons that turn round in right-to-left, and takes an answer of its own', () => {
+        // The flip itself is CSS keyed off `dir`, so nothing here reads the
+        // layout: the class is the same on the server as in the browser.
+        mountVt(Icon, { props: { icon: 'chevronRight' } });
+        expect(svg().classList.contains('vt-icon-mirrored')).toBe(true);
+        document.body.innerHTML = '';
+        mountVt(Icon, { props: { icon: 'search' } });
+        expect(svg().classList.contains('vt-icon-mirrored')).toBe(false);
+        document.body.innerHTML = '';
+        mountVt(Icon, { props: { icon: 'chevronRight', mirrored: false } });
+        expect(svg().classList.contains('vt-icon-mirrored')).toBe(false);
+        document.body.innerHTML = '';
+        // An icon from somewhere else cannot be asked, so it mirrors only when told.
+        mountVt(Icon, { props: { icon: markRaw(LucideLike), mirrored: true } });
+        expect(svg().classList.contains('vt-icon-mirrored')).toBe(true);
+    });
+
+
     it('draws a registered name and an imported definition as our own SVG', () => {
         mountVt(Icon, { props: { icon: 'search' } });
         expect(svg().tagName.toLowerCase()).toBe('svg');
