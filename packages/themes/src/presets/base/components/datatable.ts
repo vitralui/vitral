@@ -30,6 +30,25 @@ export default {
     filterCell: {
         padding: '0.375rem 0.75rem'
     },
+    // The handle on a column's edge, the shadow the pinned block casts, and the
+    // line a dragged column would land on.
+    resizer: {
+        width: '10px',
+        inset: '6px',
+        color: '{primary.color}'
+    },
+    pinned: {
+        shadowLeft: '2px 0 4px -2px rgb(0 0 0 / 0.18)',
+        shadowRight: '-2px 0 4px -2px rgb(0 0 0 / 0.18)'
+    },
+    drop: {
+        width: '2px',
+        color: '{primary.color}'
+    },
+    chooserButton: {
+        padding: '0.25rem 0.625rem',
+        fontSize: '0.8125rem'
+    },
     row: {
         background: 'transparent',
         hoverBackground: '{list.option.focusBackground}',

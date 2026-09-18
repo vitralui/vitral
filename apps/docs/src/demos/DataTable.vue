@@ -5,12 +5,12 @@ export const meta: DemoMeta = {
     title: 'DataTable',
     category: 'Data',
     description:
-        'Rows and columns: `<DataTable :value><Column field header sortable /></DataTable>`. Sorting (Ctrl-click adds a column), a filter row, a global search, pages, selection and loading, all computed by @vitral/core, or handed to a server (`lazy`) or a data source. A real <table> with scoped headers; sort buttons, checkboxes and filters are native controls in the tab order.'
+        'Rows and columns: `<DataTable :value><Column field header sortable /></DataTable>`. Sorting (Ctrl-click adds a column), a filter row, a global search, pages, selection and loading, all computed by @vitral/core, or handed to a server (`lazy`) or a data source. The reader arranges the columns themselves — width, order, pinned to an edge, shown or hidden — and what they did is one object the application can store. A real <table> with scoped headers; sort buttons, checkboxes, filters and the resize handles are native controls in the tab order.'
 };
 </script>
 
 <script setup lang="ts">
-import { Column, createDataSource, DataTable, Icon, InputText, Select, useVitral, type LoadOptions } from '@vitral/vue';
+import { Column, createDataSource, DataTable, Icon, InputText, Select, useVitral, type ColumnLayoutLike, type LoadOptions } from '@vitral/vue';
 import { queryData } from '@vitral/core';
 import { computed, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -53,6 +53,19 @@ const places: [string, string][] = [
     ['Málaga', 'Spain']
 ];
 const statuses: Status[] = ['Active', 'Active', 'Active', 'Away', 'Offline', 'Blocked'];
+
+// What the reader has done to the columns: an application would store this.
+const layout = ref<ColumnLayoutLike | null>(null);
+const layoutSummary = computed(() => {
+    const it = layout.value;
+    if (!it) return 'Nothing changed yet.';
+    const parts = [
+        it.order?.length ? `order: ${it.order.join(', ')}` : '',
+        it.hidden?.length ? `hidden: ${it.hidden.join(', ')}` : '',
+        Object.keys(it.widths ?? {}).length ? `${Object.keys(it.widths!).length} widths` : ''
+    ].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'Nothing changed yet.';
+});
 
 const people: Person[] = Array.from({ length: 64 }, (_, i) => {
     const [city, country] = pick(places);
@@ -181,6 +194,41 @@ const remoteFilters = ref({ global: { value: null as string | null, matchMode: '
                 <span>{{ chosen ? `${chosen.name}, ${chosen.city}` : 'No one chosen' }}</span>
             </template>
         </DataTable>
+    </DemoSection>
+
+    <DemoSection
+        title="Columns the reader arranges"
+        description="Drag a header to move a column, or hold Ctrl (⌘) and press an arrow. Drag the edge of a header to set its width — the handle is in the tab order, so the arrow keys do it too, and Shift makes bigger steps. Name and Balance are pinned to the edges and stay while the rest scrolls sideways. The button opens the list of columns. Everything the reader does is one object, `columnLayout`, which an application can store and hand back."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <DataTable
+                v-model:column-layout="layout"
+                :value="people.slice(0, 8)"
+                data-key="id"
+                aria-label="People, arranged"
+                resizable-columns
+                reorderable-columns
+                column-toggle
+                scrollable
+                size="small"
+                show-gridlines
+                class="demo-table"
+                style="max-width: 100%"
+            >
+                <Column field="name" header="Name" sortable pinned="left" :width="180" />
+                <Column field="country" header="Country" sortable :width="140" />
+                <Column field="city" header="City" sortable :width="160" />
+                <Column field="role" header="Role" :width="150" />
+                <Column field="status" header="Status" :width="120" />
+                <Column field="balance" header="Balance" align="right" pinned="right" :width="130">
+                    <template #body="{ data }">{{ money.format(data.balance) }}</template>
+                </Column>
+            </DataTable>
+            <div class="demo-table-bar">
+                <button type="button" class="copy-btn" @click="layout = null">Reset the layout</button>
+                <span class="demo-hint">{{ layoutSummary }}</span>
+            </div>
+        </div>
     </DemoSection>
 
     <DemoSection title="From a data source" description="The rows come from `createDataSource({ load })`, a stand-in for a server that answers in 450 ms. The table asks it for one page at a time with the sort and the search; a slow answer that arrives after a newer one is thrown away.">

@@ -345,6 +345,15 @@ export interface Locale {
         maximum: string;
         /** Names a splitter's gutter, the separator that resizes the panels on either side. */
         resize: string;
+        /** Names the handle that sets a table column's width. `{column}` */
+        resizeColumn: string;
+        /** Names the button that opens the list of a table's columns. */
+        chooseColumns: string;
+        /** The list itself. */
+        columns: string;
+        /** Sticks a column to an edge, or lets it go. `{column}` */
+        pinColumn: string;
+        unpinColumn: string;
         /** The reorder buttons of an order list or a pick list. */
         moveUp: string;
         moveTop: string;
@@ -721,6 +730,11 @@ export const en: Locale = {
         minimum: 'Minimum',
         maximum: 'Maximum',
         resize: 'Resize',
+        resizeColumn: 'Resize {column}',
+        chooseColumns: 'Columns',
+        columns: 'Columns',
+        pinColumn: 'Pin {column}',
+        unpinColumn: 'Unpin {column}',
         moveUp: 'Move up',
         moveTop: 'Move to top',
         moveDown: 'Move down',
@@ -1045,6 +1059,11 @@ export const ptBR: Locale = {
         minimum: 'Mínimo',
         maximum: 'Máximo',
         resize: 'Redimensionar',
+        resizeColumn: 'Redimensionar {column}',
+        chooseColumns: 'Colunas',
+        columns: 'Colunas',
+        pinColumn: 'Fixar {column}',
+        unpinColumn: 'Desafixar {column}',
         moveUp: 'Mover para cima',
         moveTop: 'Mover para o início',
         moveDown: 'Mover para baixo',

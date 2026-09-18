@@ -4,6 +4,7 @@ import { defineComponent, h, nextTick, ref, type VNode } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
 import Column from './Column.vue';
+import type { ColumnLayoutLike } from './types';
 import DataTable from './DataTable.vue';
 
 interface Person {
@@ -282,6 +283,116 @@ describe('DataTable', () => {
         await expectNoA11yViolations();
         document.body.innerHTML = '';
         mountTable({ value: [] });
+        await expectNoA11yViolations();
+    });
+});
+
+describe('DataTable columns', () => {
+    /** A table whose layout the test owns, the way an application would. */
+    function mountLayout(props: Record<string, unknown> = {}, columns: () => VNode[] = defaultColumns) {
+        const layout = ref<ColumnLayoutLike | null | undefined>((props.columnLayout as ColumnLayoutLike) ?? null);
+        const events: { name: string; key: string }[] = [];
+        mountVt(
+            defineComponent(
+                () => () =>
+                    h(
+                        DataTable,
+                        {
+                            'aria-label': 'People',
+                            value: people,
+                            dataKey: 'id',
+                            ...props,
+                            columnLayout: layout.value,
+                            'onUpdate:columnLayout': (v: ColumnLayoutLike | null | undefined) => (layout.value = v),
+                            'onColumn-resize': (e: { key: string }) => events.push({ name: 'resize', key: e.key }),
+                            'onColumn-reorder': (e: { key: string }) => events.push({ name: 'reorder', key: e.key }),
+                            'onColumn-toggle': (e: { key: string }) => events.push({ name: 'toggle', key: e.key }),
+                            'onColumn-pin': (e: { key: string }) => events.push({ name: 'pin', key: e.key })
+                        },
+                        { default: columns }
+                    )
+            )
+        );
+        const headers = () => Array.from(document.querySelectorAll<HTMLTableCellElement>('thead tr:first-child th'));
+        const headings = () => headers().map((th) => th.textContent?.trim().split('\n')[0] ?? '');
+        const resizer = (name: string) => headers().find((th) => th.textContent?.includes(name))!.querySelector<HTMLElement>('[role="separator"]')!;
+        return { layout, events, headers, headings, resizer };
+    }
+
+    it('draws the columns in the order the layout gives, and leaves out what it hides', async () => {
+        const { headings } = mountLayout({ columnLayout: { order: ['age', 'name'], hidden: ['country'] } });
+        await nextTick();
+        expect(headings()).toEqual(['Age', 'Name', 'City']);
+    });
+
+    it('offers a resize handle that names its column and answers the keyboard', async () => {
+        const { layout, events, resizer } = mountLayout({ resizableColumns: true });
+        await nextTick();
+        const handle = resizer('City');
+        expect(handle.getAttribute('aria-label')).toBe('Resize City');
+        expect(handle.getAttribute('aria-orientation')).toBe('vertical');
+        await press(handle, 'ArrowRight');
+        expect(events).toEqual([{ name: 'resize', key: 'city' }]);
+        // The width is written into the layout, which is what an application stores.
+        expect(layout.value?.widths).toBeTruthy();
+        const widths = layout.value!.widths as Record<string, number>;
+        expect(widths.city).toBeGreaterThan(0);
+    });
+
+    it('takes the width from the next column so the table keeps its own', async () => {
+        const { layout, resizer } = mountLayout({ resizableColumns: true, columnLayout: { widths: { name: 200, city: 200, country: 200, age: 200 } } });
+        await nextTick();
+        await press(resizer('Name'), 'ArrowRight');
+        const widths = layout.value!.widths as Record<string, number>;
+        expect(widths.name + widths.city).toBe(400);
+        expect(widths.name).toBe(216);
+    });
+
+    it('moves a column with Ctrl and an arrow, and says where it went', async () => {
+        const { layout, events, headings, headers } = mountLayout({ reorderableColumns: true });
+        await nextTick();
+        const city = headers().find((th) => th.textContent?.includes('City'))!;
+        await press(city, 'ArrowLeft', { ctrlKey: true });
+        expect(headings()).toEqual(['City', 'Name', 'Country', 'Age']);
+        expect(layout.value?.order).toEqual(['city', 'name', 'country', 'age']);
+        expect(events).toEqual([{ name: 'reorder', key: 'city' }]);
+        // At the edge there is nowhere to go.
+        const first = headers()[0]!;
+        await press(first, 'ArrowLeft', { ctrlKey: true });
+        expect(headings()).toEqual(['City', 'Name', 'Country', 'Age']);
+    });
+
+    it('sticks a pinned column to its edge, with the ones beside it stacked', async () => {
+        const { headers } = mountLayout({ columnLayout: { widths: { name: 150, city: 120 }, pinned: { name: 'left', city: 'left', age: 'right' } } });
+        await nextTick();
+        const [name, city] = headers();
+        expect(name!.style.position).toBe('sticky');
+        // The leading and trailing edge, not the left and the right: a
+        // right-to-left table pins the same column to the other side.
+        expect(name!.style.getPropertyValue('inset-inline-start')).toBe('0px');
+        expect(city!.style.getPropertyValue('inset-inline-start')).toBe('150px');
+        expect(headers().find((th) => th.textContent?.includes('Age'))!.style.getPropertyValue('inset-inline-end')).toBe('0px');
+        // The pinned ones are at the edges whatever order they were declared in.
+        expect(headers().map((th) => th.textContent?.trim().split('\n')[0])).toEqual(['Name', 'City', 'Country', 'Age']);
+    });
+
+    it('opens a list of columns and shows or hides one from it', async () => {
+        const { layout, events, headings } = mountLayout({ columnToggle: true });
+        await nextTick();
+        const button = document.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        expect(button.textContent).toContain('Columns');
+        button.click();
+        await nextTick();
+        await new Promise((r) => setTimeout(r, 0));
+        const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('.vt-datatable-chooser-checkbox'));
+        expect(boxes).toHaveLength(4);
+        expect(boxes.every((box) => box.checked)).toBe(true);
+        boxes[1]!.checked = false;
+        boxes[1]!.dispatchEvent(new Event('change', { bubbles: true }));
+        await nextTick();
+        expect(layout.value?.hidden).toEqual(['city']);
+        expect(headings()).toEqual(['Name', 'Country', 'Age']);
+        expect(events).toEqual([{ name: 'toggle', key: 'city' }]);
         await expectNoA11yViolations();
     });
 });

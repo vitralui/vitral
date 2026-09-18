@@ -20,12 +20,13 @@ import {
     type DataSource
 } from '@vitral/core';
 import { datatableStyle } from '@vitral/styles';
-import { camelize, computed, Fragment, mergeProps, onBeforeUnmount, onMounted, ref, shallowRef, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
+import { camelize, computed, Fragment, mergeProps, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { useDataSource } from '../../composables/useDataSource';
 import Icon from '../Icon/Icon.vue';
 import InputText from '../InputText/InputText.vue';
 import Paginator from '../Paginator/Paginator.vue';
+import Popover from '../Popover/Popover.vue';
 import Column from './Column.vue';
 import type {
     ColumnLayoutLike,
@@ -99,6 +100,11 @@ interface ColumnDef {
     selectionMode?: 'single' | 'multiple';
     align?: 'left' | 'center' | 'right';
     hidden: boolean;
+    resizable?: boolean;
+    minWidth?: number;
+    width?: number;
+    pinned?: 'left' | 'right';
+    toggleable: boolean;
     filterPlaceholder?: string;
     filterMatchMode?: string;
     headerClass?: unknown;
@@ -128,6 +134,11 @@ function toColumn(vnode: VNode, index: number): ColumnDef {
         selectionMode: p.selectionMode as ColumnDef['selectionMode'],
         align: p.align as ColumnDef['align'],
         hidden: truthy(p.hidden),
+        resizable: p.resizable === undefined ? undefined : truthy(p.resizable),
+        minWidth: p.minWidth === undefined ? undefined : Number(p.minWidth),
+        width: p.width === undefined ? undefined : Number(p.width),
+        pinned: p.pinned as ColumnDef['pinned'],
+        toggleable: p.toggleable === undefined ? !p.selectionMode : truthy(p.toggleable),
         filterPlaceholder: p.filterPlaceholder as string | undefined,
         filterMatchMode: p.filterMatchMode as string | undefined,
         headerClass: p.headerClass,
@@ -155,11 +166,38 @@ function collect(nodes: unknown, out: ColumnDef[]) {
 
 // Read while rendering (a computed first read by the template), so what the
 // slot reads, a v-if or a bound header, is tracked like any other dependency.
-const columns = computed(() => {
+/** Every column the slot declared, in the order it declared them. */
+const declared = computed(() => {
     const out: ColumnDef[] = [];
     collect(slots.default?.(), out);
     return out.filter((c) => !c.hidden);
 });
+
+/*
+ * The layout the table draws from: what the reader has changed, over what the
+ * columns themselves asked for. A column's own `width` and `pinned` are the
+ * starting point, so a table is laid out as written until someone moves
+ * something.
+ */
+const layout = computed<ColumnLayout>(() => {
+    const given = columnLayout.value ?? {};
+    const widths = { ...Object.fromEntries(declared.value.filter((c) => c.width !== undefined).map((c) => [c.key, c.width!])), ...given.widths };
+    const pinned = { ...Object.fromEntries(declared.value.filter((c) => c.pinned).map((c) => [c.key, c.pinned!])), ...given.pinned };
+    return { order: given.order, hidden: given.hidden ?? [], widths, pinned };
+});
+
+const columns = computed(() => {
+    const byKey = new Map(declared.value.map((c) => [c.key, c]));
+    return orderColumns(
+        declared.value.map((c) => c.key),
+        layout.value
+    )
+        .map((key) => byKey.get(key))
+        .filter((c): c is ColumnDef => !!c);
+});
+
+/** What the reader can put back: the columns the layout is hiding. */
+const hiddenColumns = computed(() => declared.value.filter((c) => (layout.value.hidden ?? []).includes(c.key)));
 
 const headerText = (col: ColumnDef) => col.header ?? col.field ?? '';
 const display = (value: unknown) => (value === null || value === undefined ? '' : value instanceof Date ? value.toLocaleDateString(locale.value.code) : String(value));
@@ -378,10 +416,182 @@ const rootState = computed(() => ({
 }));
 const containerStyle = computed(() => (props.scrollable && props.scrollHeight && props.scrollHeight !== 'flex' ? { maxHeight: props.scrollHeight } : undefined));
 const hasFooter = computed(() => columns.value.some((c) => c.footer !== undefined || c.slots.footer));
+
+// ---- the reader's own column layout ---------------------------------------------
+
+const headRowRef = ref<HTMLTableRowElement | null>(null);
+/** What each column measures right now, for arithmetic that needs a width the layout has not got. */
+function measured(): Record<string, number> {
+    const cells = Array.from(headRowRef.value?.children ?? []) as HTMLElement[];
+    return Object.fromEntries(columns.value.map((col, i) => [col.key, Math.round(cells[i]?.getBoundingClientRect().width ?? 0)]));
+}
+
+const write = (next: ColumnLayout) => (columnLayout.value = next as ColumnLayoutLike);
+const sticky = computed(() => stickyOffsets(columns.value.map((c) => c.key), layout.value, {}, 0));
+const canResize = (col: ColumnDef) => !!props.resizableColumns && col.resizable !== false;
+const canReorder = (col: ColumnDef) => !!props.reorderableColumns && !col.selectionMode;
+
+/** A column's width, from the layout; a pinned column always has one, since it is what the next one stands on. */
+const widthOf = (col: ColumnDef) => layout.value.widths?.[col.key];
+
+// ---- resizing
+
+let drag: { key: string; next?: string; from: number; start: Record<string, number> } | null = null;
+
+function onResizeStart(col: ColumnDef, event: PointerEvent) {
+    const index = columns.value.indexOf(col);
+    const start = measured();
+    drag = { key: col.key, next: columns.value[index + 1]?.key, from: event.clientX, start };
+    // The widths every column measures become the layout's, so the ones that
+    // were laid out by the table do not jump when one of them is given a size.
+    write({ ...layout.value, widths: { ...start, ...layout.value.widths } });
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    event.preventDefault();
+}
+
+function onResizeMove(event: PointerEvent) {
+    if (!drag) return;
+    const rtl = getComputedStyle(event.currentTarget as Element).direction === 'rtl';
+    const delta = (event.clientX - drag.from) * (rtl ? -1 : 1);
+    applyResize(drag.key, delta, drag.next, drag.start, event);
+    drag = { ...drag, from: event.clientX };
+}
+
+function onResizeEnd(event: PointerEvent) {
+    if (!drag) return;
+    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+    drag = null;
+}
+
+function applyResize(key: string, delta: number, next: string | undefined, start: Record<string, number>, event: Event) {
+    if (!delta) return;
+    const col = columns.value.find((c) => c.key === key);
+    const next_ = props.columnResizeMode === 'fit' ? next : undefined;
+    const layoutNext = resizeColumn(layout.value, key, delta, { min: col?.minWidth, mode: props.columnResizeMode, next: next_, measured: start });
+    write(layoutNext);
+    emit('column-resize', { originalEvent: event, key, width: layoutNext.widths?.[key] ?? 0, layout: layoutNext });
+}
+
+/** The keyboard resizes in steps, as the splitter's gutter does. */
+function onResizeKeydown(col: ColumnDef, event: KeyboardEvent) {
+    const step = event.shiftKey ? 48 : 16;
+    const rtl = getComputedStyle(event.currentTarget as Element).direction === 'rtl';
+    const delta = event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0;
+    if (!delta) return;
+    event.preventDefault();
+    const index = columns.value.indexOf(col);
+    applyResize(col.key, delta * (rtl ? -1 : 1), columns.value[index + 1]?.key, measured(), event);
+}
+
+// ---- moving
+
+const dragging = ref<string | null>(null);
+const dropOn = ref<string | null>(null);
+
+function onColumnDragStart(col: ColumnDef, event: DragEvent) {
+    if (!canReorder(col)) return;
+    dragging.value = col.key;
+    event.dataTransfer?.setData('text/plain', col.key);
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+}
+
+function onColumnDragOver(event: DragEvent) {
+    if (!dragging.value) return;
+    event.preventDefault();
+    const cells = Array.from(headRowRef.value?.children ?? []) as HTMLElement[];
+    const edges = columns.value.map((col, i) => {
+        const rect = cells[i]?.getBoundingClientRect();
+        return { key: col.key, left: rect?.left ?? 0, right: rect?.right ?? 0 };
+    });
+    dropOn.value = dropTarget(edges, event.clientX);
+}
+
+function onColumnDrop(event: DragEvent) {
+    const key = dragging.value;
+    dragging.value = null;
+    const before = dropOn.value;
+    dropOn.value = null;
+    if (!key) return;
+    event.preventDefault();
+    move(key, before, event);
+}
+
+function move(key: string, before: string | null, event: Event) {
+    const keys = declared.value.map((c) => c.key);
+    const next = moveColumn(layout.value, keys, key, before);
+    if (!next.order) return;
+    write(next);
+    emit('column-reorder', { originalEvent: event, key, order: next.order, layout: next });
+}
+
+/** Ctrl (or Cmd) and an arrow moves the column the header belongs to. */
+function onHeaderKeydown(col: ColumnDef, event: KeyboardEvent) {
+    if (!canReorder(col) || !(event.ctrlKey || event.metaKey)) return;
+    const rtl = getComputedStyle(event.currentTarget as Element).direction === 'rtl';
+    const back = event.key === (rtl ? 'ArrowRight' : 'ArrowLeft');
+    const forward = event.key === (rtl ? 'ArrowLeft' : 'ArrowRight');
+    if (!back && !forward) return;
+    event.preventDefault();
+    const order = columns.value.map((c) => c.key);
+    const at = order.indexOf(col.key);
+    const target = back ? order[at - 1] : order[at + 2];
+    if (back && at === 0) return;
+    if (forward && at >= order.length - 1) return;
+    move(col.key, target ?? null, event);
+    // The header keeps the keyboard: it moved, so the button moved with it.
+    nextTick(() => (headRowRef.value?.querySelector(`[data-column="${CSS.escape(col.key)}"] button`) as HTMLElement | null)?.focus());
+}
+
+// ---- pinning and hiding
+
+function setPinned(col: ColumnDef, side: 'left' | 'right' | null, event: Event) {
+    const widths = { ...measured(), ...layout.value.widths };
+    const next = pinColumn({ ...layout.value, widths }, col.key, side);
+    write(next);
+    emit('column-pin', { originalEvent: event, key: col.key, side, layout: next });
+}
+
+function setVisible(col: ColumnDef, visible: boolean, event: Event) {
+    const next = toggleColumn(layout.value, col.key, visible);
+    write(next);
+    emit('column-toggle', { originalEvent: event, key: col.key, visible, layout: next });
+}
+
+const chooserRef = ref<InstanceType<typeof Popover> | null>(null);
+const chooserId = `${id}-columns`;
+/** Every column the reader may show or hide, in the order they were declared. */
+const toggleable = computed(() => declared.value.filter((c) => c.toggleable));
+const isShown = (col: ColumnDef) => !(layout.value.hidden ?? []).includes(col.key);
+/*
+ * A pinned column stands still while the rest scrolls, and the offsets say
+ * where. `left` and `right` are read as the leading and trailing edge, which is
+ * what they are in the order the columns are drawn in — so in a right-to-left
+ * table a left-pinned column sticks to the right, where it is also drawn first.
+ */
+const stickyStyle = (col: ColumnDef): Record<string, string> | undefined => {
+    const at = sticky.value[col.key];
+    if (!at) return undefined;
+    return { position: 'sticky', [at.side === 'left' ? 'insetInlineStart' : 'insetInlineEnd']: `${at.offset}px`, zIndex: '1' };
+};
+const columnStyle = (col: ColumnDef): Record<string, unknown> => {
+    const width = widthOf(col);
+    return { ...(width ? { width: `${width}px`, minWidth: `${width}px` } : {}), ...stickyStyle(col) };
+};
+const pinnedState = (col: ColumnDef) => ({ pinned: sticky.value[col.key]?.side, pinnedEdge: sticky.value[col.key]?.last });
+
 const headerAttrs = (col: ColumnDef) =>
-    mergeProps(part('headerCell', { sortable: col.sortable, sorted: sortIndex(col) >= 0, align: col.align }), { class: col.headerClass, style: col.headerStyle } as Record<string, unknown>);
+    mergeProps(
+        part('headerCell', { sortable: col.sortable, sorted: sortIndex(col) >= 0, align: col.align, ...pinnedState(col), dropping: dropOn.value === col.key, dragging: dragging.value === col.key }),
+        { 'data-column': col.key, style: columnStyle(col) },
+        { class: col.headerClass, style: col.headerStyle } as Record<string, unknown>
+    );
 const cellAttrs = (col: ColumnDef) =>
-    mergeProps(part('bodyCell', { align: col.align }), col.selectionMode ? part('selectionCell') : {}, { class: col.bodyClass, style: col.bodyStyle } as Record<string, unknown>);
+    mergeProps(
+        part('bodyCell', { align: col.align, ...pinnedState(col) }),
+        { style: stickyStyle(col) },
+        col.selectionMode ? part('selectionCell') : {},
+        { class: col.bodyClass, style: col.bodyStyle } as Record<string, unknown>
+    );
 const rowAttrs = (row: unknown) =>
     mergeProps(part('row', { selectable: rowSelectable.value, selected: isRowSelected(row) }), { class: props.rowClass?.(row) } as Record<string, unknown>);
 const paginatorAttrs = (position: 'top' | 'bottom') => ({
@@ -399,7 +609,31 @@ defineExpose({ reload: () => source.reload() });
 
 <template>
     <div v-bind="mergeProps(rootAttrs, part('root', rootState))">
-        <div v-if="$slots.header" v-bind="part('header')"><slot name="header" /></div>
+        <div v-if="$slots.header || columnToggle" v-bind="part('header')">
+            <slot name="header" />
+            <template v-if="columnToggle">
+                <button type="button" v-bind="part('chooserButton')" :aria-controls="chooserId" @click="chooserRef?.toggle($event)">
+                    <Icon icon="sliders" />
+                    <span>{{ locale.aria.chooseColumns }}</span>
+                </button>
+                <Popover :id="chooserId" ref="chooserRef" :aria-label="locale.aria.columns">
+                    <ul v-bind="part('chooserList')">
+                        <li v-for="col in toggleable" :key="col.key" v-bind="part('chooserItem')">
+                            <label v-bind="part('chooserLabel')">
+                                <input
+                                    type="checkbox"
+                                    :checked="isShown(col)"
+                                    :disabled="isShown(col) && columns.filter((c) => c.toggleable).length === 1"
+                                    v-bind="part('chooserCheckbox')"
+                                    @change="setVisible(col, ($event.target as HTMLInputElement).checked, $event)"
+                                />
+                                <span>{{ headerText(col) }}</span>
+                            </label>
+                        </li>
+                    </ul>
+                </Popover>
+            </template>
+        </div>
         <Paginator v-if="paginator && paginatorPosition === 'top'" v-model:first="first" v-model:rows="rows" v-bind="paginatorAttrs('top')" @page="emit('page', $event)">
             <template v-if="$slots.paginatorstart" #start="s"><slot name="paginatorstart" v-bind="s" /></template>
             <template v-if="$slots.paginatorend" #end="s"><slot name="paginatorend" v-bind="s" /></template>
@@ -408,8 +642,18 @@ defineExpose({ reload: () => source.reload() });
             <table v-bind="mergeProps(tableAttrs, part('table'))" :style="tableStyle" :aria-busy="busy ? 'true' : undefined">
                 <caption v-if="caption" v-bind="part(showCaption ? 'caption' : 'hiddenCaption')">{{ caption }}</caption>
                 <thead v-bind="part('thead')">
-                    <tr v-bind="part('headerRow')">
-                        <th v-for="col in columns" :key="col.key" scope="col" v-bind="headerAttrs(col)" :aria-sort="ariaSort(col)">
+                    <tr ref="headRowRef" v-bind="part('headerRow')" @dragover="onColumnDragOver" @drop="onColumnDrop">
+                        <th
+                            v-for="col in columns"
+                            :key="col.key"
+                            scope="col"
+                            v-bind="headerAttrs(col)"
+                            :aria-sort="ariaSort(col)"
+                            :draggable="canReorder(col) || undefined"
+                            @dragstart="onColumnDragStart(col, $event)"
+                            @dragend="dragging = null"
+                            @keydown="onHeaderKeydown(col, $event)"
+                        >
                             <span v-if="col.selectionMode === 'multiple'" v-bind="part('checkbox')">
                                 <input
                                     type="checkbox"
@@ -436,10 +680,24 @@ defineExpose({ reload: () => source.reload() });
                                 <VNodes v-if="col.slots.header" :vnodes="col.slots.header({ column: col.props })" />
                                 <template v-else>{{ headerText(col) }}</template>
                             </template>
+                            <span
+                                v-if="canResize(col)"
+                                role="separator"
+                                tabindex="0"
+                                aria-orientation="vertical"
+                                :aria-label="formatMessage(locale.aria.resizeColumn, { column: headerText(col) })"
+                                v-bind="part('resizer')"
+                                @pointerdown="onResizeStart(col, $event)"
+                                @pointermove="onResizeMove"
+                                @pointerup="onResizeEnd"
+                                @pointercancel="onResizeEnd"
+                                @keydown="onResizeKeydown(col, $event)"
+                                @dblclick="setPinned(col, sticky[col.key] ? null : 'left', $event)"
+                            />
                         </th>
                     </tr>
                     <tr v-if="showFilterRow" v-bind="part('filterRow')">
-                        <td v-for="col in columns" :key="col.key" v-bind="part('filterCell', { align: col.align })">
+                        <td v-for="col in columns" :key="col.key" v-bind="mergeProps(part('filterCell', { align: col.align, ...pinnedState(col) }), { style: stickyStyle(col) })">
                             <template v-if="isFilterable(col)">
                                 <VNodes
                                     v-if="col.slots.filter"
@@ -505,7 +763,7 @@ defineExpose({ reload: () => source.reload() });
                 </tbody>
                 <tfoot v-if="hasFooter" v-bind="part('tfoot')">
                     <tr v-bind="part('footerRow')">
-                        <td v-for="col in columns" :key="col.key" v-bind="part('footerCell', { align: col.align })">
+                        <td v-for="col in columns" :key="col.key" v-bind="mergeProps(part('footerCell', { align: col.align, ...pinnedState(col) }), { style: stickyStyle(col) })">
                             <VNodes v-if="col.slots.footer" :vnodes="col.slots.footer({ column: col.props })" />
                             <template v-else>{{ col.footer }}</template>
                         </td>

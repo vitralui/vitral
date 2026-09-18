@@ -11,6 +11,9 @@
 }
 
 .vt-datatable-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     padding: var(--vt-datatable-header-padding);
     color: var(--vt-datatable-header-color);
     border-bottom: 1px solid var(--vt-datatable-header-border-color);
@@ -62,6 +65,7 @@
 }
 
 .vt-datatable-header-cell {
+    position: relative;
     padding: var(--vt-datatable-header-cell-padding);
     font-weight: var(--vt-datatable-header-cell-font-weight);
     text-align: start;
@@ -390,4 +394,152 @@
     .vt-datatable-checkbox-input {
         transition: none;
     }
+}
+
+/* ---- the reader's own column layout ------------------------------------- */
+
+/*
+ * The handle on a column's trailing edge. It is a separator in the tab order,
+ * so a width can be set with the arrow keys as well as with a pointer; it is
+ * wider than it looks, because a two-pixel target is a two-pixel target.
+ */
+.vt-datatable-resizer {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: calc(var(--vt-datatable-resizer-width) / -2);
+    width: var(--vt-datatable-resizer-width);
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+}
+
+.vt-datatable-resizer::after {
+    content: '';
+    position: absolute;
+    inset-block: var(--vt-datatable-resizer-inset);
+    inset-inline-start: calc(50% - 1px);
+    width: 2px;
+    border-radius: 1px;
+    background: transparent;
+}
+
+.vt-datatable-resizer:hover::after,
+.vt-datatable-resizer:focus-visible::after {
+    background: var(--vt-datatable-resizer-color);
+}
+
+.vt-datatable-resizer:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -2px;
+    border-radius: var(--vt-border-radius-sm);
+}
+
+/*
+ * A pinned column stands over the rest, so it has to be opaque: a row's own
+ * background is transparent by default, and the columns it covers would read
+ * straight through it.
+ */
+.vt-datatable-pinned {
+    background: var(--vt-datatable-background);
+}
+
+.vt-datatable-header-cell.vt-datatable-pinned,
+.vt-datatable-filter-cell.vt-datatable-pinned {
+    background: var(--vt-datatable-header-cell-sticky-background);
+}
+
+.vt-datatable-footer-cell.vt-datatable-pinned {
+    background: var(--vt-datatable-footer-cell-background);
+}
+
+/* Striped and hovered rows keep their colour under the pinned column, laid
+   over the opaque ground rather than instead of it. */
+.vt-datatable-striped .vt-datatable-row:nth-child(even) .vt-datatable-pinned {
+    background:
+        linear-gradient(var(--vt-datatable-row-striped-background), var(--vt-datatable-row-striped-background)),
+        var(--vt-datatable-background);
+}
+
+.vt-datatable-row:hover .vt-datatable-pinned {
+    background:
+        linear-gradient(var(--vt-datatable-row-hover-background), var(--vt-datatable-row-hover-background)),
+        var(--vt-datatable-background);
+}
+
+/* The edge of the pinned block, shadowed so it reads as standing over the rest.
+   The shadow follows the writing direction, as the offsets do. */
+.vt-datatable-pinned-edge.vt-datatable-pinned-left {
+    box-shadow: var(--vt-datatable-pinned-shadow-left);
+}
+
+.vt-datatable-pinned-edge.vt-datatable-pinned-right {
+    box-shadow: var(--vt-datatable-pinned-shadow-right);
+}
+
+.vt-datatable-pinned-edge.vt-datatable-pinned-left:dir(rtl) {
+    box-shadow: var(--vt-datatable-pinned-shadow-right);
+}
+
+.vt-datatable-pinned-edge.vt-datatable-pinned-right:dir(rtl) {
+    box-shadow: var(--vt-datatable-pinned-shadow-left);
+}
+
+.vt-datatable-dragging {
+    opacity: 0.5;
+}
+
+/* Where a dragged column would land. */
+.vt-datatable-dropping {
+    box-shadow: inset var(--vt-datatable-drop-width) 0 0 0 var(--vt-datatable-drop-color);
+}
+
+.vt-datatable-chooser-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-inline-start: auto;
+    padding: var(--vt-datatable-chooser-button-padding);
+    font: inherit;
+    font-size: var(--vt-datatable-chooser-button-font-size);
+    color: var(--vt-datatable-header-cell-color);
+    background: transparent;
+    border: 1px solid var(--vt-datatable-border-color);
+    border-radius: var(--vt-border-radius-md);
+    cursor: pointer;
+}
+
+.vt-datatable-chooser-button:hover {
+    background: var(--vt-datatable-row-hover-background);
+}
+
+.vt-datatable-chooser-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+.vt-datatable-chooser-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-datatable-chooser-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.375rem;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+}
+
+.vt-datatable-chooser-label:hover {
+    background: var(--vt-datatable-row-hover-background);
+}
+
+.vt-datatable-chooser-checkbox {
+    accent-color: var(--vt-primary-color);
 }
