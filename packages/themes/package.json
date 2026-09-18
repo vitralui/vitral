@@ -2,7 +2,23 @@
   "name": "@vitral/themes",
   "version": "0.1.0",
   "description": "Design-token engine and presets (Prism, Ink, Avalonia, Simple) for Vitral.",
-  "license": "MIT",
+  "keywords": [
+    "vitral",
+    "design-tokens",
+    "theme",
+    "css-variables",
+    "dark-mode",
+    "preset"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/themes"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -16,8 +32,13 @@
     "./css/*": "./dist/css/*"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/build-theme-css.mjs"
   },

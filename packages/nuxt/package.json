@@ -2,7 +2,23 @@
   "name": "@vitral/nuxt",
   "version": "0.1.0",
   "description": "The Nuxt module for Vitral: the plugin from nuxt.config, auto-imported components and composables, the theme rendered on the server and the colour scheme in a cookie.",
-  "license": "MIT",
+  "keywords": [
+    "vitral",
+    "nuxt",
+    "nuxt-module",
+    "vue",
+    "components",
+    "ssr"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/nuxt"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
   "type": "module",
   "main": "./dist/module.js",
   "types": "./dist/module.d.ts",
@@ -13,18 +29,23 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json"
-  },
-  "dependencies": {
-    "@nuxt/kit": "^4.5.2",
-    "@vitral/vue": "workspace:*"
   },
   "peerDependencies": {
     "nuxt": "^4.0.0",
     "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^4.5.2",
+    "@vitral/vue": "workspace:*"
   },
   "devDependencies": {
     "@nuxt/schema": "^4.5.2",

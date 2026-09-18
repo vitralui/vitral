@@ -206,9 +206,11 @@ pnpm build
 pnpm check:nuxt     # runs the Nuxt playground and checks the server render
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how a component is put together and
-[ROADMAP.md](ROADMAP.md) for what is next.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how a component is put together.
 
 ## Licence
 
-MIT.
+LGPL-3.0-or-later. You can use Vitral in a closed-source application; changes
+to Vitral itself have to stay under the same licence, and your users have to be
+able to replace it with their own build. See [LICENSE](LICENSE) (and
+[LICENSE.GPL](LICENSE.GPL), which the LGPL refers to).

@@ -2,7 +2,21 @@
   "name": "@vitral/icons",
   "version": "0.1.0",
   "description": "Framework-agnostic SVG icons for Vitral: an outline set on a 24\u00d724 grid, one named export per icon.",
-  "license": "MIT",
+  "keywords": [
+    "vitral",
+    "icons",
+    "svg",
+    "icon-set"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/icons"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -19,8 +33,13 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json"
   }

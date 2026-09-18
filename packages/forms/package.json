@@ -2,7 +2,24 @@
   "name": "@vitral/forms",
   "version": "0.1.0",
   "description": "Framework-free form state and validation for Vitral: nested paths, field arrays, built-in rules, async validation and structural resolvers for schema libraries.",
-  "license": "MIT",
+  "keywords": [
+    "vitral",
+    "forms",
+    "validation",
+    "zod",
+    "yup",
+    "valibot",
+    "superstruct"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/forms"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -15,8 +32,13 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json"
   }
