@@ -82,12 +82,41 @@ try {
         mkdirSync(join(outDir, id), { recursive: true });
         for (const screen of screens) {
             for (const scheme of ['light', 'dark']) {
-                // A dev server reloading mid-shot can drop a capture: try again.
+                // A dev server reloading mid-shot can drop a capture, and a screen
+                // that has not finished arriving photographs as a blank page —
+                // which is data, so it has to be caught rather than waited out.
                 let data;
-                for (let attempt = 0; attempt < 3 && !data; attempt++) {
+                for (let attempt = 0; attempt < 4 && !data; attempt++) {
+                    // A retry starts from a blank page: a dev server that dropped
+                    // a module leaves the tab holding a half-built module graph,
+                    // and reloading into it fails the same way again.
+                    if (attempt > 0) {
+                        await send('Page.navigate', { url: 'about:blank' });
+                        await sleep(500 * attempt);
+                    }
                     await send('Page.navigate', { url: `${base}/?scheme=${scheme}&preset=prism&shot#/templates/${id}/preview/${screen}` });
-                    // Async screens, fonts and photos.
-                    await sleep(2500 + attempt * 1500);
+                    // The screens are async components: wait for one to have drawn.
+                    // A screen that has arrived is a `.tp` with a page's worth of
+                    // height and words in it. Anything less photographs white,
+                    // and white is data: without this the blank went to disk.
+                    const drawn = async () =>
+                        (
+                            await send('Runtime.evaluate', {
+                                expression: `(() => { const el = document.querySelector('.tp'); return !!el && el.getBoundingClientRect().height > 200 && (el.innerText || '').trim().length > 40; })()`,
+                                returnByValue: true
+                            })
+                        ).result?.result?.value === true;
+                    let ready = false;
+                    for (let i = 0; i < 60 && !ready; i++) {
+                        await sleep(150);
+                        ready = await drawn();
+                    }
+                    if (!ready) {
+                        console.warn(`  ${id}/${screen} (${scheme}) never drew; trying again.`);
+                        continue;
+                    }
+                    // Fonts and photos, once there is a page for them to be in.
+                    await sleep(800 + attempt * 800);
                     await send('Runtime.evaluate', {
                         expression: 'Promise.all([...document.images].map((img) => img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; setTimeout(r, 4000); })))',
                         awaitPromise: true
@@ -103,6 +132,13 @@ try {
                     height = Math.min(MAX_HEIGHT, await measure());
                     await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height, deviceScaleFactor: 1, mobile: false });
                     await sleep(300);
+                    // Resizing the window relays the page out; a screen caught
+                    // mid-relayout is the blank one this is here to avoid.
+                    if (!(await drawn())) {
+                        console.warn(`  ${id}/${screen} (${scheme}) went blank while being resized; trying again.`);
+                        await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false });
+                        continue;
+                    }
                     data = (await send('Page.captureScreenshot', { format: 'webp', quality: 80, clip: { x: 0, y: 0, width: WIDTH, height, scale: 1 } })).result?.data;
                     await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false });
                 }

@@ -7,7 +7,7 @@ export type { TemplateCategory, TemplateMeta, TemplateScreen } from './types';
  * Every folder here with an `index.ts` is a template; the site finds them by
  * glob, the same way it finds the component demos. The order is the gallery's.
  */
-const order = ['ecommerce', 'saas', 'news', 'blog', 'realestate', 'airline', 'lms', 'finance', 'projects'];
+const order = ['ecommerce', 'saas', 'news', 'blog', 'realestate', 'airline', 'lms', 'finance', 'projects', 'auth'];
 
 // Only the metadata is loaded up front; a template's layout and screens are
 // async components, so their code is fetched when a preview first shows them.

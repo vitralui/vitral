@@ -8,9 +8,9 @@ import type { Component } from 'vue';
  * people ask) lives here, next to the code, so the gallery never drifts from
  * what it shows.
  */
-export type TemplateCategory = 'Commerce' | 'Publishing' | 'Dashboard' | 'Travel' | 'Education' | 'Productivity';
+export type TemplateCategory = 'Commerce' | 'Publishing' | 'Dashboard' | 'Travel' | 'Education' | 'Productivity' | 'Authentication';
 
-export const templateCategoryOrder: TemplateCategory[] = ['Commerce', 'Publishing', 'Dashboard', 'Travel', 'Education', 'Productivity'];
+export const templateCategoryOrder: TemplateCategory[] = ['Commerce', 'Publishing', 'Dashboard', 'Travel', 'Education', 'Productivity', 'Authentication'];
 
 export interface TemplateScreen {
     id: string;
