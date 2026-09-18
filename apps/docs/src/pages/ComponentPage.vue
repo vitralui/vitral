@@ -3,7 +3,7 @@ import { Tag } from '@vitral/vue';
 import { computed, provide } from 'vue';
 import { entries, entryOf } from '../lib/catalog';
 import { apiOf } from '../lib/api';
-import { route } from '../lib/router';
+import { route, href } from '../lib/router';
 import { demoSourcesKey, slugify } from '../lib/section';
 import { sectionSources, setupSource } from '../lib/source';
 import CodeBlock from '../parts/CodeBlock.vue';
@@ -78,7 +78,7 @@ const toc = computed(() => [
                 </table>
                 <p v-if="api.extends.includes('BaseProps')" style="margin: -0.75rem 0 1.5rem; font-size: 0.8125rem; color: var(--vt-text-muted-color)">
                     Plus <code>pt</code>, <code>dt</code> and <code>unstyled</code> from <code>BaseProps</code>, see
-                    <a href="#/docs/pass-through">pass-through</a> and <a href="#/docs/unstyled">unstyled mode</a>.
+                    <a :href="href('/docs/pass-through')">pass-through</a> and <a :href="href('/docs/unstyled')">unstyled mode</a>.
                 </p>
             </template>
 
@@ -124,8 +124,8 @@ const toc = computed(() => [
         </template>
 
         <nav class="pager" aria-label="Components">
-            <a v-if="previous" :href="`#/components/${previous.id}`"><span>Previous</span>{{ previous.meta.title }}</a>
-            <a v-if="next" class="next" :href="`#/components/${next.id}`"><span>Next</span>{{ next.meta.title }}</a>
+            <a v-if="previous" :href="href(`/components/${previous.id}`)"><span>Previous</span>{{ previous.meta.title }}</a>
+            <a v-if="next" class="next" :href="href(`/components/${next.id}`)"><span>Next</span>{{ next.meta.title }}</a>
         </nav>
     </div>
 

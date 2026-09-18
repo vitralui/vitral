@@ -9,6 +9,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, Drawer } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -31,7 +32,7 @@ function open(where: Position) {
         <Button v-for="p in positions" :key="p" :label="p" severity="secondary" :icon="p === 'full' ? 'maximize' : 'sidebar'" @click="open(p)" />
         <Drawer v-model:visible="visible" header="Mail" :position="position">
             <nav aria-label="Folders" style="display: flex; flex-direction: column; gap: 2px">
-                <a v-for="link in links" :key="link" href="#/drawer" class="demo-drawer-link" @click.prevent="visible = false">{{ link }}</a>
+                <a v-for="link in links" :key="link" :href="href('/drawer')" class="demo-drawer-link" @click.prevent="visible = false">{{ link }}</a>
             </nav>
             <template #footer>
                 <Button label="Compose" icon="pencil" fluid @click="visible = false" />

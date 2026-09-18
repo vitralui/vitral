@@ -26,19 +26,19 @@ import { templates } from './templates';
 const mounted: { unmount: () => void }[] = [];
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '../public');
 
-function mountSite(hash: string) {
-    location.hash = hash;
-    window.dispatchEvent(new Event('hashchange'));
+function mountSite(path: string) {
+    history.replaceState(null, '', path);
+    dispatchEvent(new PopStateEvent('popstate'));
     const wrapper = mount(App, { attachTo: document.body, global: { plugins: [[Vitral, { theme: 'none' }]] } });
     mounted.push(wrapper);
     return wrapper;
 }
 
 beforeEach(() => {
-    location.hash = '';
+    history.replaceState(null, '', '/');
 });
 
-// A site left mounted keeps following the hash, so each test cleans up after itself.
+// A site left mounted keeps following the URL, so each test cleans up after itself.
 afterEach(() => {
     for (const wrapper of mounted.splice(0)) {
         try {
@@ -51,30 +51,30 @@ afterEach(() => {
 
 describe('the site', () => {
     it('shows the landing page at the root', async () => {
-        const wrapper = mountSite('#/');
+        const wrapper = mountSite('/');
         expect(wrapper.find('h1').text()).toContain('Components that take the shape of your brand');
         // The hero shows the library itself, and every category links to its components.
         expect(wrapper.findAll('.home-category').length).toBeGreaterThan(5);
         await expectNoA11yViolations(wrapper.find('.home').element);
-        // The hero shows components, not theme switches: a real form under a designer's overlay.
+        // The hero shows the components themselves, not theme switches.
         const hero = wrapper.find('.home-hero');
         expect(hero.findAll('[aria-pressed]').filter((b) => ['Prism', 'Ink'].includes(b.text()))).toHaveLength(0);
-        expect(hero.find('.spec .home-profile input[type="email"]').exists()).toBe(true);
-        expect(hero.find('.spec-layer').attributes('aria-hidden')).toBe('true');
+        expect(hero.find('.home-profile input[type="email"]').exists()).toBe(true);
+        expect(hero.find('.home-card-stat .vt-chart').exists()).toBe(true);
     });
 
     it('shows templates on the landing page, each linking to its page', () => {
-        const wrapper = mountSite('#/');
+        const wrapper = mountSite('/');
         const cards = wrapper.findAll('.home-template');
         expect(cards.length).toBeGreaterThanOrEqual(4);
         expect(cards.length).toBeLessThanOrEqual(6);
-        for (const card of cards) expect(card.attributes('href')).toMatch(/^#\/templates\/[a-z]+$/);
-        expect(wrapper.find('a[href="#/templates"]').exists()).toBe(true);
-        expect(wrapper.html()).not.toContain('#/themes');
+        for (const card of cards) expect(card.attributes('href')).toMatch(/^\/templates\/[a-z]+\/$/);
+        expect(wrapper.find('a[href="/templates/"]').exists()).toBe(true);
+        expect(wrapper.html()).not.toContain('/themes');
     });
 
     it('opens a component page with its demos, its import and its API', () => {
-        const wrapper = mountSite('#/components/button');
+        const wrapper = mountSite('/components/button');
         expect(wrapper.find('.doc-head h1').text()).toBe('Button');
         expect(wrapper.findAll('.demo-section').length).toBeGreaterThan(0);
         expect(wrapper.find('.code pre').text()).toContain("import { Button } from '@vitral/vue'");
@@ -82,12 +82,12 @@ describe('the site', () => {
     });
 
     it('lists every template in the gallery, and filters them by category', async () => {
-        const wrapper = mountSite('#/templates');
+        const wrapper = mountSite('/templates');
         expect(wrapper.find('.topbar').exists()).toBe(true);
         expect(wrapper.findAll('.tpl-card')).toHaveLength(templates.length);
         for (const entry of templates) {
-            expect(wrapper.find(`.tpl-card a[href="#/templates/${entry.id}"]`).exists()).toBe(true);
-            expect(wrapper.find(`.tpl-card a[href="#/templates/${entry.id}/preview"]`).exists()).toBe(true);
+            expect(wrapper.find(`.tpl-card a[href="/templates/${entry.id}/"]`).exists()).toBe(true);
+            expect(wrapper.find(`.tpl-card a[href="/templates/${entry.id}/preview/"]`).exists()).toBe(true);
         }
         // The previews are decoration: inert, and hidden from assistive technology.
         for (const stage of wrapper.findAll('.tpl-thumb-stage')) {
@@ -120,7 +120,7 @@ describe('the site', () => {
 
     for (const entry of templates) {
         it(`shows the ${entry.name} template in pictures, with its demo and source a click away`, async () => {
-            const wrapper = mountSite(`#/templates/${entry.id}`);
+            const wrapper = mountSite(`/templates/${entry.id}`);
             await flushPromises();
             expect(wrapper.find('.tpl-detail h1').text()).toBe(entry.name);
             const demo = () => wrapper.findAll('.tpl-hero a').find((link) => link.text() === 'Live demo')!;
@@ -134,9 +134,9 @@ describe('the site', () => {
             expect(items.map((item) => item.find('h3').text())).toEqual(entry.screens.map((screen) => screen.name));
             for (const [i, screen] of entry.screens.entries()) {
                 expect(items[i]!.find('img').attributes('src')).toBe(shotOf(entry.id, screen.id, false));
-                expect(items[i]!.find('.tpl-shot-frame').attributes('href')).toBe(`#/templates/${entry.id}/preview/${screen.id}`);
+                expect(items[i]!.find('.tpl-shot-frame').attributes('href')).toBe(`/templates/${entry.id}/preview/${screen.id}/`);
             }
-            expect(demo().attributes('href')).toBe(`#/templates/${entry.id}/preview`);
+            expect(demo().attributes('href')).toBe(`/templates/${entry.id}/preview/`);
 
             expect(wrapper.findAll('.tpl-components a').length).toBe(entry.components.length);
             expect(wrapper.findAll('.tpl-faq [aria-expanded]').length).toBe(entry.faq.length);
@@ -151,7 +151,7 @@ describe('the site', () => {
 
     it('opens a template full screen, without the site around it', async () => {
         const entry = templates[0]!;
-        const wrapper = mountSite(`#/templates/${entry.id}/preview/${entry.screens[1]!.id}`);
+        const wrapper = mountSite(`/templates/${entry.id}/preview/${entry.screens[1]!.id}`);
         // The layout and its screens are loaded on demand.
         await vi.waitFor(async () => {
             await flushPromises();
@@ -161,7 +161,7 @@ describe('the site', () => {
         expect(wrapper.find('.footer').exists()).toBe(false);
         expect(wrapper.find('.tpl-full main').exists()).toBe(true);
         expect(wrapper.findComponent(entry.screens[1]!.component).exists()).toBe(true);
-        expect(wrapper.find('.tpl-float a').attributes('href')).toBe(`#/templates/${entry.id}`);
+        expect(wrapper.find('.tpl-float a').attributes('href')).toBe(`/templates/${entry.id}/`);
         // The same theme menu as the site's bar, opening upwards from the foot.
         expect(wrapper.find('.tpl-float button[aria-label="Theme settings"]').exists()).toBe(true);
         await expectNoA11yViolations(wrapper.find('.tpl-float').element);
@@ -169,47 +169,42 @@ describe('the site', () => {
 
     it('drops the bar when the screen is being photographed', () => {
         const entry = templates[0]!;
-        history.replaceState(null, '', '/?shot');
-        try {
-            const wrapper = mountSite(`#/templates/${entry.id}/preview`);
-            expect(wrapper.find('.tpl-full').exists()).toBe(true);
-            expect(wrapper.find('.tpl-float').exists()).toBe(false);
-        } finally {
-            history.replaceState(null, '', '/');
-        }
+        const wrapper = mountSite(`/templates/${entry.id}/preview?shot`);
+        expect(wrapper.find('.tpl-full').exists()).toBe(true);
+        expect(wrapper.find('.tpl-float').exists()).toBe(false);
     });
 
     it('lists the templates by category in the bar, with the search finding them too', async () => {
-        const wrapper = mountSite('#/');
+        const wrapper = mountSite('/');
         const button = wrapper.findAll('.top-nav button').find((entry) => entry.text().startsWith('Templates'))!;
         await button.trigger('click');
         expect(button.attributes('aria-expanded')).toBe('true');
         const panel = wrapper.find('.mega-panel');
-        for (const entry of templates) expect(panel.find(`a[href="#/templates/${entry.id}"]`).exists()).toBe(true);
-        expect(panel.find('a[href="#/templates"]').exists()).toBe(true);
+        for (const entry of templates) expect(panel.find(`a[href="/templates/${entry.id}/"]`).exists()).toBe(true);
+        expect(panel.find('a[href="/templates/"]').exists()).toBe(true);
         expect(panel.findAll('.mega-group-title').length).toBeGreaterThan(1);
-        expect(wrapper.find('.footer a[href="#/templates"]').exists()).toBe(true);
-        expect(wrapper.find('.footer').html()).not.toContain('#/themes');
+        expect(wrapper.find('.footer a[href="/templates/"]').exists()).toBe(true);
+        expect(wrapper.find('.footer').html()).not.toContain('/themes');
     });
 
-    it('sends the retired theme pages to the templates gallery', () => {
-        for (const old of ['#/themes', '#/themes/ink']) {
+    it('sends the retired theme pages, and the old fragment links, to where they live now', () => {
+        for (const old of ['/themes', '/themes/ink']) {
             const wrapper = mountSite(old);
-            expect(location.hash).toBe('#/templates');
+            expect(location.pathname).toBe('/templates/');
             expect(wrapper.find('.tpl-gallery-page').exists()).toBe(true);
         }
     });
 
     it('opens a guide', () => {
-        const wrapper = mountSite('#/docs/theming');
+        const wrapper = mountSite('/docs/theming');
         expect(wrapper.find('.doc-head h1').text()).toBe('Theming');
         expect(wrapper.find('.prose').text()).toContain('token');
     });
 
     it('lists every component in the pane', () => {
-        const wrapper = mountSite('#/components/button');
+        const wrapper = mountSite('/components/button');
         const links = wrapper.findAll('.pane a').map((link) => link.attributes('href'));
-        for (const entry of entries) expect(links).toContain(`#/components/${entry.id}`);
+        for (const entry of entries) expect(links).toContain(`/components/${entry.id}/`);
     });
 
     it('reads a snippet for every demo section', () => {
@@ -230,10 +225,10 @@ describe('the site', () => {
     it('shows every icon, filters them, and copies from the one picked', async () => {
         const writes: string[] = [];
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (text: string) => void writes.push(text) } });
-        const wrapper = mountSite('#/icons');
+        const wrapper = mountSite('/icons');
         expect(wrapper.find('.doc-head h1').text()).toContain(String(iconList.length));
         expect(wrapper.findAll('.icons-tile')).toHaveLength(iconList.length);
-        expect(wrapper.find('.top-nav a[href="#/icons"]').attributes('aria-current')).toBe('page');
+        expect(wrapper.find('.top-nav a[href="/icons/"]').attributes('aria-current')).toBe('page');
 
         await wrapper.find('input[type="search"]').setValue('cart plus');
         const tiles = wrapper.findAll('.icons-tile');

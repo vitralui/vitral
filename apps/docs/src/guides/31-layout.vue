@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const rows: [string, string, string][] = [
@@ -40,7 +41,7 @@ const shell = `<DockPanel>
     <p>
         Component libraries rarely have these, and every application ends up writing them: the panels that decide where things go. They are thin, flexbox and CSS grid
         underneath, with the arithmetic in <code>@vitral/core</code> so an adapter for another framework gets it for free, and they survive
-        <a href="#/docs/unstyled">unstyled mode</a>, because their layout is inline styles rather than classes.
+        <a :href="href('/docs/unstyled')">unstyled mode</a>, because their layout is inline styles rather than classes.
     </p>
 
     <h2>The seven</h2>
@@ -54,7 +55,7 @@ const shell = `<DockPanel>
         </thead>
         <tbody>
             <tr v-for="row in rows" :key="row[0]">
-                <td><a :href="`#/components/${row[0].toLowerCase()}`">{{ row[0] }}</a></td>
+                <td><a :href="href(`/components/${row[0].toLowerCase()}`)">{{ row[0] }}</a></td>
                 <td class="doc">{{ row[1] }}</td>
                 <td class="doc">{{ row[2] }}</td>
             </tr>

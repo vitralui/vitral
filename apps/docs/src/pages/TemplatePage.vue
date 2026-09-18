@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionHeader, AccordionPanel, Breadcrum
 import { computed, ref, watch } from 'vue';
 import { entries } from '../lib/catalog';
 import { repoPath } from '../lib/links';
-import { route } from '../lib/router';
+import { route, href } from '../lib/router';
 import { SHOT_WIDTH, shotOf } from '../lib/shots';
 import { templateOf, templates } from '../templates';
 
@@ -39,7 +39,7 @@ const shots = computed(() =>
     }))
 );
 
-const demoOf = (screen?: string) => `#/templates/${entry.value?.id}/preview${screen ? `/${screen}` : ''}`;
+const demoOf = (screen?: string) => href(`/templates/${entry.value?.id}/preview${screen ? `/${screen}` : ''}`);
 const sourceUrl = computed(() => repoPath(`apps/docs/src/templates/${entry.value?.id}`));
 
 // Each component the template uses, linked to its page when the catalog has one.
@@ -47,7 +47,7 @@ const used = computed(() =>
     (entry.value?.components ?? []).map((name) => ({ name, id: entries.find((item) => item.meta.title === name)?.id })).sort((a, b) => a.name.localeCompare(b.name))
 );
 
-const trail = computed(() => [{ label: 'Templates', url: '#/templates' }, { label: entry.value?.category ?? '' }]);
+const trail = computed(() => [{ label: 'Templates', url: href('/templates') }, { label: entry.value?.category ?? '' }]);
 
 function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
@@ -130,7 +130,7 @@ const shotId = (screen: string) => `screen-${screen}`;
                         <h3>Components</h3>
                         <ul class="tpl-components">
                             <li v-for="item in used" :key="item.name">
-                                <a v-if="item.id" :href="`#/components/${item.id}`">{{ item.name }}</a>
+                                <a v-if="item.id" :href="href(`/components/${item.id}`)">{{ item.name }}</a>
                                 <span v-else>{{ item.name }}</span>
                             </li>
                         </ul>
@@ -157,12 +157,12 @@ const shotId = (screen: string) => `screen-${screen}`;
         </section>
 
         <nav class="home-wrap tpl-pager" aria-label="More templates">
-            <a :href="`#/templates/${previous.id}`">
+            <a :href="href(`/templates/${previous.id}`)">
                 <small>Previous</small>
                 <b>{{ previous.name }}</b>
             </a>
-            <a href="#/templates" class="tpl-pager-all">All templates</a>
-            <a :href="`#/templates/${next.id}`" class="next">
+            <a :href="href('/templates')" class="tpl-pager-all">All templates</a>
+            <a :href="href(`/templates/${next.id}`)" class="next">
                 <small>Next</small>
                 <b>{{ next.name }}</b>
             </a>
@@ -174,7 +174,7 @@ const shotId = (screen: string) => `screen-${screen}`;
             <div class="home-wrap home-head">
                 <h1>No template called “{{ route.id }}”</h1>
                 <p>It may have been renamed.</p>
-                <Button as="a" href="#/templates" label="See all templates" />
+                <Button as="a" :href="href('/templates')" label="See all templates" />
             </div>
         </section>
     </main>

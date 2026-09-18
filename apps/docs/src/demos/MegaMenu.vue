@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { MegaMenu, type MegaMenuItem, type MenuItem } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -34,7 +35,7 @@ const items: MegaMenuItem[] = [
         icon: 'file',
         items: [[{ label: 'Start', items: [{ label: 'Installation', command: run }, { label: 'Theming', command: run }] }]]
     },
-    { label: 'GitHub', icon: 'externalLink', url: '#/components/megamenu' }
+    { label: 'GitHub', icon: 'externalLink', url: href('/components/megamenu') }
 ];
 </script>
 

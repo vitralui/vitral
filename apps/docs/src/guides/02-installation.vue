@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const install = `pnpm add @vitral/vue
@@ -104,12 +105,12 @@ pnpm build`;
             <tr>
                 <td>unstyled</td>
                 <td class="type">boolean</td>
-                <td class="doc">Drop every built-in class, everywhere. See <a href="#/docs/unstyled">unstyled mode</a>.</td>
+                <td class="doc">Drop every built-in class, everywhere. See <a :href="href('/docs/unstyled')">unstyled mode</a>.</td>
             </tr>
             <tr>
                 <td>pt</td>
                 <td class="type">GlobalPassThrough</td>
-                <td class="doc">Pass-through for every instance of a component, keyed by name. See <a href="#/docs/pass-through">pass-through</a>.</td>
+                <td class="doc">Pass-through for every instance of a component, keyed by name. See <a :href="href('/docs/pass-through')">pass-through</a>.</td>
             </tr>
             <tr>
                 <td>cssLayer</td>
@@ -131,7 +132,7 @@ pnpm build`;
 
     <h2>Without import lines</h2>
     <p>
-        In Nuxt the <a href="#/docs/server-rendering">module</a> does this for you. In a plain Vite application, the same lists are behind
+        In Nuxt the <a :href="href('/docs/server-rendering')">module</a> does this for you. In a plain Vite application, the same lists are behind
         <code>@vitral/vue/resolver</code>, for unplugin-vue-components and unplugin-auto-import:
     </p>
     <CodeBlock :code="autoImport" label="vite.config.ts" lang="ts" />

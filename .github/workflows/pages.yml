@@ -26,6 +26,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter docs build
+        env:
+          # Where the site is served from, which its assets and links are written against.
+          DOCS_BASE: /vitral/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/docs/dist

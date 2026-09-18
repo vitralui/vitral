@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, Tag } from '@vitral/vue';
 import CodeBlock from '../parts/CodeBlock.vue';
 import { themes } from '../lib/presets';
@@ -29,8 +30,8 @@ export const House = definePreset(Base, {
 <template>
     <p>
         Four presets ship. Each is a complete theme, with every component's tokens in both schemes, each is a starting point for <code>definePreset</code>, and every
-        <a href="#/templates">template</a> on this site can be previewed in any of them, because a theme is easier to judge at work than on a swatch. A fifth is an object: see
-        <a href="#/docs/theming">theming</a>.
+        <a :href="href('/templates')">template</a> on this site can be previewed in any of them, because a theme is easier to judge at work than on a swatch. A fifth is an object: see
+        <a :href="href('/docs/theming')">theming</a>.
     </p>
 
     <template v-for="theme in themes" :key="theme.id">
@@ -41,7 +42,7 @@ export const House = definePreset(Base, {
         </p>
         <p>
             <Button :label="presetId === theme.id ? 'In use' : `Use ${theme.name}`" size="small" :severity="presetId === theme.id ? 'secondary' : 'primary'" @click="presetId = theme.id" />
-            <Button as="a" href="#/templates" label="See it on the templates" size="small" variant="text" severity="secondary" />
+            <Button as="a" :href="href('/templates')" label="See it on the templates" size="small" variant="text" severity="secondary" />
         </p>
     </template>
 

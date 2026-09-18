@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Avatar, InputText, Menubar, type MenuItem } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -36,7 +37,7 @@ const items: MenuItem[] = [
             { label: 'Invitations', command: run, disabled: true }
         ]
     },
-    { label: 'Docs', icon: 'externalLink', url: '#/components/menubar' }
+    { label: 'Docs', icon: 'externalLink', url: href('/components/menubar') }
 ];
 </script>
 

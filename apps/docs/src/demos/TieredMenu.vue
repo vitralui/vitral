@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, TieredMenu, type MenuItem } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -38,7 +39,7 @@ const items: MenuItem[] = [
     },
     { label: 'Search', icon: 'search', command: run },
     { separator: true },
-    { label: 'Help', icon: 'externalLink', url: '#/components/tieredmenu' }
+    { label: 'Help', icon: 'externalLink', url: href('/components/tieredmenu') }
 ];
 
 const popup = ref<InstanceType<typeof TieredMenu> | null>(null);

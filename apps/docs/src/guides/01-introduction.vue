@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const usage = `<script setup lang="ts">
@@ -41,8 +42,7 @@ const cities = [
     </p>
     <p>
         The set covers the controls an application is built from, the bigger pieces (charts, a scheduler, a task board, a rich text editor) and the layout panels every real
-        screen needs: <code>StackPanel</code>, <code>DockPanel</code>, <code>Grid</code> with star sizing, <code>SplitView</code> and <code>Splitter</code>. The
-        <a href="#/docs/roadmap">roadmap</a> says what comes next.
+        screen needs: <code>StackPanel</code>, <code>DockPanel</code>, <code>Grid</code> with star sizing, <code>SplitView</code> and <code>Splitter</code>.
     </p>
 
     <blockquote>
@@ -51,8 +51,8 @@ const cities = [
 
     <h2>The look is a parameter</h2>
     <p>
-        None of the above is baked in. A theme is a tree of tokens compiled to CSS variables, so the same components render as <a href="#/docs/presets">Prism</a>,
-        <a href="#/docs/presets">Ink</a>, <a href="#/docs/presets">Avalonia</a> or anything you define, with no fork, no rebuild and no second component library.
+        None of the above is baked in. A theme is a tree of tokens compiled to CSS variables, so the same components render as <a :href="href('/docs/presets')">Prism</a>,
+        <a :href="href('/docs/presets')">Ink</a>, <a :href="href('/docs/presets')">Avalonia</a> or anything you define, with no fork, no rebuild and no second component library.
     </p>
 
     <h2>What it looks like to use</h2>
@@ -117,11 +117,11 @@ const cities = [
 
     <h2>Where to go next</h2>
     <ul>
-        <li><a href="#/docs/installation">Installation</a>: the plugin, its options, auto-imports and the no-JavaScript route.</li>
-        <li><a href="#/docs/server-rendering">Server rendering</a>: SSR and the Nuxt module.</li>
-        <li><a href="#/docs/theming">Theming</a>: how a token becomes a CSS variable, and how to change one.</li>
-        <li><a href="#/docs/presets">Presets</a>: the themes that ship, and how to start your own.</li>
-        <li><a href="#/templates">Templates</a>: whole applications built from the components, to preview and copy.</li>
-        <li><a href="#/components/button">Components</a>: the catalog, with live examples and API tables.</li>
+        <li><a :href="href('/docs/installation')">Installation</a>: the plugin, its options, auto-imports and the no-JavaScript route.</li>
+        <li><a :href="href('/docs/server-rendering')">Server rendering</a>: SSR and the Nuxt module.</li>
+        <li><a :href="href('/docs/theming')">Theming</a>: how a token becomes a CSS variable, and how to change one.</li>
+        <li><a :href="href('/docs/presets')">Presets</a>: the themes that ship, and how to start your own.</li>
+        <li><a :href="href('/templates')">Templates</a>: whole applications built from the components, to preview and copy.</li>
+        <li><a :href="href('/components/button')">Components</a>: the catalog, with live examples and API tables.</li>
     </ul>
 </template>

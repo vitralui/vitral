@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { guideOf, guides } from '../lib/guides';
-import { route } from '../lib/router';
+import { route, href } from '../lib/router';
 import { slugify } from '../lib/section';
 import Toc from '../parts/Toc.vue';
 
@@ -45,8 +45,8 @@ const next = computed(() => guides[index.value + 1]);
         </div>
 
         <nav class="pager" aria-label="Guides">
-            <a v-if="previous" :href="`#/docs/${previous.id}`"><span>Previous</span>{{ previous.meta.title }}</a>
-            <a v-if="next" class="next" :href="`#/docs/${next.id}`"><span>Next</span>{{ next.meta.title }}</a>
+            <a v-if="previous" :href="href(`/docs/${previous.id}`)"><span>Previous</span>{{ previous.meta.title }}</a>
+            <a v-if="next" class="next" :href="href(`/docs/${next.id}`)"><span>Next</span>{{ next.meta.title }}</a>
         </nav>
     </div>
 

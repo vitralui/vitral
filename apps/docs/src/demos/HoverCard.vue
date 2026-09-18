@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Avatar, HoverCard } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
 </script>
@@ -19,7 +20,7 @@ import DemoSection from '../DemoSection.vue';
         <p style="margin: 0">
             Built by
             <HoverCard>
-                <template #trigger><a href="#/components/hovercard">@vitral</a></template>
+                <template #trigger><a :href="href('/components/hovercard')">@vitral</a></template>
                 <div style="display: flex; gap: 0.75rem">
                     <Avatar label="V" shape="circle" />
                     <div>
@@ -33,7 +34,7 @@ import DemoSection from '../DemoSection.vue';
     </DemoSection>
     <DemoSection title="Placement and delays">
         <HoverCard placement="right" :open-delay="200" :close-delay="100">
-            <template #trigger><a href="#/components/avatar">Faster, to the right</a></template>
+            <template #trigger><a :href="href('/components/avatar')">Faster, to the right</a></template>
             <img src="https://picsum.photos/id/1025/320/180" alt="A pug wrapped in a blanket" style="display: block; width: 100%; border-radius: 6px" />
         </HoverCard>
     </DemoSection>

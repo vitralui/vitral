@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { PanelMenu, type MenuItem } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -23,7 +24,7 @@ const items: MenuItem[] = [
         items: [
             { label: 'Documents', icon: 'folderOpen', items: [{ label: 'Invoices', icon: 'file', command: run }, { label: 'Contracts', icon: 'file', command: run }] },
             { label: 'Images', icon: 'folderOpen', command: run },
-            { label: 'Shared', icon: 'externalLink', url: '#/components/panelmenu' }
+            { label: 'Shared', icon: 'externalLink', url: href('/components/panelmenu') }
         ]
     },
     { label: 'Cloud', icon: 'upload', items: [{ label: 'Upload', icon: 'upload', command: run }, { label: 'Download', icon: 'download', command: run }, { label: 'Sync', icon: 'refresh', command: run }] },

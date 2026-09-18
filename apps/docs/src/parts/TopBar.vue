@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, useTheme } from '@vitral/vue';
 import { REPO_URL } from '../lib/links';
 import MegaMenu from './MegaMenu.vue';
@@ -12,7 +13,7 @@ const theme = useTheme();
 <template>
     <header class="topbar">
         <div class="topbar-inner">
-            <a class="brand" href="#/">
+            <a class="brand" :href="href('/')">
                 <span class="brand-mark" aria-hidden="true" />
                 Vitral
                 <span class="brand-version">0.1</span>

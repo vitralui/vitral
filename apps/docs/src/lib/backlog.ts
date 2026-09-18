@@ -1,3 +1,4 @@
+import { href } from './router';
 import { entries } from './catalog';
 
 /**
@@ -147,7 +148,7 @@ export interface BacklogEntry extends BacklogRow {
 export const coverage: BacklogEntry[] = backlog.map((row) => ({
     ...row,
     shipped: shipped.has(row.vitral),
-    href: shipped.has(row.vitral) ? `#/components/${row.vitral.toLowerCase()}` : undefined
+    href: shipped.has(row.vitral) ? href(`/components/${row.vitral.toLowerCase()}`) : undefined
 }));
 
 export const coverageCount = {

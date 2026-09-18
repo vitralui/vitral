@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, Select } from '@vitral/vue';
 import { ref } from 'vue';
 import CodeBlock from '../parts/CodeBlock.vue';
@@ -68,7 +69,7 @@ const live = `<Select
     </p>
 
     <h2>It merges, not replaces</h2>
-    <p>Classes are concatenated, styles merged and listeners chained, so a pass-through class sits beside the theme's rather than deleting it. To start from nothing, see <a href="#/docs/unstyled">unstyled mode</a>.</p>
+    <p>Classes are concatenated, styles merged and listeners chained, so a pass-through class sits beside the theme's rather than deleting it. To start from nothing, see <a :href="href('/docs/unstyled')">unstyled mode</a>.</p>
 
     <h2>Live</h2>
     <CodeBlock :code="live" label="Select.vue" lang="vue" />

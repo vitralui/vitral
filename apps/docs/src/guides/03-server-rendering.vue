@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const entry = `import { createSSRApp } from 'vue';
@@ -166,7 +167,7 @@ const toast = useToast();   // auto-imported, like every composable
             <tr>
                 <td>cssLayer, inputVariant, unstyled</td>
                 <td class="type">string | false, 'outlined' | 'filled', boolean</td>
-                <td class="doc">The same options the plugin takes; see <a href="#/docs/installation">installation</a>.</td>
+                <td class="doc">The same options the plugin takes; see <a :href="href('/docs/installation')">installation</a>.</td>
             </tr>
         </tbody>
     </table>

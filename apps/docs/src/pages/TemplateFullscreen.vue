@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Button, Select, useTheme } from '@vitral/vue';
 import { computed, ref, useId, watch } from 'vue';
-import { route } from '../lib/router';
+import { route, href } from '../lib/router';
 import ThemeMenu from '../parts/ThemeMenu.vue';
 import { templateOf } from '../templates';
 
@@ -32,7 +32,7 @@ const options = computed(() => (entry.value?.screens ?? []).map((item) => ({ lab
     <div v-if="entry" class="tpl-full">
         <component :is="entry.layout" v-model:screen="screen" standalone />
         <nav v-if="!shot" class="tpl-float" aria-label="Preview">
-            <Button as="a" :href="`#/templates/${entry.id}`" icon="arrowLeft" label="Back" size="small" variant="text" severity="secondary" :aria-label="`Back to ${entry.name}`" />
+            <Button as="a" :href="href(`/templates/${entry.id}`)" icon="arrowLeft" label="Back" size="small" variant="text" severity="secondary" :aria-label="`Back to ${entry.name}`" />
             <span class="tpl-float-sep" aria-hidden="true" />
             <span :id="selectId" class="vt-sr-only">Screen</span>
             <Select v-model="screen" :options="options" option-label="label" option-value="value" size="small" :aria-labelledby="selectId" />
@@ -52,7 +52,7 @@ const options = computed(() => (entry.value?.screens ?? []).map((item) => ({ lab
         <section class="home-band">
             <div class="home-wrap home-head">
                 <h1>No template called “{{ route.id }}”</h1>
-                <a href="#/templates">See all templates</a>
+                <a :href="href('/templates')">See all templates</a>
             </div>
         </section>
     </main>

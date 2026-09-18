@@ -10,6 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Checkbox } from '@vitral/vue';
 import { computed, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
@@ -44,7 +45,7 @@ const mixed = computed(() => toppings.value.length > 0 && toppings.value.length 
         </div>
     </DemoSection>
     <DemoSection title="Rich content">
-        <Checkbox binary>I have read the <a href="#/checkbox">privacy notice</a></Checkbox>
+        <Checkbox binary>I have read the <a :href="href('/checkbox')">privacy notice</a></Checkbox>
     </DemoSection>
     <DemoSection title="Sizes and states">
         <Checkbox :model-value="true" size="small" label="Small" />

@@ -17,7 +17,8 @@ export default defineConfig(({ command }) => ({
     // server's dependency scanner reads them as imports of this app. Vue is
     // the only dependency worth pre-bundling, so it is named rather than found.
     optimizeDeps: { noDiscovery: true, include: ['vue'] },
-    // Built, the site is opened from wherever it is put, a subdirectory or a
-    // preview host, so its assets are addressed relative to the page.
-    base: command === 'build' ? './' : '/'
+    // Pages are real paths now, so assets cannot be addressed relative to the
+    // page: `/docs/theming` and `/` sit at different depths. $DOCS_BASE is
+    // where the site will be served from (`/vitral/` on GitHub Pages).
+    base: command === 'build' ? (process.env.DOCS_BASE ?? '/') : '/'
 }));

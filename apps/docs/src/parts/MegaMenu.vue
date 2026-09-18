@@ -3,7 +3,7 @@ import { Icon } from '@vitral/vue';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { sections } from '../lib/catalog';
 import { guideSections } from '../lib/guides';
-import { route } from '../lib/router';
+import { route, href } from '../lib/router';
 import { templateCategories, templates } from '../templates';
 
 /**
@@ -50,7 +50,7 @@ const guideNotes: Record<string, string> = {
     'Get started': 'Install it and read the first page',
     Theming: 'Tokens, presets and colour schemes',
     Customisation: 'Pass-through, unstyled mode, locales',
-    Reference: 'Accessibility, layout, roadmap'
+    Reference: 'Accessibility, layout, contributing'
 };
 
 const componentCount = computed(() => sections.reduce((total, section) => total + section.items.length, 0));
@@ -100,13 +100,13 @@ onBeforeUnmount(() => {
                 Documentation
                 <Icon icon="chevronDown" />
             </button>
-            <a href="#/icons" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
+            <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
         </nav>
 
         <div v-if="open" class="mega-panel" :class="{ wide: open === 'templates' }" :style="{ '--mega-offset': `${offset}px` }" @click="open = null">
             <template v-if="open === 'components'">
                 <div class="mega-grid">
-                    <a v-for="group in sections" :key="group.category" :href="`#/components/${group.items[0]!.id}`" class="mega-item">
+                    <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-item">
                         <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
                         <span>
                             <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
@@ -114,14 +114,14 @@ onBeforeUnmount(() => {
                         </span>
                     </a>
                 </div>
-                <a href="#/components/button" class="mega-foot">Browse all {{ componentCount }} components →</a>
+                <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components →</a>
             </template>
 
             <template v-else-if="open === 'templates'">
                 <div class="mega-columns">
                     <div v-for="group in templateCategories" :key="group.category" class="mega-group">
                         <span class="mega-group-title">{{ group.category }}</span>
-                        <a v-for="entry in group.items" :key="entry.id" :href="`#/templates/${entry.id}`" class="mega-item">
+                        <a v-for="entry in group.items" :key="entry.id" :href="href(`/templates/${entry.id}`)" class="mega-item">
                             <span class="mega-icon"><Icon :icon="entry.icon" /></span>
                             <span>
                                 <b>{{ entry.name }}</b>
@@ -130,12 +130,12 @@ onBeforeUnmount(() => {
                         </a>
                     </div>
                 </div>
-                <a href="#/templates" class="mega-foot">All {{ templates.length }} templates, with live previews →</a>
+                <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews →</a>
             </template>
 
             <template v-else>
                 <div class="mega-grid">
-                    <a v-for="group in guideSections" :key="group.section" :href="`#/docs/${group.items[0]!.id}`" class="mega-item">
+                    <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-item">
                         <span class="mega-icon"><Icon icon="file" /></span>
                         <span>
                             <b>{{ group.section }}</b>
@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
                         </span>
                     </a>
                 </div>
-                <a href="#/docs/introduction" class="mega-foot">Start at the introduction →</a>
+                <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction →</a>
             </template>
         </div>
     </div>

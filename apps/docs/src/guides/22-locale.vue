@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 import { localeId } from '../lib/theme';
 import { Button } from '@vitral/vue';
@@ -42,8 +43,8 @@ const frFR = {
     <CodeBlock :code="setup" label="main.ts" lang="ts" />
     <p>
         <code>en</code> and <code>ptBR</code> ship. <Button label="Try pt-BR here" size="small" severity="secondary" @click="localeId = 'pt-BR'" />
-        <Button label="Back to English" size="small" variant="text" severity="secondary" @click="localeId = 'en'" /> then open a <a href="#/components/datepicker">DatePicker</a>
-        or a <a href="#/components/datatable">DataTable</a>.
+        <Button label="Back to English" size="small" variant="text" severity="secondary" @click="localeId = 'en'" /> then open a <a :href="href('/components/datepicker')">DatePicker</a>
+        or a <a :href="href('/components/datatable')">DataTable</a>.
     </p>
 
     <h2>At runtime</h2>

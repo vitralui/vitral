@@ -3,7 +3,8 @@ import { ScrollTop } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { sections } from './lib/catalog';
 import { guideSections } from './lib/guides';
-import { route } from './lib/router';
+import { useDocumentHead } from './lib/head';
+import { route, href } from './lib/router';
 import { installThemeSwitcher } from './lib/theme';
 import ComponentPage from './pages/ComponentPage.vue';
 import DocPage from './pages/DocPage.vue';
@@ -16,6 +17,7 @@ import SiteFooter from './parts/SiteFooter.vue';
 import TopBar from './parts/TopBar.vue';
 
 installThemeSwitcher();
+useDocumentHead();
 
 const search = ref(false);
 const isDocs = computed(() => route.value.name === 'doc');
@@ -57,18 +59,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 <template v-if="isDocs">
                     <template v-for="group in guideSections" :key="group.section">
                         <h2>{{ group.section }}</h2>
-                        <a v-for="guide in group.items" :key="guide.id" :href="`#/docs/${guide.id}`" :aria-current="route.id === guide.id ? 'page' : undefined">
+                        <a v-for="guide in group.items" :key="guide.id" :href="href(`/docs/${guide.id}`)" :aria-current="route.id === guide.id ? 'page' : undefined">
                             {{ guide.meta.title }}
                         </a>
                     </template>
                     <h2>Components</h2>
-                    <a href="#/components/button">All components →</a>
+                    <a :href="href('/components/button')">All components →</a>
                 </template>
 
                 <template v-else>
                     <template v-for="group in sections" :key="group.category">
                         <h2>{{ group.category }}</h2>
-                        <a v-for="entry in group.items" :key="entry.id" :href="`#/components/${entry.id}`" :aria-current="route.id === entry.id ? 'page' : undefined">
+                        <a v-for="entry in group.items" :key="entry.id" :href="href(`/components/${entry.id}`)" :aria-current="route.id === entry.id ? 'page' : undefined">
                             {{ entry.meta.title }}
                         </a>
                     </template>

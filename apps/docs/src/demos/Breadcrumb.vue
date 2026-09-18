@@ -13,16 +13,16 @@ export const meta: DemoMeta = {
 import { Breadcrumb, type BreadcrumbItem } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
 
-const home: BreadcrumbItem = { url: '#/breadcrumb' };
+const home: BreadcrumbItem = { url: '#' };
 const trail: BreadcrumbItem[] = [
-    { label: 'Electronics', url: '#/breadcrumb' },
-    { label: 'Computers', url: '#/breadcrumb' },
-    { label: 'Laptops', url: '#/breadcrumb' },
+    { label: 'Electronics', url: '#' },
+    { label: 'Computers', url: '#' },
+    { label: 'Laptops', url: '#' },
     { label: 'Vitral 14' }
 ];
 const folders: BreadcrumbItem[] = [
-    { label: 'Documents', icon: 'folder', url: '#/breadcrumb' },
-    { label: 'Projects', icon: 'folder', url: '#/breadcrumb' },
+    { label: 'Documents', icon: 'folder', url: '#' },
+    { label: 'Projects', icon: 'folder', url: '#' },
     { label: 'README.md', icon: 'file' }
 ];
 </script>

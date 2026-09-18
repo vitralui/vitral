@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const spec = `it('is a combobox that answers the keyboard', async () => {
@@ -50,7 +51,7 @@ const spec = `it('is a combobox that answers the keyboard', async () => {
 
     <h2>Unstyled changes none of it</h2>
     <p>
-        <a href="#/docs/unstyled">Unstyled mode</a> drops the classes and keeps every line above. That is the division the library is built on: behaviour and semantics are the
+        <a :href="href('/docs/unstyled')">Unstyled mode</a> drops the classes and keeps every line above. That is the division the library is built on: behaviour and semantics are the
         component, the look is a theme.
     </p>
 </template>

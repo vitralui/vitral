@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { href } from '../lib/router';
 import { Button, Icon, SelectButton, Tag } from '@vitral/vue';
 import { computed, ref } from 'vue';
 import TemplateThumb from '../parts/TemplateThumb.vue';
@@ -36,13 +37,13 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                 <ul class="tpl-grid">
                     <li v-for="entry in shown" :key="entry.id">
                         <article class="tpl-card">
-                            <a :href="`#/templates/${entry.id}`" class="tpl-card-media" :aria-label="`${entry.name} — ${entry.category} template`">
+                            <a :href="href(`/templates/${entry.id}`)" class="tpl-card-media" :aria-label="`${entry.name} — ${entry.category} template`">
                                 <TemplateThumb :template="entry" />
                             </a>
                             <div class="tpl-card-body">
                                 <span class="tpl-card-kicker"><Icon :icon="entry.icon" /> {{ entry.category }} · {{ entry.screens.length }} screens</span>
                                 <h2>
-                                    <a :href="`#/templates/${entry.id}`">{{ entry.name }}</a>
+                                    <a :href="href(`/templates/${entry.id}`)">{{ entry.name }}</a>
                                 </h2>
                                 <p>{{ entry.summary }}</p>
                                 <div class="tpl-tags">
@@ -52,7 +53,7 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                             <div class="tpl-card-foot">
                                 <Button
                                     as="a"
-                                    :href="`#/templates/${entry.id}`"
+                                    :href="href(`/templates/${entry.id}`)"
                                     label="Details"
                                     size="small"
                                     variant="outlined"
@@ -61,7 +62,7 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                                 />
                                 <Button
                                     as="a"
-                                    :href="`#/templates/${entry.id}/preview`"
+                                    :href="href(`/templates/${entry.id}/preview`)"
                                     label="Live preview"
                                     icon="externalLink"
                                     icon-pos="right"
@@ -84,8 +85,8 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                         <p>A template is a folder of Vue files over the same tokens as everything else, so changing the preset changes it too.</p>
                     </div>
                     <div class="home-actions">
-                        <Button as="a" href="#/docs/presets" label="Read about presets" />
-                        <Button as="a" href="#/components/button" label="Browse components" severity="secondary" variant="outlined" />
+                        <Button as="a" :href="href('/docs/presets')" label="Read about presets" />
+                        <Button as="a" :href="href('/components/button')" label="Browse components" severity="secondary" variant="outlined" />
                     </div>
                 </div>
             </div>

@@ -30,7 +30,7 @@ const grouped: MenuItem[] = [
         items: [
             { label: 'Settings', icon: 'sliders', command: run },
             { label: 'Notifications', icon: 'bell', command: run, disabled: true },
-            { label: 'Help', icon: 'externalLink', url: '#/menu' }
+            { label: 'Help', icon: 'externalLink', url: '#' }
         ]
     }
 ];
