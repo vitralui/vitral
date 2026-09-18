@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Form',
     category: 'Form',
     description:
-        'Validation and submission, built from parts: `Form.Root` renders a native form and owns the values, `Form.Field` binds one value to the Vitral control placed inside it: value, name, invalid state, label, hint and error relations. `Form.Summary` lists what is wrong after a failed submit. Rules, async checks and schema resolvers come from `@vitral/forms`, which has no dependencies. Errors appear only once a field has been validated; after a failed submit focus moves to the summary or to the first invalid field.'
+        'Validation and submission, built from parts: `Form.Root` renders a native form and owns the values, `Form.Field` binds one value to the Vitral control placed inside it: value, name, invalid state, label, hint and error relations. `Form.Summary` lists what is wrong after a failed submit. Rules, async checks and schema resolvers come from `@vitral/forms`, which has no dependencies and no framework in it: resolvers for Zod, Yup, Valibot, Superstruct and Standard Schema, and the same form state without Vue. Errors appear only once a field has been validated; after a failed submit focus moves to the summary or to the first invalid field.'
 };
 </script>
 
@@ -44,6 +44,7 @@ import {
 } from '@vitral/vue';
 import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
+import { href } from '../lib/router';
 
 const show = (target: { value: string }) => (event: FormSubmitEvent) => {
     target.value = event.valid ? JSON.stringify(event.values, null, 2) : `${Object.keys(event.errors).length} field(s) to fix`;
@@ -225,9 +226,15 @@ const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').t
         </div>
     </DemoSection>
 
+    <p class="demo-lead">
+        Rules cover a field at a time; a schema covers the form. <code>@vitral/forms</code> ships adapters for Zod, Yup, Valibot, Superstruct and anything carrying
+        <code>~standard</code> (ArkType, Effect Schema), each written against the smallest shape its library exposes, so the package depends on none of them —
+        <a :href="href('/docs/forms')">the whole of it is documented here</a>, including the same form without a framework.
+    </p>
+
     <DemoSection
         title="With a resolver"
-        description="A resolver validates every value at once: `zodResolver`, `yupResolver`, `valibotResolver`, `superstructResolver` or `functionResolver`. The adapters only need the shape of the schema, so this one is written by hand. Cross-field checks (the years) and transforms (the handle is trimmed and lower-cased on submit) come from the schema."
+        description="A resolver validates every value at once: `zodResolver(schema)`, `yupResolver`, `valibotResolver`, `superstructResolver`, `standardSchemaResolver` or `functionResolver`, on `Form.Root` or on `createForm`. An adapter only needs the shape of the schema — `safeParse`, `validate`, `~standard` — so no schema library is installed here and the one below is written by hand. Cross-field checks (the years) and transforms (the handle is trimmed and lower-cased on submit) come from the schema, and what it transforms is what is submitted."
     >
         <Form.Root v-model="profile" :resolver="profileResolver" aria-label="Profile" style="width: 100%; max-width: 26rem" @submit="onProfile">
             <Form.Field name="handle" label="Handle">
