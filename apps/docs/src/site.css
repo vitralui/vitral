@@ -707,6 +707,47 @@ a {
     overflow-wrap: break-word;
 }
 
+/*
+ * Narrow, a demo is a column. Side by side, a caption like "Selection: vue,
+ * vue-app, vue-cli" ends up in a 200px gutter beside the table it describes,
+ * wrapping every two words, while the table itself is squeezed to make room
+ * for it. Stacked, each takes the width it needs.
+ *
+ * Stretching is the right default here: a table, a chart, a panel or a line of
+ * text all read better across the column than shrunk to their content. What
+ * does not are the things that are meant to be small — a button, a tag, an
+ * avatar — which keep their size and sit at the start.
+ */
+@media (max-width: 720px) {
+    .demo-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .demo-body > .vt-button,
+    .demo-body > .vt-buttongroup,
+    .demo-body > .vt-splitbutton,
+    .demo-body > .vt-selectbutton,
+    .demo-body > .vt-togglebutton,
+    .demo-body > .vt-toggleswitch,
+    .demo-body > .vt-checkbox,
+    .demo-body > .vt-radiobutton,
+    .demo-body > .vt-rating,
+    .demo-body > .vt-knob,
+    .demo-body > .vt-avatar,
+    .demo-body > .vt-avatargroup,
+    .demo-body > .vt-tag,
+    .demo-body > .vt-chip,
+    .demo-body > .vt-badge,
+    .demo-body > .vt-overlaybadge,
+    .demo-body > .vt-speeddial,
+    .demo-body > .vt-colorpicker,
+    .demo-body > .vt-skeleton,
+    .demo-body > .vt-progressspinner {
+        align-self: flex-start;
+    }
+}
+
 /* --------------------------------------------------------------- API table */
 
 /*
