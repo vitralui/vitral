@@ -1075,9 +1075,18 @@ a {
 }
 
 /* Templates: grouped by category, the groups flowing over three columns. */
+/*
+ * A grid, not a column flow. Flowing balanced the three columns by height, so
+ * with seven groups of one and two items the second heading in each column
+ * landed at a different height from its neighbours — the columns were even and
+ * nothing inside them lined up. In a grid the groups fill row by row and every
+ * row starts level.
+ */
 .mega-columns {
-    columns: 3 14rem;
-    column-gap: 0.25rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.25rem 0.25rem;
+    align-items: start;
 }
 
 .mega-group {
@@ -1131,8 +1140,17 @@ a {
     background: var(--vt-navigation-item-focus-background);
 }
 
+/*
+ * Two lines, always. A summary that runs to three makes its item taller than
+ * the one beside it, and in a menu of short entries that reads as a mistake
+ * rather than as more text.
+ */
 .mega-item em {
-    display: block;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
     margin-top: 0.125rem;
     font-size: 0.75rem;
     font-style: normal;
