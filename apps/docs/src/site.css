@@ -67,11 +67,20 @@ a {
     text-decoration: none;
 }
 
+/*
+ * The mark, which is the favicon: the same rounded square and the same V, drawn
+ * on the same 32 grid. The letter rides on the gradient as a background layer
+ * rather than as markup, so the two places that show it — the bar and the
+ * footer — stay one empty span and there is one drawing to keep in step with
+ * the icon in the head of the page.
+ */
 .brand-mark {
     width: 26px;
     height: 26px;
     border-radius: 8px;
-    background: linear-gradient(135deg, var(--vt-primary-400), var(--vt-primary-700));
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 9h4l3 9 3-9h4l-5.5 14h-3z' fill='%23fff'/%3E%3C/svg%3E") center / 100% no-repeat,
+        linear-gradient(135deg, var(--vt-primary-400), var(--vt-primary-700));
     box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12) inset;
 }
 
