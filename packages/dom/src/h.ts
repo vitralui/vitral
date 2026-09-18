@@ -1,7 +1,8 @@
-// A small keyed DOM patcher: the chart describes its markup as a tree of plain
-// objects on every change, and only what differs reaches the document. Keeping
-// elements (rather than rebuilding them) matters here: a mark that is replaced
-// replays its entry animation, and a legend button that is replaced loses focus.
+// A small keyed DOM patcher: a component describes its markup as a tree of
+// plain objects on every change, and only what differs reaches the document.
+// Keeping elements (rather than rebuilding them) matters: a mark that is
+// replaced replays its entry animation, a button that is replaced loses focus,
+// and a cell that is replaced loses the caret in it.
 //
 // It is deliberately tiny (elements, text, raw nodes handed in by a hook, keys,
 // attributes, inline styles, listeners and a `ref` callback) and it has no

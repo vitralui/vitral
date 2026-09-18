@@ -1,8 +1,8 @@
 import { formatMessage, visuallyHidden, type Locale } from '@vitral/core';
 import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX } from '@vitral/icons';
 import type { ChartTable } from '../engine/a11y';
-import { mergeAttrs } from '../dom/attrs';
-import { h, s, type Child, type Props } from '../dom/h';
+import { mergeAttrs } from '@vitral/dom';
+import { h, s, type Child, type Props } from '@vitral/dom';
 
 // The HTML around the picture: the legend, the tooltip, the toolbar and its
 // download menu, and the hidden data table.

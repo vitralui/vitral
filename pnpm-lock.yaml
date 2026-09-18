@@ -86,6 +86,9 @@ importers:
       '@vitral/core':
         specifier: workspace:*
         version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
       '@vitral/icons':
         specifier: workspace:*
         version: link:../icons
@@ -95,6 +98,12 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
+
+  packages/dom:
+    dependencies:
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/forms: {}
 

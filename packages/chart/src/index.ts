@@ -14,5 +14,10 @@ export * from './style/index';
 export { createChart, type ChartConfig, type ChartEventMap, type ChartEventName, type ChartHandle, type ChartHooks, type ChartPointEvent, type ChartUpdate } from './chart';
 export type { ChartTooltipRenderContext, DownloadKind, HookResult, LegendItemContext, TooltipRow } from './render/html';
 export type { PieCenter } from './render/svg';
-export { mergeAttrs, type ChartPassThrough, type ChartPassThroughContext, type ChartPassThroughValue } from './dom/attrs';
+/**
+ * The pass-through types the chart has always exported, which are the shared
+ * ones from `@vitral/dom` under the names this package uses.
+ */
+export { mergeAttrs } from '@vitral/dom';
+export type { PassThrough as ChartPassThrough, PassThroughContext as ChartPassThroughContext, PassThroughValue as ChartPassThroughValue } from '@vitral/dom';
 export { serializeSvg, svgToPng } from './dom/export';

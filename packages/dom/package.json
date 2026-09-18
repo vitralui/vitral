@@ -1,0 +1,43 @@
+{
+  "name": "@vitral/dom",
+  "version": "0.1.0",
+  "description": "The DOM layer Vitral's framework-free packages render with: a small keyed patcher, part classes with pass-through, and pointer drags.",
+  "keywords": [
+    "vitral",
+    "dom",
+    "renderer"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/dom"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@vitral/core": "workspace:*"
+  }
+}

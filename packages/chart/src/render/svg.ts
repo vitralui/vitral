@@ -1,7 +1,7 @@
 import { markerPath } from '../engine/geometry';
 import type { ChartScene, SceneAnnotation, SceneFill, SceneLabel, SceneMarker, SceneText } from '../engine/scene';
-import { mergeAttrs } from '../dom/attrs';
-import { s, type Child, type Props } from '../dom/h';
+import { mergeAttrs } from '@vitral/dom';
+import { s, type Child, type Props } from '@vitral/dom';
 
 // The picture: grid, axes, marks, heat map, pie, radar, annotations and data
 // labels. Each is a function of the scene and the render state, returning the

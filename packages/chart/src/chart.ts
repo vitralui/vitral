@@ -22,10 +22,9 @@ import { sliceAt, spokeAt } from './engine/polar';
 import type { ChartScene, SceneDatum } from './engine/scene';
 import { normalizeSeries, type NormalizedSeries } from './engine/series';
 import type { ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
-import { mergeAttrs, partResolver, type ChartPassThrough } from './dom/attrs';
-import { pointerDrag } from './dom/drag';
+import { mergeAttrs, partResolver, pointerDrag, type PassThrough as ChartPassThrough } from '@vitral/dom';
 import { downloadChart, serializeSvg, svgToPng } from './dom/export';
-import { createPortal, createRoot, h, s, type Child, type Props, type VElement } from './dom/h';
+import { createPortal, createRoot, h, s, type Child, type Props, type VElement } from '@vitral/dom';
 import {
     hookChild,
     legendView,

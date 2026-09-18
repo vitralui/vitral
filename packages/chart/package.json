@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "@vitral/core": "workspace:*",
+    "@vitral/dom": "workspace:*",
     "@vitral/icons": "workspace:*"
   }
 }

@@ -19,7 +19,7 @@ export interface DragOptions<T> {
     onStart: (payload: T, info: DragInfo) => boolean | void;
     onMove?: (payload: T, info: DragInfo) => void;
     onEnd?: (payload: T, info: DragInfo) => void;
-    /** Escape, a cancelled pointer, or the chart going away. */
+    /** Escape, a cancelled pointer, or the component going away. */
     onCancel?: (payload: T) => void;
     /** The drag started or stopped. */
     onActive?: (active: boolean) => void;

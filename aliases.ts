@@ -10,6 +10,7 @@ export const aliases = {
     '@vitral/core': pkg('core'),
     '@vitral/themes': pkg('themes'),
     '@vitral/styles': pkg('styles'),
+    '@vitral/dom': pkg('dom'),
     '@vitral/forms': pkg('forms'),
     '@vitral/chart/engine': pkg('chart', 'engine/index'),
     '@vitral/chart/style': pkg('chart', 'style/index'),

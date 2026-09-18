@@ -8,6 +8,7 @@
       "@vitral/core": ["packages/core/src/index.ts"],
       "@vitral/themes": ["packages/themes/src/index.ts"],
       "@vitral/styles": ["packages/styles/src/index.ts"],
+      "@vitral/dom": ["packages/dom/src/index.ts"],
       "@vitral/forms": ["packages/forms/src/index.ts"],
       "@vitral/chart": ["packages/chart/src/index.ts"],
       "@vitral/chart/engine": ["packages/chart/src/engine/index.ts"],

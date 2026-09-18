@@ -1,8 +1,8 @@
 import { classOf, cn, type ClassEntry, type ClassValue, type ComponentStyle } from '@vitral/core';
 import type { Props } from './h';
 
-/** Whatever one part's pass-through is handed: the part, its state, and the chart's inputs. */
-export interface ChartPassThroughContext {
+/** Whatever one part's pass-through is handed: the part, its state, and the component's inputs. */
+export interface PassThroughContext {
     part: string;
     state: unknown;
     props: Record<string, unknown>;
@@ -13,10 +13,10 @@ export interface ChartPassThroughContext {
  * `on<Event>` listeners), a function of the part's context returning them, or a
  * bare string taken as a class.
  */
-export type ChartPassThroughValue = Props | string | ((context: ChartPassThroughContext) => Props | string | undefined);
+export type PassThroughValue = Props | string | ((context: PassThroughContext) => Props | string | undefined);
 
-/** Pass-through by part name: `root`, `canvas`, `legendItem`, `tooltip`…, the keys of `chartStyle.classes`. */
-export type ChartPassThrough = Record<string, ChartPassThroughValue | undefined>;
+/** Pass-through by part name: the keys of the component's style. */
+export type PassThrough = Record<string, PassThroughValue | undefined>;
 
 type StyleLike = string | Record<string, unknown> | null | undefined;
 
@@ -70,7 +70,7 @@ export function mergeAttrs(...sets: (Props | undefined | null)[]): Props {
     return out;
 }
 
-function resolve(value: ChartPassThroughValue | undefined, context: ChartPassThroughContext): Props {
+function resolve(value: PassThroughValue | undefined, context: PassThroughContext): Props {
     const resolved = typeof value === 'function' ? value(context) : value;
     if (resolved === undefined) return {};
     return typeof resolved === 'string' ? { class: resolved } : resolved;
@@ -80,7 +80,7 @@ export interface PartOptions {
     style: ComponentStyle;
     unstyled: () => boolean;
     classes: () => Partial<Record<string, ClassEntry>> | undefined;
-    pt: () => ChartPassThrough | undefined;
+    pt: () => PassThrough | undefined;
     props: () => Record<string, unknown>;
 }
 
