@@ -39,4 +39,18 @@ describe('rating keys', () => {
         expect(ratingKeyValue('End', 3, 5)).toBe(5);
         expect(ratingKeyValue('x', 3, 5)).toBeNull();
     });
+
+    it('steps by halves and quarters without landing between them', () => {
+        expect(ratingKeyValue('ArrowRight', 2, 5, { step: 0.5 })).toBe(2.5);
+        expect(ratingKeyValue('ArrowLeft', 2.5, 5, { step: 0.5 })).toBe(2);
+        expect(ratingKeyValue('ArrowRight', 5, 5, { step: 0.5 })).toBe(0.5);
+        expect(ratingKeyValue('ArrowLeft', 0.5, 5, { step: 0.5 })).toBe(5);
+        expect(ratingKeyValue('Home', 3, 5, { step: 0.5 })).toBe(0.5);
+        expect(ratingKeyValue('Home', 3, 5, { step: 0.5, allowZero: true })).toBe(0);
+
+        // A tenth added ten times is not one, in binary. It has to be anyway.
+        let value = 0.1;
+        for (let i = 0; i < 9; i++) value = ratingKeyValue('ArrowRight', value, 5, { step: 0.1 })!;
+        expect(value).toBe(1);
+    });
 });

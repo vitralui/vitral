@@ -49,3 +49,27 @@
         transition: none;
     }
 }
+
+/*
+ * Half a star is the filled star drawn over the empty one and clipped to the
+ * fraction, which keeps one glyph rather than needing a second, half-drawn one
+ * — and works for quarters and tenths for free. It clips from the side the
+ * reading starts on, so it fills the right way round in both directions.
+ */
+.vt-rating-option {
+    position: relative;
+}
+
+.vt-rating-fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.vt-rating-fill > * {
+    flex: none;
+}

@@ -83,4 +83,36 @@ describe('Rating', () => {
         mountRating({ modelValue: 3 });
         await expectNoA11yViolations();
     });
+
+    it('takes half stars as a slider, and fills the star it is halfway through', async () => {
+        const value = ref<number | null>(2.5);
+        mountVt(defineComponent(() => () => h(Rating, { step: 0.5, ariaLabel: 'Score', modelValue: value.value, 'onUpdate:modelValue': (v: number | null | undefined) => (value.value = v ?? null) })));
+
+        // Half a star is a position on a scale, not an option in a list.
+        const slider = document.querySelector('[role="slider"]')!;
+        expect(slider).toBeTruthy();
+        expect(document.querySelectorAll('[role="radio"]')).toHaveLength(0);
+        expect(slider.getAttribute('aria-valuenow')).toBe('2.5');
+        expect(slider.getAttribute('aria-valuemax')).toBe('5');
+        expect((slider as HTMLElement).tabIndex).toBe(0);
+
+        // Two stars filled, the third half filled, the rest empty.
+        const fills = Array.from(document.querySelectorAll<HTMLElement>('.vt-rating-fill')).map((el) => el.style.width);
+        expect(fills).toEqual(['100%', '100%', '50%']);
+
+        await press(slider, 'ArrowRight');
+        expect(value.value).toBe(3);
+        await press(slider, 'ArrowLeft');
+        await press(slider, 'ArrowLeft');
+        expect(value.value).toBe(2);
+    });
+
+    it('stays a radio group of whole stars by default', async () => {
+        const value = ref<number | null>(3);
+        mountVt(defineComponent(() => () => h(Rating, { ariaLabel: 'Score', modelValue: value.value, 'onUpdate:modelValue': (v: number | null | undefined) => (value.value = v ?? null) })));
+        expect(document.querySelector('[role="radiogroup"]')).toBeTruthy();
+        expect(document.querySelectorAll('[role="radio"]')).toHaveLength(5);
+        expect(document.querySelector('[role="slider"]')).toBeNull();
+        expect(Array.from(document.querySelectorAll<HTMLElement>('.vt-rating-fill')).map((el) => el.style.width)).toEqual(['100%', '100%', '100%']);
+    });
 });

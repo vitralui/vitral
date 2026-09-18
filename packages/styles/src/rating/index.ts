@@ -22,6 +22,7 @@ export const ratingStyle = defineStyle({
             { 'vt-rating-readonly': s.readonly, 'vt-rating-disabled': s.disabled, 'vt-rating-invalid': s.invalid, 'vt-rating-interactive': !s.readonly && !s.disabled }
         ],
         option: (s: RatingOptionState) => ['vt-rating-option', { 'vt-rating-option-active': s.active, 'vt-rating-option-hover': s.hover }],
+        fill: 'vt-rating-fill',
         onIcon: 'vt-rating-icon vt-rating-on-icon',
         offIcon: 'vt-rating-icon vt-rating-off-icon'
     }

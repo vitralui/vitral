@@ -43,22 +43,26 @@ export function knobValueAt(x: number, y: number, scale: SliderScale, sweep = KN
 }
 
 /**
- * What a key does to a star rating, a radio group of `stars`: Right/Up choose
- * the next star, Left/Down the previous one (swapped in right-to-left text),
- * Home/End the ends. Zero, meaning no stars, is reachable only when the rating can
- * be cleared. Null for a key the rating ignores.
+ * What a key does to a star rating: Right/Up go up by a step, Left/Down down by
+ * one (swapped in right-to-left text), Home/End to the ends. A step below one
+ * is a half or a quarter star. Zero, meaning no stars, is reachable only when
+ * the rating can be cleared. Null for a key the rating ignores.
  */
-export function ratingKeyValue(key: string, value: number, stars: number, options: { allowZero?: boolean; rtl?: boolean } = {}): number | null {
-    const low = options.allowZero ? 0 : 1;
+export function ratingKeyValue(key: string, value: number, stars: number, options: { allowZero?: boolean; rtl?: boolean; step?: number } = {}): number | null {
+    // A tenth of a star added ten times is not one star, in binary; every value
+    // is rounded back onto the step so the rating never lands between two.
+    const step = options.step && options.step > 0 ? Math.min(options.step, stars) : 1;
+    const onStep = (n: number) => Math.round(n / step) * step;
+    const low = options.allowZero ? 0 : step;
     const forward = options.rtl ? 'ArrowLeft' : 'ArrowRight';
     const backward = options.rtl ? 'ArrowRight' : 'ArrowLeft';
     switch (key) {
         case forward:
         case 'ArrowUp':
-            return value >= stars ? low : Math.max(low, value + 1);
+            return value >= stars ? low : Math.max(low, Math.min(stars, onStep(value + step)));
         case backward:
         case 'ArrowDown':
-            return value <= low ? stars : value - 1;
+            return value <= low ? stars : Math.max(low, onStep(value - step));
         case 'Home':
             return low;
         case 'End':
