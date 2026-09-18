@@ -7,6 +7,9 @@ import StoreShell from '../kit/StoreShell.vue';
 import { paper, sections } from './data';
 import { screens } from './screens';
 
+// A paper says which day it is; it is the one thing a masthead always carries.
+const edition = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
 const props = defineProps<{ standalone?: boolean }>();
 const screen = defineModel<string>('screen', { default: 'front' });
 const { current, go } = provideTemplate(screen, screens, () => props.standalone);
@@ -27,7 +30,18 @@ const links = computed(() => [
 </script>
 
 <template>
-    <StoreShell brand="The Lantern" :brand-icon="bookOpen" :links="links" tagline="Independent news, every morning since 1921 (in a world that does not exist).">
+    <StoreShell
+        brand="The Lantern"
+        :brand-icon="bookOpen"
+        :links="links"
+        layout="centre"
+        tagline="Independent news, every morning since 1921 (in a world that does not exist)."
+    >
+        <template #subnav>
+            <span>{{ edition }}</span>
+            <span>Today's paper</span>
+            <span>Weather 14°C</span>
+        </template>
         <template #actions="{ narrow }">
             <Button v-if="!narrow" label="Subscribe" size="small" />
             <Button icon="search" variant="text" severity="secondary" aria-label="Search the paper" />

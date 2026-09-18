@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { shoppingCart, storefront } from '@vitral/icons';
-import { Button, OverlayBadge } from '@vitral/vue';
+import { Button, Icon, InputText, OverlayBadge } from '@vitral/vue';
+import { ref } from 'vue';
 import { provideTemplate } from '../kit/context';
 import StoreShell from '../kit/StoreShell.vue';
 import { cartCount } from './data';
@@ -15,11 +16,28 @@ const links = [
     { id: 'product', label: 'Featured' },
     { id: 'cart', label: 'Cart' }
 ];
+
+// A shop is browsed by department, which is a row of its own: putting eight
+// categories in the bar beside the brand would leave no room for the search.
+const departments = ['Kitchen', 'Table', 'Cleaning', 'Storage', 'Garden', 'Workshop', 'Gifts'];
+const query = ref('');
 </script>
 
 <template>
-    <StoreShell brand="Fernhill Supply" :brand-icon="storefront" :links="links" tagline="Slow, well-made everyday things. Free shipping over $150.">
-        <template #actions>
+    <StoreShell
+        brand="Fernhill Supply"
+        :brand-icon="storefront"
+        :links="links"
+        announcement="Free shipping over $150 · Returns within 60 days"
+        tagline="Slow, well-made everyday things. Free shipping over $150."
+    >
+        <template #subnav>
+            <button v-for="department in departments" :key="department" type="button" @click="go('home')">{{ department }}</button>
+        </template>
+        <template #actions="{ narrow }">
+            <InputText v-if="!narrow" v-model="query" placeholder="Search the shop" aria-label="Search the shop" size="small">
+                <template #prefix><Icon icon="search" /></template>
+            </InputText>
             <OverlayBadge :value="cartCount" size="small">
                 <Button :icon="shoppingCart" variant="text" severity="secondary" :aria-label="`Cart, ${cartCount} items`" @click="go('cart')" />
             </OverlayBadge>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { plane, userCircle } from '@vitral/icons';
-import { Button } from '@vitral/vue';
+import { Button, Tag } from '@vitral/vue';
 import { provideTemplate } from '../kit/context';
 import StoreShell from '../kit/StoreShell.vue';
 import { screens } from './screens';
@@ -17,8 +17,15 @@ const links = [
 </script>
 
 <template>
-    <StoreShell brand="Skylark Air" :brand-icon="plane" :links="links" tagline="Short hops and long hauls between cities that exist only here.">
+    <StoreShell
+        brand="Skylark Air"
+        :brand-icon="plane"
+        :links="links"
+        announcement="Bags included on every fare until 30 November"
+        tagline="Short hops and long hauls between cities that exist only here."
+    >
         <template #actions="{ narrow }">
+            <Tag v-if="!narrow" value="Skylark Club · 12,480 pts" severity="secondary" />
             <Button :icon="userCircle" :label="narrow ? undefined : 'Sign in'" :aria-label="narrow ? 'Sign in' : undefined" variant="text" severity="secondary" size="small" />
         </template>
         <component :is="current.component" />

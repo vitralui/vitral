@@ -589,7 +589,80 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: auto;
+}
+
+/* The far side of the bar: the links that follow the brand, then the actions. */
+.tp-store-end {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-inline-start: auto;
+}
+
+/* A strip above the bar, for the one thing a shop or a paper wants said first. */
+.tp-store-strip {
+    margin: 0;
+    padding: 0.4375rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--vt-primary-contrast-color);
+    background: var(--vt-primary-color);
+}
+
+/* A second row, for the categories or sections a site with many of them needs. */
+.tp-store-subnav {
+    border-top: 1px solid var(--vt-content-border-color);
+    font-size: 0.8125rem;
+}
+
+.tp-store-subnav .tp-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    align-items: center;
+    min-height: 2.5rem;
+}
+
+.tp-store-subnav button,
+.tp-store-subnav a {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--vt-text-muted-color);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.tp-store-subnav button:hover,
+.tp-store-subnav a:hover {
+    color: var(--vt-text-color);
+}
+
+.tp-store-subnav [aria-current='page'] {
+    color: var(--vt-text-color);
+    font-weight: 600;
+}
+
+/*
+ * A masthead: the brand in the middle with the sections dealt either side. The
+ * outer columns are equal, so the brand is centred on the page and not on
+ * whatever happens to be beside it.
+ */
+.tp-store-centre .tp-store-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+.tp-store-centre .tp-brand {
+    justify-self: center;
+    font-size: 1.25rem;
+}
+
+.tp-store-centre .tp-store-end {
+    justify-content: flex-end;
 }
 
 .tp-store-main {
@@ -647,6 +720,90 @@
     flex: 1;
     flex-direction: column;
     min-width: 0;
+}
+
+/* Inset: the rail keeps the canvas colour and the page floats on it as a card.
+   It is the same shell — only the seam between the two moves. */
+.tp-app-inset > .vt-sidebar {
+    background: transparent;
+    border-inline-end: 0;
+}
+
+.tp-app-inset .tp-app-body {
+    margin: 0.75rem 0.75rem 0.75rem 0;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--tp-radius);
+    background: var(--vt-content-background);
+    overflow: hidden;
+}
+
+.tp-app-inset .tp-app-bar {
+    background: transparent;
+    backdrop-filter: none;
+}
+
+/* ---- what templates hang in the sidebar */
+
+.tp-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.75rem;
+}
+
+.tp-aside-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-border-radius-md);
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+}
+
+.tp-aside-note b {
+    font-size: 1rem;
+    font-weight: 650;
+    color: var(--vt-text-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.tp-aside-switch {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
+.tp-aside-meter {
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.tp-aside-meter-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+}
+
+/* A search that gives up its text when the rail folds to icons. */
+.tp-aside-search kbd {
+    padding: 0.0625rem 0.25rem;
+    font-family: inherit;
+    font-size: 0.6875rem;
+    color: var(--vt-text-muted-color);
+    background: var(--vt-navigation-item-focus-background);
+    border-radius: 4px;
 }
 
 .tp-app-bar {
