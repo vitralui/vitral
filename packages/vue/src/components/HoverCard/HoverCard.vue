@@ -7,7 +7,7 @@ import type { HoverCardEmits, HoverCardProps, HoverCardSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 // A preview for sighted pointer and keyboard users: the
-// trigger (a link, usually) does its own job, and the card is extra — it opens
+// trigger (a link, usually) does its own job, and the card is extra. It opens
 // after the pointer rests on the trigger or keyboard focus reaches it, stays
 // while the pointer is over either, and closes on Escape. Because it is extra,
 // it is not announced and takes no focus; what it shows must be reachable

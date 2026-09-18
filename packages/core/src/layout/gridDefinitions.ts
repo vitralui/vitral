@@ -1,5 +1,5 @@
 /**
- * Star sizing — `'Auto,*,2*,120'`, the track syntax desktop toolkits use — as
+ * Star sizing (`'Auto,*,2*,120'`, the track syntax desktop toolkits use) as
  * CSS grid tracks, so a Grid is written the way a layout is usually thought of
  * and every adapter turns it into the same `grid-template-*`.
  */
@@ -27,7 +27,7 @@ export function parseGridLength(value: string | number): string {
 
 /**
  * Splits the text form into its entries. Entries are separated by commas or
- * whitespace — both are accepted — and separators inside
+ * whitespace, both are accepted, and separators inside
  * parentheses belong to a CSS function (`minmax(8rem, 1fr)`) and are kept.
  */
 export function splitGridDefinitions(text: string): string[] {

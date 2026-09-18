@@ -51,7 +51,7 @@ export interface TaskboardProps extends BaseProps {
     lanes?: TaskboardLane[];
     /** The field that identifies a card. Defaults to `'id'`. */
     dataKey?: string;
-    /** The field holding a card's title — shown by the default card, and used in the announcements. Defaults to `'title'`. */
+    /** The field holding a card's title, shown by the default card and used in the announcements. Defaults to `'title'`. */
     cardLabel?: string;
     /** The field that marks a card disabled: not clickable and not movable. Defaults to `'disabled'`. */
     disabledField?: string;
@@ -133,7 +133,7 @@ export interface TaskboardSlots {
     'column-header'?: (props: TaskboardColumnSlotProps) => unknown;
     /** Under a column. */
     'column-footer'?: (props: TaskboardColumnSlotProps) => unknown;
-    /** At the end of every cell — an "add card" button, typically. */
+    /** At the end of every cell: an "add card" button, typically. */
     'add-card'?: (props: { column: TaskboardColumn; lane?: TaskboardLane }) => unknown;
     /** A lane header's title area. */
     'lane-header'?: (props: { lane: TaskboardLane; count: number; collapsed: boolean; toggle: () => void }) => unknown;

@@ -30,7 +30,7 @@ export interface BreadcrumbProps extends BaseProps {
 }
 
 export interface BreadcrumbSlots {
-    /** An item's content — its icon and label; the link or button around it stays. */
+    /** An item's content: its icon and label. The link or button around it stays. */
     item?: (props: { item: BreadcrumbItem; label: string | undefined; current: boolean }) => unknown;
     /** Replaces the chevron between items. */
     separator?: () => unknown;

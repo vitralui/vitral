@@ -84,7 +84,7 @@ export type ChartEventName = keyof ChartEventMap;
 export type { ChartTooltipRenderContext, HookResult, LegendItemContext };
 
 /**
- * Optional renderers for the parts people most often replace — what a
+ * Optional renderers for the parts people most often replace, which is what a
  * framework maps its slots onto. Each returns text (never parsed as HTML), a
  * node, or nodes; nothing (null or undefined) keeps the built-in content. The
  * options object stays the primary way to configure a chart.

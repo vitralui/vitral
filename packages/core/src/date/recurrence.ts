@@ -4,7 +4,7 @@ import { addDays, daysInMonth, startOfDay } from './calendar';
  * A practical subset of iCalendar's RRULE (RFC 5545): FREQ (DAILY, WEEKLY,
  * MONTHLY, YEARLY), INTERVAL, COUNT, UNTIL, BYDAY (with an ordinal such as
  * `2MO` or `-1FR` in monthly and yearly rules), BYMONTHDAY (negative counts
- * from the month's end), BYMONTH, WKST — plus EXDATE. Everything works on
+ * from the month's end), BYMONTH and WKST, plus EXDATE. Everything works on
  * local dates: an application that stores UTC converts before and after.
  */
 export type RecurrenceFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
@@ -55,7 +55,7 @@ export interface ParsedRecurrence {
 }
 
 /**
- * Reads an RRULE — `FREQ=WEEKLY;BYDAY=MO,WE`, with or without the `RRULE:`
+ * Reads an RRULE such as `FREQ=WEEKLY;BYDAY=MO,WE`, with or without the `RRULE:`
  * prefix, optionally with `DTSTART:` and `EXDATE:` lines. Returns null when
  * there is no valid FREQ.
  */
@@ -111,7 +111,7 @@ function parseRule(body: string): RecurrenceRule | null {
     return rule;
 }
 
-/** The rule as RRULE text (no prefix) — what an editor writes back. */
+/** The rule as RRULE text (no prefix), which is what an editor writes back. */
 export function formatRecurrence(rule: RecurrenceRule): string {
     const out = [`FREQ=${rule.freq}`];
     if (rule.interval && rule.interval > 1) out.push(`INTERVAL=${rule.interval}`);
@@ -216,7 +216,7 @@ export function expandRecurrence(start: Date, rule: RecurrenceRule, options: Exp
 
     const first = startOfDay(start);
     // A period that yields nothing (a 31st in a short month) must not end the
-    // loop, but an endless run of them — a rule nothing can match — must.
+    // loop, but an endless run of them, a rule nothing can match, must.
     let idle = 0;
     for (let period = 0; idle < 1000; period++) {
         let candidates: Date[];
@@ -250,7 +250,7 @@ export function expandRecurrence(start: Date, rule: RecurrenceRule, options: Exp
     return out;
 }
 
-/** Whether a rule never ends — no COUNT and no UNTIL. */
+/** Whether a rule never ends: no COUNT and no UNTIL. */
 export function isInfiniteRecurrence(rule: RecurrenceRule): boolean {
     return rule.count === undefined && !rule.until;
 }

@@ -1,5 +1,5 @@
 // A text box with a suggestion list: the field chrome, the shared option list
-// in an overlay, and — when several values are chosen — chips inside the field.
+// in an overlay, and, when several values are chosen, chips inside the field.
 export default {
     root: {
         gap: '0.5rem',

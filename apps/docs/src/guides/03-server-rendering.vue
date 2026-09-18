@@ -41,7 +41,7 @@ const cookie = `import { colorSchemeAttrs } from '@vitral/vue';
 
 // The server already knows the scheme, so nothing has to run before the paint.
 const dark = request.cookies.get('app-scheme')?.value === 'dark';
-const attrs = colorSchemeAttrs(dark); // { class: 'vt-dark' } — or {}`;
+const attrs = colorSchemeAttrs(dark); // { class: 'vt-dark' }, or {}`;
 
 const nuxt = `export default defineNuxtConfig({
     modules: ['@vitral/nuxt'],
@@ -93,7 +93,7 @@ const toast = useToast();   // auto-imported, like every composable
         <code>colorSchemeTag(app)</code> writes a small script for the head that reads the remembered choice and the system preference, and marks <code>&lt;html&gt;</code>
         before anything is painted.
     </p>
-    <p>A server that already knows the scheme — from a cookie, a session, the user's account — needs no script and can render the mark itself:</p>
+    <p>A server that already knows the scheme, from a cookie or a session or the user's account, needs no script and can render the mark itself:</p>
     <CodeBlock :code="cookie" label="server.ts" lang="ts" />
     <p>Spread those attributes on <code>&lt;html&gt;</code>. Both follow <code>darkModeSelector</code>, so a custom selector needs no second edit.</p>
 
@@ -103,7 +103,7 @@ const toast = useToast();   // auto-imported, like every composable
         browser hydrates is the markup it was sent. Holding a component back until after it has mounted (<code>&lt;ClientOnly&gt;</code>) is worse: its <code>mounted</code>
         then runs with nothing to draw in.
     </p>
-    <p>Overlays — dialogs, menus, tooltips — open on interaction, so they never render on the server either; they teleport once the page is alive.</p>
+    <p>Overlays (dialogs, menus, tooltips) open on interaction, so they never render on the server either. They teleport once the page is alive.</p>
 
     <h2>Nuxt</h2>
     <p>The module does all of the above, and the auto-imports besides.</p>

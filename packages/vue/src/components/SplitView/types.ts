@@ -5,7 +5,7 @@ export interface SplitViewProps extends BaseProps {
     /**
      * - `inline`: the open pane pushes the content aside; closed, it is gone.
      * - `overlay` (the default): the open pane floats over the content and closes on a press outside or Escape.
-     * - `compactInline`: like `inline`, but closed it keeps a strip `compactPaneLength` wide — room for icons.
+     * - `compactInline`: like `inline`, but closed it keeps a strip `compactPaneLength` wide, room for icons.
      * - `compactOverlay`: the strip stays beside the content, and the open pane floats over it.
      */
     displayMode?: 'inline' | 'overlay' | 'compactInline' | 'compactOverlay';

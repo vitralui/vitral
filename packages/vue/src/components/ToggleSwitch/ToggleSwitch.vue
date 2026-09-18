@@ -7,7 +7,7 @@ import type { ToggleSwitchEmits, ToggleSwitchProps, ToggleSwitchSlots } from './
 // The WAI-ARIA switch as a native checkbox with role="switch": Space toggles,
 // forms submit it, and the header is its <label>. The on/off text beside it
 // repeats the state that aria-checked already announces, so it is hidden from
-// assistive technology — and it is not a <label>, which would fold "On" into
+// assistive technology. It is not a <label> either, which would fold "On" into
 // the switch's name.
 
 defineOptions({ name: 'VtToggleSwitch', inheritAttrs: false });

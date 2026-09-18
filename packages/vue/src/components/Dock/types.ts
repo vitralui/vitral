@@ -14,6 +14,6 @@ export interface DockProps extends BaseProps {
 }
 
 export interface DockSlots {
-    /** An item's content — an icon or an image. */
+    /** An item's content: an icon or an image. */
     item?: (props: { item: MenuItem; index: number }) => unknown;
 }

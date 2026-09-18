@@ -8,8 +8,8 @@ import { useOverlay } from '../../composables/useOverlay';
 import type { BlockUIEmits, BlockUIProps, BlockUISlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
-// While blocked, the region is `inert` — no pointer, no Tab, not in the
-// accessibility tree — and `aria-busy`; the veil carries a status saying why.
+// While blocked, the region is `inert` (no pointer, no Tab, not in the
+// accessibility tree) and `aria-busy`; the veil carries a status saying why.
 // A full-screen block veils the page instead: it stacks as a modal, holds focus
 // on itself and keeps the page from scrolling, then gives focus back.
 

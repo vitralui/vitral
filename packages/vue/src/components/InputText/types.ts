@@ -14,8 +14,8 @@ export interface InputTextProps extends BaseProps {
 }
 
 export interface InputTextSlots {
-    /** Content inside the field, before the text — an icon, a currency sign. */
+    /** Content inside the field, before the text: an icon, a currency sign. */
     prefix?: () => unknown;
-    /** Content inside the field, after the text — a unit, a button. */
+    /** Content inside the field, after the text: a unit, a button. */
     suffix?: () => unknown;
 }

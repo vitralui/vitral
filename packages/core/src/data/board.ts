@@ -1,6 +1,6 @@
 /**
- * The arithmetic of a task board — cards in columns, optionally split into
- * swimlanes — with no DOM in it. A board is kept as one flat, ordered list of
+ * The arithmetic of a task board (cards in columns, optionally split into
+ * swimlanes) with no DOM in it. A board is kept as one flat, ordered list of
  * entries, each saying which column (and lane) it is in; a cell's cards are the
  * entries of that cell in list order. Every move is a pure function of that
  * list, so a board fed as nested columns and one fed as a flat list of items
@@ -104,7 +104,7 @@ export interface BoardLayout {
     columns: readonly BoardKey[];
     /** Lane keys in display order; `[undefined]` for a board without lanes. */
     lanes: readonly (BoardKey | undefined)[];
-    /** Columns (or lanes) a card cannot be moved to by the keyboard — collapsed, locked. */
+    /** Columns (or lanes) a card cannot be moved to by the keyboard: collapsed, locked. */
     skipColumn?: (column: BoardKey) => boolean;
     skipLane?: (lane: BoardKey | undefined) => boolean;
 }
@@ -112,8 +112,8 @@ export interface BoardLayout {
 /**
  * Where a key takes a picked-up card, following the accessible drag-and-drop
  * pattern: Up/Down through the cell, Home/End to its ends, Left/Right to the
- * neighbouring column (keeping the row when it can), PageUp/PageDown — or
- * Ctrl with Up/Down — to the neighbouring lane. `count(column, lane)` is the
+ * neighbouring column (keeping the row when it can), and PageUp/PageDown, or
+ * Ctrl with Up/Down, to the neighbouring lane. `count(column, lane)` is the
  * number of cards already in a cell, not counting the one that moves. Null for
  * a key the pattern does not use; the same position when there is nowhere to go.
  */

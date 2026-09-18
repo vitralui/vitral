@@ -1,4 +1,4 @@
-// The label that stays inside the field, above the value — "infield top
+// The label that stays inside the field, above the value: "infield top
 // aligned". The field carries the extra height it needs.
 export default {
     root: {

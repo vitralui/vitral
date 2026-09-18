@@ -7,7 +7,7 @@ import type { FloatLabelProps, FloatLabelSlots } from './types';
 // The label is a real <label> the reader writes, pointed at the control with
 // `for`: floating it is a visual arrangement, and nothing here touches the
 // relation that makes the field usable. Whether it is lifted is read from the
-// control's own state in CSS — `:focus-within`, `:placeholder-shown` — so a
+// control's own state in CSS (`:focus-within`, `:placeholder-shown`), so a
 // value set from code moves the label without an event to listen to.
 
 defineOptions({ name: 'VtFloatLabel' });

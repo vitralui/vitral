@@ -57,14 +57,14 @@ const live = `<Select
 <template>
     <p>
         Every element a component renders carries one call: <code>v-bind="part('name', state)"</code>. That call is what merges the theme's classes, the reader's pass-through and
-        the part's state — so anything the component draws can be reached without a fork, a wrapper or a <code>:deep()</code> selector.
+        the part's state, so anything the component draws can be reached without a fork, a wrapper or a <code>:deep()</code> selector.
     </p>
 
     <h2>Three shapes</h2>
     <CodeBlock :code="basic" label="Example.vue" lang="vue" />
     <p>
         The string shorthand is there for utility CSS: <code>{ root: 'px-4 py-2 rounded bg-violet-600' }</code> is all a Tailwind user needs to write. The function form receives
-        <code>{ props, state, part }</code>, where <code>state</code> is whatever the component passed for that element — <code>{ selected, focused }</code> for an option.
+        <code>{ props, state, part }</code>, where <code>state</code> is whatever the component passed for that element, such as <code>{ selected, focused }</code> for an option.
     </p>
 
     <h2>It merges, not replaces</h2>
@@ -88,12 +88,12 @@ const live = `<Select
     </p>
 
     <h2>Globally</h2>
-    <p>The same object, keyed by component name, applies to every instance — the hook for an analytics attribute or a house rule.</p>
+    <p>The same object, keyed by component name, applies to every instance. That is the hook for an analytics attribute or a house rule.</p>
     <CodeBlock :code="global" label="main.ts" lang="ts" />
 
     <h2>Which parts exist</h2>
     <p>
-        A component's parts are the keys of its class map in <code>@vitral/styles</code> — <code>root</code>, and then whatever it draws: <code>label</code>,
+        A component's parts are the keys of its class map in <code>@vitral/styles</code>: <code>root</code>, and then whatever it draws, such as <code>label</code>,
         <code>dropdown</code>, <code>overlay</code>, <code>option</code>. They are also its CSS class names, minus the <code>vt-</code> prefix, so the DOM inspector is the
         reference.
     </p>

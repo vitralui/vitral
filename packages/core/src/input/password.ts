@@ -13,7 +13,7 @@ export const defaultStrongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
 
 const toRegex = (value: RegExp | string | undefined, fallback: RegExp) => (value === undefined ? fallback : typeof value === 'string' ? new RegExp(value) : value);
 
-/** The grade of `value`, or null for an empty one — a meter shows nothing until something is typed. */
+/** The grade of `value`, or null for an empty one, since a meter shows nothing until something is typed. */
 export function passwordStrength(value: string | null | undefined, options: PasswordStrengthOptions = {}): PasswordStrength | null {
     if (!value) return null;
     if (toRegex(options.strongRegex, defaultStrongRegex).test(value)) return 'strong';

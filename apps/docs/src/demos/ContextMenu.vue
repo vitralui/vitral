@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'ContextMenu',
     category: 'Menu',
     description:
-        'The menu a right-click opens — and Shift+F10 or the context-menu key, for the keyboard. It opens at the pointer (or under the focused element) on its first item, works as a WAI-ARIA menu with submenus, and gives focus back when it closes.'
+        'The menu a right-click opens, and Shift+F10 or the context-menu key for the keyboard. It opens at the pointer (or under the focused element) on its first item, works as a WAI-ARIA menu with submenus, and gives focus back when it closes.'
 };
 </script>
 

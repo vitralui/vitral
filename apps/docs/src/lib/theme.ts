@@ -34,7 +34,7 @@ export const variantOptions = [
 ];
 
 // `?preset=ink` and `?scheme=dark` open the site in that look without
-// remembering it — what a screenshot or a shared link needs.
+// remembering it, which is what a screenshot or a shared link needs.
 const params = new URLSearchParams(location.search);
 
 export const presetId = ref(params.get('preset') ?? themes[0]!.id);

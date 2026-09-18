@@ -7,7 +7,7 @@ import { defaultThemeOptions, type Preset, type ThemeOptions } from './types';
 export interface ThemeState {
     preset: Preset;
     colorScheme: ColorScheme;
-    /** The scheme actually showing — `colorScheme` with `'system'` resolved. */
+    /** The scheme actually showing: `colorScheme` with `'system'` resolved. */
     dark: boolean;
 }
 
@@ -22,11 +22,11 @@ export interface ThemeManagerOptions extends ThemeOptions {
 
 export interface ThemeManager {
     readonly options: Required<ThemeOptions>;
-    /** The localStorage key the scheme is remembered under, or false — what `colorSchemeScript` needs to agree with. */
+    /** The localStorage key the scheme is remembered under, or false. `colorSchemeScript` has to agree with it. */
     readonly storageKey: string | false;
     getState(): ThemeState;
     setPreset(preset: Preset): void;
-    /** Merges a partial preset over the current one — a new primary colour, a rounder radius. */
+    /** Merges a partial preset over the current one: a new primary colour, a rounder radius. */
     extendPreset(partial: Preset): void;
     setColorScheme(scheme: ColorScheme): void;
     toggleDark(): void;
@@ -42,7 +42,7 @@ const STYLE_ATTR = 'data-vitral-theme';
 /**
  * Owns the theme at runtime: compiles the preset into one `<style>` element,
  * applies the dark selector to `<html>`, and tells subscribers when anything
- * changes. It knows nothing about any framework — the Vue plugin wraps it, and a
+ * changes. It knows nothing about any framework: the Vue plugin wraps it, and a
  * React or Angular adapter would wrap the same object.
  */
 export function createThemeManager(init: ThemeManagerOptions): ThemeManager {

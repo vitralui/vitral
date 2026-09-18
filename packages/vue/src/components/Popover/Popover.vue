@@ -10,8 +10,8 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 // A popover: a non-modal dialog anchored to the
 // control that opened it. Opening moves focus in; Escape, a press outside or
 // tabbing past either end closes it, and focus goes back to the trigger (or,
-// tabbing forward, on to whatever follows it). Name it through attributes —
-// `aria-label` or `aria-labelledby` — which land on the dialog element.
+// tabbing forward, on to whatever follows it). Name it through attributes,
+// `aria-label` or `aria-labelledby`, which land on the dialog element.
 
 defineOptions({ name: 'VtPopover', inheritAttrs: false });
 

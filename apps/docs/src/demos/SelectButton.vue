@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'SelectButton',
     category: 'Form',
     description:
-        'A segmented control. With one choice it is a radio group — arrows move and select, one tab stop; with `multiple` it is a row of toggle buttons. Name the group with `label`.'
+        'A segmented control. With one choice it is a radio group (arrows move and select, one tab stop); with `multiple` it is a row of toggle buttons. Name the group with `label`.'
 };
 </script>
 

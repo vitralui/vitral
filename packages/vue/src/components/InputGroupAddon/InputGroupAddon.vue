@@ -4,7 +4,7 @@ import { useComponent } from '../../base/useComponent';
 import type { InputGroupAddonProps, InputGroupAddonSlots } from './types';
 
 // The fixed part of a group: a unit, a currency, an icon. It is decoration
-// beside a field, so it holds no role of its own — where it names the field,
+// beside a field, so it holds no role of its own. Where it names the field,
 // render it as a `<label>` and point it at the control.
 
 defineOptions({ name: 'VtInputGroupAddon' });

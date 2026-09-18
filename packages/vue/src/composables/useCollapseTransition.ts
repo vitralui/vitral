@@ -1,5 +1,5 @@
 /**
- * Hooks for a `<Transition>` that opens and closes an element's height — a
+ * Hooks for a `<Transition>` that opens and closes an element's height: a
  * panel's body, an accordion section. CSS cannot animate to `height: auto`, so
  * these hand the browser the two measured heights to move between; the
  * duration, the easing and the reduced-motion switch stay in the stylesheet,

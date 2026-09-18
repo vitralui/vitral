@@ -34,7 +34,7 @@ function withParts<C extends object, P extends object>(component: C, extra: P): 
 }
 
 /**
- * The ready-made editor — and, as properties, the parts it is built from, so
+ * The ready-made editor and, as properties, the parts it is built from, so
  * a template can compose its own: `<Editor.Root>`, `<Editor.Toolbar>`,
  * `<Editor.Button command="bold">`, `<Editor.Content>`… Each part is also a
  * named export (`EditorRoot`, `EditorContent`…).

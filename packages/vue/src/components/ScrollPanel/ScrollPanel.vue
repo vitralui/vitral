@@ -6,8 +6,8 @@ import { useComponent } from '../../base/useComponent';
 import type { ScrollPanelProps, ScrollPanelSlots } from './types';
 
 // A scroll container with the theme's own bars. The content keeps native
-// scrolling — wheel, touch, and the keyboard, since the content area is a
-// focusable region — and only the drawing of the bars is replaced; the drawn
+// scrolling (wheel, touch, and the keyboard, since the content area is a
+// focusable region) and only the drawing of the bars is replaced. The drawn
 // bars are for the pointer and hidden from assistive technology. Size it with
 // `style`; name it with `aria-label` when it holds more than decoration.
 

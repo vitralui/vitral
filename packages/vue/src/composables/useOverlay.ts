@@ -21,7 +21,7 @@ export interface UseOverlayOptions {
 /**
  * Everything a popup needs while it is on screen: attached to its anchor,
  * stacked above what was opened before it, and closed by Escape or a press
- * outside — but only when it is the topmost layer. It all starts when the
+ * outside, but only when it is the topmost layer. It all starts when the
  * overlay element appears and is undone when it goes, so a component only has
  * to render the element conditionally.
  */

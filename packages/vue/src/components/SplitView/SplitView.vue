@@ -84,7 +84,7 @@ const close = () => setOpen(false);
 
 const slotProps = computed<SplitViewSlotProps>(() => ({ open: open.value, compact: compactMode.value && !open.value, paneId: paneId.value, toggle, close }));
 
-/** Whatever toggles the pane — anything whose `aria-controls` names it — counts as inside it. */
+/** Whatever toggles the pane, meaning anything whose `aria-controls` names it, counts as inside it. */
 function controllers(): Element[] {
     return Array.from(document.querySelectorAll('[aria-controls]')).filter((el) => el.getAttribute('aria-controls')!.split(/\s+/).includes(paneId.value));
 }

@@ -8,8 +8,8 @@ import { route } from '../lib/router';
 import { SHOT_WIDTH, shotOf } from '../lib/shots';
 import { templateOf, templates } from '../templates';
 
-// A template's page shows it in pictures — every screen, whole, one under the
-// other, in the site's scheme — and runs it only on request, full screen,
+// A template's page shows it in pictures: every screen, whole, one under the
+// other, in the site's scheme. It runs only on request, full screen,
 // where it is an application of its own rather than a page inside a page.
 const theme = useTheme();
 

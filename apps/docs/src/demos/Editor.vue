@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Editor',
     category: 'Form',
     description:
-        'Rich text with its own editing engine and no dependency: headings, lists and task lists, quotes, code, links, images, tables, colours from the palette, Markdown shortcuts and undo. v-model is sanitised HTML (and v-model:json the document). The text is a labelled multi-line textbox; the toolbar is one tab stop — Alt+F10 reaches it, Escape comes back.'
+        'Rich text with its own editing engine and no dependency: headings, lists and task lists, quotes, code, links, images, tables, colours from the palette, Markdown shortcuts and undo. v-model is sanitised HTML (and v-model:json the document). The text is a labelled multi-line textbox; the toolbar is one tab stop: Alt+F10 reaches it, Escape comes back.'
 };
 </script>
 
@@ -15,7 +15,7 @@ import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
 const article = ref(
-    '<h2>Release notes</h2><p>This editor writes <strong>semantic HTML</strong>, keeps <em>undo</em> history and understands <code>Markdown</code> as you type — try <code>## </code>, <code>- </code> or <code>**bold**</code>.</p>' +
+    '<h2>Release notes</h2><p>This editor writes <strong>semantic HTML</strong>, keeps <em>undo</em> history and understands <code>Markdown</code> as you type. Try <code>## </code>, <code>- </code> or <code>**bold**</code>.</p>' +
         '<ul data-type="taskList"><li data-type="taskItem" data-checked="true"><p>Paste from Word or Google Docs</p></li><li data-type="taskItem" data-checked="false"><p>Select text and press Ctrl+K for a link</p></li></ul>' +
         '<blockquote><p>Nothing pasted can run a script: only what the schema knows survives.</p></blockquote>'
 );
@@ -82,7 +82,7 @@ const words = ref(0);
         </div>
     </DemoSection>
 
-    <DemoSection title="Composed from parts" description="`Editor.Root`, `Editor.Toolbar`, `Editor.Button`, `Editor.Content`, `Editor.BubbleMenu`, `Editor.Footer` and `Editor.Count` — also exported as `EditorRoot`, `EditorToolbar`… — share one editor; `useEditor()` reaches it from your own components.">
+    <DemoSection title="Composed from parts" description="`Editor.Root`, `Editor.Toolbar`, `Editor.Button`, `Editor.Content`, `Editor.BubbleMenu`, `Editor.Footer` and `Editor.Count`, also exported as `EditorRoot`, `EditorToolbar`… share one editor; `useEditor()` reaches it from your own components.">
         <Editor.Root v-model="composed" placeholder="Parts…" aria-label="Composed editor" style="width: 100%" @text-change="words = $event.textValue.split(/\s+/).filter(Boolean).length">
             <Editor.Toolbar>
                 <Editor.ToolbarGroup>

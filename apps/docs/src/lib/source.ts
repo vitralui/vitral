@@ -1,7 +1,7 @@
 /**
  * The demo pages are the source of truth for both the running example and the
- * code beside it: the site reads each `.vue` file twice — compiled by Vite for
- * the demo, and raw for the snippet — so a snippet can never drift from what
+ * code beside it: the site reads each `.vue` file twice, compiled by Vite for
+ * the demo and raw for the snippet, so a snippet can never drift from what
  * the reader sees running.
  */
 const raw = import.meta.glob('../demos/*.vue', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;

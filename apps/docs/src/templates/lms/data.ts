@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-/** Brightpath Academy — a made-up online school with made-up courses and teachers. */
+/** Brightpath Academy: a made-up online school with made-up courses and teachers. */
 export interface Course {
     id: number;
     title: string;

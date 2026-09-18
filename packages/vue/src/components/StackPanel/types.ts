@@ -12,7 +12,7 @@ export interface StackPanelProps extends BaseProps {
     justify?: string;
     /** Let children flow onto another line when they run out of room. */
     wrap?: boolean;
-    /** The element or component to render — `'ul'` for a list, `'nav'`, `'form'`. */
+    /** The element or component to render: `'ul'` for a list, `'nav'`, `'form'`. */
     as?: string | Component;
 }
 

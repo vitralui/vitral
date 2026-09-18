@@ -26,6 +26,6 @@ export interface KnobProps extends BaseProps {
 }
 
 export type KnobEmits = {
-    /** The value was changed by the reader — a drag ended or a key was pressed. */
+    /** The value was changed by the reader: a drag ended or a key was pressed. */
     change: [value: number];
 };

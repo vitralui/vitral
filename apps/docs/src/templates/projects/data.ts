@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import type { TaskboardColumn } from '@vitral/vue';
 
-/** Orbit — a made-up project tool, tracking the launch of a made-up app. */
+/** Orbit: a made-up project tool, tracking the launch of a made-up app. */
 export interface Member {
     id: string;
     name: string;

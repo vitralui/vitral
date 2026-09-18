@@ -43,7 +43,7 @@ export function carouselPageOf(index: number, layout: CarouselLayout): number {
 
 /**
  * Which way a drag pages: 1 for the next page (a swipe towards the start),
- * -1 for the previous, 0 for none — too short, or more across the axis than
+ * -1 for the previous, 0 for none: too short, or more across the axis than
  * along it, which is the reader scrolling the page.
  */
 export function swipeStep(dx: number, dy: number, options: { vertical?: boolean; threshold?: number; rtl?: boolean } = {}): 1 | -1 | 0 {

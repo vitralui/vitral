@@ -6,7 +6,7 @@ import { presetId, primary } from '../lib/theme';
 /**
  * A spec sheet over live components: numbered pins on the components, and a
  * legend that names each token and its value, read from the rendered
- * elements — so the sheet changes with the theme. Pointing at a legend entry
+ * elements, so the sheet changes with the theme. Pointing at a legend entry
  * lights its marks up and dims the rest. The marks are decoration (hidden from
  * assistive technology); the legend is the readable version of them.
  */

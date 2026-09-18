@@ -1,7 +1,7 @@
 /**
  * The arithmetic of a splitter: panel sizes are percentages that add up to 100,
  * and a gutter moves the boundary between the two panels on either side of it,
- * never pushing either below its minimum. No DOM here — a pointer drag, an arrow
+ * never pushing either below its minimum. No DOM here: a pointer drag, an arrow
  * key and a React port all come down to these few functions.
  */
 

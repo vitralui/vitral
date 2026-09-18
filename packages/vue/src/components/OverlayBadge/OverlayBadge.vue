@@ -6,8 +6,8 @@ import { useComponent } from '../../base/useComponent';
 import Badge from '../Badge/Badge.vue';
 import type { OverlayBadgeProps, OverlayBadgeSlots } from './types';
 
-// The badge drawn on the corner is hidden from assistive technology — it is a
-// shape in a corner, possibly a bare dot — and its text is repeated in a
+// The badge drawn on the corner is hidden from assistive technology, being a
+// shape in a corner and possibly a bare dot. Its text is repeated in a
 // visually hidden element whose id the slot hands out for aria-describedby.
 
 defineOptions({ name: 'VtOverlayBadge' });

@@ -15,7 +15,7 @@ export interface RovingKeyOptions {
 }
 
 /**
- * The move a keydown asks for in a widget with a single tab stop — the
+ * The move a keydown asks for in a widget with a single tab stop, the
  * "roving tabindex" composites of the WAI-ARIA APG. Null for any other key, so
  * the caller knows to leave the event alone.
  */

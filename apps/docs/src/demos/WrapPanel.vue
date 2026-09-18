@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'WrapPanel',
     category: 'Layout',
     description:
-        'Lays children out left to right and starts a new line when one is full — or top to bottom, starting a new column. `itemWidth` and `itemHeight` give every child the same size.'
+        'Lays children out left to right and starts a new line when one is full, or top to bottom, starting a new column. `itemWidth` and `itemHeight` give every child the same size.'
 };
 </script>
 

@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-/** Harborline — a made-up bank. Every account, payee and amount is invented. */
+/** Harborline: a made-up bank. Every account, payee and amount is invented. */
 export interface Account {
     id: string;
     name: string;

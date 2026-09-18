@@ -7,7 +7,7 @@ import ScheduleEventView from './ScheduleEventView.vue';
 // The week and day views: a grid whose rows are time slots and whose columns
 // are days, under a header row and an all-day row. Each layer of events is
 // drawn inside the first cell of the row (or rows) it covers, positioned over
-// them — so the grid holds only rows and cells, and the events stay in it.
+// them, so the grid holds only rows and cells and the events stay in it.
 
 defineOptions({ name: 'VtScheduleTimeGrid' });
 

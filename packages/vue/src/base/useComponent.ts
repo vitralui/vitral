@@ -17,7 +17,7 @@ function resolvePassThrough(value: PassThroughValue | undefined, context: PassTh
  *
  * Templates spread `part('name', state)` onto each element. That one call is
  * what makes a component themeable, restylable part by part, and usable
- * unstyled — so a component that uses it everywhere gets all three for free.
+ * unstyled, so a component that uses it everywhere gets all three for free.
  */
 export function useComponent(style: ComponentStyle, props: BaseProps) {
     const context = useVitral();
@@ -59,8 +59,8 @@ export function useComponent(style: ComponentStyle, props: BaseProps) {
 
 /**
  * Splits `$attrs` for a component whose root is a wrapper around a native
- * control: `class` and `style` dress the wrapper, everything else — `id`,
- * `name`, `placeholder`, `aria-*`, listeners — belongs to the control, which is
+ * control: `class` and `style` dress the wrapper, and everything else (`id`,
+ * `name`, `placeholder`, `aria-*`, listeners) belongs to the control, which is
  * where a `<label for>` and a screen reader expect to find it.
  */
 export function useSplitAttrs() {

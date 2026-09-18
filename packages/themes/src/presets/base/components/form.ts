@@ -1,6 +1,6 @@
 // The form parts: the rhythm between fields and inside one (label, control,
 // hint, error), the hint in the muted text colour, the error in the danger
-// colour, and the error summary as a tinted box with a danger accent — the
+// colour, and the error summary as a tinted box with a danger accent, the
 // shape the GOV.UK summary made familiar.
 export default {
     root: {

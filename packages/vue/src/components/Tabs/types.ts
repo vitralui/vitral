@@ -8,7 +8,7 @@ export interface TabsProps extends BaseProps {
     /** Render a panel only while its tab is selected. */
     lazy?: boolean;
     /**
-     * Select a tab as soon as the arrow keys reach it — the APG's automatic
+     * Select a tab as soon as the arrow keys reach it: the APG's automatic
      * activation, and the default. Off, the arrows only move focus and
      * Enter/Space select.
      */

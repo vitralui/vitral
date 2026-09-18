@@ -7,7 +7,7 @@ export interface ContextMenuProps extends BaseProps {
     model?: MenuItem[];
     /** Open on a right-click (or Shift+F10) anywhere in the page. */
     global?: boolean;
-    /** Open on a right-click, Shift+F10 or the context-menu key on this element — or the element a selector finds. */
+    /** Open on a right-click, Shift+F10 or the context-menu key on this element, or on the element a selector finds. */
     target?: string | HTMLElement | null;
     /** Where it renders: `'body'` (the default) or a selector. */
     appendTo?: string;

@@ -7,8 +7,8 @@ export interface TokenTree {
 /**
  * A theme, in three layers:
  *
- * - `primitive`: raw values with no meaning — palettes, radii.
- * - `semantic`: what the values are for — `primary.color`, `formField.borderColor`.
+ * - `primitive`: raw values with no meaning, such as palettes and radii.
+ * - `semantic`: what the values are for, such as `primary.color` or `formField.borderColor`.
  *   A `colorScheme: { light, dark }` branch holds whatever differs between the two.
  * - `components`: per-component tokens, keyed by component name, which refer to
  *   the semantic layer. They may carry their own `colorScheme` branch.

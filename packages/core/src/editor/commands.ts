@@ -56,7 +56,7 @@ import {
 } from './state';
 
 // Every edit is a pure function of the state: it returns the next state, or
-// null when it does not apply — which is also how `can()` answers.
+// null when it does not apply, which is also how `can()` answers.
 
 const last = <T>(list: readonly T[]): T => list[list.length - 1]!;
 
@@ -244,7 +244,7 @@ export function deleteSelection(state: EditorState): EditorState | null {
     return finish(state, cut.doc, { node: cut.node, offset: cut.offset });
 }
 
-/** Deletes between two positions — what a browser's `getTargetRanges()` names. */
+/** Deletes between two positions: what a browser's `getTargetRanges()` names. */
 export function deleteBetween(state: EditorState, from: EditorPosition, to: EditorPosition): EditorState | null {
     const [a, b] = comparePaths(from.path, to.path) < 0 || (samePath(from.path, to.path) && from.offset <= to.offset) ? [from, to] : [to, from];
     if (samePath(a.path, b.path) && a.offset === b.offset) return null;
@@ -358,7 +358,7 @@ export function insertHardBreak(state: EditorState): EditorState | null {
 /**
  * Enter: splits the block (a list item into two items). In an empty list item
  * it leaves the list, in an empty last block of a quote it leaves the quote,
- * in a code block it adds a line — and Enter on an empty last line leaves it.
+ * in a code block it adds a line, and Enter on an empty last line leaves it.
  */
 export function splitBlock(state: EditorState): EditorState | null {
     const cut = cutSelection(state);
@@ -836,7 +836,7 @@ export function goToCell(state: EditorState, direction: 1 | -1): EditorState | n
     if (flat >= ctx.table.content!.length * width) return addRow(state, true, 0);
     const cellNode = ctx.table.content![Math.floor(flat / width)]!.content![flat % width]!;
     const target = textblocks({ type: 'doc', content: [cellNode] })[0]!;
-    // The cell's text is selected, so typing replaces it — as a spreadsheet does.
+    // The cell's text is selected, so typing replaces it, as a spreadsheet does.
     return finish(state, state.doc, { node: target.node, offset: 0 }, { node: target.node, offset: inlineLength(target.node.content) });
 }
 
@@ -942,7 +942,7 @@ export function setSelection(state: EditorState, selection: EditorSelection): Ed
 
 // ---- queries ---------------------------------------------------------------------------------
 
-/** Whether a mark, block type, list or quote is on at the selection — what a toggle button shows. */
+/** Whether a mark, block type, list or quote is on at the selection: what a toggle button shows. */
 export function isActive(state: EditorState, name: string, attrs?: EditorMarkAttrs & EditorNodeAttrs): boolean {
     const { from, to, empty } = selectionRange(state.selection);
     switch (name) {

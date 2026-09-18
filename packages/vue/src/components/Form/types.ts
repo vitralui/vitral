@@ -25,7 +25,7 @@ export type FormValuesLike = Record<string, any>;
 export interface FormSubmitEvent<Values = FormValuesLike> {
     /** Whether every check passed. The handler runs either way; the save belongs behind `valid`. */
     valid: boolean;
-    /** The values — as the resolver returned them, when it transforms them. */
+    /** The values, as the resolver returned them when it transforms them. */
     values: Values;
     /** Messages by path. */
     errors: Record<string, string[]>;
@@ -112,7 +112,7 @@ export interface FormFieldProps extends BaseProps {
     validateOn?: FormValidateOn | FormValidateOn[];
     /** Overrides the form's `revalidateOn`. */
     revalidateOn?: FormValidateOn | FormValidateOn[];
-    /** Milliseconds to wait after typing stops before validating — for async checks. */
+    /** Milliseconds to wait after typing stops before validating, for async checks. */
     debounce?: number;
     /** Other paths whose changes validate this field again. */
     deps?: string[];

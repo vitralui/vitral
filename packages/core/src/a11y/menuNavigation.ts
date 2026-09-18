@@ -1,8 +1,8 @@
 import { firstIndex, lastIndex, stepIndex } from './listNavigation';
 
 /**
- * Keyboard movement through nested menus — a tiered menu, a menu bar, a
- * cascade select — as the WAI-ARIA menu and menubar patterns describe it.
+ * Keyboard movement through nested menus (a tiered menu, a menu bar, a cascade
+ * select) as the WAI-ARIA menu and menubar patterns describe it.
  *
  * Where the reader is is a path of indices, one per level, into the lists the
  * menu shows. A submenu is open exactly when it is on that path, or when the
@@ -22,7 +22,7 @@ export interface MenuTreeAccess<T> {
 }
 
 export interface MenuNavOptions {
-    /** The top level is a horizontal bar — the menubar pattern. */
+    /** The top level is a horizontal bar: the menubar pattern. */
     horizontal?: boolean;
     /** Right-to-left text, where Left goes forward. */
     rtl?: boolean;
@@ -34,7 +34,7 @@ export type MenuKeyResult =
     | { type: 'move'; state: MenuNavState }
     /** Enter or Space on an item without a submenu: run it. */
     | { type: 'activate'; state: MenuNavState }
-    /** Leave the whole menu — Escape at the top. */
+    /** Leave the whole menu: Escape at the top. */
     | { type: 'close' }
     | { type: 'none' };
 

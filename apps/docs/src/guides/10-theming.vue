@@ -11,15 +11,15 @@ export const meta: GuideMeta = {
 <script setup lang="ts">
 import CodeBlock from '../parts/CodeBlock.vue';
 
-const layers = `// primitive — palettes, radii, the raw material
+const layers = `// primitive: palettes, radii, the raw material
 { blue: { 500: '#3b82f6' }, borderRadius: { md: '4px' } }
 
-// semantic — what the application means
+// semantic: what the application means
 { primary: { color: '{blue.500}' },
   formField: { borderColor: '{surface.300}' },
   colorScheme: { dark: { formField: { borderColor: '{surface.700}' } } } }
 
-// component — what one control needs
+// component: what one control needs
 { button: { root: { paddingX: '0.875rem', borderRadius: '{borderRadius.md}' } } }`;
 
 const compiled = `/* '{primary.color}' becomes a reference, not a copy */
@@ -44,7 +44,7 @@ const runtime = `import { useTheme } from '@vitral/vue';
 const { setPreset, setColorScheme, toggleDark, setPrimary, setSurface, isDark } = useTheme();
 
 setPrimary('{emerald}');          // a palette reference
-setPrimary('#7c3aed');            // or a hex value — the shades are derived
+setPrimary('#7c3aed');            // or a hex value, and the shades are derived
 setSurface({ dark: '{slate}' });  // the greys, per scheme
 setColorScheme('system');         // light, dark, or whatever the OS says`;
 
@@ -97,7 +97,7 @@ const dt = `<!-- one instance, one token -->
 
     <h2>Scope and cascade</h2>
     <p>
-        Component CSS is injected once per component, in document order, and can be wrapped in a cascade layer with the <code>cssLayer</code> option — with it, any application
-        rule wins on specificity alone, and <code>!important</code> stays out of your stylesheet.
+        Component CSS is injected once per component, in document order, and can be wrapped in a cascade layer with the <code>cssLayer</code> option. With it, any application
+        rule wins on specificity alone and <code>!important</code> stays out of your stylesheet.
     </p>
 </template>

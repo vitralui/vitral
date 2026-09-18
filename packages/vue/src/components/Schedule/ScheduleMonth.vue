@@ -5,7 +5,7 @@ import { scheduleKey, type Occurrence, type ScheduleCell } from './context';
 import ScheduleEventView from './ScheduleEventView.vue';
 
 // The month view: six weeks as rows of day cells. Every event covering a day
-// is a bar across the week — a timed one included — packed into rows; a day
+// is a bar across the week, a timed one included, packed into rows. A day
 // with more than `maxEventsPerDay` shows a "+N more" button that lists them all.
 
 defineOptions({ name: 'VtScheduleMonth' });

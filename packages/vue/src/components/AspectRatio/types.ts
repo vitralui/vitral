@@ -6,6 +6,6 @@ export interface AspectRatioProps extends BaseProps {
 }
 
 export interface AspectRatioSlots {
-    /** What fills the box — an image, a video, a map. */
+    /** What fills the box: an image, a video, a map. */
     default?: () => unknown;
 }

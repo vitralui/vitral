@@ -9,8 +9,8 @@ export function definePreset(base: Preset, ...overrides: Preset[]): Preset {
 }
 
 /**
- * Replaces the primary palette — with a colour, a `{palette}` reference, or
- * eleven explicit shades — and re-derives the scheme's primary fills from it.
+ * Replaces the primary palette, with a colour, a `{palette}` reference or
+ * eleven explicit shades, and re-derives the scheme's primary fills from it.
  * The second half matters: a preset such as Avalonia pins `primary.color` to an
  * exact accent, and swapping only the palette would leave that pin in place.
  */

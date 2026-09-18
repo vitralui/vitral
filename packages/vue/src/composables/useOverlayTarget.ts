@@ -2,8 +2,8 @@ import { OVERLAY_HOST_ATTR, OVERLAY_SCOPE_ATTR } from '@vitral/core';
 import { computed, defineComponent, h, inject, provide, ref, type ComputedRef, type InjectionKey, type Ref } from 'vue';
 
 // Where popups go. By default a component teleports its overlay to <body>;
-// inside a scope — a preview wearing another theme, a panel in its own colour
-// scheme — the scope hands out an element of its own, so the overlay inherits
+// inside a scope (a preview wearing another theme, a panel in its own colour
+// scheme) the scope hands out an element of its own, so the overlay inherits
 // the scope's custom properties (and stays within it, when the element is a
 // containing block). An explicit `appendTo` other than 'body' still wins.
 // Components learn the element by injection; code without a component (the
@@ -36,7 +36,7 @@ export function useOverlayTarget(appendTo?: () => string | HTMLElement | undefin
  * on this element (or an ancestor) and the popups wear them too.
  *
  * `contain` makes the host a containing block over the scope, so fixed popups
- * and modal masks stay inside it — what a device-sized preview wants.
+ * and modal masks stay inside it, which is what a device-sized preview wants.
  */
 export const OverlayScope = defineComponent({
     name: 'VtOverlayScope',

@@ -2,7 +2,7 @@ export interface Timer {
     /** Starts, or restarts, the countdown from `duration` (the one given at creation by default). */
     start(duration?: number): void;
     /**
-     * Holds the countdown for a reason — `'hover'`, `'focus'` — keeping the time
+     * Holds the countdown for a reason (`'hover'`, `'focus'`), keeping the time
      * left. Several reasons can hold it at once; it runs again once all are gone.
      */
     pause(reason?: string): void;
@@ -15,7 +15,7 @@ export interface Timer {
 }
 
 /**
- * A countdown that can be paused and resumed without losing its place — what a
+ * A countdown that can be paused and resumed without losing its place, which a
  * toast or a message with a `life` needs to honour WCAG 2.2.1: the time runs
  * only while nobody is reading it (hovered) or working in it (focused).
  */

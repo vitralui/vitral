@@ -2,7 +2,7 @@ import type { BaseProps, IconProp } from '../../base/types';
 
 export type AccordionPanelValue = string | number;
 
-/** The open panel's value, or — with `multiple` — the list of open panels' values. */
+/** The open panel's value, or, with `multiple`, the list of open panels' values. */
 export type AccordionValue = AccordionPanelValue | AccordionPanelValue[] | null;
 
 export interface AccordionProps extends BaseProps {

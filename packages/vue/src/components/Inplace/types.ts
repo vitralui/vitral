@@ -14,6 +14,6 @@ export type InplaceEmits = {
 export interface InplaceSlots {
     /** What shows until it is activated. */
     display?: () => unknown;
-    /** What it becomes — the editor. */
+    /** What it becomes: the editor. */
     content?: (props: { closeCallback: (event?: Event) => void }) => unknown;
 }

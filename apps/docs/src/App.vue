@@ -20,8 +20,8 @@ installThemeSwitcher();
 const search = ref(false);
 const isDocs = computed(() => route.value.name === 'doc');
 
-// A new page starts at its top — at once, whatever the page's smooth
-// scrolling says, and for every route in one place.
+// A new page starts at its top, at once, whatever the page's smooth scrolling
+// says, and for every route in one place.
 watch(
     () => route.value.path,
     () => nextTick(() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' }))

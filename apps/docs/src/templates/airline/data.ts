@@ -1,6 +1,6 @@
 import { computed, reactive } from 'vue';
 
-/** Skylark Air — a made-up airline flying between made-up cities. */
+/** Skylark Air: a made-up airline flying between made-up cities. */
 export interface City {
     code: string;
     name: string;

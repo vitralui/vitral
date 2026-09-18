@@ -79,7 +79,7 @@ describe('Menu', () => {
         expect(document.activeElement).toBe(items[2]);
     });
 
-    it('runs the command on Enter, Space and click — but not for a disabled item', async () => {
+    it('runs the command on Enter, Space and click, but not for a disabled item', async () => {
         const onCommand = vi.fn();
         mountVt(Menu, { props: { model: model(onCommand), ariaLabel: 'Account' } });
         const items = menuitems();

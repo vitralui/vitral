@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Toolbar',
     category: 'Panel',
     description:
-        'A row of controls in start, center and end groups, with role="toolbar" and the name you give it. `roving` turns on the APG toolbar keyboard — one tab stop, Left/Right and Home/End between controls — which is off by default because text fields need those keys.'
+        'A row of controls in start, center and end groups, with role="toolbar" and the name you give it. `roving` turns on the APG toolbar keyboard: one tab stop, Left/Right and Home/End between controls, off by default because text fields need those keys.'
 };
 </script>
 

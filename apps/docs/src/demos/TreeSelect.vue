@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'TreeSelect',
     category: 'Form',
     description:
-        'Select over a tree. The combobox opens a WAI-ARIA tree — the same `<Tree>`, with its keyboard, filter and checkbox selection — and moves focus into it. A single choice closes the popup; Escape and Tab close it and give focus back.'
+        'Select over a tree. The combobox opens a WAI-ARIA tree, the same `<Tree>` with its keyboard, filter and checkbox selection, and moves focus into it. A single choice closes the popup; Escape and Tab close it and give focus back.'
 };
 </script>
 

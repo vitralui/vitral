@@ -261,8 +261,8 @@ export interface SpanPlacement<T> {
 }
 
 /**
- * Packs events that cover whole days — all-day events, and every event in a
- * month's week — into rows over `days` days starting at `start`, so no two in
+ * Packs events that cover whole days (all-day events, and every event in a
+ * month's week) into rows over `days` days starting at `start`, so no two in
  * a row overlap. Longer events are placed first, as calendars do, so they run
  * along the top.
  */
@@ -303,7 +303,7 @@ export interface LanePlacement<T> {
     clippedEnd: boolean;
 }
 
-/** Packs events into lanes along a time axis — a resource's row in a timeline. */
+/** Packs events into lanes along a time axis: a resource's row in a timeline. */
 export function layoutLanes<T>(items: readonly T[], range: (item: T) => { start: Date; end: Date }, from: Date, to: Date): LanePlacement<T>[] {
     const total = to.getTime() - from.getTime();
     if (total <= 0) return [];
@@ -345,7 +345,7 @@ export function isBusinessTime(start: Date, end: Date, hours: BusinessHours | Bu
     });
 }
 
-/** The fraction of `[from, to)` that `at` is at, or null outside it — for a "now" line. */
+/** The fraction of `[from, to)` that `at` is at, or null outside it. For a "now" line. */
 export function fractionOf(at: Date, from: Date, to: Date): number | null {
     const total = to.getTime() - from.getTime();
     if (total <= 0 || at < from || at >= to) return null;
@@ -379,7 +379,7 @@ export function timeGridKeyTarget(at: Date, key: string, slotMinutes: number, bo
 
 const timeFormats = new Map<string, Intl.DateTimeFormat>();
 
-/** A time of day in the locale's own style — `9:30 AM`, `09:30`. `hour12` overrides the locale's choice. */
+/** A time of day in the locale's own style: `9:30 AM`, `09:30`. `hour12` overrides the locale's choice. */
 export function formatTime(date: Date, locale?: string, hour12?: boolean): string {
     const key = `${locale ?? ''}|${hour12 ?? ''}`;
     let format = timeFormats.get(key);

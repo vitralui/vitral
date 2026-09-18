@@ -26,7 +26,7 @@ function tokenise(source: string, patterns: { re: RegExp; cls: string }[]) {
         re.lastIndex = 0;
         let match: RegExpExecArray | null;
         while ((match = re.exec(text))) {
-            // A pattern may capture the token inside a wider match — `// …`
+            // A pattern may capture the token inside a wider match: `// …`
             // has to see what precedes it to know it is not part of a URL.
             const token = match[1] ?? match[0];
             const start = match.index + match[0].indexOf(token);

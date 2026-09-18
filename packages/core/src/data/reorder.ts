@@ -1,6 +1,6 @@
 /**
- * Moving items within a list and between two lists — what an order list and a
- * pick list do, by button, key or drag. The functions are pure: they return
+ * Moving items within a list and between two lists, which is what an order list
+ * and a pick list do, by button, key or drag. The functions are pure: they return
  * the new lists and where the moved items ended up, so a component can keep
  * them selected and say where they went.
  */
@@ -58,7 +58,7 @@ export function moveItems<T>(list: readonly T[], indices: readonly number[], dir
     return { list: next, indices: result.sort((a, b) => a - b) };
 }
 
-/** Moves one item from `from` to `to` (its index after the move) — a drag and drop. */
+/** Moves one item from `from` to `to` (its index after the move): a drag and drop. */
 export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
     const next = [...list];
     if (from < 0 || from >= next.length) return next;

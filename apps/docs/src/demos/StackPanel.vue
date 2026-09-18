@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'StackPanel',
     category: 'Layout',
     description:
-        'Arranges its children in one line — one below the other, or side by side — with even spacing between them, over a flex box. Direction, spacing, alignment and wrapping are props applied inline, so it lays out the same unstyled.'
+        'Arranges its children in one line, one below the other or side by side, with even spacing between them, over a flex box. Direction, spacing, alignment and wrapping are props applied inline, so it lays out the same unstyled.'
 };
 </script>
 

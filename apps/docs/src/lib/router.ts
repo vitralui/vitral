@@ -6,7 +6,7 @@ import { computed, ref } from 'vue';
  * server or from a subdirectory on a host that knows nothing about rewrites.
  *
  * Routes: `#/`, `#/docs/<id>`, `#/components/<id>`, `#/icons`, `#/templates`,
- * `#/templates/<id>` and `#/templates/<id>/preview` — the last one is the
+ * `#/templates/<id>` and `#/templates/<id>/preview`. The last one is the
  * template alone, without the site around it.
  *
  * The old `#/themes` and `#/themes/<id>` pages are gone (themes are presets,

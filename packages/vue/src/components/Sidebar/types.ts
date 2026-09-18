@@ -27,9 +27,9 @@ export type SidebarEmits = {
 };
 
 export interface SidebarSlots {
-    /** Above the navigation — a logo, a workspace switcher. */
+    /** Above the navigation: a logo, a workspace switcher. */
     header?: (props: { collapsed: boolean }) => unknown;
-    /** Below it — the signed-in user. */
+    /** Below it: the signed-in user. */
     footer?: (props: { collapsed: boolean }) => unknown;
     /** More content after the model's groups. */
     default?: (props: { collapsed: boolean }) => unknown;

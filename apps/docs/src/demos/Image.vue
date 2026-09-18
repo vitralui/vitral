@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Image',
     category: 'Media',
     description:
-        'An image, and — with `preview` — a viewer over the page: a modal dialog named by the image, with rotate and zoom buttons (and the + , − and R keys). Escape or a press on the veil closes it, and focus goes back to the image.'
+        'An image, and, with `preview`, a viewer over the page: a modal dialog named by the image, with rotate and zoom buttons (and the + , − and R keys). Escape or a press on the veil closes it, and focus goes back to the image.'
 };
 </script>
 

@@ -21,7 +21,7 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                 <span class="tpl-eyebrow">Templates</span>
                 <h1 id="templates-title">Applications to start from</h1>
                 <p class="home-lead">
-                    {{ templates.length }} multi-screen applications built only from Vitral components — a store, a newsroom, dashboards, a booking flow. Each one is responsive,
+                    {{ templates.length }} multi-screen applications built only from Vitral components: a store, a newsroom, dashboards, a booking flow. Each one is responsive,
                     follows whichever theme you pick, and its source is one click away.
                 </p>
             </div>
@@ -81,7 +81,7 @@ const shown = computed(() => (category.value === 'All' ? templates : templates.f
                 <div class="home-end">
                     <div>
                         <h2 id="templates-own">Make one your own</h2>
-                        <p>A template is a folder of Vue files over the same tokens as everything else — change the preset and it changes with it.</p>
+                        <p>A template is a folder of Vue files over the same tokens as everything else, so changing the preset changes it too.</p>
                     </div>
                     <div class="home-actions">
                         <Button as="a" href="#/docs/presets" label="Read about presets" />

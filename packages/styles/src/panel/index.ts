@@ -7,7 +7,7 @@ export interface PanelState {
 }
 
 export interface PanelToggleIconState {
-    /** Turned over while open — only the built-in chevron, which points down when closed. */
+    /** Turned over while open. Only the built-in chevron, which points down when closed. */
     open?: boolean;
 }
 

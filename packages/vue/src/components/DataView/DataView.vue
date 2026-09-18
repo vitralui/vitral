@@ -9,7 +9,7 @@ import type { DataViewEmits, DataViewProps, DataViewSlots } from './types';
 
 // The data layer with your own template per item: the items are sorted and
 // paged here (core's queryData) and handed to the `list` or `grid` slot, which
-// decides their markup — and so their semantics; a list template should render
+// decides their markup, and so their semantics: a list template should render
 // a list. While loading, the view is `aria-busy` with a status to say so.
 
 defineOptions({ name: 'VtDataView' });

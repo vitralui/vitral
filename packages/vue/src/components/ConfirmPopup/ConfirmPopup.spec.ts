@@ -29,7 +29,7 @@ function mountPopup() {
 }
 
 describe('ConfirmPopup', () => {
-    it('answers a request with a target — and only it, not the dialog — as a described alertdialog', async () => {
+    it('answers a request with a target, and only it rather than the dialog, as a described alertdialog', async () => {
         const { popup, button, require } = mountPopup();
         await require();
         expect(document.querySelectorAll('[role="alertdialog"]')).toHaveLength(1);

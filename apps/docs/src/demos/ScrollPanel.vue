@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'ScrollPanel',
     category: 'Panel',
     description:
-        'A scroll container with the theme’s own thin bars. Scrolling stays native — wheel, touch and keyboard, since the content is a focusable region — and only the bars are drawn.'
+        'A scroll container with the theme’s own thin bars. Scrolling stays native (wheel, touch and keyboard, since the content is a focusable region) and only the bars are drawn.'
 };
 </script>
 
@@ -13,7 +13,7 @@ export const meta: DemoMeta = {
 import { ScrollPanel } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
 
-const paragraphs = Array.from({ length: 8 }, (_, i) => `Paragraph ${i + 1}. Vitral draws the scrollbars of this panel with the theme's tokens, while the browser keeps doing the scrolling — so the wheel, touch, and the arrow and page keys all work as they do anywhere else.`);
+const paragraphs = Array.from({ length: 8 }, (_, i) => `Paragraph ${i + 1}. Vitral draws the scrollbars of this panel with the theme's tokens, while the browser keeps doing the scrolling, so the wheel, touch, and the arrow and page keys all work as they do anywhere else.`);
 </script>
 
 <template>

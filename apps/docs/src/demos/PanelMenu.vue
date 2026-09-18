@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'PanelMenu',
     category: 'Menu',
     description:
-        'Sections of navigation that expand in place, for a sidebar. Headers are buttons (Up/Down move between them); each open section is a WAI-ARIA tree of its items — arrows walk and open branches, Enter runs an item.'
+        'Sections of navigation that expand in place, for a sidebar. Headers are buttons (Up/Down move between them); each open section is a WAI-ARIA tree of its items: arrows walk and open branches, Enter runs an item.'
 };
 </script>
 

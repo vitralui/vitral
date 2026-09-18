@@ -11,8 +11,8 @@ import type { IconDef } from './types';
 
 /**
  * The set is data, so it is checked as data: every icon well formed, drawn on
- * the grid in the house style, filed and findable — and every name the
- * library and the site ask for actually there.
+ * the grid in the house style, filed and findable, and every name the library
+ * and the site ask for actually there.
  */
 
 const all = Object.entries(icons) as [string, IconDef][];
@@ -24,7 +24,7 @@ type Point = [number, number];
 
 const NUMBER = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
 
-/** Points along a path — endpoints, sampled curves and arcs — enough to bound it. */
+/** Points along a path (endpoints, sampled curves and arcs), enough to bound it. */
 function pathPoints(d: string): Point[] {
     const out: Point[] = [];
     const tokens = d.match(/[a-z]|-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi) ?? [];
@@ -347,7 +347,7 @@ function sources(dir: string): string[] {
 }
 
 const IDENT = /^[a-z][a-zA-Z0-9]*$/;
-// The string literals an expression can evaluate to — not the ones it only compares against (`p === 'full' ? …`).
+// The string literals an expression can evaluate to, not the ones it only compares against (`p === 'full' ? …`).
 const COMPARE = /(?:===|!==|==|!=)\s*$/;
 const quoted = (expr: string) =>
     [...expr.matchAll(/'([^'\\]*)'/g)]

@@ -3,8 +3,8 @@
 // elements (rather than rebuilding them) matters here: a mark that is replaced
 // replays its entry animation, and a legend button that is replaced loses focus.
 //
-// It is deliberately tiny — elements, text, raw nodes handed in by a hook, keys,
-// attributes, inline styles, listeners and a `ref` callback — and it has no
+// It is deliberately tiny (elements, text, raw nodes handed in by a hook, keys,
+// attributes, inline styles, listeners and a `ref` callback) and it has no
 // framework in it.
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

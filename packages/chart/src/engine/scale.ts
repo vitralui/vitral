@@ -158,7 +158,7 @@ function unitOf(d: Date, finest: TimeUnit): TimeUnit {
 
 /**
  * Ticks on calendar boundaries over `[from, to]` (milliseconds), about
- * `targetTicks` of them — whole hours, midnights, firsts of the month, not
+ * `targetTicks` of them: whole hours, midnights, firsts of the month, not
  * every 3.7 days. Each tick names the coarsest boundary it is on, so a label
  * can show the month at a month's start and the day elsewhere.
  */

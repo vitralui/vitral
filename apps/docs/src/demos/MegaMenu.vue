@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'MegaMenu',
     category: 'Menu',
     description:
-        'A menubar whose items open wide panels of grouped links, in columns — the kind this site’s own top bar uses. Up and Down walk every link of a panel in reading order, Left and Right move to the neighbouring panel, Escape closes it.'
+        'A menubar whose items open wide panels of grouped links, in columns, the kind this site’s own top bar uses. Up and Down walk every link of a panel in reading order, Left and Right move to the neighbouring panel, Escape closes it.'
 };
 </script>
 

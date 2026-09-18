@@ -23,7 +23,7 @@ import type { InputMaskEmits, InputMaskProps } from './types';
 // are taken over and handed to core's mask arithmetic, which says what the
 // slots hold and where the caret goes; anything that still reaches the box
 // another way (autofill, an input method) is read back through the same
-// arithmetic. The box stays a plain textbox for assistive technology — the
+// arithmetic. The box stays a plain textbox for assistive technology, and the
 // pattern is what it reads out, character by character.
 
 defineOptions({ name: 'VtInputMask', inheritAttrs: false });
@@ -114,7 +114,7 @@ function onPaste(event: ClipboardEvent) {
     apply(maskInsert(tokens.value, slots.value, start, end, event.clipboardData?.getData('text') ?? ''), event);
 }
 
-// Whatever got past keydown — autofill, an input method, a drop.
+// Whatever got past keydown: autofill, an input method, a drop.
 function onInput(event: Event) {
     const next = parseMaskText(tokens.value, (event.target as HTMLInputElement).value, props.slotChar);
     apply({ slots: next, caret: maskCaret(tokens.value, next) }, event);

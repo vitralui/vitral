@@ -15,7 +15,7 @@ export interface SliderProps extends BaseProps {
     /** A vertical slider has its minimum at the bottom. */
     orientation?: 'horizontal' | 'vertical';
     disabled?: boolean;
-    /** Text a screen reader announces for a value (`aria-valuetext`) — "20 °C" rather than "20". */
+    /** Text a screen reader announces for a value (`aria-valuetext`): "20 °C" rather than "20". */
     formatValue?: (value: number) => string;
     /**
      * The thumb's accessible name. For a range, one string names both thumbs

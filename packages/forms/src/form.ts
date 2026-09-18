@@ -5,10 +5,10 @@ import type { Rule, RuleContext, RuleResult } from './rules';
 
 /**
  * When a field is validated:
- * - `submit` — only when the form is submitted;
- * - `blur` — when focus leaves the field;
- * - `change` — when a value is committed (a choice picked, a box ticked, text left after editing);
- * - `input` — on every change of the value, keystrokes included (implies `change`).
+ * - `submit`: only when the form is submitted;
+ * - `blur`: when focus leaves the field;
+ * - `change`: when a value is committed (a choice picked, a box ticked, text left after editing);
+ * - `input`: on every change of the value, keystrokes included (implies `change`).
  */
 export type ValidateOn = 'submit' | 'blur' | 'change' | 'input';
 
@@ -41,13 +41,13 @@ export interface FieldOptions {
 
 export interface FormOptions<Values extends FormValues = FormValues> {
     initialValues?: Values;
-    /** Validates the whole form — a schema adapter (`zodResolver(schema)`) or `functionResolver(fn)`. */
+    /** Validates the whole form: a schema adapter (`zodResolver(schema)`) or `functionResolver(fn)`. */
     resolver?: Resolver<Values>;
     /** Cross-field checks, run beside the resolver and the rules. */
     validate?: FormValidator<Values>;
     /** Rules by path, declared in one place instead of on each field. */
     rules?: Record<string, Rules>;
-    /** When fields are validated before the form has been submitted — and before they have been validated once. Defaults to `submit`. */
+    /** When fields are validated before the form has been submitted, and before they have been validated once. Defaults to `submit`. */
     validateOn?: ValidateOn | readonly ValidateOn[];
     /** When a field that has been validated is validated again. Defaults to `input`, so a fixed error clears as it is fixed. */
     revalidateOn?: ValidateOn | readonly ValidateOn[];
@@ -66,7 +66,7 @@ export interface FormState<Values extends FormValues = FormValues> {
     errors: FormErrors;
     /** Paths the user has left (or that a submit has visited). */
     touched: Readonly<Record<string, true>>;
-    /** Paths validated at least once — the point from which an error is shown and `aria-invalid` is set. */
+    /** Paths validated at least once: the point from which an error is shown and `aria-invalid` is set. */
     validated: Readonly<Record<string, true>>;
     /** Paths with a validation running. */
     validatingFields: Readonly<Record<string, true>>;
@@ -94,7 +94,7 @@ export interface FieldSnapshot {
     dirty: boolean;
     validated: boolean;
     validating: boolean;
-    /** Validated and wrong — what `aria-invalid` follows. */
+    /** Validated and wrong: what `aria-invalid` follows. */
     invalid: boolean;
     required: boolean;
 }
@@ -102,7 +102,7 @@ export interface FieldSnapshot {
 export interface ValidationResult<Values = FormValues> {
     valid: boolean;
     errors: FormErrors;
-    /** The values — transformed by the resolver when it returns some. */
+    /** The values, transformed by the resolver when it returns some. */
     values: Values;
 }
 
@@ -501,7 +501,7 @@ export function createForm<Values extends FormValues = FormValues>(initialOption
                 // Inside a list that changed: only what was already checked is checked again.
                 if (state.validated[field] && shouldValidate(field, trigger)) targets.add(field);
             } else if (state.validated[field] && (depsOf(field).some((dep) => isPathWithin(path, dep) || isPathWithin(dep, path)) || options.resolver || options.validate)) {
-                // A field that reads the changed one — or any validated field, when a whole-form check could involve it.
+                // A field that reads the changed one, or any validated field when a whole-form check could involve it.
                 if (shouldValidate(field, trigger)) targets.add(field);
             }
         }

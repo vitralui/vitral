@@ -4,8 +4,8 @@ import { demoSourcesKey, slugify } from './lib/section';
 import CodeBlock from './parts/CodeBlock.vue';
 
 /**
- * One example on a component's page: a heading, the thing running, and — on
- * request — the markup that produced it, read out of this very file.
+ * One example on a component's page: a heading, the thing running, and, on
+ * request, the markup that produced it, read out of this very file.
  */
 const props = defineProps<{ title: string; description?: string }>();
 

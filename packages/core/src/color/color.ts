@@ -7,7 +7,7 @@ export interface Rgb {
     b: number;
 }
 
-/** Hue 0–360, saturation and brightness 0–100 — the model a colour picker's area and strip are drawn in. */
+/** Hue 0–360, saturation and brightness 0–100: the model a colour picker's area and strip are drawn in. */
 export interface Hsb {
     h: number;
     s: number;
@@ -34,7 +34,7 @@ export function hsbToRgb(hsb: Hsb): Rgb {
 }
 
 /**
- * Rounded to whole degrees and percents unless `round` is false — an editor
+ * Rounded to whole degrees and percents unless `round` is false. An editor
  * keeps the exact values, so a colour read in and written back is unchanged.
  * A grey has no hue; it comes back as 0.
  */
@@ -77,7 +77,7 @@ export function hexToHsb(hex: string, round = true): Hsb | null {
     return rgb ? rgbToHsb(rgb, round) : null;
 }
 
-/** Any value a colour picker may be bound to — a hex string, an `{ r, g, b }` or an `{ h, s, b }` — as HSB; null when it is none of those. */
+/** Any value a colour picker may be bound to (a hex string, an `{ r, g, b }` or an `{ h, s, b }`) as HSB. Null when it is none of those. */
 export function parseColor(value: unknown, round = true): Hsb | null {
     if (typeof value === 'string') return hexToHsb(value, round);
     if (value && typeof value === 'object') {

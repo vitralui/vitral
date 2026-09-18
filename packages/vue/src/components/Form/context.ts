@@ -66,7 +66,7 @@ export interface FieldContext {
     labelable: Ref<boolean>;
     /** Several controls answer one question: the field element is the group. */
     group: Ref<boolean>;
-    /** Parts placed inside, by kind — the automatic ones do not count. */
+    /** Parts placed inside, by kind. The automatic ones do not count. */
     parts: { label: number; description: number; message: number };
     registerPart(kind: 'label' | 'description' | 'message', element?: () => HTMLElement | null): () => void;
     /** The error is not to be announced right now. */

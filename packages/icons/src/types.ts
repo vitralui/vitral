@@ -1,5 +1,5 @@
 /**
- * An icon as data: the inner markup of a 24×24 SVG drawn as an outline — a
+ * An icon as data: the inner markup of a 24×24 SVG drawn as an outline, with a
  * 2-unit round stroke in `currentColor`, no fill, about 2 units of margin. No
  * framework is involved: the Vue `<Icon>` renders it, `renderSvg` turns it into
  * a string for anything else.

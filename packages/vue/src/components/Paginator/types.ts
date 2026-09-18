@@ -9,7 +9,7 @@ export interface PaginatorProps extends BaseProps {
     rowsPerPageOptions?: number[];
     /** How many page links to show around the current one. */
     pageLinkSize?: number;
-    /** The pieces to render, in order — a list, or a space-separated string. */
+    /** The pieces to render, in order: a list, or a space-separated string. */
     template?: PaginatorTemplateItem[] | string;
     /** `{first}`, `{last}`, `{total}`, `{page}`, `{pageCount}`, `{rows}`. Defaults to the locale's `pageReport`. */
     currentPageReportTemplate?: string;
@@ -30,7 +30,7 @@ export type PaginatorEmits = {
 };
 
 export interface PaginatorSlots {
-    /** Content before the controls — a summary, an export button. */
+    /** Content before the controls: a summary, an export button. */
     start?: (props: PaginatorPageEvent) => unknown;
     /** Content after the controls. */
     end?: (props: PaginatorPageEvent) => unknown;

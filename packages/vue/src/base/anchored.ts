@@ -2,14 +2,14 @@ import { anchorTo, ZIndex, type AnchorOptions, type ZIndexConfig } from '@vitral
 import { onBeforeUnmount, type VNode } from 'vue';
 import { useVitral } from '../config/config';
 
-// Submenus and mega-menu panels stay where they are in the DOM — inside the
+// Submenus and mega-menu panels stay where they are in the DOM, inside the
 // menu, so key and focus events bubble to its listeners and `contains()` still
-// answers "is focus in the menu" — but are placed with `position: fixed` by
+// answers "is focus in the menu". They are placed with `position: fixed` by
 // Floating UI. That takes them out of any ancestor's `overflow: hidden`, and
 // flips them to the other side when the viewport has no room.
 
 export interface AnchoredOptions extends AnchorOptions {
-    /** The element to attach to. Defaults to the popup's previous sibling — the item that opened it. */
+    /** The element to attach to. Defaults to the popup's previous sibling, the item that opened it. */
     reference?: (el: HTMLElement) => Element | null | undefined;
     /** Pull the popup back by its own top padding and border, so its first item sits level with the reference. */
     alignFirstItem?: boolean;

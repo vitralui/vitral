@@ -7,8 +7,8 @@ import { isFormHandle, useForm, type UseFormReturn } from '../../composables/use
 import { FormKey, type FormContext } from './context';
 import type { FormRootEmits, FormRootProps, FormRootSlotProps, FormRootSlots, FormSubmitEvent, FormValuesLike } from './types';
 
-// The form: a native <form novalidate> — the browser's own bubbles are
-// replaced by the fields' messages and the summary — that owns the values and
+// The form: a native <form novalidate>, with the browser's own bubbles replaced
+// by the fields' messages and the summary, owning the values and
 // the validation its parts share. On a failed submit, focus moves to the error
 // summary or to the first invalid field.
 

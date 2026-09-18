@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'TieredMenu',
     category: 'Menu',
     description:
-        'A menu whose items open submenus beside them, to any depth — inline or as a popup. It is the WAI-ARIA menu: Up and Down move (wrapping), Right or Enter opens a submenu on its first item, Left or Escape goes back, typeahead jumps within a level.'
+        'A menu whose items open submenus beside them, to any depth, inline or as a popup. It is the WAI-ARIA menu: Up and Down move (wrapping), Right or Enter opens a submenu on its first item, Left or Escape goes back, typeahead jumps within a level.'
 };
 </script>
 

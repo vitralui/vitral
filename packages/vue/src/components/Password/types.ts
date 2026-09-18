@@ -37,7 +37,7 @@ export type PasswordEmits = {
 export interface PasswordSlots {
     /** Above the meter. */
     header?: () => unknown;
-    /** Below the meter — the rules a password has to follow. */
+    /** Below the meter: the rules a password has to follow. */
     footer?: () => unknown;
     /** Replaces the meter bar; the announced grade stays below it. */
     content?: (props: { strength: 'weak' | 'medium' | 'strong' | null; label: string }) => unknown;

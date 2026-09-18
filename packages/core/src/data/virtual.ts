@@ -27,7 +27,7 @@ export interface VirtualWindow {
     last: number;
     /** Space before the first rendered item, in pixels. */
     offset: number;
-    /** The size of every item together, in pixels — the scroll height. */
+    /** The size of every item together, in pixels: the scroll height. */
     totalSize: number;
     /** The first and last items actually in view, for reporting. */
     visibleFirst: number;
@@ -50,7 +50,7 @@ export function virtualWindow(options: VirtualWindowOptions): VirtualWindow {
 
 /**
  * The scroll offset that brings item `index` into view: at the start, the end,
- * or — with `'nearest'` — wherever moves the container least, which is not at
+ * or, with `'nearest'`, wherever moves the container least, which is not at
  * all when the item is already visible.
  */
 export function scrollOffsetFor(index: number, itemSize: number, viewportSize: number, current: number, align: 'start' | 'end' | 'nearest' = 'nearest'): number {

@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Grid',
     category: 'Layout',
     description:
-        'A grid with star sizing: rows="Auto,*,2*,120" and columns="200,*" — Auto sizes to content, * shares what is left, 2* takes twice the share, a number is pixels, anything else is CSS. GridItem places a child with 0-based row, column and spans.'
+        'A grid with star sizing: rows="Auto,*,2*,120" and columns="200,*". Auto sizes to content, * shares what is left, 2* takes twice the share, a number is pixels, anything else is CSS. GridItem places a child with 0-based row, column and spans.'
 };
 </script>
 

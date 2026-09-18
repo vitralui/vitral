@@ -17,6 +17,6 @@ export type BlockUIEmits = {
 export interface BlockUISlots {
     /** The region that can be blocked. */
     default?: () => unknown;
-    /** Shown on the veil — a spinner, a message. */
+    /** Shown on the veil: a spinner, a message. */
     mask?: () => unknown;
 }

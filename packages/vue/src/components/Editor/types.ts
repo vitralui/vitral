@@ -50,7 +50,7 @@ export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'colo
 export interface EditorSelectionChangeEvent {
     /** Where the selection starts and ends (anchor and head), as `{ path, offset }` positions. */
     selection: { anchor: { path: number[]; offset: number }; head: { path: number[]; offset: number } };
-    /** Nothing selected — a caret. */
+    /** Nothing selected: a caret. */
     empty: boolean;
     source: 'user' | 'api' | 'history';
 }
@@ -78,7 +78,7 @@ export interface EditorProps extends BaseProps {
     /** Milliseconds within which consecutive typing is one undo step. Defaults to 500. */
     historyDelay?: number;
     /**
-     * The toolbar: `false` for none, or groups of item names —
+     * The toolbar: `false` for none, or groups of item names, as in
      * `[['bold', 'italic'], ['link']]`. The `toolbar` slot replaces it entirely.
      */
     toolbar?: boolean | EditorToolbarItem[][];

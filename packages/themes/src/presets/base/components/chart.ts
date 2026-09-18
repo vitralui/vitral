@@ -1,7 +1,7 @@
 // The chart's own look: axes, grid, readouts and controls. The series colours
 // are not here: they are the semantic palette `chart.1`…`chart.8`
 // (`--vt-chart-1`…). This tree shares that `chart` namespace, so it never uses
-// a numeric key — `tokenCollisions()` and the theme spec hold it to that.
+// a numeric key. `tokenCollisions()` and the theme spec hold it to that.
 export default {
     root: {
         gap: '0.5rem',

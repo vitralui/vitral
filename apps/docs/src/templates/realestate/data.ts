@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-/** Northgate Homes — a made-up agency in a made-up harbour town. */
+/** Northgate Homes: a made-up agency in a made-up harbour town. */
 export type HomeType = 'House' | 'Apartment' | 'Townhouse' | 'Cottage';
 
 export interface Listing {

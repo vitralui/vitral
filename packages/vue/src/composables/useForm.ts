@@ -64,7 +64,7 @@ export interface UseFormReturn<Values extends FormValues = FormValues> extends F
     readonly [FORM_HANDLE]: true;
 }
 
-/** Whether a value is what `useForm()` returns — what `Form.Root`'s `form` prop takes. */
+/** Whether a value is what `useForm()` returns, which is what `Form.Root`'s `form` prop takes. */
 export function isFormHandle(value: unknown): value is UseFormReturn {
     return !!value && typeof value === 'object' && (value as Record<symbol, unknown>)[FORM_HANDLE] === true;
 }
@@ -72,7 +72,7 @@ export function isFormHandle(value: unknown): value is UseFormReturn {
 /**
  * A form: values, validation and submission, reactive. Pass it to
  * `<Form.Root :form="form">` to drive the parts from the script, or use it on
- * its own for an interface of your own — `field()` binds a control,
+ * its own for an interface of your own: `field()` binds a control,
  * `handleSubmit()` handles a native `<form>`.
  *
  * ```ts

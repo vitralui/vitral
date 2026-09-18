@@ -26,7 +26,7 @@ function contextOf(binding: DirectiveBinding): VitralContext | undefined {
 }
 
 // The class from the style's map, merged with global pass-through
-// (`pt: { tooltip: { root: '…', text: {…} } }`) — as a component's part() does.
+// (`pt: { tooltip: { root: '…', text: {…} } }`), as a component's part() does.
 function partAttrs(part: 'root' | 'text', context: VitralContext | undefined): Record<string, string | undefined> {
     const config = context?.config;
     const own = config?.unstyled ? '' : classOf(tooltipStyle, part);
@@ -61,8 +61,8 @@ function optionsOf(binding: DirectiveBinding<TooltipDirectiveValue>): TooltipOpt
  * `v-tooltip="{ value, placement, showDelay, hideDelay, disabled }"`.
  * Register it with `app.directive('tooltip', Tooltip)`.
  *
- * The behaviour — hover and keyboard focus, Escape, `role="tooltip"` and the
- * host's `aria-describedby` — is `createTooltip` from `@vitral/core`; this is
+ * The behaviour (hover and keyboard focus, Escape, `role="tooltip"` and the
+ * host's `aria-describedby`) is `createTooltip` from `@vitral/core`. This is
  * only the Vue binding, so another framework's adapter is a few lines too.
  */
 export const Tooltip: Directive<HTMLElement, TooltipDirectiveValue> = {

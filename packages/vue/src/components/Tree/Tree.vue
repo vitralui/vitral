@@ -263,7 +263,7 @@ function renderNode(node: TreeNodeLike, level: number, posInSet: number, setSize
             id: domId(node.key),
             role: 'treeitem',
             tabindex: node.key === tabStopKey.value ? 0 : -1,
-            // Named by its own label only — not by the text of the children nested inside it.
+            // Named by its own label only, not by the text of the children nested inside it.
             'aria-labelledby': labelId,
             'aria-level': level,
             'aria-setsize': setSize,

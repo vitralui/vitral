@@ -172,7 +172,7 @@ export function isEmptyDoc(doc: EditorNode): boolean {
     return content.length === 0 || (content.length === 1 && content[0]!.type === 'paragraph' && !content[0]!.content?.length);
 }
 
-/** The document as HTML — the editor's `v-model`. An empty document is an empty string. */
+/** The document as HTML: the editor's `v-model`. An empty document is an empty string. */
 export function toEditorHTML(doc: EditorNode, options: EditorHTMLOptions = {}): string {
     if (isEmptyDoc(doc)) return '';
     return (doc.content ?? []).map((node) => blockToHTML(node, options)).join('');
@@ -660,7 +660,7 @@ function parser(options: EditorParseOptions) {
 }
 
 /**
- * Reads HTML into a document — and in doing so sanitises it, because only
+ * Reads HTML into a document, sanitising it on the way, because only
  * what the schema knows is read: the listed elements, safe URLs, palette
  * colours. Scripts, event handlers, styles, unknown attributes and
  * `javascript:` links cannot survive, since nothing copies them. Word and

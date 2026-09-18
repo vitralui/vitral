@@ -15,7 +15,7 @@ export interface ChartPassThroughContext {
  */
 export type ChartPassThroughValue = Props | string | ((context: ChartPassThroughContext) => Props | string | undefined);
 
-/** Pass-through by part name (`root`, `canvas`, `legendItem`, `tooltip`… — the keys of `chartStyle.classes`). */
+/** Pass-through by part name: `root`, `canvas`, `legendItem`, `tooltip`…, the keys of `chartStyle.classes`. */
 export type ChartPassThrough = Record<string, ChartPassThroughValue | undefined>;
 
 type StyleLike = string | Record<string, unknown> | null | undefined;

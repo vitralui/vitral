@@ -101,7 +101,7 @@ export function sliceAt(pie: NonNullable<ChartScene['pie']>, x: number, y: numbe
 
 /**
  * A radar: one spoke per category from twelve o'clock clockwise, each series
- * a polygon. The scale always starts at zero — a radar is read as an area,
+ * a polygon. The scale always starts at zero: a radar is read as an area,
  * and an area from a floating baseline misstates every axis at once.
  */
 export function buildRadar(input: SceneInput): ChartScene {

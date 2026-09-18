@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'ToggleSwitch',
     category: 'Form',
     description:
-        "A header above, a pill that slides, and on/off content beside it. Underneath is a native checkbox with the WAI-ARIA switch role — Space toggles, the header names it, and the on/off text is hidden from screen readers because the state is already announced."
+        "A header above, a pill that slides, and on/off content beside it. Underneath is a native checkbox with the WAI-ARIA switch role: Space toggles, the header names it, and the on/off text is hidden from screen readers because the state is already announced."
 };
 </script>
 

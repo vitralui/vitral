@@ -6,8 +6,8 @@ import { useComponent } from '../../base/useComponent';
 import type { InputOtpEmits, InputOtpProps, InputOtpSlots } from './types';
 
 // One native text box per character, in a group. Each box is named by its
-// position ("character 2 of 6"); the group carries the name of the whole code —
-// `aria-label`, `aria-labelledby`, or the <label for> pointed at the `id`,
+// position ("character 2 of 6"); the group carries the name of the whole code,
+// from `aria-label`, `aria-labelledby`, or the <label for> pointed at the `id`,
 // which lands on the first box. Typing moves on, Backspace moves back, the
 // arrows walk the boxes, and a pasted or autofilled code fills them all.
 

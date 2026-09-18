@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'RadioButton',
     category: 'Form',
     description:
-        'Native radios under drawn rings. A RadioGroup names the group and gives its radios one name and one v-model, so the browser moves and checks with the arrow keys and Tab stops once — the WAI-ARIA radio group, without script.'
+        'Native radios under drawn rings. A RadioGroup names the group and gives its radios one name and one v-model, so the browser moves and checks with the arrow keys and Tab stops once, the WAI-ARIA radio group, without script.'
 };
 </script>
 

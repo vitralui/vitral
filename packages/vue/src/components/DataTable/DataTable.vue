@@ -20,8 +20,8 @@ import type {
 } from './types';
 
 // A real <table>: column headers are <th scope="col">, a sortable header holds
-// a <button> and carries aria-sort, and every control inside — sort buttons,
-// selection checkboxes, filter boxes, the paginator — is a native control in
+// a <button> and carries aria-sort, and every control inside (sort buttons,
+// selection checkboxes, filter boxes, the paginator) is a native control in
 // the tab order. Rows are focusable (one tab stop, arrows between them) only
 // when the table itself selects rows. Full APG grid navigation is not
 // attempted.
@@ -130,7 +130,7 @@ function collect(nodes: unknown, out: ColumnDef[]) {
 }
 
 // Read while rendering (a computed first read by the template), so what the
-// slot reads — a v-if, a bound header — is tracked like any other dependency.
+// slot reads, a v-if or a bound header, is tracked like any other dependency.
 const columns = computed(() => {
     const out: ColumnDef[] = [];
     collect(slots.default?.(), out);
@@ -241,7 +241,7 @@ const loadOptions = computed<LoadOptionsLike>(() => {
 const mode = computed<'local' | 'lazy' | 'source'>(() => (props.dataSource ? 'source' : props.lazy ? 'lazy' : 'local'));
 const source = useDataSource(() => (props.dataSource as DataSource<unknown> | undefined) ?? null, loadOptions);
 
-/** Local rows filtered and sorted, before paging — what select-all covers and the paginator counts. */
+/** Local rows filtered and sorted, before paging: what select-all covers and the paginator counts. */
 const processed = computed(() => (mode.value === 'local' ? queryData(props.value, { ...loadOptions.value, first: undefined, rows: undefined }) : null));
 
 const pageRows = computed<unknown[]>(() => {

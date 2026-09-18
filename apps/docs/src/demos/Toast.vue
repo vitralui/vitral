@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Toast',
     category: 'Messages',
     description:
-        'Notifications sent with `useToast().add({ severity, summary, detail, life })` and shown by the `<Toast>` with the same `group`. Each is a live region — polite, or an alert for `danger` — and a `life` pauses while the card is hovered or focused.'
+        'Notifications sent with `useToast().add({ severity, summary, detail, life })` and shown by the `<Toast>` with the same `group`. Each is a live region (polite, or an alert for `danger`) and a `life` pauses while the card is hovered or focused.'
 };
 </script>
 
@@ -42,7 +42,7 @@ function bottom() {
     <DemoSection title="Severities" description="Four seconds each; hover one to keep it.">
         <Button v-for="(s, i) in severities" :key="s.severity" :label="s.severity" severity="secondary" @click="show(i)" />
     </DemoSection>
-    <DemoSection title="Sticky and grouped" description="Without a `life` a toast waits to be closed. A `group` sends it to another `<Toast>` — here, one at the bottom.">
+    <DemoSection title="Sticky and grouped" description="Without a `life` a toast waits to be closed. A `group` sends it to another `<Toast>`, here one at the bottom.">
         <Button label="Sticky" severity="secondary" @click="sticky" />
         <Button label="Bottom centre" severity="secondary" @click="bottom" />
         <Button label="Clear all" severity="secondary" variant="outlined" @click="toast.removeAll()" />

@@ -4,7 +4,7 @@ import type { GuideMeta } from '../lib/guides';
 export const meta: GuideMeta = {
     title: 'Installation',
     section: 'Get started',
-    description: 'One package, one plugin call — and what every option on it does.'
+    description: 'One package, one plugin call, and what every option on it does.'
 };
 </script>
 
@@ -72,8 +72,8 @@ pnpm build`;
     <h2>Register the plugin</h2>
     <CodeBlock :code="plugin" label="main.ts" lang="ts" />
     <p>
-        There is no stylesheet to import. The plugin injects the theme as CSS variables, and each component injects its own CSS the first time it renders — so a page pays for the
-        components it uses.
+        There is no stylesheet to import. The plugin injects the theme as CSS variables, and each component injects its own CSS the first time it renders, so a page only carries
+        the components it uses.
     </p>
 
     <h3>Options</h3>
@@ -139,8 +139,8 @@ pnpm build`;
 
     <h2>Two components at the root</h2>
     <p>
-        <code>useToast()</code> and <code>useConfirm()</code> send events; the components that show them have to be on the page — once, near the root, so they outlive the views
-        that call them.
+        <code>useToast()</code> and <code>useConfirm()</code> send events, so the components that show them have to be on the page. Put them once, near the root, where they
+        outlive the views that call them.
     </p>
     <CodeBlock :code="services" label="App.vue" lang="vue" />
 

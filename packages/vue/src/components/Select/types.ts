@@ -20,7 +20,7 @@ export interface SelectProps extends BaseProps {
     size?: Size;
     variant?: InputVariant;
     fluid?: boolean;
-    /** Adds a search box to the panel — the combobox. */
+    /** Adds a search box to the panel: the combobox. */
     filter?: boolean;
     filterPlaceholder?: string;
     /** Fields to search instead of the label. */

@@ -8,7 +8,7 @@ const entries: Entry[] = [];
 
 /**
  * Hands out stacking order. Every layer goes above the last one opened, of any
- * kind, and never below its own base — so a select opened inside a modal dialog
+ * kind, and never below its own base, so a select opened inside a modal dialog
  * lands on top of the dialog even though overlays start lower than modals.
  */
 export const ZIndex = {

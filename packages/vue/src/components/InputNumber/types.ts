@@ -35,7 +35,7 @@ export interface InputNumberProps extends BaseProps {
 
 export interface InputNumberInputEvent {
     originalEvent?: Event;
-    /** The number the text reads as right now — null while it reads as nothing. */
+    /** The number the text reads as right now, or null while it reads as nothing. */
     value: number | null;
 }
 

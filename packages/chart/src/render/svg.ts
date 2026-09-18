@@ -4,7 +4,7 @@ import { mergeAttrs } from '../dom/attrs';
 import { s, type Child, type Props } from '../dom/h';
 
 // The picture: grid, axes, marks, heat map, pie, radar, annotations and data
-// labels — each a function of the scene and the render state, returning the
+// labels. Each is a function of the scene and the render state, returning the
 // SVG elements to draw.
 
 export interface RenderState {
@@ -157,7 +157,7 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
 const markerD = (m: SceneMarker) => markerPath(m.shape, m.x, m.y, m.size);
 const markerStyle = (m: SceneMarker) => ({ fill: m.fill, stroke: m.stroke, strokeWidth: m.strokeWidth });
 
-/** Lines, areas, bars, lollipops, candles and points — the cartesian marks. */
+/** Lines, areas, bars, lollipops, candles and points: the cartesian marks. */
 export function marksView(c: ViewContext): Child[] {
     const { scene, state, part, id } = c;
     const dim = (series: number) => state.focusSeries >= 0 && state.focusSeries !== series;

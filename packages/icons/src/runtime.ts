@@ -11,7 +11,7 @@ import { ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from './types';
  * The icons a string name resolves to without registering anything: the ones
  * the components themselves use. Everything else is a named import away
  * (`import { graduationCap } from '@vitral/icons'`), or registered once with
- * {@link registerIcons} — `registerAllIcons()` from `@vitral/icons/registry`
+ * {@link registerIcons}. `registerAllIcons()` from `@vitral/icons/registry`
  * makes every name work, at the cost of bundling the whole set.
  */
 export const baseIcons: readonly IconDef[] = [
@@ -28,7 +28,7 @@ export const baseIcons: readonly IconDef[] = [
 let table: Map<string, IconDef> | undefined;
 const registry = () => (table ??= new Map(baseIcons.map((def) => [def.name, def])));
 
-/** Makes icons resolvable by name — the built-in ones you import, or your own. Later registrations win. */
+/** Makes icons resolvable by name: the built-in ones you import, or your own. Later registrations win. */
 export function registerIcons(defs: Iterable<IconDef> | Readonly<Record<string, IconDef>>): void {
     const list = Symbol.iterator in defs ? (defs as Iterable<IconDef>) : Object.values(defs);
     for (const def of list) registry().set(def.name, def);

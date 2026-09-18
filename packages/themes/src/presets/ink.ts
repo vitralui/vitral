@@ -7,7 +7,7 @@ import { Base } from './base';
  * shadow used sparingly, 6px corners, and a focus ring that sits two pixels
  * off the control with the page colour between them.
  *
- * Colour carries meaning here rather than decoration — the accent is reserved
+ * Colour carries meaning here rather than decoration. The accent is reserved
  * for state (selected, focused, dangerous), which is why the primary button is
  * ink and not a hue.
  */

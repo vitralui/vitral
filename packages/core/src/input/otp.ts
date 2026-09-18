@@ -22,7 +22,7 @@ export interface OtpEdit {
 }
 
 /**
- * Text entered into box `index` — one typed character or a whole pasted code —
+ * Text entered into box `index`, one typed character or a whole pasted code,
  * spread across that box and the ones after it. Characters a box refuses are
  * dropped; focus moves to the box after the last one filled.
  */

@@ -103,9 +103,9 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
 let fallback: VitralContext | null = null;
 
 /**
- * The context the plugin provided. Components also work without the plugin —
- * they fall back to a default context with no theme — so a component library
- * test or a one-off embed does not have to install anything.
+ * The context the plugin provided. Components also work without the plugin,
+ * falling back to a default context with no theme, so a component library test
+ * or a one-off embed does not have to install anything.
  */
 export function useVitral(): VitralContext {
     const provided = inject(VitralKey, null);

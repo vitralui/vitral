@@ -11,7 +11,7 @@ import type { TreeNodeLike } from '../Tree/types';
 import type { TreeSelectEmits, TreeSelectProps, TreeSelectSlots, TreeSelectValue } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
-// A select-only combobox whose popup is a WAI-ARIA tree — the whole of <Tree>,
+// A select-only combobox whose popup is a WAI-ARIA tree: the whole of <Tree>,
 // with its keyboard, filter and checkbox selection. Opening moves focus into
 // the tree (or its search box); Escape closes and gives focus back, as does
 // Tab, since the tree lives at the end of <body>. A single choice closes the

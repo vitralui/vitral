@@ -5,7 +5,7 @@ import type { SortMeta, SortOrder } from './sort';
 export interface SortToggleOptions {
     /** Several columns may sort at once. */
     multiple?: boolean;
-    /** This activation adds to the sort instead of replacing it — a Ctrl- or Cmd-click. */
+    /** This activation adds to the sort instead of replacing it: a Ctrl- or Cmd-click. */
     additive?: boolean;
     /** A third activation takes the column out of the sort instead of going back to ascending. */
     removable?: boolean;
@@ -35,7 +35,7 @@ export function toggleSort(current: readonly SortMeta[], field: string, options:
 
 export type CheckAllState = 'all' | 'some' | 'none';
 
-/** How much of `rows` the selection covers — what a select-all checkbox shows: checked, mixed or clear. */
+/** How much of `rows` the selection covers, which is what a select-all checkbox shows: checked, mixed or clear. */
 export function selectionState(rows: readonly unknown[], selection: unknown, dataKey?: string): CheckAllState {
     if (rows.length === 0) return 'none';
     let count = 0;
@@ -44,8 +44,8 @@ export function selectionState(rows: readonly unknown[], selection: unknown, dat
 }
 
 /**
- * The selection with `rows` added (or removed). Rows selected elsewhere — on
- * another page, or hidden by a filter — stay as they were.
+ * The selection with `rows` added (or removed). Rows selected elsewhere, on
+ * another page or hidden by a filter, stay as they were.
  */
 export function selectRows(selection: unknown, rows: readonly unknown[], select: boolean, dataKey?: string): unknown[] {
     const list = Array.isArray(selection) ? selection : [];
@@ -53,7 +53,7 @@ export function selectRows(selection: unknown, rows: readonly unknown[], select:
     return list.filter((item) => !rows.some((row) => equals(item, row, dataKey)));
 }
 
-/** The indices from `from` to `to`, inclusive, in either direction — a Shift-click or Shift+Space range. */
+/** The indices from `from` to `to`, inclusive, in either direction: a Shift-click or Shift+Space range. */
 export function indexRange(from: number, to: number): number[] {
     const low = Math.min(from, to);
     const high = Math.max(from, to);

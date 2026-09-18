@@ -9,7 +9,7 @@ import type { SelectButtonEmits, SelectButtonProps, SelectButtonSlots } from './
 
 // A segmented control, as the APG describes a group of toggle buttons: the
 // group is one tab stop, the arrow keys move between the buttons, and each one
-// carries aria-pressed rather than a selected state — so a reader is told what
+// carries aria-pressed rather than a selected state, so a reader is told what
 // is on, not merely what is highlighted.
 
 defineOptions({ name: 'VtSelectButton' });

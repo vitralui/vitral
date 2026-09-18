@@ -21,7 +21,7 @@ export function resolveRefs(value: string, prefix = defaultThemeOptions.prefix):
     return value.replace(/\{([^{}]+)\}/g, (_, ref: string) => `var(${varName(ref.trim(), prefix)})`);
 }
 
-/** A token as a `var()` — for inline styles and for code that wants a theme value without hard-coding it. */
+/** A token as a `var()`, for inline styles and for code that wants a theme value without hard-coding it. */
 export function dt(path: string, prefix = defaultThemeOptions.prefix): string {
     return `var(${varName(path, prefix)})`;
 }
@@ -57,8 +57,8 @@ export interface TokenCollision {
 
 /**
  * Custom properties declared by more than one layer. A component's tokens are
- * named after it, so a component whose name is also a semantic group — the
- * `chart` component beside the semantic `chart.1…8` palette — must not use a
+ * named after it, so a component whose name is also a semantic group (the
+ * `chart` component beside the semantic `chart.1…8` palette) must not use a
  * key the group uses: `components.chart[1]` would compile to `--vt-chart-1`
  * and silently replace a palette colour. Component token trees therefore keep
  * to named (non-numeric) keys, and this check proves it for a preset.
@@ -96,7 +96,7 @@ function darkBlock(selector: string, body: string): string {
 
 /**
  * Compiles a preset to CSS. Everything is declared on `:root`, and the dark
- * scheme on `:root` plus the dark selector — the same element — because a
+ * scheme on `:root` plus the dark selector, the same element, because a
  * custom property that refers to another resolves where it is declared: a dark
  * block on some inner element would leave every derived token still light.
  */

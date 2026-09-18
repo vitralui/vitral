@@ -4,7 +4,7 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'Drawer',
     category: 'Overlay',
-    description: 'A panel that slides in from an edge of the viewport — or covers it. Same modal dialog behaviour as Dialog: focus in, Tab trapped, Escape and a press on the mask close, focus returns.'
+    description: 'A panel that slides in from an edge of the viewport, or covers it. Same modal dialog behaviour as Dialog: focus in, Tab trapped, Escape and a press on the mask close, focus returns.'
 };
 </script>
 

@@ -73,7 +73,7 @@ export const semantic: TokenTree = {
     icon: { size: '1rem', strokeWidth: '2' },
 
     /**
-     * The small icon-only buttons that close, remove or clear something — a
+     * The small icon-only buttons that close, remove or clear something: a
      * tag's ×, a dialog's close, a field's clear. One shape everywhere, so a
      * theme changes them together.
      */

@@ -6,7 +6,7 @@ export interface CardProps extends BaseProps {
 }
 
 export interface CardSlots {
-    /** Above the body, edge to edge — an image or a banner. */
+    /** Above the body, edge to edge: an image or a banner. */
     header?: () => unknown;
     /** Replaces the `title` text. */
     title?: () => unknown;

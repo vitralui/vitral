@@ -6,7 +6,7 @@ import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { KnobEmits, KnobProps } from './types';
 
 // A WAI-ARIA slider drawn as a dial. The drawing is the focusable slider: it
-// carries the value, its bounds and its text, and takes the slider keys —
+// carries the value, its bounds and its text, and takes the slider keys:
 // arrows step, Page Up/Down step by ten, Home and End go to the ends. A press
 // or drag anywhere on the dial sets the value under the pointer; the geometry
 // is core's. Name it with `aria-label` or `aria-labelledby`.
@@ -42,7 +42,7 @@ const valueText = computed(() => props.valueTemplate.replace(/\{value\}/g, Strin
 const interactive = computed(() => !props.readonly && !props.disabled);
 
 const rangePath = computed(() => arcPath(CENTER, CENTER, radius.value, -KNOB_SWEEP / 2, KNOB_SWEEP / 2));
-// The value arc grows from the minimum — or from zero, when the range spans it.
+// The value arc grows from the minimum, or from zero when the range spans it.
 const origin = computed(() => clamp(0, scale.value.min, scale.value.max));
 const valuePath = computed(() => {
     const a = knobAngle(origin.value, scale.value.min, scale.value.max);

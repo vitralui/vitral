@@ -9,7 +9,7 @@ import { templateCategories, templates } from '../templates';
 /**
  * The bar's menus: a panel per section, anchored under the item that opened it
  * and no wider than what it holds. Each entry is an icon, a name and a line
- * saying what it is for — a list of forty links is a wall, not a menu.
+ * saying what it is for. A list of forty links is a wall, not a menu.
  *
  * It is a disclosure rather than a menubar: the panel holds links, so Tab walks
  * them, Escape closes, and a press outside closes.

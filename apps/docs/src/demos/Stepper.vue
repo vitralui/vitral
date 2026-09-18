@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Stepper',
     category: 'Panel',
     description:
-        'Steps and their panels: a StepList of Steps over StepPanels, or StepItems for a vertical layout. In a list the steps are tabs — arrows move, Enter chooses — and `linear` keeps the steps ahead out of reach until the panels move you on.'
+        'Steps and their panels: a StepList of Steps over StepPanels, or StepItems for a vertical layout. In a list the steps are tabs (arrows move, Enter chooses) and `linear` keeps the steps ahead out of reach until the panels move you on.'
 };
 </script>
 

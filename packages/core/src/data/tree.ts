@@ -24,7 +24,7 @@ export interface FlatNode<T = unknown> {
     node: TreeNode<T>;
     level: number;
     parent: TreeNode<T> | null;
-    /** 1-based position among siblings, and the sibling count — `aria-posinset` and `aria-setsize`. */
+    /** 1-based position among siblings, and the sibling count: `aria-posinset` and `aria-setsize`. */
     posInSet: number;
     setSize: number;
     expanded: boolean;
@@ -35,7 +35,7 @@ export function isLeaf(node: TreeNode): boolean {
     return node.leaf ?? !(node.children && node.children.length > 0);
 }
 
-/** The nodes a reader can see, in order, with what ARIA needs to describe each — the tree as a keyboard walks it. */
+/** The nodes a reader can see, in order, with what ARIA needs to describe each: the tree as a keyboard walks it. */
 export function flattenTree<T>(nodes: readonly TreeNode<T>[], expandedKeys: ExpandedKeys, level = 1, parent: TreeNode<T> | null = null): FlatNode<T>[] {
     const out: FlatNode<T>[] = [];
     nodes.forEach((node, index) => {

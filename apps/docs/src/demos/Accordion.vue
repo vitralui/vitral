@@ -56,7 +56,7 @@ const several = ref<string | number | (string | number)[] | null>(['general', 'p
             </AccordionPanel>
             <AccordionPanel value="b">
                 <AccordionHeader>Does it work unstyled?</AccordionHeader>
-                <AccordionContent>Yes — every part takes pass-through, and `unstyled` drops the built-in classes.</AccordionContent>
+                <AccordionContent>Yes: every part takes pass-through, and `unstyled` drops the built-in classes.</AccordionContent>
             </AccordionPanel>
         </Accordion>
     </DemoSection>

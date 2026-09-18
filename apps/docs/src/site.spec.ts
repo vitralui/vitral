@@ -20,7 +20,7 @@ import { templates } from './templates';
 /**
  * The site is a Vue application like any other, so it is tested like one: the
  * pages have to mount, and the two things generated from the library's own
- * source — the code beside each example and the API tables — have to come out
+ * source (the code beside each example and the API tables) have to come out
  * with something in them.
  */
 const mounted: { unmount: () => void }[] = [];

@@ -99,7 +99,7 @@ export function givenValue(vnode: VNode, key: string): unknown {
 
 /**
  * Whether a component is a control: one of Vitral's, one that opts in with
- * `vtFormControl: true`, or — for components of your own — one with a
+ * `vtFormControl: true`, or, for components of your own, one with a
  * `modelValue` prop.
  */
 export function isControl(vnode: VNode): boolean {
@@ -139,7 +139,7 @@ export function takesName(vnode: VNode): boolean {
     return !NO_NAME.has(componentName(vnode) ?? '');
 }
 
-/** Controls in the tree, in order — through elements and fragments, not into other components' slots. */
+/** Controls in the tree, in order, through elements and fragments but not into other components' slots. */
 export function findControls(nodes: VNodeArrayChildren): VNode[] {
     const out: VNode[] = [];
     const visit = (node: VNodeChild) => {

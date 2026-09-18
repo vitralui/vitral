@@ -3,7 +3,7 @@ import type { BaseProps, IconProp } from '../../base/types';
 export interface ChipProps extends BaseProps {
     label?: string;
     icon?: IconProp;
-    /** An image shown before the label — a face, a logo. */
+    /** An image shown before the label: a face, a logo. */
     image?: string;
     /** The image's alternative text. Empty marks it decorative, which it is beside a label. */
     imageAlt?: string;

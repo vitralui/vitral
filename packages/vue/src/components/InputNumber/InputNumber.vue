@@ -7,8 +7,8 @@ import Icon from '../Icon/Icon.vue';
 import type { InputNumberEmits, InputNumberProps } from './types';
 
 // The WAI-ARIA spinbutton on a text box. The text is free while it is being
-// edited — it is read back as a number on every keystroke, so the value the
-// spinbutton announces follows the typing — and is committed, clamped and
+// edited: it is read back as a number on every keystroke, so the value the
+// spinbutton announces follows the typing, and it is committed, clamped and
 // formatted on blur or Enter. Arrows and the spin buttons commit at once.
 
 defineOptions({ name: 'VtInputNumber', inheritAttrs: false });

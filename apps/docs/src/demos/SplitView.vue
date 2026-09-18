@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'SplitView',
     category: 'Layout',
     description:
-        'A pane beside the content — the frame of a NavigationView. Inline modes push the content aside; overlay modes float the pane over it, and a press outside or Escape closes it. The compact modes keep a strip of icons when closed. The pane is an <aside> named by pane-label; a floating pane takes focus when it opens and gives it back when it closes.'
+        'A pane beside the content: the frame of a NavigationView. Inline modes push the content aside; overlay modes float the pane over it, and a press outside or Escape closes it. The compact modes keep a strip of icons when closed. The pane is an <aside> named by pane-label; a floating pane takes focus when it opens and gives it back when it closes.'
 };
 </script>
 

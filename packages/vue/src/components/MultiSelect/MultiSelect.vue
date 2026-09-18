@@ -329,7 +329,7 @@ function onRootClick(event: MouseEvent) {
     }
 }
 
-// Pressing inside the panel keeps focus where it is — on the combobox or in the search box.
+// Pressing inside the panel keeps focus where it is: on the combobox or in the search box.
 function onOverlayMousedown(event: MouseEvent) {
     const target = event.target as Element;
     if (target !== filterRef.value && !target.matches('input[type="checkbox"]')) event.preventDefault();

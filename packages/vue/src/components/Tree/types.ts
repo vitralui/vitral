@@ -1,6 +1,6 @@
 import type { BaseProps, IconProp } from '../../base/types';
 
-/** The shape of a node — the same as `TreeNode` in `@vitral/core`, restated here for the SFC compiler. */
+/** The shape of a node: the same as `TreeNode` in `@vitral/core`, restated here for the SFC compiler. */
 export interface TreeNodeLike {
     key: string;
     label?: string;

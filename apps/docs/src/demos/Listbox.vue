@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Listbox',
     category: 'Data',
     description:
-        'A list to choose from, always open — Select’s sibling. The WAI-ARIA listbox: arrows, Home/End and typeahead move (and, in single mode, select); in multiple mode Space toggles, Shift+arrows extend, Shift-click selects a range and Ctrl+A selects all.'
+        'A list to choose from, always open: Select’s sibling. The WAI-ARIA listbox: arrows, Home/End and typeahead move (and, in single mode, select); in multiple mode Space toggles, Shift+arrows extend, Shift-click selects a range and Ctrl+A selects all.'
 };
 </script>
 

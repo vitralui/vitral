@@ -6,7 +6,7 @@ const never: IsDisabled = () => false;
 
 /**
  * The next enabled index from `from` in direction `step`. At either end it stays
- * put unless `loop` is set — a listbox stops at its edges, a menu wraps.
+ * put unless `loop` is set: a listbox stops at its edges, a menu wraps.
  * Returns `from` when nothing else is enabled.
  */
 export function stepIndex(count: number, from: number, step: 1 | -1, isDisabled: IsDisabled = never, loop = false): number {

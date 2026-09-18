@@ -8,7 +8,7 @@ import Menu from '../Menu/Menu.vue';
 import type { SplitButtonEmits, SplitButtonProps, SplitButtonSlots } from './types';
 
 // Two real buttons: the command, and a menu button that opens a popup <Menu>
-// (the WAI-ARIA menu button pattern) — Enter, Space or Down opens it with
+// (the WAI-ARIA menu button pattern). Enter, Space or Down opens it with
 // focus on the first item, Up on the last; Escape, Tab or a choice closes it
 // and gives focus back. Attributes go to the main button.
 

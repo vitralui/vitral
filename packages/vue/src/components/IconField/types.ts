@@ -15,7 +15,7 @@ export interface InputIconProps extends BaseProps {
     icon?: IconProp;
     /** Makes the icon meaningful and names it. Without one it is decorative. */
     label?: string;
-    /** Spins the icon — for a loading indicator. */
+    /** Spins the icon, for a loading indicator. */
     spin?: boolean;
 }
 

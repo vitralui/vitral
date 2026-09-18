@@ -7,7 +7,7 @@ import type { ChartScene, SceneDatum } from './scene';
  * panning into an edge never turns into a zoom out.
  */
 
-/** Whether a pixel is on the plot — not over the axes, their labels, the legend or the title. */
+/** Whether a pixel is on the plot, rather than over the axes, their labels, the legend or the title. */
 export function insidePlot(scene: ChartScene, x: number, y: number, pad = 1): boolean {
     const { plot } = scene;
     return x >= plot.x - pad && x <= plot.x + plot.width + pad && y >= plot.y - pad && y <= plot.y + plot.height + pad;
@@ -15,7 +15,7 @@ export function insidePlot(scene: ChartScene, x: number, y: number, pad = 1): bo
 
 /**
  * The marks are clipped to the plot plus this margin (a marker on the edge
- * shows whole); anything further out — scrolled away by a zoom — is not on
+ * shows whole); anything further out, scrolled away by a zoom, is not on
  * screen, so it is not under the pointer either.
  */
 const CLIP_MARGIN = 6;

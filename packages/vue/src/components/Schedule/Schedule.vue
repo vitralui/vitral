@@ -38,7 +38,7 @@ import type { ScheduleEmits, ScheduleOccurrenceInfo, ScheduleProps, ScheduleSlot
 // A calendar and scheduler. Month, week, day and timeline are WAI-ARIA grids
 // named by the period on show: one cell holds the tab stop and the arrow keys
 // move it (Page Up/Down change the period), Shift with the arrows selects a
-// range and Enter picks it — the keyboard way to drag across empty time.
+// range and Enter picks it: the keyboard way to drag across empty time.
 // Events are buttons named by their title and full time; Alt with the arrows
 // moves one and Alt+Shift changes its end, the keyboard way to drag and
 // resize, and each change is announced. A pointer drags events, their end

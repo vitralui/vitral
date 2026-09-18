@@ -42,7 +42,7 @@ export function useTemplate() {
 
 /**
  * Whether an element is narrower than `width`. Media queries answer for the
- * window, and a template in a phone-sized frame lives in a wide window — so
+ * window, and a template in a phone-sized frame lives in a wide window, so
  * the components that switch behaviour, not just layout, ask the element.
  */
 export function useNarrow(target: Ref<HTMLElement | null>, width = 720) {

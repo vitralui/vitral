@@ -1,5 +1,5 @@
 /**
- * Charts that work together — ApexCharts' `chart.group`, and a brush driving
+ * Charts that work together: ApexCharts' `chart.group`, and a brush driving
  * its target. A small bus, keyed by group name or chart id, with no framework
  * in it: whichever chart the pointer is on publishes the column it points at,
  * and a zoom publishes the window; the others follow. Sharing is by column

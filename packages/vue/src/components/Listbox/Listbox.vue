@@ -126,7 +126,7 @@ function toggle(item: Item | undefined, event?: Event) {
     commit(selectRows(selectedValues.value, [item.value], !isChosen(item.value), compareKey.value), event);
 }
 
-/** Adds every enabled option between two indices to the selection — Shift-click, Shift+Space, Shift+arrows. */
+/** Adds every enabled option between two indices to the selection: Shift-click, Shift+Space, Shift+arrows. */
 function selectRange(from: number, to: number, event?: Event) {
     const values = indexRange(from, to)
         .map((i) => items.value[i])

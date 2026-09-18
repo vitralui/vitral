@@ -16,7 +16,7 @@ export interface OptionFields {
 /** One visible option, with what a list needs to render and navigate it. */
 export interface OptionItem {
     option: unknown;
-    /** Position in reading order across every group — what arrow keys step through. */
+    /** Position in reading order across every group, which is what arrow keys step through. */
     index: number;
     label: string;
     value: unknown;
@@ -47,7 +47,7 @@ export function optionChildren(group: unknown, fields: OptionFields): unknown[] 
     return (getField(group, fields.optionGroupChildren ?? 'items') as unknown[] | undefined) ?? [];
 }
 
-/** Every option, with groups opened up — what a value is looked up in. */
+/** Every option, with groups opened up: what a value is looked up in. */
 export function flattenOptions(options: readonly unknown[], fields: OptionFields): unknown[] {
     return fields.optionGroupLabel ? options.flatMap((group) => optionChildren(group, fields)) : [...options];
 }

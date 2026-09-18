@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'OrderList',
     category: 'Data',
     description:
-        'A list the reader puts in order: select items and move them with the buttons, with Alt and the arrow keys (Home and End for the ends), or by dragging. Every move is announced — which item went where.'
+        'A list the reader puts in order: select items and move them with the buttons, with Alt and the arrow keys (Home and End for the ends), or by dragging. Every move is announced, which item went where.'
 };
 </script>
 

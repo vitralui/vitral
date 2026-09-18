@@ -7,7 +7,7 @@ import type { ToggleButtonEmits, ToggleButtonProps, ToggleButtonSlots } from './
 
 // A button that stays pressed: aria-pressed, not a checkbox, because it is a
 // command whose effect persists rather than a value in a form. Its name does
-// not change with its state — "Bold" pressed and "Bold" not pressed — so a
+// not change with its state ("Bold" pressed and "Bold" not pressed), so a
 // reader hears the same control rather than a new one.
 
 defineOptions({ name: 'VtToggleButton' });

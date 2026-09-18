@@ -4,7 +4,7 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'Button',
     category: 'Button',
-    description: 'A command. Eight severities, four variants, three sizes, icons on any side, a loading state and a badge — and it can render as a link or a router link.'
+    description: 'A command. Eight severities, four variants, three sizes, icons on any side, a loading state and a badge, and it can render as a link or a router link.'
 };
 </script>
 
@@ -47,7 +47,7 @@ function load() {
         <Button icon="trash" severity="danger" variant="text" aria-label="Delete" />
         <Button icon="star" rounded severity="warn" aria-label="Favourite" />
     </DemoSection>
-    <DemoSection title="Icons from anywhere" description="An imported icon, another library's component, or trusted SVG markup. An icon font's classes work too — `icon=&quot;fa-solid fa-user&quot;` — once its stylesheet is on the page.">
+    <DemoSection title="Icons from anywhere" description="An imported icon, another library's component, or trusted SVG markup. An icon font's classes work too: `icon=&quot;fa-solid fa-user&quot;`, once its stylesheet is on the page.">
         <Button label="Course" :icon="graduationCap" severity="secondary" />
         <Button label="Component" :icon="Sparkle" severity="secondary" />
         <Button label="Markup" :icon="markup" severity="secondary" />

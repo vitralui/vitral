@@ -1,4 +1,4 @@
-/** Lumen Metrics — a made-up subscription analytics product, looking at its own numbers. */
+/** Lumen Metrics: a made-up subscription analytics product, looking at its own numbers. */
 export const months = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
 
 export const revenue = {

@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Chip',
     category: 'Misc',
     description:
-        'A compact token — a filter, a recipient, a tag. `removable` adds a button named “Remove <label>”, which a press, Delete or Backspace activates.'
+        'A compact token: a filter, a recipient, a tag. `removable` adds a button named “Remove <label>”, which a press, Delete or Backspace activates.'
 };
 </script>
 

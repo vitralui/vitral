@@ -18,7 +18,7 @@ export type HoverCardEmits = {
 };
 
 export interface HoverCardSlots {
-    /** What opens the card — usually a link, which keeps working on its own. */
+    /** What opens the card, usually a link, which keeps working on its own. */
     trigger?: () => unknown;
     /** The card's content: a preview of what the trigger points at. */
     default?: () => unknown;

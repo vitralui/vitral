@@ -11,7 +11,7 @@ import type { CommandEmits, CommandProps, CommandSlots } from './types';
 // (and Home and End) move the active option, shown by aria-activedescendant,
 // and Enter runs it. Typing scores the items (core's commandScore: accents and
 // case do not matter), hides those that miss and the groups left empty, puts
-// the best first — groups by their best item — and says how many results
+// the best first, groups by their best item, and says how many results
 // there are in a polite status. The ranking is applied with CSS `order`, so
 // Vue keeps owning the DOM; the arrows follow the ranked order.
 

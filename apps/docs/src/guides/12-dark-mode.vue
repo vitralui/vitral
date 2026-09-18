@@ -4,7 +4,7 @@ import type { GuideMeta } from '../lib/guides';
 export const meta: GuideMeta = {
     title: 'Colour schemes',
     section: 'Theming',
-    description: 'Light, dark and system — one branch inside the preset, not a second theme.'
+    description: 'Light, dark and system: one branch inside the preset, not a second theme.'
 };
 </script>
 
@@ -44,7 +44,7 @@ const toggle = `const { colorScheme, isDark, toggleDark, setColorScheme } = useT
     <CodeBlock :code="setup" label="main.ts" lang="ts" />
     <ul>
         <li><code>'light'</code> and <code>'dark'</code> pin the scheme.</li>
-        <li><code>'system'</code> follows <code>prefers-color-scheme</code> and keeps following it — a reader who changes their OS theme sees the page change under them.</li>
+        <li><code>'system'</code> follows <code>prefers-color-scheme</code> and keeps following it, so a reader who changes their OS theme sees the page change under them.</li>
         <li><code>storageKey</code> remembers an explicit choice across visits; <code>false</code> forgets it, which is what a screenshot wants.</li>
     </ul>
 
@@ -58,7 +58,7 @@ const toggle = `const { colorScheme, isDark, toggleDark, setColorScheme } = useT
     <h2>The selector</h2>
     <p>
         By default the dark branch is written under <code>.vt-dark</code> on the <code>&lt;html&gt;</code> element. <code>darkModeSelector</code> takes any class or attribute
-        selector — <code>[data-theme="dark"]</code> — or <code>'system'</code>, which emits the dark values inside a <code>prefers-color-scheme</code> media query for a site that
+        selector such as <code>[data-theme="dark"]</code>, or <code>'system'</code>, which emits the dark values inside a <code>prefers-color-scheme</code> media query for a site that
         never offers a switch; <code>false</code> emits no dark scheme at all.
     </p>
 </template>

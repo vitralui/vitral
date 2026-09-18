@@ -18,7 +18,7 @@ function mountSlider(props: Record<string, unknown> = {}, before: () => VNode | 
     return { wrapper, value, thumbs, slider };
 }
 
-/** Gives the track a 200px box at the origin — jsdom lays nothing out. */
+/** Gives the track a 200px box at the origin, since jsdom lays nothing out. */
 function stubTrack(size = 200) {
     const track = document.querySelector<HTMLElement>('.vt-slider-track')!;
     track.getBoundingClientRect = () => ({ left: 0, top: 0, right: size, bottom: size, width: size, height: size, x: 0, y: 0, toJSON: () => ({}) });

@@ -4,8 +4,8 @@ import type { Component } from 'vue';
 /**
  * A template is a small application made only of Vitral components: a layout
  * that owns its own navigation, and one component per screen. Everything a
- * page about it says — what it holds, which components it uses, the questions
- * people ask — lives here, next to the code, so the gallery never drifts from
+ * page about it says (what it holds, which components it uses, the questions
+ * people ask) lives here, next to the code, so the gallery never drifts from
  * what it shows.
  */
 export type TemplateCategory = 'Commerce' | 'Publishing' | 'Dashboard' | 'Travel' | 'Education' | 'Productivity';

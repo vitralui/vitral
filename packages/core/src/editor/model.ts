@@ -105,8 +105,8 @@ type InlineInput = string | EditorNode;
 const inline = (parts: InlineInput[]): EditorNode[] => normalizeInline(parts.map((p) => (typeof p === 'string' ? { type: 'text' as const, text: p } : p)));
 
 /**
- * Terse constructors for documents — what the specs and an application
- * seeding content by hand reach for. `ed.p('Hello ', ed.t('world', ed.bold()))`.
+ * Terse constructors for documents, for the specs and for an application
+ * seeding content by hand. `ed.p('Hello ', ed.t('world', ed.bold()))`.
  */
 export const editorNodes = {
     doc: (...content: EditorNode[]): EditorNode => ({ type: 'doc', content }),
@@ -206,7 +206,7 @@ export function inlineLength(content: readonly EditorNode[] | undefined): number
     return n;
 }
 
-/** The block's text, a hard break read as a newline — offsets line up with positions. */
+/** The block's text, a hard break read as a newline, so offsets line up with positions. */
 export function inlineText(content: readonly EditorNode[] | undefined): string {
     let s = '';
     for (const node of content ?? []) s += node.type === 'text' ? (node.text ?? '') : '\n';
@@ -282,7 +282,7 @@ export function rangeHasMark(content: readonly EditorNode[] | undefined, from: n
 
 /**
  * The marks typing at `offset` would carry: those of the character before
- * it (after it, at the very start). A link ends where it ends — typing right
+ * it (after it, at the very start). A link ends where it ends, so typing right
  * after one does not lengthen it.
  */
 export function marksAt(content: readonly EditorNode[] | undefined, offset: number): EditorMark[] {

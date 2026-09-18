@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import type { AspectRatioProps, AspectRatioSlots } from './types';
 
-// A box that keeps a ratio as its width changes — CSS `aspect-ratio`, set
+// A box that keeps a ratio as its width changes, using CSS `aspect-ratio` set
 // inline so it holds unstyled too. Pure layout: whatever is inside keeps its
 // own semantics, and an image inside still needs its `alt`.
 

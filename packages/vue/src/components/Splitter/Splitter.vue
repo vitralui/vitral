@@ -9,8 +9,8 @@ import type { SplitterEmits, SplitterProps, SplitterSlots } from './types';
 
 // The WAI-ARIA window splitter. Each gutter is a focusable separator whose
 // value is the size of the panel before it; arrows move it by `step`, Home and
-// End to its limits, and a drag moves it under the pointer. The arithmetic —
-// moving one boundary while both panels keep their minimums — is in core.
+// End to its limits, and a drag moves it under the pointer. The arithmetic of
+// moving one boundary while both panels keep their minimums is in core.
 
 defineOptions({ name: 'VtSplitter' });
 

@@ -9,7 +9,7 @@ afterEach(() => {
     vi.useRealTimers();
 });
 
-describe('createForm — state', () => {
+describe('createForm: state', () => {
     it('starts from a copy of the initial values, clean and valid', () => {
         const initialValues = { name: 'Ada', address: { city: 'Recife' } };
         const form = createForm({ initialValues });
@@ -77,7 +77,7 @@ describe('createForm — state', () => {
     });
 });
 
-describe('createForm — validation', () => {
+describe('createForm: validation', () => {
     it('validates everything on submit by default, not before', async () => {
         const form = createForm({ initialValues: { email: '' } });
         form.register('email', { rules: [required(), email()] });
@@ -296,7 +296,7 @@ describe('createForm — validation', () => {
     });
 });
 
-describe('createForm — async validation', () => {
+describe('createForm: async validation', () => {
     it('marks a field validating while an async rule runs', async () => {
         let finish!: (value: string | undefined) => void;
         const form = createForm({ initialValues: { user: 'ada' }, validateOn: 'input' });
@@ -433,7 +433,7 @@ describe('createForm — async validation', () => {
     });
 });
 
-describe('createForm — resolvers', () => {
+describe('createForm: resolvers', () => {
     const resolver = functionResolver<{ name?: string; age?: number; items?: { title: string }[] }>((v) => ({
         name: v.name ? undefined : 'Name is required',
         age: (v.age ?? 0) < 18 ? 'Adults only' : undefined,
@@ -500,7 +500,7 @@ describe('createForm — resolvers', () => {
     });
 });
 
-describe('createForm — submit and reset', () => {
+describe('createForm: submit and reset', () => {
     it('calls the handler with the values when valid, tracking submitting', async () => {
         let release!: () => void;
         const form = createForm({ initialValues: { a: 'x' } });
@@ -623,7 +623,7 @@ describe('createForm — submit and reset', () => {
     });
 });
 
-describe('createForm — field arrays', () => {
+describe('createForm: field arrays', () => {
     const setup = () => {
         const form = createForm({ initialValues: { items: [{ title: 'a' }, { title: '' }, { title: 'c' }] } });
         const items = form.array<{ title: string }>('items');

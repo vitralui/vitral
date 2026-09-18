@@ -31,7 +31,7 @@ describe('splitter arithmetic', () => {
         expect(boundaryLimits([50, 50], 0, [70, 70])).toEqual({ min: 70, max: 70 });
     });
 
-    it('sets a panel to an absolute size, clamped — what Home and End do', () => {
+    it('sets a panel to an absolute size, clamped, the way Home and End do', () => {
         expect(setPanelSize([40, 60], 0, 0, [15, 25])).toEqual([15, 85]);
         expect(setPanelSize([40, 60], 0, 100, [15, 25])).toEqual([75, 25]);
         expect(setPanelSize([40, 60], 1, 10)).toEqual([40, 60]);

@@ -27,7 +27,7 @@ import type { TaskboardColumn, TaskboardEmits, TaskboardKey, TaskboardLane, Task
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 // A task board. Each column (or column × lane cell) is a list named by its
-// column — and lane — with its card count; cards are focusable items with a
+// column (and lane) with its card count. Cards are focusable items with a
 // roving tab stop, and the arrow keys move between them. Moving follows the
 // accessible drag-and-drop pattern: Space picks a card up, the arrows (Page
 // Up/Down across lanes) carry it, Space drops and Escape puts it back, and
@@ -441,7 +441,7 @@ function onCardClick(event: Event, item: unknown, column: TaskboardColumn) {
 }
 
 // A keyboard move ends when focus leaves the board; while a card is carried it
-// is re-rendered in its new place, which blurs it for a moment — hence the wait.
+// is re-rendered in its new place, which blurs it for a moment, hence the wait.
 function onFocusout() {
     setTimeout(() => {
         if (drag.value?.via === 'keyboard' && !rootRef.value?.contains(document.activeElement)) cancelDrag();

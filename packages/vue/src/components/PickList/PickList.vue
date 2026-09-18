@@ -9,7 +9,7 @@ import type { PickListEmits, PickListProps, PickListSlots } from './types';
 
 // Two multi-selectable listboxes, each named by its header, and the moves
 // between them: the four transfer buttons, Enter or a double click on a list
-// (which sends its selection — or its active item — across), and Alt with the
+// (which sends its selection, or its active item, across), and Alt with the
 // arrows to reorder within a list. Every move is announced in a polite live
 // region. `v-model` is `[source, target]`.
 

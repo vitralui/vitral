@@ -4,7 +4,7 @@ import { useVitral } from '../config/config';
 
 /**
  * The theme at runtime: which preset, which scheme, and the switches to change
- * either. Everything here re-renders nothing — it rewrites CSS variables, and
+ * either. Nothing here re-renders: it rewrites CSS variables, and
  * the browser repaints.
  */
 export function useTheme() {

@@ -18,9 +18,9 @@ export type MenubarEmits = {
 };
 
 export interface MenubarSlots {
-    /** Before the items — a logo. */
+    /** Before the items: a logo. */
     start?: () => unknown;
-    /** After the items — a search box, an avatar. */
+    /** After the items: a search box, an avatar. */
     end?: () => unknown;
     item?: (props: NestedMenuItemSlotProps) => unknown;
     /** The small-screen menu button's icon. */

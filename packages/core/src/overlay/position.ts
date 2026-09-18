@@ -7,13 +7,13 @@ export interface AnchorOptions {
     /** Gap between the anchor and the popup, in pixels. */
     offset?: number;
     /**
-     * Shift along the anchor's edge, in pixels — negative pulls a submenu up so
+     * Shift along the anchor's edge, in pixels. Negative pulls a submenu up so
      * its first item lines up with the item that opened it.
      */
     alignmentOffset?: number;
     /** Move to the opposite side when there is no room. Defaults to true. */
     flip?: boolean;
-    /** Make the popup at least as wide as the anchor — what a select's panel wants. */
+    /** Make the popup at least as wide as the anchor, which is what a select's panel wants. */
     matchWidth?: boolean;
     strategy?: 'absolute' | 'fixed';
 }

@@ -5,8 +5,8 @@ export interface CommandProps extends BaseProps {
     shouldFilter?: boolean;
     /**
      * Scores an item against the search: 0 (or false) hides it, and higher
-     * scores come first. Defaults to core's `commandScore` — whole text, then
-     * prefix, word start, anywhere, and letters in order — over the value and
+     * scores come first. Defaults to core's `commandScore` (whole text, then
+     * prefix, word start, anywhere, and letters in order) over the value and
      * keywords, ignoring case and accents.
      */
     filter?: (value: string, search: string, keywords: string[]) => number | boolean;

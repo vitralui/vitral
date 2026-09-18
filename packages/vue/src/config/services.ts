@@ -71,7 +71,7 @@ export interface DynamicDialogOptions {
     onClose?: (result: DynamicDialogCloseResult) => void;
 }
 
-/** One open dynamic dialog — what `useDialog().open()` returns and what the content injects as `dialogRef`. */
+/** One open dynamic dialog: what `useDialog().open()` returns and what the content injects as `dialogRef`. */
 export interface DynamicDialogInstance {
     readonly id: number;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

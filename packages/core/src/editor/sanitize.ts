@@ -84,8 +84,8 @@ function readColor(value: string): { r: number; g: number; b: number } | null {
 
 /**
  * The palette colour a pasted CSS colour is closest to, or null. Greys, black
- * and white are dropped — they are what word processors paste on every run of
- * text — and so is anything too pale or too dark to have a hue worth keeping.
+ * and white are dropped, since they are what word processors paste on every run
+ * of text, and so is anything too pale or too dark to have a hue worth keeping.
  */
 export function matchPaletteColor(value: string, kind: 'color' | 'highlight', palette: readonly EditorColor[] = editorPalette): string | null {
     const byName = palette.find((c) => c.name === value.trim().toLowerCase());
@@ -115,7 +115,7 @@ const IMAGE_SCHEMES = new Set(['http', 'https']);
 
 /**
  * The URL if it is safe to put in content, else null. Relative URLs pass;
- * absolute ones only with a scheme on the allow-list — `javascript:`,
+ * absolute ones only with a scheme on the allow-list. `javascript:`,
  * `vbscript:`, `data:` (except raster images) and friends never do, however
  * they are disguised with whitespace, control characters or case.
  */

@@ -78,7 +78,7 @@ export interface Locale {
         next: string;
         /** The title of a month. */
         monthTitle: string;
-        /** A full date — a day view's title, a cell's name. */
+        /** A full date: a day view's title, a cell's name. */
         dayTitle: string;
         /** A day column's header. */
         dayHeader: string;

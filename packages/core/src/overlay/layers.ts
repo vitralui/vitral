@@ -1,7 +1,7 @@
 import { isClient } from '../utils/dom';
 
 export interface LayerOptions {
-    /** The elements that count as "inside" this layer — typically the popup and the control that opened it. */
+    /** The elements that count as "inside" this layer, typically the popup and the control that opened it. */
     elements: () => (Element | null | undefined)[];
     onEscape?: (event: KeyboardEvent) => void;
     onPointerDownOutside?: (event: PointerEvent) => void;
@@ -29,8 +29,8 @@ function onPointerDown(event: PointerEvent) {
 /**
  * Registers a dismissable layer: a popup, menu or dialog that closes on Escape or
  * on a press outside it. Only the topmost layer hears either, so Escape inside a
- * select inside a dialog closes the select and leaves the dialog open — the
- * behaviour every stacked overlay needs and each would otherwise get wrong on
+ * select inside a dialog closes the select and leaves the dialog open. Every
+ * stacked overlay needs that, and each would otherwise get it wrong on
  * its own.
  *
  * Returns the function that removes the layer.

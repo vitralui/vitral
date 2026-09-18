@@ -19,7 +19,7 @@ export function compareValues(a: unknown, b: unknown, locale?: string): number {
 
 /**
  * Sorts by each field in turn. The sort is stable and empty values go last in
- * both directions — flipping a column to descending should not bring every
+ * both directions, since flipping a column to descending should not bring every
  * blank cell to the top.
  */
 export function sortData<T>(data: readonly T[], sorts: readonly SortMeta[], locale?: string): T[] {

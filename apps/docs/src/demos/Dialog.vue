@@ -79,7 +79,7 @@ function openAt(where: Position) {
         </Dialog>
     </DemoSection>
 
-    <DemoSection title="Modeless" description="`modal: false` keeps the page usable: no mask, no focus trap, no scroll lock — Escape still closes it.">
+    <DemoSection title="Modeless" description="`modal: false` keeps the page usable: no mask, no focus trap, no scroll lock. Escape still closes it.">
         <Button label="Open a modeless dialog" severity="secondary" @click="modeless = true" />
         <Dialog v-model:visible="modeless" header="Find" :modal="false" position="bottom-right" style="width: 20rem">
             <InputText aria-label="Find text" placeholder="Search the page…" fluid />

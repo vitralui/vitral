@@ -15,7 +15,7 @@ export interface TimelineProps extends BaseProps {
 export interface TimelineSlots {
     /** An event's content. */
     content?: (props: { item: unknown; index: number }) => unknown;
-    /** What sits across the axis from the content — a date, say. */
+    /** What sits across the axis from the content: a date, say. */
     opposite?: (props: { item: unknown; index: number }) => unknown;
     /** Replaces the marker. */
     marker?: (props: { item: unknown; index: number }) => unknown;

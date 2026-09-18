@@ -13,7 +13,7 @@ export interface RuleContext<Values = Record<string, unknown>> {
     path: string;
     /** Every value in the form, as it is now. */
     values: Values;
-    /** The messages in use — the locale's, when a view layer passes them. */
+    /** The messages in use: the locale's, when a view layer passes them. */
     messages: FormMessages;
     /** Aborted when a newer validation of this field starts; hand it to `fetch`. */
     signal: AbortSignal;
@@ -67,7 +67,7 @@ export function required(msg?: RuleMessage, options: { acceptFalse?: boolean } =
 
 /**
  * Text of at least `min` characters, or a list of at least `min` items. Empty
- * text passes — pair it with `required` — but an empty list is a list of none.
+ * text passes, so pair it with `required`, but an empty list is a list of none.
  */
 export function minLength(min: number, msg?: RuleMessage): Rule {
     return (value, ctx) => {
@@ -143,7 +143,7 @@ export function url(msg?: RuleMessage, options: { protocols?: readonly string[] 
     };
 }
 
-/** The same value as another field — a password confirmation. Validated again when that field changes. */
+/** The same value as another field, such as a password confirmation. Validated again when that field changes. */
 export function equalsField(path: string, msg?: RuleMessage): Rule {
     return withMeta(
         (value, ctx) => {

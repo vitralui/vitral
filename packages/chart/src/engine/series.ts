@@ -100,7 +100,7 @@ export function categoriesOf(series: NormalizedSeries[], categories?: (string | 
     return Array.from({ length }, (_, i) => i + 1);
 }
 
-/** Where each series' point sits in the category list — by x when points carry one, by index otherwise. */
+/** Where each series' point sits in the category list: by x when points carry one, by index otherwise. */
 export function categoryIndex(series: NormalizedSeries, categories: (string | number)[], explicit: boolean): (ChartPoint | undefined)[] {
     const out: (ChartPoint | undefined)[] = new Array(categories.length);
     if (!explicit) {

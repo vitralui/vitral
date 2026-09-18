@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'DataTable',
     category: 'Data',
     description:
-        'Rows and columns: `<DataTable :value><Column field header sortable /></DataTable>`. Sorting (Ctrl-click adds a column), a filter row, a global search, pages, selection and loading — all computed by @vitral/core, or handed to a server (`lazy`) or a data source. A real <table> with scoped headers; sort buttons, checkboxes and filters are native controls in the tab order.'
+        'Rows and columns: `<DataTable :value><Column field header sortable /></DataTable>`. Sorting (Ctrl-click adds a column), a filter row, a global search, pages, selection and loading, all computed by @vitral/core, or handed to a server (`lazy`) or a data source. A real <table> with scoped headers; sort buttons, checkboxes and filters are native controls in the tab order.'
 };
 </script>
 
@@ -156,7 +156,7 @@ const remoteFilters = ref({ global: { value: null as string | null, matchMode: '
         </DataTable>
     </DemoSection>
 
-    <DemoSection title="Multiple sort, single selection, grid lines" description="Sorted by country, then by balance, highest first. Ctrl-click (⌘-click) a header to add it to the sort. Click a row — or focus the rows and use the arrows and Space — to choose one. The header stays in view while the body scrolls.">
+    <DemoSection title="Multiple sort, single selection, grid lines" description="Sorted by country, then by balance, highest first. Ctrl-click (⌘-click) a header to add it to the sort. Click a row, or focus the rows and use the arrows and Space, to choose one. The header stays in view while the body scrolls.">
         <DataTable
             v-model:multi-sort-meta="multiSortMeta"
             v-model:selection="chosen"

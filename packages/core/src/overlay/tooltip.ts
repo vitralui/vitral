@@ -15,7 +15,7 @@ export interface TooltipOptions {
     offset?: number;
     /** The stacking base; tooltips opened later still go on top. */
     zIndex?: number;
-    /** Attributes for the tooltip element and its text — the classes from the style's class map, pass-through. */
+    /** Attributes for the tooltip element and its text: the classes from the style's class map, pass-through. */
     rootAttrs?: Record<string, string | undefined>;
     textAttrs?: Record<string, string | undefined>;
 }
@@ -52,7 +52,7 @@ function setAttrs(el: HTMLElement, attrs: Record<string, string | undefined> | u
 
 /**
  * A tooltip for `host`: plain DOM at the end of `<body>` (or of the host's
- * overlay scope — see `overlayContainerOf`), so it works the same
+ * overlay scope, see `overlayContainerOf`), so it works the same
  * under any framework. It shows on hover and on keyboard focus and hides on
  * leave, blur, a press on the host and Escape (WCAG 1.4.13: dismissable,
  * hoverable, persistent). While shown it is `role="tooltip"` and the host's

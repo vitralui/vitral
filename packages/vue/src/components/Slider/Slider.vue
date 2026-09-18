@@ -6,8 +6,8 @@ import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { SliderEmits, SliderProps, SliderValue } from './types';
 
 // The WAI-ARIA slider (and multi-thumb slider): each thumb is a focusable
-// role="slider" carrying its value and the range it may move in — for a range,
-// up to the other thumb. The arithmetic lives in @vitral/core; this file only
+// role="slider" carrying its value and the range it may move in, which for a
+// range stops at the other thumb. The arithmetic lives in @vitral/core; this file only
 // maps keys and pointer positions onto it.
 
 defineOptions({ name: 'VtSlider', inheritAttrs: false });

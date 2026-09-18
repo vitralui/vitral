@@ -28,7 +28,7 @@ export function pageOf(first: number, rows: number): number {
 }
 
 /**
- * `first` moved to the start of its page and kept inside the data — after a
+ * `first` moved to the start of its page and kept inside the data, so after a
  * filter shrinks the total, a table on page 9 of 3 lands on page 3.
  */
 export function clampFirst(first: number, rows: number, totalRecords: number): number {
@@ -54,7 +54,7 @@ export function pageLinks(page: number, count: number, linkSize = 5): number[] {
     return Array.from({ length: size }, (_, i) => start + i);
 }
 
-/** What a page report template may mention: `{first}`, `{last}`, `{total}`, `{page}`, `{pageCount}`, `{rows}` — all 1-based for people. */
+/** What a page report template may mention: `{first}`, `{last}`, `{total}`, `{page}`, `{pageCount}`, `{rows}`. All 1-based, for people. */
 export function pageReportParams(first: number, rows: number, totalRecords: number): Record<'first' | 'last' | 'total' | 'page' | 'pageCount' | 'rows', number> {
     const total = Math.max(0, totalRecords);
     return {

@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-/** The Lantern — a made-up daily paper. Every story, name and figure is invented. */
+/** The Lantern: a made-up daily paper. Every story, name and figure is invented. */
 export interface Story {
     id: number;
     section: string;

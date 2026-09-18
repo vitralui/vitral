@@ -8,7 +8,7 @@ export interface EventBus<Events extends Record<string, any>> {
     clear(): void;
 }
 
-/** A typed publish/subscribe channel — how services such as toast and confirm reach the component that renders them. */
+/** A typed publish/subscribe channel: how services such as toast and confirm reach the component that renders them. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createEventBus<Events extends Record<string, any>>(): EventBus<Events> {
     const handlers = new Map<keyof Events, Set<Handler<never>>>();

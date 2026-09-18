@@ -5,7 +5,7 @@ import { computed } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import type { TimelineProps, TimelineSlots } from './types';
 
-// An ordered list of events — the order is the meaning, so it is an <ol> and
+// An ordered list of events. The order is the meaning, so it is an <ol> and
 // a screen reader says "item 2 of 5". The markers and the connecting line are
 // drawing, hidden from assistive technology; a meaningful marker says so in
 // its own content. Name the timeline with `aria-label` when there are several.

@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Chart',
     category: 'Data',
     description:
-        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar — and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut and radar; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
+        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut and radar; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
 };
 </script>
 
@@ -239,7 +239,7 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
         </div>
     </DemoSection>
 
-    <DemoSection title="Lollipop" description="Bars with most of the ink removed — for many categories with small differences.">
+    <DemoSection title="Lollipop" description="Bars with most of the ink removed, for many categories with small differences.">
         <Chart type="lollipop" :series="lollipop" :options="lollipopOptions" style="width: 100%" />
     </DemoSection>
 
@@ -319,7 +319,7 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
 
     <DemoSection
         title="Using the chart without a framework"
-        description="The chart is @vitral/chart, which has no framework in it; <Chart> is a thin wrapper around it. createChart(element, { type, series, options }) draws into any element and returns a handle — update, on, zoomX, exportSvg, destroy. This one is mounted in a plain <div> by the module below."
+        description="The chart is @vitral/chart, which has no framework in it; <Chart> is a thin wrapper around it. createChart(element, { type, series, options }) draws into any element and returns a handle: update, on, zoomX, exportSvg, destroy. This one is mounted in a plain <div> by the module below."
     >
         <div class="demo-stack" style="width: 100%">
             <div style="display: flex; gap: 0.5rem" role="group" aria-label="Kind">

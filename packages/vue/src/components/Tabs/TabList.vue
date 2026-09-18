@@ -5,8 +5,8 @@ import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import { inheritUnstyled, TabsKey } from './context';
 import type { TabListProps, TabsSlots } from './types';
 
-// class and style dress the strip; every other attribute — the aria-label the
-// tablist should have, an id — lands on the element with role="tablist".
+// class and style dress the strip; every other attribute (the aria-label the
+// tablist should have, an id) lands on the element with role="tablist".
 
 defineOptions({ name: 'VtTabList', inheritAttrs: false });
 

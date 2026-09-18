@@ -3,8 +3,8 @@ import { avatargroupStyle } from '@vitral/styles';
 import { useComponent } from '../../base/useComponent';
 import type { AvatarGroupProps, AvatarGroupSlots } from './types';
 
-// A row of overlapping avatars. It is a list when it is named — several
-// people, one after another — and nothing at all when it is not.
+// A row of overlapping avatars. It is a list when it is named, several people
+// one after another, and nothing at all when it is not.
 
 defineOptions({ name: 'VtAvatarGroup' });
 

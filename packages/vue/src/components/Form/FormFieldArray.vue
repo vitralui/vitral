@@ -7,8 +7,8 @@ import { FieldKey, inheritRoot, useFormContext, type FieldContext } from './cont
 import type { FormFieldArrayItem, FormFieldArrayProps, FormFieldArraySlotProps, FormFieldArraySlots } from './types';
 import { focusInside } from './wire';
 
-// A list of repeated groups. The slot gets one entry per item — a stable key,
-// the index and the item's path, under which its fields are named — and the
+// A list of repeated groups. The slot gets one entry per item (a stable key,
+// the index and the item's path, under which its fields are named) and the
 // operations that change the list; errors and state travel with the items.
 // Rules on the list itself (at least one row) show in a Form.Message placed
 // directly inside.

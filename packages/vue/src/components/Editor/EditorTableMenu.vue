@@ -10,7 +10,7 @@ import type { MenuItem } from '../Menu/types';
 import { inheritRoot, useEditorContext } from './context';
 import type { EditorIconButtonProps } from './types';
 
-// Tables: a menu button to insert one, and — with the caret in a table — to
+// Tables: a menu button to insert one and, with the caret in a table, to
 // add and remove rows and columns. Tab and Shift+Tab move between cells.
 
 defineOptions({ name: 'VtEditorTableMenu' });

@@ -4,7 +4,7 @@ import { computed, ref, useId, watch } from 'vue';
 import { scrollTemplateTop, useNarrow, useTemplate } from './context';
 
 /**
- * The chrome of a public site — a store, a paper, a blog: the brand, the
+ * The chrome of a public site, a store or a paper or a blog: the brand, the
  * screens as links, a few actions, and a footer. Below 720px the links fold
  * into a menu button.
  */

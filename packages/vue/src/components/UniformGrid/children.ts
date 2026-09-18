@@ -9,8 +9,8 @@ export interface SlotChild {
 /**
  * The children a slot rendered, the way a layout panel counts them: fragments
  * (`v-for`, `<template v-if>`) are opened, and `v-if` placeholders and
- * whitespace are dropped. Call it from the template — inside render — so the
- * slot tracks what it reads.
+ * whitespace are dropped. Call it from the template, inside render, so the slot
+ * tracks what it reads.
  */
 export function flattenChildren(nodes: unknown, prefix = ''): SlotChild[] {
     const out: SlotChild[] = [];

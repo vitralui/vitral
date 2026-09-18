@@ -55,7 +55,7 @@ export function weekdayOrder(firstDayOfWeek = 0): number[] {
 
 /**
  * The month as six weeks of seven days. Always six, so the calendar keeps its
- * height as the reader pages through months — a popup that resizes under the
+ * height as the reader pages through months. A popup that resizes under the
  * pointer moves the next button away from the cursor.
  */
 export function monthGrid(year: number, month: number, firstDayOfWeek = 0, today: Date = new Date()): CalendarDay[][] {
@@ -117,7 +117,7 @@ export function formatDate(date: Date | null | undefined, pattern: string, names
 
 /**
  * Reads what a person typed against the numeric tokens of a pattern
- * (`yyyy yy MM M dd d`). Returns null for anything that is not a real date —
+ * (`yyyy yy MM M dd d`). Returns null for anything that is not a real date, so
  * 31/02 is refused rather than rolled into March.
  */
 export function parseDate(text: string, pattern: string): Date | null {

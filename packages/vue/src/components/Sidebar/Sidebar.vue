@@ -10,13 +10,13 @@ import type { MenuItem } from '../Menu/types';
 import type { SidebarEmits, SidebarProps, SidebarSlots } from './types';
 
 // Application navigation: a <nav> of plain links and buttons in
-// the tab order — not an ARIA menu, which is for commands. The current page is
+// the tab order, not an ARIA menu, which is for commands. The current page is
 // `aria-current="page"`; a sub-list opens from a button with aria-expanded.
 // The collapse button says what it will do and controls the navigation.
 // Collapsed to icons, the labels stay for screen readers and show as tooltips.
 // Below `mobileBreakpoint` the same content opens in a <Drawer>, a modal
 // dialog. An off-canvas sidebar hidden on a wide screen leaves a strip along
-// its edge — a button that brings it back — and its content goes inert.
+// its edge, a button that brings it back, and its content goes inert.
 
 defineOptions({ name: 'VtSidebar' });
 
@@ -59,7 +59,7 @@ const iconOnly = computed(() => !inDrawer.value && props.collapsible === 'icon' 
 const name = computed(() => props.ariaLabel ?? locale.value.aria.navigation);
 const hiddenOffcanvas = computed(() => !inDrawer.value && props.collapsible === 'offcanvas' && collapsed.value);
 
-/** Collapses or expands the sidebar — or, in a drawer, opens or closes it. */
+/** Collapses or expands the sidebar, or, in a drawer, opens or closes it. */
 function toggle() {
     if (inDrawer.value) visible.value = !visible.value;
     else if (props.collapsible !== 'none') collapsed.value = !collapsed.value;

@@ -25,7 +25,7 @@ const collapsed = ref(false);
     </DemoSection>
     <DemoSection title="Toggleable (Expander)" class="stack">
         <Panel v-model:collapsed="collapsed" header="Advanced settings" toggleable style="width: 100%">
-            <p style="margin: 0">Press the header — or Tab to it and press Enter or Space — to collapse this content.</p>
+            <p style="margin: 0">Press the header, or Tab to it and press Enter or Space, to collapse this content.</p>
         </Panel>
         <span class="demo-hint">collapsed: {{ collapsed }}</span>
     </DemoSection>

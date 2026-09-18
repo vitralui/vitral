@@ -5,7 +5,7 @@ export interface BreadcrumbItemState {
     /** The page the user is on: the last item. */
     current?: boolean;
     disabled?: boolean;
-    /** The item goes somewhere or does something — a link or a button rather than text. */
+    /** The item goes somewhere or does something: a link or a button rather than text. */
     action?: boolean;
 }
 

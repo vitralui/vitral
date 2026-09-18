@@ -10,8 +10,8 @@ import Icon from '../Icon/Icon.vue';
 import type { ConfirmDialogProps, ConfirmDialogSlots } from './types';
 
 // What useConfirm().require() opens: a <Dialog> as a WAI-ARIA alertdialog,
-// described by its message, with focus on the button `defaultFocus` names —
-// `reject` for a destructive action, so a stray Enter does no harm.
+// described by its message, with focus on the button `defaultFocus` names,
+// usually `reject` for a destructive action so a stray Enter does no harm.
 
 defineOptions({ name: 'VtConfirmDialog' });
 
@@ -54,7 +54,7 @@ function reject() {
     options.value.reject?.();
 }
 
-// Closed without an answer — Escape or the close button.
+// Closed without an answer: Escape or the close button.
 function onUpdateVisible(open: boolean) {
     if (open) return;
     visible.value = false;

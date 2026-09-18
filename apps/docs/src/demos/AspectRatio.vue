@@ -4,7 +4,7 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'AspectRatio',
     category: 'Media',
-    description: 'A box that keeps its ratio as its width changes — CSS `aspect-ratio` as a component, with the content cropped to fill it.'
+    description: 'A box that keeps its ratio as its width changes, with CSS `aspect-ratio` as a component, with the content cropped to fill it.'
 };
 </script>
 

@@ -3,7 +3,7 @@ import { inject, type ComputedRef, type InjectionKey, type Ref, type ShallowRef 
 import type { BaseProps, PassThrough } from '../../base/types';
 
 /**
- * What `<EditorRoot>` shares with its parts — and, through `useEditor()`, with
+ * What `<EditorRoot>` shares with its parts and, through `useEditor()`, with
  * an application building its own interface around the editor.
  */
 export interface EditorContext {
@@ -71,7 +71,7 @@ export function useEditorContext(part: string): EditorContext {
 
 /**
  * A part's props, with `unstyled` falling back to the root's and the root's
- * pass-through applying under the part's own — so `<Editor :pt="{ toolbar: … }">`
+ * pass-through applying under the part's own, so `<Editor :pt="{ toolbar: … }">`
  * reaches the toolbar the editor builds.
  */
 export function inheritRoot<P extends BaseProps>(props: P, ctx: EditorContext): P {

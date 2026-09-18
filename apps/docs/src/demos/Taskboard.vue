@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Taskboard',
     category: 'Data',
     description:
-        'A kanban board: cards in columns, optionally split into swimlanes. Drag cards and columns with a mouse, a pen or a finger (rest it a moment), or from the keyboard — Space picks a card up, the arrows carry it, Space drops it and Escape puts it back — with every step announced. Columns can hold a work-in-progress limit, collapse, or be locked.'
+        'A kanban board: cards in columns, optionally split into swimlanes. Drag cards and columns with a mouse, a pen or a finger (rest it a moment), or from the keyboard: Space picks a card up, the arrows carry it, Space drops it and Escape puts it back, with every step announced. Columns can hold a work-in-progress limit, collapse, or be locked.'
 };
 </script>
 

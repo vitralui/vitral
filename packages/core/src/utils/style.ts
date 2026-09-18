@@ -1,8 +1,8 @@
 import { cn, type ClassValue } from './classNames';
 import { isClient } from './dom';
 
-// A component's look as plain data — its stylesheet and the classes each part
-// carries — and the one function that puts a stylesheet in the document. They
+// A component's look as plain data (its stylesheet and the classes each part
+// carries) and the one function that puts a stylesheet in the document. They
 // live here, with no framework in them, so every renderer shares them: the Vue
 // components (through `@vitral/styles`), the framework-free chart, and a React
 // or Angular port later.
@@ -13,8 +13,8 @@ export type ClassEntry = string | ((state: any) => ClassValue);
 /**
  * A component's stylesheet and the classes each of its parts carries. Both are
  * plain data with no framework in them: the Vue components read this today, and
- * a React or Angular port reads the same object, so the markup contract — which
- * class goes on which element in which state — is written once.
+ * a React or Angular port reads the same object, so the markup contract (which
+ * class goes on which element in which state) is written once.
  */
 export interface ComponentStyle<Parts extends string = string> {
     /** Also the token namespace: `--vt-<name>-*`. */
@@ -109,7 +109,7 @@ export function createStyleRegistry(options: Omit<LoadStyleOptions, 'registry'> 
 
 /**
  * Puts a component's stylesheet in the document once, the first time any
- * instance of it renders — so nothing has to be imported by hand and a page
+ * instance of it renders, so nothing has to be imported by hand and a page
  * only carries the CSS of the components it uses.
  */
 export function loadStyle(name: string, css: string, options: LoadStyleOptions = {}): void {

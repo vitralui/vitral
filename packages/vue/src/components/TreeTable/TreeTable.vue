@@ -25,7 +25,7 @@ import type { TreeTableEmits, TreeTableProps, TreeTableSlots } from './types';
 // rows carry their level, position and expansion. One row is in the tab
 // order; Up and Down move, Right opens a row or enters it, Left closes it or
 // goes to the parent, Home and End jump (core's treeKeyAction), Enter and
-// Space select — or, without selection, Enter toggles. Sorting keeps the
+// Space select, or, without selection, Enter toggles. Sorting keeps the
 // nesting (core's sortTree); a global filter keeps the branches that lead to
 // matches, opened. Columns are DataTable's <Column>.
 

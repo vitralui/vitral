@@ -168,7 +168,7 @@ export function createEditor(options: EditorOptions = {}): EditorInstance {
     let history: EditorHistory = createHistory();
     const listeners = new Set<(update: EditorUpdate) => void>();
     if (options.onUpdate) listeners.add(options.onUpdate);
-    /** The state a Markdown shortcut rewrote, and the one it made — for Backspace to give the typing back. */
+    /** The state a Markdown shortcut rewrote, and the one it made, so Backspace can give the typing back. */
     let lastRule: { made: EditorState } | null = null;
     let characters: { doc: EditorNode; count: number } | null = null;
 

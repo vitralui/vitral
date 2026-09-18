@@ -4,7 +4,7 @@ export interface IconProps {
     /**
      * A registered icon name, an icon definition from `@vitral/icons`, a Vue
      * component from another icon library, trusted SVG markup, or any other
-     * string — taken as classes, for icon fonts.
+     * string, taken as classes, for icon fonts.
      */
     icon: IconProp;
     /** Width and height; a number is pixels. Defaults to the `icon.size` token (`--vt-icon-size`). */

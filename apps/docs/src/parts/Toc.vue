@@ -9,7 +9,7 @@ let observer: IntersectionObserver | null = null;
 
 function observe() {
     observer?.disconnect();
-    // No observer — a test environment, or a renderer without one — leaves the
+    // No observer, in a test environment or a renderer without one, leaves the
     // list as plain links, which is all it has to be.
     if (!props.items.length || typeof IntersectionObserver === 'undefined') return;
     observer = new IntersectionObserver(

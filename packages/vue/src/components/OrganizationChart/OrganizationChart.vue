@@ -9,7 +9,7 @@ import type { OrganizationChartEmits, OrganizationChartNode, OrganizationChartPr
 // A tree drawn as a chart, and announced as one: a WAI-ARIA tree whose items
 // nest in groups. One node is in the tab order; Up and Down walk the nodes in
 // reading order (depth first), Right opens a folded node or enters it, Left
-// folds it or goes to the parent, Home and End jump — core's tree keys — and
+// folds it or goes to the parent, and Home and End jump (core's tree keys);
 // Enter or Space select. The fold buttons are for the pointer.
 
 defineOptions({ name: 'VtOrganizationChart', inheritAttrs: false });

@@ -73,8 +73,8 @@ describe('server-side rendering', () => {
     });
 
     it('renders the chart as an empty host', async () => {
-        // A chart is drawn by measuring its element, which no server can do — but
-        // it still renders that element, so what hydrates matches and nothing has
+        // A chart is drawn by measuring its element, which no server can do. It
+        // still renders that element, so what hydrates matches what was sent and
         // to be held back until after mount.
         const app = createSSRApp(defineComponent({ setup: () => () => h(Chart, { type: 'line', series: [{ name: 'a', data: [1, 2] }] }) })).use(Vitral);
         const html = await renderToString(app);

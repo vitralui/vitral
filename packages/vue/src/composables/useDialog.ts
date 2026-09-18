@@ -8,7 +8,7 @@ export const DialogRefKey: InjectionKey<DynamicDialogInstance> = Symbol('vt-dial
 let counter = 0;
 
 /**
- * Opens a `<DynamicDialog>` from code with a component as its content — the
+ * Opens a `<DynamicDialog>` from code with a component as its content. The
  * dialog mounted once near the root of the app renders it. `open` returns the
  * instance, whose `close(data)` hands `data` to `onClose`.
  */

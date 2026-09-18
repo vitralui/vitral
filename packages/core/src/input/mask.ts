@@ -4,8 +4,8 @@
  * letter, `*` either, and everything after `?` may be left empty. Any other character is a literal the box types
  * for the reader.
  *
- * The state is one entry per position of the pattern — the character in a slot,
- * or null — so an edit is a pure function from one state to the next, and the
+ * The state is one entry per position of the pattern, the character in a slot
+ * or null, so an edit is a pure function from one state to the next, and the
  * text is always `renderMask` of the state. No DOM is involved: the component
  * reads the caret and writes the text, this decides what goes where.
  */
@@ -71,7 +71,7 @@ export function emptyMask(tokens: readonly MaskToken[]): MaskSlots {
 }
 
 /**
- * The text a state shows. `slotChar` fills the empty slots — one character, or
+ * The text a state shows. `slotChar` fills the empty slots: one character, or
  * a string as long as the pattern to read a per-position placeholder from
  * (`'mm/dd/yyyy'`).
  */
@@ -87,7 +87,7 @@ export function renderMask(tokens: readonly MaskToken[], slots: MaskSlots, slotC
 }
 
 /**
- * The text a state holds so far, trimmed after the last filled slot — what the
+ * The text a state holds so far, trimmed after the last filled slot. This is what the
  * box shows once it loses focus, so a half-typed optional tail does not leave
  * a trail of placeholders.
  */
@@ -102,7 +102,7 @@ function lastFilled(tokens: readonly MaskToken[], slots: MaskSlots): number {
     return -1;
 }
 
-/** The characters typed into the slots, without the literals — the "unmasked" value. */
+/** The characters typed into the slots, without the literals: the "unmasked" value. */
 export function unmaskValue(tokens: readonly MaskToken[], slots: MaskSlots): string {
     return tokens.map((token, i) => (isSlot(token) ? (slots[i] ?? '') : '')).join('');
 }

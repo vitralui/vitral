@@ -42,7 +42,7 @@ export interface DataTableProps extends BaseProps {
     value?: any[];
     /** A field that identifies a row, for selection and row keys. */
     dataKey?: string;
-    /** Rows come from a data source — local or remote — instead of `value`. */
+    /** Rows come from a data source, local or remote, instead of `value`. */
     dataSource?: DataSourceLike;
     /** Nothing is computed here: sort, filter and page changes are emitted (`lazy-load`) for the app to answer. */
     lazy?: boolean;

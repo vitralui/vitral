@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'DataView',
     category: 'Data',
     description:
-        'The data layer with your own template per item, in a list or a grid: DataView sorts and pages, and the `list` and `grid` slots decide the markup — and so the semantics — of what they show.'
+        'The data layer with your own template per item, in a list or a grid: DataView sorts and pages, and the `list` and `grid` slots decide the markup, and so the semantics, of what they show.'
 };
 </script>
 

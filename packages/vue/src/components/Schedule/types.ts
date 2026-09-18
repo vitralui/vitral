@@ -34,7 +34,7 @@ export interface ScheduleEvent {
     editable?: boolean;
     /** An RRULE (`'FREQ=WEEKLY;BYDAY=MO,WE;COUNT=10'`), or the rule as an object. */
     recurrence?: string | ScheduleRecurrenceRule | null;
-    /** Occurrences to leave out, by start — or by day, for a bare date. */
+    /** Occurrences to leave out, by start, or by day for a bare date. */
     exdate?: (Date | string)[];
     [key: string]: unknown;
 }
@@ -58,7 +58,7 @@ export interface ScheduleProps extends BaseProps {
     events?: ScheduleEvent[];
     /** Rows of the timeline view. */
     resources?: ScheduleResource[];
-    /** The views the switcher offers, in order. Defaults to month, week, day and agenda — and timeline when there are resources. */
+    /** The views the switcher offers, in order. Defaults to month, week, day and agenda, plus timeline when there are resources. */
     views?: ScheduleViewName[];
     /** Shown after the title; set to false to hide the built-in toolbar. Defaults to true. */
     toolbar?: boolean;
@@ -132,7 +132,7 @@ export interface ScheduleSelection {
 }
 
 export type ScheduleEmits = {
-    /** The visible range changed — the moment to fetch its events. */
+    /** The visible range changed: the moment to fetch its events. */
     'range-change': [range: { start: Date; end: Date; view: ScheduleViewName }];
     'event-click': [payload: { event: ScheduleEvent; occurrence: ScheduleOccurrenceInfo; originalEvent: Event }];
     'event-change': [change: ScheduleEventChange];
@@ -154,7 +154,7 @@ export interface ScheduleToolbarSlotProps {
 export interface ScheduleEventSlotProps {
     event: ScheduleEvent;
     occurrence: ScheduleOccurrenceInfo;
-    /** The event's time, formatted — empty for an all-day event. */
+    /** The event's time, formatted. Empty for an all-day event. */
     timeText: string;
     view: ScheduleViewName;
 }

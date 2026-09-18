@@ -9,9 +9,9 @@ import CodeBlock from '../parts/CodeBlock.vue';
 import TemplateThumb from '../parts/TemplateThumb.vue';
 import { templates } from '../templates';
 
-// A product page in five calm bands: what it is, what it is made of, what is in
-// it, how the look changes, and where to start. Everything in the hero is the
-// library itself, running in whichever theme the reader has picked.
+// The landing page, in bands: what it is, what it is made of, what is in it,
+// how the look changes, and where to start. Everything in the hero is the
+// library itself, running in whichever theme the reader picked.
 const ids = { name: useId(), email: useId() };
 
 const install = 'pnpm add @vitral/vue';
@@ -22,14 +22,14 @@ async function copyInstall() {
         copied.value = true;
         setTimeout(() => (copied.value = false), 1600);
     } catch {
-        // Clipboard access can be refused; the command is on screen to copy by hand.
+        // Clipboard access can be refused. The command is on screen anyway.
     }
 }
 
 // ---- the hero's showcase ------------------------------------------------------------
 
-// A profile form on a spec sheet: the values in its legend are read from the
-// rendered card, so they change with the theme.
+// A profile form on a spec sheet. The values in its legend are measured from
+// the rendered card, so they change with the theme.
 const profile = ref({ name: 'Ada Lovelace', email: 'ada@example.com' });
 const settings = ref({ updates: true, digest: false, mentions: true });
 const settingsNotes: Note[] = [
@@ -61,9 +61,12 @@ const features = [
     { icon: 'sliders', title: 'Design tokens', body: 'Primitive, semantic and component layers, compiled to CSS variables. Change the primary colour and everything follows.' },
     { icon: 'check', title: 'Accessible by default', body: 'Each component follows its WAI-ARIA pattern and ships with a spec that runs axe and drives the keyboard.' },
     { icon: 'pencil', title: 'Yours to override', body: 'Reach any element with pass-through, retoken one instance, or go unstyled and bring your own CSS.' },
-    { icon: 'star', title: 'A predictable API', body: 'The same props, slots and events on every component — size, variant, invalid, fluid — so learning one teaches the rest.' },
-    { icon: 'image', title: 'Icons included', body: 'An outline set drawn for the library, tree-shaken per icon — and any other icon library works too.' },
-    { icon: 'calendar', title: 'Application pieces', body: 'Charts, a scheduler and a task board sit next to the form controls, themed by the same tokens.' }
+    { icon: 'star', title: 'A predictable API', body: 'The same props, slots and events everywhere: size, variant, invalid, fluid. Learning one component covers most of the next.' },
+    { icon: 'moon', title: 'Light and dark', body: 'Both schemes come out of the same preset, and follow the operating system unless the reader says otherwise.' },
+    { icon: 'image', title: 'Icons included', body: 'An outline set drawn for the library, tree-shaken per icon. Any other icon library works too.' },
+    { icon: 'calendar', title: 'Application pieces', body: 'Charts, a scheduler and a task board sit next to the form controls, themed by the same tokens.' },
+    { icon: 'listChecks', title: 'Forms and validation', body: 'Field state, rules and async checks with no dependency, plus resolvers for Zod, Yup, Valibot and Superstruct.' },
+    { icon: 'server', title: 'Server rendering', body: 'Styles are collected during the render and go into the head, so nothing arrives unstyled. Nuxt takes one line in nuxt.config.' }
 ];
 
 const categories = computed(() =>
@@ -94,7 +97,7 @@ const shownTemplates = templates.slice(0, 6);
         <section class="home-hero" aria-labelledby="home-title">
             <div class="home-wrap home-hero-grid">
                 <div class="home-hero-copy">
-                    <a class="home-pill" href="#/docs/roadmap"><b>v0.1</b> Vue 3 today — React and Angular next <Icon icon="arrowRight" /></a>
+                    <a class="home-pill" href="#/docs/roadmap"><b>v0.1</b> Vue 3 and Nuxt today, React and Angular next <Icon icon="arrowRight" /></a>
                     <h1 id="home-title">Components that take the shape of your brand</h1>
                     <p class="home-lead">
                         Vitral is a Vue component library with a theme engine underneath: change a few tokens and every control follows.
@@ -174,7 +177,7 @@ const shownTemplates = templates.slice(0, 6);
             <div class="home-wrap">
                 <header class="home-head">
                     <h2 id="home-features">Everything an interface needs, in one set</h2>
-                    <p>Built to be re-dressed rather than restyled, and tested the way a user meets it — with a keyboard and a screen reader.</p>
+                    <p>Built to be re-dressed rather than restyled, and tested the way people actually use it: with a keyboard and a screen reader.</p>
                 </header>
                 <ul class="home-features">
                     <li v-for="feature in features" :key="feature.title">
@@ -216,7 +219,7 @@ const shownTemplates = templates.slice(0, 6);
                 <div>
                     <h2 id="home-theming">Your brand in a few lines</h2>
                     <p class="home-muted">
-                        A preset is a tree of tokens over another preset. Pick a colour below and the whole site — this page included — re-dresses itself.
+                        A preset is a tree of tokens over another preset. Pick a colour below and the whole site, this page included, changes with it.
                     </p>
                     <div class="home-swatches" role="group" aria-label="Primary colour">
                         <button
@@ -260,7 +263,7 @@ const shownTemplates = templates.slice(0, 6);
                 <header class="home-head home-head-row">
                     <div>
                         <h2 id="home-templates">Templates to start from</h2>
-                        <p>Whole applications made of these components — responsive, themed, and a click away from a live demo.</p>
+                        <p>Whole applications made of these components: responsive, themed, and a click away from a live demo.</p>
                     </div>
                     <Button as="a" href="#/templates" :label="`All ${templates.length} templates`" variant="text" icon="arrowRight" icon-pos="right" />
                 </header>
@@ -284,7 +287,7 @@ const shownTemplates = templates.slice(0, 6);
                 <div class="home-end">
                     <div>
                         <h2 id="home-start">Start with one package</h2>
-                        <p>One plugin call, and a theme that answers to <code>useTheme()</code>.</p>
+                        <p>One plugin call, or one line in <code>nuxt.config</code>, and a theme that answers to <code>useTheme()</code>.</p>
                     </div>
                     <div class="home-actions">
                         <Button as="a" href="#/docs/introduction" label="Read the docs" />

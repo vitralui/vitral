@@ -8,8 +8,8 @@ import type { ToolbarProps, ToolbarSlots } from './types';
 // role="toolbar", named by the aria-label / aria-labelledby it is given. With
 // `roving`, the WAI-ARIA toolbar keyboard: the bar is one tab stop, and
 // Left/Right, Home/End move between its controls. Keys a control needs for
-// itself — arrows in a text field, anything a child already handled — are
-// left alone.
+// itself (arrows in a text field, anything a child already handled) are left
+// alone.
 
 defineOptions({ name: 'VtToolbar' });
 

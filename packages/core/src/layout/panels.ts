@@ -1,6 +1,6 @@
 /**
  * The decisions a uniform grid and a dock panel make before anything is
- * drawn — how many rows and columns, which docked child takes which corner —
+ * drawn (how many rows and columns, which docked child takes which corner),
  * written once, without a DOM, for every adapter.
  */
 
@@ -54,7 +54,7 @@ export const defaultDockOrder: readonly DockEdge[] = ['top', 'bottom', 'left', '
 const EDGES = new Set<string>(defaultDockOrder);
 
 /**
- * A docking order from what the caller gave — an array or `'left,right'` —
+ * A docking order from what the caller gave, an array or `'left,right'`,
  * with unknown names and repeats dropped and any edge left out appended in the
  * default order.
  */
@@ -81,7 +81,7 @@ export interface DockLayout {
 /**
  * A dock panel as a grid. Each docked child, in order, takes a whole
  * strip along its edge of the space still free, and the fill takes what is
- * left — so whichever edge docks first wins the corners. Tracks exist only for
+ * left, so whichever edge docks first wins the corners. Tracks exist only for
  * the edges present, so an absent edge leaves neither a track nor a gap.
  */
 export function dockLayout(present: Iterable<DockEdge>, order?: string | readonly string[] | null): DockLayout {

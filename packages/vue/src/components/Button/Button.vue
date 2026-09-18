@@ -36,7 +36,7 @@ const state = computed(() => ({
     fluid: props.fluid
 }));
 
-// A native button takes `disabled`; anything else — a link, a router link —
+// A native button takes `disabled`; anything else (a link, a router link)
 // has no such attribute, so it is announced as disabled and taken out of the
 // tab order instead.
 const nativeAttrs = computed(() =>

@@ -11,15 +11,15 @@ import { deleteBetween, deleteForward, fragmentText, insertContent, insertText }
 // of truth. Typing, deleting, Enter and formatting arrive as `beforeinput`
 // and become commands, with the browser's own change cancelled; the document
 // is then drawn again (only the blocks that changed) and the selection put
-// back. What cannot be cancelled — an IME composition, some mobile input —
-// is let through and read back from the DOM once it is over.
+// back. What cannot be cancelled (an IME composition, some mobile input) is
+// let through and read back from the DOM once it is over.
 
 export interface EditorViewOptions {
     /** Whether the content can be changed. Read on every event. */
     editable?: () => boolean;
     keymap?: Readonly<Record<string, EditorKeyBinding>>;
     /**
-     * A key the interface may want first — `link` and `toolbar` bindings,
+     * A key the interface may want first: `link` and `toolbar` bindings,
      * Escape. Return true when it was handled, and the view does nothing more.
      */
     handleKey?: (name: string, binding: EditorKeyBinding | undefined, event: KeyboardEvent) => boolean;

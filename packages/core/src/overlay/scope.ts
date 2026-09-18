@@ -2,8 +2,8 @@ import { isClient } from '../utils/dom';
 
 /**
  * An overlay scope is an element marked `data-vt-overlay-scope` whose direct
- * child marked `data-vt-overlay-host` receives the popups opened inside it —
- * so they inherit the scope's custom properties (another theme, another
+ * child marked `data-vt-overlay-host` receives the popups opened inside it, so
+ * they inherit the scope's custom properties (another theme, another
  * scheme) and, when the host is a containing block, stay within it.
  */
 export const OVERLAY_SCOPE_ATTR = 'data-vt-overlay-scope';

@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 
-/** Field Notes — the made-up blog of a made-up designer who writes about making things. */
+/** Field Notes: the made-up blog of a made-up designer who writes about making things. */
 export const author = {
     name: 'Noor Aziz',
     initials: 'NA',

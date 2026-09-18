@@ -8,7 +8,7 @@ import type { CheckboxEmits, CheckboxProps, CheckboxSlots } from './types';
 
 // A real <input type="checkbox">, transparent over a drawn box, so a form
 // submits it, a <label> toggles it, Space works, and a screen reader hears a
-// checkbox — including "mixed", from the DOM `indeterminate` property.
+// checkbox, including "mixed", from the DOM `indeterminate` property.
 
 defineOptions({ name: 'VtCheckbox', inheritAttrs: false });
 

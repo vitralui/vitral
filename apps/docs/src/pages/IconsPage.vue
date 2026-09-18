@@ -35,8 +35,8 @@ const items = [
 
 /**
  * Every icon in `@vitral/icons`, searchable by name, category and tag. A tile
- * selects its icon; the panel beside the grid copies what you came for — the
- * name, the `<Icon>` line or the SVG itself — and says so to a screen reader.
+ * selects its icon; the panel beside the grid copies what you came for (the
+ * name, the `<Icon>` line or the SVG itself) and says so to a screen reader.
  */
 
 const base = new Set(baseIcons.map((def) => def.name));
@@ -213,7 +213,7 @@ function clear() {
                     </div>
                     <CodeBlock :code="base.has(selected.name) ? snippet : `${importLine}\n\n${snippet}`" label="Usage" lang="vue" />
                     <p v-if="!base.has(selected.name)" class="icons-note">
-                        By name — <code>icon="{{ selected.name }}"</code> — after <code>registerIcons([{{ selected.name }}])</code>, or the plugin's <code>icons</code> option.
+                        By name, <code>icon="{{ selected.name }}"</code>, after <code>registerIcons([{{ selected.name }}])</code>, or the plugin's <code>icons</code> option.
                     </p>
                 </template>
                 <p v-else class="icons-hint">Pick an icon to copy its name, its <code>&lt;Icon&gt;</code> line or its SVG.</p>
@@ -223,7 +223,7 @@ function clear() {
         <section class="icons-external" aria-labelledby="icons-external">
             <h2 id="icons-external">Icons from other libraries</h2>
             <p>
-                Every <code>icon</code> prop — on a button, a menu item, a toast, a tree node — goes through <code>&lt;Icon&gt;</code>, which takes more than this
+                Every <code>icon</code> prop, on a button or a menu item or a toast or a tree node, goes through <code>&lt;Icon&gt;</code>, which takes more than this
                 set: another library's Vue component, SVG markup you trust, or the classes of an icon font. Whatever it is gets the <code>vt-icon</code> class, the
                 theme's size and the same hidden-or-labelled accessibility.
             </p>

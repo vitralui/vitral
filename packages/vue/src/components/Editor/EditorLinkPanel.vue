@@ -10,8 +10,8 @@ import Popover from '../Popover/Popover.vue';
 import { inheritRoot, useEditorContext } from './context';
 
 // The link editor: a popover (a non-modal dialog) with the address, the text
-// when there is no selection to link, a new-tab option, and — on an existing
-// link — buttons to open or remove it. The root hosts one, so the toolbar,
+// when there is no selection to link, a new-tab option, and, on an existing
+// link, buttons to open or remove it. The root hosts one, so the toolbar,
 // the floating toolbar and Ctrl/Cmd+K all open the same.
 
 defineOptions({ name: 'VtEditorLinkPanel' });

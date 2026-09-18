@@ -12,7 +12,7 @@ export interface NestedMenuItemState {
     parent?: boolean;
 }
 
-/** The parts every nested menu shares — TieredMenu, ContextMenu, Menubar — under one component's class prefix. */
+/** The parts every nested menu shares (TieredMenu, ContextMenu, Menubar) under one component's class prefix. */
 export function nestedMenuClasses(prefix: string) {
     return {
         rootList: `${prefix}-root-list`,

@@ -30,7 +30,7 @@ export interface ListboxProps extends BaseProps {
     emptyMessage?: string;
     emptyFilterMessage?: string;
     /**
-     * In single mode, moving with the arrows also selects — the way a native
+     * In single mode, moving with the arrows also selects, the way a native
      * list box does. Off, the arrows only move and Enter or Space selects.
      */
     selectOnFocus?: boolean;

@@ -31,7 +31,7 @@ const width = ref<number | null>(320);
             <span class="demo-hint">Value: {{ quantity ?? 'null' }}</span>
         </div>
     </DemoSection>
-    <DemoSection title="Formats" description="Currency, percent, a suffix and a fixed number of digits — each read back correctly when typed.">
+    <DemoSection title="Formats" description="Currency, percent, a suffix and a fixed number of digits, each read back correctly when typed.">
         <div class="demo-field">
             <label for="in-brl">Preço (pt-BR)</label>
             <InputNumber id="in-brl" v-model="price" mode="currency" currency="BRL" locale="pt-BR" />

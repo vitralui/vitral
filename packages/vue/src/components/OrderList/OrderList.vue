@@ -9,8 +9,8 @@ import ReorderList from './ReorderList.vue';
 
 // A list the reader puts in order: a multi-selectable listbox, the four move
 // buttons beside it, Alt with the arrows (or Home/End) from the keyboard, and
-// drag and drop for a pointer. Each move is announced in a polite live region
-// — which item went where — so the order is never changed silently. The
+// drag and drop for a pointer. Each move is announced in a polite live region,
+// saying which item went where, so the order is never changed silently. The
 // arithmetic is core's.
 
 defineOptions({ name: 'VtOrderList', inheritAttrs: false });

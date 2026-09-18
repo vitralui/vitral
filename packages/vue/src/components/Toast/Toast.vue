@@ -8,8 +8,8 @@ import Icon from '../Icon/Icon.vue';
 import type { ToastEmits, ToastProps, ToastSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
-// Renders what useToast() sends. Each card's text sits in a live region — a
-// polite `status`, or an `alert` for `danger` — with the close button outside
+// Renders what useToast() sends. Each card's text sits in a live region (a
+// polite `status`, or an `alert` for `danger`) with the close button outside
 // it, so the announcement is the message and not "Close". A card with a `life`
 // counts down only while nobody is pointing at it or working in it (WCAG 2.2.1).
 

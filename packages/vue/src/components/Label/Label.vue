@@ -7,8 +7,8 @@ import type { LabelProps, LabelSlots } from './types';
 
 // A native <label>. Its `for` is checked once the page is rendered: the target
 // has to exist and be a control a label can name (an input, a select, a
-// textarea, a button…). A component whose root is not one — a radio group, a
-// knob — is named with `aria-labelledby` pointing at the label's `id` instead,
+// textarea, a button…). A component whose root is not one, such as a radio
+// group or a knob, is named with `aria-labelledby` pointing at the label's `id`,
 // and in development a warning says so. The target's disabled state is
 // followed, so the label dims with its control.
 

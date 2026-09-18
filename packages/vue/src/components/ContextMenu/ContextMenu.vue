@@ -8,7 +8,7 @@ import { useNestedMenu } from '../TieredMenu/useNestedMenu';
 import type { ContextMenuEmits, ContextMenuProps, ContextMenuSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
-// The menu a right-click opens, and — for keyboard users — Shift+F10 or the
+// The menu a right-click opens, and, for keyboard users, Shift+F10 or the
 // context-menu key. It opens at the pointer (or under the focused target) with
 // focus on its first item, behaves as a WAI-ARIA menu with submenus, and gives
 // focus back to where it was on Escape, Tab or a command.
@@ -58,7 +58,7 @@ function setRoot(el: unknown) {
     menu.setRoot(rootRef.value);
 }
 
-/** Opens at the pointer, or — for a keyboard request — under the element that has focus. */
+/** Opens at the pointer, or, for a keyboard request, under the element that has focus. */
 function show(event?: MouseEvent | KeyboardEvent) {
     event?.preventDefault();
     const origin = (event?.currentTarget instanceof HTMLElement ? event.currentTarget : null) ?? (document.activeElement as HTMLElement | null);

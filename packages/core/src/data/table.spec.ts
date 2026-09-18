@@ -4,7 +4,7 @@ import { indexRange, selectionState, selectRows, sortOrderOf, toggleSort } from 
 import { parentIndex, treeKeyAction } from '../a11y/treeNavigation';
 
 describe('sort toggling', () => {
-    it('cycles one column ascending, descending, and back — or off when removable', () => {
+    it('cycles one column ascending, descending, and back, or off when removable', () => {
         let sort = toggleSort([], 'name');
         expect(sort).toEqual([{ field: 'name', order: 1 }]);
         sort = toggleSort(sort, 'name');

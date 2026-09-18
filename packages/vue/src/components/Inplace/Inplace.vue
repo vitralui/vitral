@@ -6,8 +6,8 @@ import { useComponent } from '../../base/useComponent';
 import Button from '../Button/Button.vue';
 import type { InplaceEmits, InplaceProps, InplaceSlots } from './types';
 
-// A display that becomes its editor. The display is a button — Enter and
-// Space activate it as a click does — and activation moves focus to the first
+// A display that becomes its editor. The display is a button, so Enter and
+// Space activate it as a click does, and activation moves focus to the first
 // control in the content. Escape in the content, or the close button, goes
 // back to the display and focuses it again.
 

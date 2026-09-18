@@ -13,7 +13,7 @@ export const isMacPlatform = (): boolean =>
 
 /**
  * A key as a keymap names it: modifiers in the order `Mod-Ctrl-Alt-Shift-`
- * (`Mod` being Cmd on a Mac and Ctrl elsewhere), then the key — a lower-case
+ * (`Mod` being Cmd on a Mac and Ctrl elsewhere), then the key: a lower-case
  * letter, a digit read from the physical key (so Shift+7 is `Shift-7` on
  * every layout), or the key's name (`Enter`, `Tab`, `F10`).
  */
@@ -39,7 +39,7 @@ export type EditorKeyBinding = readonly [command: string, ...args: unknown[]];
 
 /**
  * The editor's shortcuts. `link` and `toolbar` are not commands but requests
- * to the interface — open the link editor, move focus to the toolbar.
+ * to the interface: open the link editor, move focus to the toolbar.
  */
 export const editorKeymap: Readonly<Record<string, EditorKeyBinding>> = {
     'Mod-b': ['toggleBold'],

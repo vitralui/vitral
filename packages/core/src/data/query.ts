@@ -37,7 +37,7 @@ export interface LoadOptions {
 
 export interface LoadResult<T> {
     items: T[];
-    /** Rows matching the filters before paging — what a paginator counts. */
+    /** Rows matching the filters before paging, which is what a paginator counts. */
     total: number;
 }
 
@@ -66,7 +66,7 @@ export function filterData<T>(data: readonly T[], options: Pick<LoadOptions, 'fi
     });
 }
 
-/** Filters, sorts, then pages — the order a server would do it in, so a lazy table and a local one agree. */
+/** Filters, sorts, then pages: the order a server would do it in, so a lazy table and a local one agree. */
 export function queryData<T>(data: readonly T[], options: LoadOptions = {}): LoadResult<T> {
     let rows = filterData(data, options);
     rows = sortData(rows, options.sort ?? [], options.locale);

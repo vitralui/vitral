@@ -61,8 +61,8 @@ export function pointerRatio(offset: number, length: number, vertical = false): 
 }
 
 /**
- * What a key does to a thumb, or null for a key the slider does not handle —
- * the WAI-ARIA slider pattern: Right/Up one step up, Left/Down one step down,
+ * What a key does to a thumb, or null for a key the slider does not handle.
+ * The WAI-ARIA slider pattern: Right/Up one step up, Left/Down one step down,
  * Page Up/Down ten steps, Home/End to the ends. `bounds` narrows the ends,
  * which is how one thumb of a range stops at the other.
  */
@@ -110,7 +110,7 @@ export function thumbBounds(values: SliderRangeValue, index: 0 | 1, scale: Pick<
 
 /**
  * Moves one thumb of a range to `value`, snapped to the step and stopped at the
- * other thumb — thumbs meet but never cross, so the start stays the start.
+ * other thumb. Thumbs meet but never cross, so the start stays the start.
  */
 export function setRangeThumb(values: SliderRangeValue, index: 0 | 1, value: number, scale: SliderScale): SliderRangeValue {
     const [lo, hi] = thumbBounds(values, index, scale);
@@ -120,8 +120,8 @@ export function setRangeThumb(values: SliderRangeValue, index: 0 | 1, value: num
 
 /**
  * The thumb a press on the track should move: the nearer one. When the two sit
- * together, the press's side decides — below them moves the start, above them
- * the end — so a collapsed range can still be opened either way.
+ * together, the press's side decides: below them moves the start, above them
+ * the end, so a collapsed range can still be opened either way.
  */
 export function nearestThumb(values: SliderRangeValue, value: number): 0 | 1 {
     const [a, b] = values;

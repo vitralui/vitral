@@ -1,7 +1,7 @@
 import type { Component } from 'vue';
 import type { BaseProps } from '../../base/types';
 
-// Definitions use star sizing — `'Auto,*,2*,120'` — or one entry per
+// Definitions use star sizing (`'Auto,*,2*,120'`) or one entry per
 // track. `Auto` is `auto`, `*` is `1fr`, `2*` is `2fr`, a number is pixels, and
 // anything else (`20%`, `minmax(8rem, 1fr)`) is taken as CSS.
 
@@ -14,7 +14,7 @@ export interface GridProps extends BaseProps {
     rowSpacing?: number | string;
     /** Space between columns. Defaults to the `grid.columnSpacing` token. */
     columnSpacing?: number | string;
-    /** Outlines the grid and every cell — the debugging aid. */
+    /** Outlines the grid and every cell: the debugging aid. */
     showGridLines?: boolean;
     as?: string | Component;
 }

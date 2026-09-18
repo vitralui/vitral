@@ -22,8 +22,8 @@ import type { ColorPickerEmits, ColorPickerProps, ColorPickerValue } from './typ
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 // A swatch button that opens a non-modal dialog (or, inline, a group) holding
-// two WAI-ARIA sliders — the saturation/brightness area, which Left/Right and
-// Up/Down both move, and the hue strip — and a text box for the hex value.
+// two WAI-ARIA sliders (the saturation/brightness area, which Left/Right and
+// Up/Down both move, and the hue strip) plus a text box for the hex value.
 // Opening moves focus to the area; Escape, a press outside or tabbing past
 // either end closes and gives focus back to the swatch. The conversions and
 // the area's keys are core's.

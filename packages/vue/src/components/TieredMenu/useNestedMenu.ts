@@ -17,7 +17,7 @@ import type { PassThroughAttrs } from '../../base/types';
 import Icon from '../Icon/Icon.vue';
 import type { MenuItem } from '../Menu/types';
 
-// The part every nested menu shares — TieredMenu, ContextMenu and Menubar:
+// The part every nested menu shares, across TieredMenu, ContextMenu and Menubar:
 // the model as the reader sees it, where focus is (core's MenuNavState), the
 // WAI-ARIA menu and menubar keys (core's menuKeyAction), the pointer, and the
 // rendering of menuitems and their submenus. Each component brings its own
@@ -34,7 +34,7 @@ export interface NestedMenuOptions {
     onClose?: (returnFocus: boolean) => void;
     /** A submenu opens on hover straight away; a menubar waits until it has been opened once. */
     hoverOpens?: () => boolean;
-    /** Submenus nest in the flow instead of floating beside their item — a menubar's small-screen column. */
+    /** Submenus nest in the flow instead of floating beside their item: a menubar's small-screen column. */
     inline?: () => boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     itemSlot?: () => ((props: any) => unknown) | undefined;

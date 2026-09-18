@@ -7,9 +7,9 @@ import Icon from '../Icon/Icon.vue';
 import type { DialogEmits, DialogProps, DialogSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
-// The WAI-ARIA modal dialog. Opening moves focus in — to an `autofocus`
+// The WAI-ARIA modal dialog. Opening moves focus in, to an `autofocus`
 // element, else the first thing to press in the content, then the footer, then
-// the header — Tab cycles inside, Escape closes, and closing returns focus to
+// the header. Tab cycles inside, Escape closes, and closing returns focus to
 // where it was. A modeless dialog (`modal: false`) leaves the page usable.
 // Attributes land on the dialog element, so `style="width: 30rem"`,
 // `aria-label` and `aria-describedby` go where they mean something.

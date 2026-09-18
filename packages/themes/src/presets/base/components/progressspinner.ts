@@ -1,5 +1,5 @@
 // The spinner as a ring: an accent arc that
-// grows, shrinks and turns — or, given a value, fills clockwise.
+// grows, shrinks and turns, or fills clockwise when given a value.
 export default {
     root: {
         size: '2rem',

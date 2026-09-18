@@ -8,8 +8,8 @@ import type { StepperProps, StepperSlots, StepValue } from './types';
 
 // Steps and their panels: StepList with Steps and
 // StepPanels with StepPanels, or StepItems pairing one of each. In a list the
-// steps are WAI-ARIA tabs (arrows move focus, Enter or Space choose — manual
-// activation, since a step is a commitment); in items each step is a
+// steps are WAI-ARIA tabs (arrows move focus, Enter or Space choose, which is
+// manual activation, since a step is a commitment); in items each step is a
 // disclosure button over its panel. `linear` keeps the steps ahead unreachable.
 
 defineOptions({ name: 'VtStepper' });

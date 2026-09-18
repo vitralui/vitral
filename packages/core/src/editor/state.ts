@@ -15,7 +15,7 @@ import {
 export interface EditorSelection {
     /** Where the selection started. */
     anchor: EditorPosition;
-    /** Where it ends — the caret. */
+    /** Where it ends: the caret. */
     head: EditorPosition;
 }
 

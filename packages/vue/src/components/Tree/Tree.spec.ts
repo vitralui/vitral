@@ -104,7 +104,7 @@ describe('Tree', () => {
         expect(expanded.value).toEqual({ docs: true, pics: true });
         await key('t');
         expect(focused()).toBe('Trip to Évora.jpg');
-        // Documents, Work, Home, Pictures, Trip, Notes — two up from Trip.
+        // Documents, Work, Home, Pictures, Trip, Notes: two up from Trip.
         await key('ArrowUp');
         await key('ArrowUp');
         expect(focused()).toBe('Home');

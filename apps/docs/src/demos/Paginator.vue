@@ -51,7 +51,7 @@ const lastEvent = ref('');
         <div class="demo-stack" style="width: 100%">
             <Paginator v-model:first="compactFirst" :rows="25" :total-records="340" template="PrevPageLink PageLinks NextPageLink" :page-link-size="3">
                 <template #start="{ page, pageCount }">
-                    <span class="demo-hint">Invoices — page {{ page + 1 }} of {{ pageCount }}</span>
+                    <span class="demo-hint">Invoices · page {{ page + 1 }} of {{ pageCount }}</span>
                 </template>
                 <template #end>
                     <span class="demo-hint">340 invoices</span>

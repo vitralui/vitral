@@ -4,7 +4,7 @@ import type { GuideMeta } from '../lib/guides';
 export const meta: GuideMeta = {
     title: 'Presets',
     section: 'Theming',
-    description: 'Prism, Ink, Avalonia and Simple — what each one changes, and how to start a fifth.'
+    description: 'Prism, Ink, Avalonia and Simple: what each one changes, and how to start a fifth.'
 };
 </script>
 
@@ -28,7 +28,7 @@ export const House = definePreset(Base, {
 
 <template>
     <p>
-        Four presets ship. Each is a complete theme — every component's tokens, in both schemes — each is a starting point for <code>definePreset</code>, and every
+        Four presets ship. Each is a complete theme, with every component's tokens in both schemes, each is a starting point for <code>definePreset</code>, and every
         <a href="#/templates">template</a> on this site can be previewed in any of them, because a theme is easier to judge at work than on a swatch. A fifth is an object: see
         <a href="#/docs/theming">theming</a>.
     </p>

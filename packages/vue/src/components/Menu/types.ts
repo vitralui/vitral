@@ -9,7 +9,7 @@ export interface MenuItemCommandEvent {
 export interface MenuItem {
     label?: string;
     icon?: IconProp;
-    /** Runs when the item is activated — click, Enter or Space. */
+    /** Runs when the item is activated: click, Enter or Space. */
     command?: (event: MenuItemCommandEvent) => void;
     /** Renders the item as a link. */
     url?: string;
@@ -49,7 +49,7 @@ export interface MenuSlots {
     start?: () => unknown;
     /** Content after the items. */
     end?: () => unknown;
-    /** An item's content — its icon and label. The menuitem element around it, with its role and keyboard, stays. */
+    /** An item's content: its icon and label. The menuitem element around it, with its role and keyboard, stays. */
     item?: (props: { item: MenuItem; label: string | undefined; focused: boolean; disabled: boolean }) => unknown;
     /** A group's heading. */
     submenulabel?: (props: { item: MenuItem }) => unknown;

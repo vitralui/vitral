@@ -1,6 +1,6 @@
 /**
  * What a file picker checks before it queues a file, and how it writes a
- * size — no DOM involved beyond the `File`'s name, type and size.
+ * size, with no DOM involved beyond the `File`'s name, type and size.
  */
 export interface FileLike {
     name: string;
@@ -43,8 +43,8 @@ export function validateFile(file: FileLike, rules: FileRules = {}): FileProblem
 const UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'] as const;
 
 /**
- * A size in the largest unit that keeps it at or above one — "532 bytes",
- * "1.4 MB" — written by `Intl` in the reader's language. Decimal (1000-based)
+ * A size in the largest unit that keeps it at or above one ("532 bytes",
+ * "1.4 MB"), written by `Intl` in the reader's language. Decimal (1000-based)
  * units, as file managers show them.
  */
 export function formatFileSize(bytes: number, locale?: string): string {

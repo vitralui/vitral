@@ -45,7 +45,7 @@ export function knobValueAt(x: number, y: number, scale: SliderScale, sweep = KN
 /**
  * What a key does to a star rating, a radio group of `stars`: Right/Up choose
  * the next star, Left/Down the previous one (swapped in right-to-left text),
- * Home/End the ends. Zero — no stars — is reachable only when the rating can
+ * Home/End the ends. Zero, meaning no stars, is reachable only when the rating can
  * be cleared. Null for a key the rating ignores.
  */
 export function ratingKeyValue(key: string, value: number, stars: number, options: { allowZero?: boolean; rtl?: boolean } = {}): number | null {

@@ -1,6 +1,6 @@
 /**
  * `@vitral/icons`: every icon is a named export, so an application bundles only
- * the ones it imports. The catalogue — every icon by name and by category — is
+ * the ones it imports. The catalogue, every icon by name and by category, is in
  * the separate `@vitral/icons/registry` entry, which pulls in the whole set.
  */
 export * from './icons/index';

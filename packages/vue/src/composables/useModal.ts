@@ -6,7 +6,7 @@ import { useOverlay } from './useOverlay';
 export interface UseModalOptions {
     /** The `role="dialog"` element: focus moves into it and, when modal, is kept there. */
     panel: Ref<HTMLElement | null | undefined>;
-    /** The element that stacks — the mask the panel sits on. Defaults to the panel. */
+    /** The element that stacks: the mask the panel sits on. Defaults to the panel. */
     mask?: Ref<HTMLElement | null | undefined>;
     /** Trap focus and lock the page's scroll. Defaults to true. */
     modal?: MaybeRefOrGetter<boolean>;
@@ -18,7 +18,7 @@ export interface UseModalOptions {
     blockScroll?: MaybeRefOrGetter<boolean>;
     /**
      * Where to look for the first focusable element, in order, before falling
-     * back to the whole panel — the content before the footer, the footer before
+     * back to the whole panel: the content before the footer, the footer before
      * the header's close button. An `[autofocus]` element anywhere wins.
      */
     focusScopes?: () => (HTMLElement | null | undefined)[];
@@ -46,7 +46,7 @@ function initialFocusTarget(panel: HTMLElement, scopes: (HTMLElement | null | un
  * when the element appears and is undone when it goes.
  *
  * Returns the listeners for the mask, which close on a press that starts and
- * ends on the mask itself — a drag that began inside the panel does not count.
+ * ends on the mask itself, so a drag that began inside the panel does not count.
  */
 export function useModal(options: UseModalOptions) {
     const modal = () => toValue(options.modal) ?? true;

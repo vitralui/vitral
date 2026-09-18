@@ -29,7 +29,7 @@ const all = `createApp(App).use(Vitral, {
 
 <template>
     <p>
-        <code>unstyled</code> removes the built-in classes — and nothing else. The roles, the names, the states, the focus trap, the keyboard, the overlay positioning and the
+        <code>unstyled</code> removes the built-in classes and nothing else. The roles, the names, the states, the focus trap, the keyboard, the overlay positioning and the
         dismissal all stay: what you give up is the look, which is the point.
     </p>
 
@@ -37,7 +37,7 @@ const all = `createApp(App).use(Vitral, {
     <CodeBlock :code="one" label="Example.vue" lang="vue" />
     <p><Button label="Tailwind" unstyled :pt="{ root: { style: 'padding: 0.5rem 1rem; border-radius: 6px; border: 0; background: #7c3aed; color: white; font: inherit; cursor: pointer' } }" /></p>
     <p>
-        <em>Above</em> is the unstyled button dressed with inline styles rather than utility classes, since this site does not ship Tailwind — the mechanism is the same either
+        <em>Above</em> is the unstyled button dressed with inline styles rather than utility classes, since this site does not ship Tailwind. The mechanism is the same either
         way.
     </p>
 

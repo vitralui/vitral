@@ -3,14 +3,14 @@ export type PassThroughAttrs = Record<string, unknown>;
 
 export interface PassThroughContext {
     props: Record<string, unknown>;
-    /** Whatever state the component passed for this part — `{ selected, focused }` for an option. */
+    /** Whatever state the component passed for this part, such as `{ selected, focused }` for an option. */
     state: unknown;
     part: string;
 }
 
 /**
  * What pass-through accepts for one part: attributes, a function of the part's
- * context returning attributes, or a bare string, which is taken as a class —
+ * context returning attributes, or a bare string, which is taken as a class, so
  * `{ root: 'rounded-full shadow' }` is all a utility-CSS user needs to write.
  */
 export type PassThroughValue = PassThroughAttrs | string | ((context: PassThroughContext) => PassThroughAttrs | string | undefined);

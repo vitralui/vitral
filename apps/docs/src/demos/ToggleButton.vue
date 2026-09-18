@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'ToggleButton',
     category: 'Form',
     description:
-        'A button that stays pressed: `aria-pressed` carries the state, so its name should not change with it — give it `aria-label` when the on and off labels differ.'
+        'A button that stays pressed: `aria-pressed` carries the state, so its name should not change with it, so give it `aria-label` when the on and off labels differ.'
 };
 </script>
 

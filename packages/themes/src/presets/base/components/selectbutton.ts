@@ -1,4 +1,4 @@
-// A segmented control: buttons welded into one, of which one — or several — is
+// A segmented control: buttons welded into one, of which one (or several) is
 // pressed. Sized by the control scale, like every other field.
 export default {
     root: {

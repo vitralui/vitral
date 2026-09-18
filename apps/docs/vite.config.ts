@@ -17,7 +17,7 @@ export default defineConfig(({ command }) => ({
     // server's dependency scanner reads them as imports of this app. Vue is
     // the only dependency worth pre-bundling, so it is named rather than found.
     optimizeDeps: { noDiscovery: true, include: ['vue'] },
-    // Built, the site is opened from wherever it is put — a subdirectory, a
-    // preview host — so its assets are addressed relative to the page.
+    // Built, the site is opened from wherever it is put, a subdirectory or a
+    // preview host, so its assets are addressed relative to the page.
     base: command === 'build' ? './' : '/'
 }));

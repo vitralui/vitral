@@ -8,8 +8,8 @@ import DialogProvider from './DialogProvider';
 import type { DynamicDialogProps } from './types';
 
 // The place dialogs opened with useDialog() are rendered: mount it once, near
-// the root. Each is a full <Dialog> — the WAI-ARIA modal dialog with its focus
-// handling — with the given component as content. The content injects its
+// the root. Each is a full <Dialog>, the WAI-ARIA modal dialog with its focus
+// handling, with the given component as content. The content injects its
 // instance (useDialogRef(), or 'dialogRef') to read `data` and close itself;
 // Escape, the close button or the mask close it too. `onClose` runs as it
 // closes; the entry is dropped once the closing animation has finished.

@@ -8,7 +8,7 @@ import type { PassThroughAttrs } from '../../base/types';
 // aria-activedescendant. Up/Down/Home/End move; Space toggles; Shift with the
 // arrows extends the selection; Ctrl+A selects all; Alt with the arrows,
 // Home or End asks the parent to move the selection (`reorder`); Enter and a
-// double click ask it to act on the selection — or, with none, on the active
+// double click ask it to act on the selection, or, with none, on the active
 // option (`activate`). An option can be dragged to a new place (`drop`).
 
 defineOptions({ name: 'VtReorderList' });

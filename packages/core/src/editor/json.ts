@@ -67,7 +67,7 @@ function readNode(raw: unknown, palette: readonly EditorColor[], depth: number):
 }
 
 /**
- * Reads a document from JSON (the `v-model:json` format) — checking it as it
+ * Reads a document from JSON (the `v-model:json` format), checking it as it
  * goes, so JSON from storage or a request is as safe as sanitised HTML:
  * unknown nodes and marks are dropped, URLs and colours are checked, and the
  * tree is made well formed.

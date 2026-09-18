@@ -1,7 +1,7 @@
 import { swipeStep } from '@vitral/core';
 import { computed, ref, type MaybeRefOrGetter, toValue } from 'vue';
 
-// Pointer dragging for a paged track — a carousel, a gallery. While the drag
+// Pointer dragging for a paged track: a carousel, a gallery. While the drag
 // lasts, `offset` follows the pointer so the track can move with it; on
 // release, a long enough drag along the axis pages once. A drag that moved
 // swallows the click that ends it, so a slide's link is not followed by a

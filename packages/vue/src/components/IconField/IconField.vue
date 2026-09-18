@@ -6,7 +6,7 @@ import { IconFieldKey } from './context';
 import type { IconFieldProps, IconFieldSlots } from './types';
 
 // A layout wrapper: the field inside keeps its own label, name and events, and
-// the icons are drawn over its padding. Nothing here is announced — an icon
+// the icons are drawn over its padding. Nothing here is announced: an icon
 // that means something says so through its own `label`.
 
 defineOptions({ name: 'VtIconField' });

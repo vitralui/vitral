@@ -11,7 +11,7 @@ import type { MenubarEmits, MenubarProps, MenubarSlots } from './types';
 // The WAI-ARIA menubar: one tab stop; Left and Right move along the bar
 // (wrapping), Down and Up open a menu on its first or last item, Enter and
 // Space open it or run the item. Inside, Right and Left open and close
-// submenus — or, where there is none, move to the neighbouring bar item and
+// submenus, or, where there is none, move to the neighbouring bar item and
 // show its menu. Escape closes one level. A pointer opens menus on click and,
 // once one is open, on hover. Below `breakpoint` the bar becomes a menu
 // button whose menu lists the items in a column.

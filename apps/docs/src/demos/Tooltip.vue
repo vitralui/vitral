@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Tooltip',
     category: 'Overlay',
     description:
-        'The `v-tooltip` directive — register it with `app.directive(\'tooltip\', Tooltip)`. It shows on hover and on keyboard focus, hides on leave, blur and Escape, stays while the pointer is on it, and describes its host through `aria-describedby`.'
+        'The `v-tooltip` directive. Register it with `app.directive(\'tooltip\', Tooltip)`. It shows on hover and on keyboard focus, hides on leave, blur and Escape, stays while the pointer is on it, and describes its host through `aria-describedby`.'
 };
 </script>
 

@@ -15,7 +15,7 @@ const setup = computed(() => setupSource(entry.value.file));
 const api = computed(() => apiOf(entry.value.file));
 
 // A section's markup is looked up by its title, so the map has to be the one
-// for the page being shown — it is replaced whenever the route changes.
+// for the page being shown, so it is replaced whenever the route changes.
 provide(demoSourcesKey, sources);
 
 const importSnippet = computed(() => `import { ${entry.value.file} } from '@vitral/vue';`);
@@ -77,7 +77,7 @@ const toc = computed(() => [
                     </tbody>
                 </table>
                 <p v-if="api.extends.includes('BaseProps')" style="margin: -0.75rem 0 1.5rem; font-size: 0.8125rem; color: var(--vt-text-muted-color)">
-                    Plus <code>pt</code>, <code>dt</code> and <code>unstyled</code> from <code>BaseProps</code> — see
+                    Plus <code>pt</code>, <code>dt</code> and <code>unstyled</code> from <code>BaseProps</code>, see
                     <a href="#/docs/pass-through">pass-through</a> and <a href="#/docs/unstyled">unstyled mode</a>.
                 </p>
             </template>

@@ -1,5 +1,5 @@
-// A tooltip is a small popover — the flyout's surface, a lighter
-// shadow, caption-sized text — rather than as a dark chip.
+// A tooltip is a small popover (the flyout's surface, a lighter shadow,
+// caption-sized text) rather than a dark chip.
 export default {
     root: {
         background: '{overlay.popover.background}',

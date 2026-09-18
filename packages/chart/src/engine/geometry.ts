@@ -23,7 +23,7 @@ export function runs(points: (Pt | null)[]): Pt[][] {
 
 /**
  * Monotone cubic interpolation (Fritsch–Carlson): smooth, and never
- * overshooting between samples — a smoothed line that dips below zero between
+ * overshooting between samples. A smoothed line that dips below zero between
  * two positive points would be inventing data.
  */
 function monotone(points: Pt[], vertical = false): string {
@@ -63,7 +63,7 @@ function straight(points: Pt[]): string {
     return points.map(([x, y], i) => `${i ? 'L' : 'M'}${f(x)},${f(y)}`).join('');
 }
 
-/** Steps: level until the next sample, then straight to it — along x, or along y for a horizontal chart. */
+/** Steps: level until the next sample, then straight to it, along x or along y for a horizontal chart. */
 function stepped(points: Pt[], vertical = false): string {
     let d = `M${f(points[0]![0])},${f(points[0]![1])}`;
     for (let i = 1; i < points.length; i++) {

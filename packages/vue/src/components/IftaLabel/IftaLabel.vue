@@ -5,7 +5,7 @@ import { useComponent } from '../../base/useComponent';
 import type { IftaLabelProps, IftaLabelSlots } from './types';
 
 // The infield top-aligned label: it sits inside the field, above the value,
-// and stays there — no movement to follow, and room made by the field itself.
+// and stays there: no movement to follow, and room made by the field itself.
 
 defineOptions({ name: 'VtIftaLabel' });
 

@@ -20,7 +20,7 @@ export interface ButtonProps extends BaseProps {
     badge?: string | number;
     disabled?: boolean;
     type?: 'button' | 'submit' | 'reset';
-    /** Render as another element or component — `'a'`, `RouterLink` — keeping the button's look and behaviour. */
+    /** Render as another element or component (`'a'`, `RouterLink`), keeping the button's look and behaviour. */
     as?: string | Component;
 }
 

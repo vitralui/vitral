@@ -1,7 +1,7 @@
 /**
  * The chart's options, in the shape ApexCharts made familiar. Everything
- * visual and structural is plain data — strings, numbers, booleans, arrays —
- * so an options object survives `JSON.stringify` and a visual editor can
+ * visual and structural is plain data (strings, numbers, booleans, arrays), so
+ * an options object survives `JSON.stringify` and a visual editor can
  * write it. Formatting is a string template (`'{value|compact} users'`, see
  * `formatChartValue`); a function is accepted wherever a template is, as an
  * extra for code that needs it.
@@ -171,7 +171,7 @@ export interface ChartLegend {
 
 export interface ChartTooltip {
     enabled?: boolean;
-    /** `'click'` keeps the readout until the next click — for touch. */
+    /** `'click'` keeps the readout until the next click, for touch. */
     trigger?: 'hover' | 'click';
     /** One readout for every series at the pointed category. Defaults to true on line, area and bar charts. */
     shared?: boolean;
@@ -184,7 +184,7 @@ export interface ChartTooltip {
     y?: { formatter?: ChartFormatter; title?: { formatter?: ChartFormatter } };
     z?: { formatter?: ChartFormatter; title?: string };
     /**
-     * A whole-panel template, with `{title}` and one `{rows}` block — or a
+     * A whole-panel template, with `{title}` and one `{rows}` block, or a
      * function returning HTML-free text rows. The `tooltip` slot replaces it all.
      */
     custom?: string | ((context: ChartTooltipContext) => string);

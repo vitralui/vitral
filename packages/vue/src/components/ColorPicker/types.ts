@@ -18,7 +18,7 @@ export interface ColorPickerProps extends BaseProps {
 export type ColorPickerValue = string | { r: number; g: number; b: number } | { h: number; s: number; b: number };
 
 export type ColorPickerEmits = {
-    /** The colour was changed by the reader — a key, the end of a drag, or a typed hex value. */
+    /** The colour was changed by the reader: a key, the end of a drag, or a typed hex value. */
     change: [event: { originalEvent: Event; value: ColorPickerValue }];
     show: [];
     hide: [];

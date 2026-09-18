@@ -3,7 +3,7 @@ import { isPlainObject, toPath, type PathSegment } from './path';
 /** Errors by dotted path; each path may carry several messages, the first is the one shown. */
 export type FormErrors = Record<string, string[]>;
 
-/** What a resolver hands back: the errors, and — when the schema transforms input — the values to submit. */
+/** What a resolver hands back: the errors, plus the values to submit when the schema transforms its input. */
 export interface ResolverResult<Values = unknown> {
     errors: FormErrors;
     values?: Values;
@@ -173,7 +173,7 @@ export interface ValibotOptions {
     safeParse?: (schema: never, input: unknown) => ValibotResultLike | Promise<ValibotResultLike>;
 }
 
-/** Validates with a Valibot schema — through Standard Schema, or through the `safeParse` you pass. */
+/** Validates with a Valibot schema, through Standard Schema or through the `safeParse` you pass. */
 export function valibotResolver<Output = any>(schema: object, options: ValibotOptions = {}): Resolver {
     if (options.safeParse) {
         const parse = options.safeParse as (schema: object, input: unknown) => ValibotResultLike | Promise<ValibotResultLike>;

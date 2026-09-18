@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Schedule',
     category: 'Data',
     description:
-        'A calendar and scheduler: month, week, day, agenda and a timeline by resource. Drag events to move them and their edge to resize them — or use Alt with the arrow keys (Alt+Shift for the end) — and drag across empty time to pick a range, or Shift with the arrows. Recurring events take an RRULE. Dates are local: an application working in another time zone converts on the way in and out.'
+        'A calendar and scheduler: month, week, day, agenda and a timeline by resource. Drag events to move them and their edge to resize them, or use Alt with the arrow keys (Alt+Shift for the end), and drag across empty time to pick a range, or Shift with the arrows. Recurring events take an RRULE. Dates are local: an application working in another time zone converts on the way in and out.'
 };
 </script>
 

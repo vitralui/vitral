@@ -12,11 +12,11 @@ import type { FileUploadEmits, FileUploadProps, FileUploadSlots } from './types'
 
 // A native file input, kept in the page and focused (so the keyboard and
 // screen readers get the platform's own picker), drawn as a button through its
-// label. Chosen files are checked — type, size, count, by core's rules — and
+// label. Chosen files are checked for type, size and count by core's rules, and
 // refusals are shown as alerts. The advanced mode adds a drop zone, the queue
 // with each file's size and a named remove button, and a progress bar while
-// uploading; the upload itself is an XMLHttpRequest — one for the queue, or
-// one per file with its own bar — or `uploader` for the app.
+// uploading. The upload itself is an XMLHttpRequest, one for the queue or one
+// per file with its own bar, or `uploader` for the app.
 
 defineOptions({ name: 'VtFileUpload' });
 

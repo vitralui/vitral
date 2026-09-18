@@ -6,7 +6,7 @@ import Icon from '../Icon/Icon.vue';
 import { inheritRoot, isAutoPart, useFieldContext } from './context';
 import type { FormMessageProps, FormMessageSlots } from './types';
 
-// The field's error. The element stays in the page while empty — it is a
+// The field's error. The element stays in the page while empty, because it is a
 // polite live region, so an error that appears as the user types or leaves the
 // field is read out. After a submit it is silent: the summary, or the focus
 // moving to the field (which it describes), already says it.

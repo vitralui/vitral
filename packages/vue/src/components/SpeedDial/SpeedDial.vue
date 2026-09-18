@@ -12,7 +12,7 @@ import type { SpeedDialEmits, SpeedDialProps, SpeedDialSlots } from './types';
 
 // A menu button that fans its actions out. The button carries aria-expanded
 // and controls a role="menu" of menuitems, each named by its label (shown as
-// a tooltip). Opening from the keyboard — Enter, Space, or an arrow — focuses
+// a tooltip). Opening from the keyboard, with Enter, Space or an arrow, focuses
 // the first action; the arrows move between them (wrapping), Escape and Tab
 // close and give focus back, and a choice runs the command and closes.
 

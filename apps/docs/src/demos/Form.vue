@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Form',
     category: 'Form',
     description:
-        'Validation and submission, built from parts: `Form.Root` renders a native form and owns the values, `Form.Field` binds one value to the Vitral control placed inside it — value, name, invalid state, label, hint and error relations — and `Form.Summary` lists what is wrong after a failed submit. Rules, async checks and schema resolvers come from `@vitral/forms`, which has no dependencies. Errors appear only once a field has been validated; after a failed submit focus moves to the summary or to the first invalid field.'
+        'Validation and submission, built from parts: `Form.Root` renders a native form and owns the values, `Form.Field` binds one value to the Vitral control placed inside it: value, name, invalid state, label, hint and error relations. `Form.Summary` lists what is wrong after a failed submit. Rules, async checks and schema resolvers come from `@vitral/forms`, which has no dependencies. Errors appear only once a field has been validated; after a failed submit focus moves to the summary or to the first invalid field.'
 };
 </script>
 
@@ -59,8 +59,8 @@ const onBlurResult = ref('');
 const onSubmitResult = ref('');
 
 // ---- A resolver. No schema library is installed here, so this is a tiny
-// hand-written schema with the shape Zod's has — `safeParse` returning
-// issues with paths — which is all `zodResolver` asks for.
+// hand-written schema with the shape Zod's has: `safeParse` returning issues
+// with paths, which is all `zodResolver` asks for.
 interface Profile {
     handle: string;
     site: string;
@@ -98,7 +98,7 @@ function wait(ms: number, signal: AbortSignal) {
 const available = rules.custom<string>(async (value, { signal }) => {
     if (!value) return true;
     await wait(700, signal);
-    return !takenNames.includes(value.toLowerCase()) || `“${value}” is taken — try another.`;
+    return !takenNames.includes(value.toLowerCase()) || `“${value}” is taken. Try another.`;
 });
 const usernameRules = [rules.required(), rules.pattern(/^[a-z0-9_]+$/i, 'Use letters, digits or underscores.'), available];
 const accountResult = ref('');
@@ -227,7 +227,7 @@ const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').t
 
     <DemoSection
         title="With a resolver"
-        description="A resolver validates every value at once — `zodResolver`, `yupResolver`, `valibotResolver`, `superstructResolver` or `functionResolver`. The adapters only need the shape of the schema, so this one is written by hand. Cross-field checks (the years) and transforms (the handle is trimmed and lower-cased on submit) come from the schema."
+        description="A resolver validates every value at once: `zodResolver`, `yupResolver`, `valibotResolver`, `superstructResolver` or `functionResolver`. The adapters only need the shape of the schema, so this one is written by hand. Cross-field checks (the years) and transforms (the handle is trimmed and lower-cased on submit) come from the schema."
     >
         <Form.Root v-model="profile" :resolver="profileResolver" aria-label="Profile" style="width: 100%; max-width: 26rem" @submit="onProfile">
             <Form.Field name="handle" label="Handle">

@@ -1,6 +1,6 @@
 import { computed, reactive } from 'vue';
 
-/** Fernhill Supply — a made-up shop for slow, well-made everyday things. */
+/** Fernhill Supply: a made-up shop for slow, well-made everyday things. */
 export interface Product {
     id: number;
     name: string;

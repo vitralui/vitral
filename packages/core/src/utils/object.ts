@@ -16,7 +16,7 @@ export function isEmpty(value: unknown): boolean {
 
 /**
  * Merges its arguments left to right into a fresh object. Plain objects recurse;
- * anything else — arrays included — replaces what was there. An `undefined` in a
+ * anything else, arrays included, replaces what was there. An `undefined` in a
  * later source leaves the earlier value alone, so a partial override never
  * erases a key by omission.
  */

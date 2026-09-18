@@ -7,7 +7,7 @@ import Icon from '../Icon/Icon.vue';
 import type { MessageEmits, MessageProps, MessageSlots } from './types';
 
 // The message band. The icon and text form a live
-// region — an alert for `danger` and `warn`, a polite status otherwise — and
+// region (an alert for `danger` and `warn`, a polite status otherwise), and
 // the action and close button sit outside it, so only the message is read.
 
 defineOptions({ name: 'VtMessage' });

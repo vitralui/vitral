@@ -2,8 +2,8 @@ import { deepMerge, isObject, type Dict } from '@vitral/core';
 import type { ChartOptions, ChartType, ChartYAxis } from './types';
 
 /**
- * A description of every chart option — its kind, allowed values, default
- * and meaning — as plain data a visual editor can walk to build its form.
+ * A description of every chart option (its kind, allowed values, default and
+ * meaning) as plain data a visual editor can walk to build its form.
  * `defaultChartOptions` is read out of it, so the two cannot disagree.
  */
 export type ChartOptionSchema =
@@ -358,7 +358,7 @@ export interface ResolvedChartOptions extends ChartOptions {
 /**
  * The options a chart actually uses at `width`: the defaults, the type's
  * defaults, the given options, then every `responsive` entry whose breakpoint
- * the width is under — widest first, so the narrowest one wins.
+ * the width is under, widest first, so the narrowest one wins.
  */
 export function resolveChartOptions(options: ChartOptions | undefined, type: ChartType, width = Infinity): ResolvedChartOptions {
     const given = options ?? {};

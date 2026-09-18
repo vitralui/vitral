@@ -10,7 +10,7 @@ const year = new Date().getFullYear();
         <div class="footer-inner">
             <div style="max-width: 30ch">
                 <div class="brand" style="margin-bottom: 0.5rem"><span class="brand-mark" aria-hidden="true" />Vitral</div>
-                <p style="margin: 0; line-height: 1.6">Stained glass: many pieces of coloured glass held in one frame, with the light — the theme — coming through all of them at once.</p>
+                <p style="margin: 0; line-height: 1.6">Stained glass: many pieces of coloured glass held in one frame, with the light (the theme) coming through all of them at once.</p>
             </div>
             <div>
                 <h4>Documentation</h4>

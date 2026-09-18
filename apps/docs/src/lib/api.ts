@@ -16,7 +16,7 @@ export interface ApiDoc {
     props: ApiMember[];
     emits: ApiMember[];
     slots: ApiMember[];
-    /** Interfaces the props extend — `BaseProps` carries `pt`, `dt`, `unstyled`. */
+    /** Interfaces the props extend. `BaseProps` carries `pt`, `dt`, `unstyled`. */
     extends: string[];
 }
 
@@ -42,7 +42,7 @@ function members(body: string): ApiMember[] {
         if (text.startsWith('//')) continue;
 
         pending += (pending ? ' ' : '') + text;
-        // A type may run over several lines — a union of string literals does.
+        // A type may run over several lines, as a union of string literals does.
         // The member is only complete once its line ends the declaration.
         if (!pending.endsWith(';')) continue;
 
@@ -57,7 +57,7 @@ function members(body: string): ApiMember[] {
     return out;
 }
 
-/** The body of `export (interface|type) <name>` — braces are balanced, so counting them is enough. */
+/** The body of `export (interface|type) <name>`. Braces are balanced, so counting them is enough. */
 function block(source: string, pattern: RegExp) {
     const head = pattern.exec(source);
     if (!head) return null;

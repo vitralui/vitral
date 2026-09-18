@@ -55,7 +55,7 @@ describe('RadioButton and RadioGroup', () => {
         expect(wrapper.findComponent(RadioGroup).emitted('change')?.[0]?.[0]).toMatchObject({ value: 'L' });
     });
 
-    it('follows what the browser does on an arrow key — checks the next radio and fires change — without blocking the key', async () => {
+    it('follows what the browser does on an arrow key: checks the next radio and fires change — without blocking the key', async () => {
         const { radios, value } = mountGroup();
         const arrow = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true });
         radios()[1]!.focus();

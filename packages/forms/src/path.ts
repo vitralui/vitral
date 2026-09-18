@@ -1,5 +1,5 @@
 // Paths name a value inside the form's values: `email`, `address.city`,
-// `items.0.title` — and, as schema libraries write them, `items[0].title`.
+// `items.0.title`, and, as schema libraries write them, `items[0].title`.
 // Every path is normalised to the dotted form before it is used as a key, so
 // errors reported by a resolver and fields registered by a view meet.
 
@@ -59,7 +59,7 @@ export function getIn(source: unknown, path: string | readonly PathSegment[]): u
 
 /**
  * A copy of `source` with `value` at `path`. Only the containers along the
- * path are copied — everything else is shared — and a missing container is
+ * path are copied, everything else is shared, and a missing container is
  * created as an array when the next segment is an index, an object otherwise.
  */
 export function setIn<T>(source: T, path: string | readonly PathSegment[], value: unknown): T {
@@ -105,8 +105,8 @@ export function isEqual(a: unknown, b: unknown): boolean {
 }
 
 /**
- * A deep copy of plain objects, arrays and dates; anything else — a `File`,
- * a class instance — is kept by reference, as it cannot be copied faithfully.
+ * A deep copy of plain objects, arrays and dates. Anything else, a `File` or a
+ * class instance, is kept by reference, as it cannot be copied faithfully.
  */
 export function cloneValue<T>(value: T): T {
     if (Array.isArray(value)) return value.map((item) => cloneValue(item)) as T;

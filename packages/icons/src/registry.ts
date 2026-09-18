@@ -1,5 +1,5 @@
 /**
- * `@vitral/icons/registry`: the whole set, by name and by category — for an
+ * `@vitral/icons/registry`: the whole set, by name and by category, for an
  * icon picker, a catalogue page or an app that wants every name to resolve.
  * Importing this module bundles every icon; import icons by name otherwise.
  */

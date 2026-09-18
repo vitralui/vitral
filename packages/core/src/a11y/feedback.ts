@@ -33,7 +33,7 @@ export function severityIcon(severity: string | undefined): string {
 
 /**
  * Hides text from sight but not from assistive technology. An inline style
- * rather than a class, so it holds in unstyled mode too — text meant only for a
+ * rather than a class, so it holds in unstyled mode too. Text meant only for a
  * screen reader must never appear because a stylesheet was left out.
  */
 export const visuallyHidden = {

@@ -43,7 +43,7 @@ export type VirtualScrollerEmits = {
 
 export interface VirtualScrollerSlots {
     item?: (props: { item: unknown; options: VirtualScrollerItemOptions }) => unknown;
-    /** Replaces the rendered range entirely — for a table body, say. `styleOffset` places it. */
+    /** Replaces the rendered range entirely, for a table body, say. `styleOffset` places it. */
     content?: (props: { items: unknown[]; first: number; last: number; styleOffset: Record<string, string>; itemSize: number }) => unknown;
     loader?: () => unknown;
 }

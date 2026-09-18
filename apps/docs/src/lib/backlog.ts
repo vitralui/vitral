@@ -1,11 +1,11 @@
 import { entries } from './catalog';
 
 /**
- * Every component an application is built from — form controls, data,
- * overlays, menus, and the application pieces (a command palette, a sidebar,
- * a scheduler…) — in one table against what Vitral has.
+ * Every component an application is built from (form controls, data, overlays,
+ * menus, and the application pieces such as a command palette, a sidebar or a
+ * scheduler) in one table against what Vitral has.
  *
- * `vitral` is the component's name here — it is looked up in the catalog, so a
+ * `vitral` is the component's name here. It is looked up in the catalog, so a
  * row turns from *planned* to *shipped* by a component existing, never by
  * someone remembering to edit this list.
  */
@@ -30,7 +30,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'AutoComplete', group: 'Form', note: 'The editable combobox: suggestions as you type, over the same list behaviour Select already has.' },
     { vitral: 'MultiSelect', group: 'Form', note: 'Select with checkboxes, a chip display and select-all.' },
     { vitral: 'Password', group: 'Form', note: 'A text box with a reveal toggle and a strength meter.' },
-    { vitral: 'InputMask', group: 'Form', note: 'A pattern a value is typed into — dates, documents, phone numbers.' },
+    { vitral: 'InputMask', group: 'Form', note: 'A pattern a value is typed into: dates, documents, phone numbers.' },
     { vitral: 'InputOtp', group: 'Form', note: 'One box per digit, with paste across them.' },
     { vitral: 'SelectButton', group: 'Form', note: 'A segmented control: a radio group that looks like buttons.' },
     { vitral: 'ToggleButton', group: 'Form', note: 'A button that stays pressed.' },
@@ -41,7 +41,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'CascadeSelect', group: 'Form', note: 'Nested options, one column per level.' },
     { vitral: 'FloatLabel', group: 'Form', note: 'A label that starts inside the field and lifts out of it.' },
     { vitral: 'InputGroup', group: 'Form', note: 'Addons welded to either end of a field.' },
-    { vitral: 'IconField', group: 'Form', note: 'An icon inside the field — already possible through slots, worth a component.' },
+    { vitral: 'IconField', group: 'Form', note: 'An icon inside the field. Already possible through slots, but worth a component.' },
     { vitral: 'Label', group: 'Form', note: 'The label element with the field chrome’s typography, and the `for` wiring checked.' },
     { vitral: 'Form', group: 'Form', note: 'Validation and submission as parts (`Form.Root`, `Form.Field`, `Form.Summary`…) over `@vitral/forms`: rules, async checks, field arrays and schema resolvers.' },
     { vitral: 'Editor', group: 'Form' },
@@ -59,12 +59,12 @@ export const backlog: BacklogRow[] = [
     { vitral: 'Paginator', group: 'Data' },
     { vitral: 'TreeTable', group: 'Data', note: 'Rows that expand into rows: the table and the tree, together.' },
     { vitral: 'DataView', group: 'Data', note: 'The data layer with your own template per item, in a list or a grid.' },
-    { vitral: 'VirtualScroller', group: 'Data', note: 'Windowed rendering — then virtual scrolling inside Select, Listbox and DataTable.' },
+    { vitral: 'VirtualScroller', group: 'Data', note: 'Windowed rendering, then virtual scrolling inside Select, Listbox and DataTable.' },
     { vitral: 'OrderList', group: 'Data', note: 'A list the reader reorders, by drag and by keyboard.' },
     { vitral: 'PickList', group: 'Data', note: 'Two lists and the moves between them.' },
     { vitral: 'Timeline', group: 'Data', note: 'Events on an axis, either orientation.' },
     { vitral: 'OrganizationChart', group: 'Data', note: 'A tree drawn as a chart.' },
-    { vitral: 'Chart', group: 'Data', note: 'SVG charts with an ApexCharts-shaped, JSON-serialisable options object — line, area, bar, scatter, heatmap, candlestick, donut, radar — with zoom, a brush and synced groups.' },
+    { vitral: 'Chart', group: 'Data', note: 'SVG charts with an ApexCharts-shaped, JSON-serialisable options object: line, area, bar, scatter, heatmap, candlestick, donut, radar — with zoom, a brush and synced groups.' },
     { vitral: 'Taskboard', group: 'Data', note: 'A kanban board: cards in columns and swimlanes, moved by pointer, touch or keyboard, with work-in-progress limits.' },
     { vitral: 'Schedule', group: 'Data', note: 'A calendar and scheduler: month, week, day, agenda and resource timeline, with recurring events and drag to move and resize.' },
 
@@ -98,7 +98,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'PanelMenu', group: 'Menu', note: 'A menu that expands in place, for a sidebar.' },
     { vitral: 'MegaMenu', group: 'Menu', note: 'The wide panel this site’s own top bar uses.' },
     { vitral: 'Dock', group: 'Menu', note: 'A strip of large icons that grow under the pointer.' },
-    { vitral: 'Sidebar', group: 'Menu', note: 'The collapsible application sidebar — SplitView plus a menu, as one component.' },
+    { vitral: 'Sidebar', group: 'Menu', note: 'The collapsible application sidebar: SplitView plus a menu, as one component.' },
 
     // ---- Messages
     { vitral: 'Message', group: 'Messages' },
@@ -114,7 +114,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'Galleria', group: 'Media', note: 'Images with thumbnails and a full-screen mode.' },
     { vitral: 'Carousel', group: 'Media', note: 'A track of items with paging, autoplay and the APG carousel keyboard.' },
     { vitral: 'FileUpload', group: 'Media', note: 'A drop zone, a queue and progress per file.' },
-    { vitral: 'AspectRatio', group: 'Media', note: 'A box that keeps its ratio — `aspect-ratio`, as a component, for the layouts that need it.' },
+    { vitral: 'AspectRatio', group: 'Media', note: 'A box that keeps its ratio: `aspect-ratio` as a component, for the layouts that need it.' },
 
     // ---- Layout
     { vitral: 'StackPanel', group: 'Layout' },
