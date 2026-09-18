@@ -5,212 +5,65 @@
 [![licence](https://img.shields.io/badge/licence-LGPL--3.0--or--later-blue)](LICENSE)
 
 A Vue 3 component library built around a token engine, so the whole look comes
-from one object you can swap. Design tokens, presets, light and dark, per
-instance overrides, pass-through attributes and a fully unstyled mode.
+from one object you can swap. The catalog covers the usual controls plus the
+pieces applications need and most libraries leave out: charts, a scheduler, a
+task board, a rich text editor, a command palette and layout panels.
 
-**[Documentation and live examples](https://vitralui.github.io/vitral/)** ·
-**[llms.txt](https://vitralui.github.io/vitral/llms.txt)** for coding agents
+### **[vitralui.github.io/vitral](https://vitralui.github.io/vitral/)** — documentation, live examples and the API of every component
 
-The catalog covers the usual set of controls plus the pieces applications
-actually need and most libraries leave out: charts, a scheduler, a task board,
-a rich text editor, a command palette, and the layout panels (`StackPanel`,
-`DockPanel`, `Grid` with star sizing, `SplitView`, `Splitter`).
-
-Vue 3 is the first target. Everything that does not need a framework lives in
-framework-free packages, so a React or Angular adapter later only has to write
-the rendering.
-
-The name is Portuguese for stained glass.
-
-## Packages
-
-| Package          | What it holds                                                                                               |
-| ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@vitral/core`   | Behaviour without a framework: focus trap, dismissable layer stack, positioning, z-index, list navigation and typeahead, the data layer (`FilterService`, `queryData`, `createDataSource`), trees, calendar maths, number formatting and parsing, locales (`en`, `pt-BR`) |
-| `@vitral/themes` | The token engine (`definePreset`, `palette`, `compileTheme`, `createThemeManager`) and the presets **Prism**, **Ink**, **Avalonia** and **Simple** |
-| `@vitral/styles` | Each component's CSS and class map, written against tokens, also shipped as one `vitral.css`                |
-| `@vitral/icons`  | SVG icons as data                                                                                           |
-| `@vitral/chart`  | SVG charts without a framework: the engine (options schema, scales, formats, scenes) and `createChart()`, a DOM renderer with legend, tooltip, toolbar, zoom, brush, keyboard walking and a live readout. The Vue `<Chart>` is a thin wrapper around it |
-| `@vitral/forms`  | Form state and validation without a framework: nested paths, field arrays, built-in rules, async checks, and resolvers for Zod, Yup, Valibot, Superstruct or a plain function, with no dependency on any of them |
-| `@vitral/vue`    | Components, composables, directives and the plugin                                                          |
-| `@vitral/nuxt`   | The Nuxt module: configuration from `nuxt.config`, auto-imports, styles rendered on the server, the colour scheme in a cookie |
-
-## Quick start (Vue)
+```sh
+pnpm add @vitral/vue
+```
 
 ```ts
 import { createApp } from 'vue';
-import { Vitral, Prism, ptBR } from '@vitral/vue';
+import { Vitral, Prism } from '@vitral/vue';
 import App from './App.vue';
 
-createApp(App)
-    .use(Vitral, {
-        theme: { preset: Prism, colorScheme: 'system' },
-        locale: ptBR
-    })
-    .mount('#app');
+createApp(App).use(Vitral, { theme: { preset: Prism, colorScheme: 'system' } }).mount('#app');
 ```
 
 ```vue
 <script setup lang="ts">
-import { Button, InputText, Select } from '@vitral/vue';
+import { Button, InputText } from '@vitral/vue';
 import { ref } from 'vue';
 
 const name = ref('');
-const city = ref(null);
-const cities = [{ name: 'São Paulo', code: 'SP' }, { name: 'Recife', code: 'REC' }];
 </script>
 
 <template>
-    <label for="name">Name</label>
-    <InputText id="name" v-model="name" clearable />
-
-    <label for="city">City</label>
-    <Select id="city" v-model="city" :options="cities" option-label="name" option-value="code" filter />
-
+    <InputText v-model="name" clearable />
     <Button label="Save" icon="check" />
 </template>
 ```
 
-There is no stylesheet to import. The plugin injects the theme as CSS
-variables, and each component injects its own CSS the first time it renders, so
-a page only carries what it uses.
+No stylesheet to import: the plugin injects the theme as CSS variables, and
+each component injects its own CSS the first time it renders. On Nuxt, add
+`'@vitral/nuxt'` to `modules` and skip the plugin call.
 
-## Nuxt
+## The packages
 
-```ts
-export default defineNuxtConfig({
-    modules: ['@vitral/nuxt'],
-    vitral: { preset: 'Prism', colorScheme: 'system' }
-});
-```
+| Package | |
+| --- | --- |
+| [`@vitral/vue`](https://www.npmjs.com/package/@vitral/vue) | Components, composables, directives and the plugin |
+| [`@vitral/nuxt`](https://www.npmjs.com/package/@vitral/nuxt) | The Nuxt module: auto-imports, server-rendered styles, the scheme in a cookie |
+| [`@vitral/core`](https://www.npmjs.com/package/@vitral/core) | Behaviour with no framework in it: accessibility, overlays, the data layer, dates, numbers |
+| [`@vitral/themes`](https://www.npmjs.com/package/@vitral/themes) | The token engine and the presets |
+| [`@vitral/styles`](https://www.npmjs.com/package/@vitral/styles) | Every component's CSS and class map |
+| [`@vitral/icons`](https://www.npmjs.com/package/@vitral/icons) | The icon set, as data |
+| [`@vitral/chart`](https://www.npmjs.com/package/@vitral/chart) | The chart engine and its DOM renderer |
+| [`@vitral/forms`](https://www.npmjs.com/package/@vitral/forms) | Form state, validation and schema resolvers |
 
-That is the whole setup. `<VtButton>`, `<VtInputText>`, `useTheme()` and the
-rest are auto-imported, the stylesheets go into the head of the page the server
-sends, and the scheme is kept in a cookie so the server renders the one the
-reader picked instead of flashing the wrong one. Set `prefix: ''` if you would
-rather write `<Button>`. Directives keep their plain names (`v-tooltip`).
+Vue 3 is the first target. Everything that does not need a framework lives in
+the packages that do not import one, so a React or Angular adapter only has to
+write the rendering.
 
-In a plain Vite app the same lists are available to unplugin-vue-components and
-unplugin-auto-import:
+## Reading
 
-```ts
-import { VitralResolver, vitralAutoImports } from '@vitral/vue/resolver';
-
-plugins: [Components({ resolvers: [VitralResolver()] }), AutoImport({ imports: [vitralAutoImports()] })];
-```
-
-## Server rendering (without Nuxt)
-
-Collect the CSS the render used and put it in the head yourself:
-
-```ts
-const app = createSSRApp(App).use(Vitral, { theme: { storageKey: 'app-scheme' } });
-const html = await renderToString(app);
-
-const { tags } = collectStyles(app);       // the theme, then whatever rendered
-const head = colorSchemeTag(app) + tags;   // marks <html> before the first paint
-```
-
-The style elements carry the same markers the browser writes, so hydration does
-not inject a second copy, and ids come from Vue's `useId()`, which the client
-matches. If the server already knows the scheme, drop the script and render
-`colorSchemeAttrs(dark)` on `<html>`.
-
-## Forms
-
-Forms are built from parts: `Form.Root`, `Form.Field`, `Form.Summary`,
-`Form.Submit` and so on (also exported as `FormRoot`, `FormField`…). A field
-binds the Vitral control placed inside it, including the label, hint and error
-relations.
-
-```vue
-<script setup lang="ts">
-import { Form, InputText, rules } from '@vitral/vue';
-
-const save = async (values: Record<string, unknown>) => {
-    await fetch('/api/subscribe', { method: 'POST', body: JSON.stringify(values) });
-};
-</script>
-
-<template>
-    <Form.Root :initial-values="{ email: '' }" @submit="(e) => e.valid && save(e.values)">
-        <Form.Summary />
-        <Form.Field name="email" label="Email" required :rules="rules.email()">
-            <InputText type="email" />
-        </Form.Field>
-        <Form.Submit label="Subscribe" />
-    </Form.Root>
-</template>
-```
-
-Errors appear once a field has been validated (on submit by default;
-`validate-on` also takes `blur`, `change` or `input`), and a failed submit moves
-focus to the summary or the first invalid field. Use
-`:resolver="zodResolver(schema)"` to hand validation to a schema, or `useForm()`
-to drive the same form from a script.
-
-## Theming
-
-A preset has three layers: **primitive** (palettes, radii), **semantic**
-(`primary.color`, `formField.borderColor`, with a `colorScheme: { light, dark }`
-branch) and **component** tokens (`button.paddingX`). References like
-`'{primary.color}'` compile to `var(--vt-primary-color)`, so changing one token
-re-colours everything built on it.
-
-```ts
-import { definePreset, Prism } from '@vitral/vue';
-
-const Brand = definePreset(Prism, {
-    semantic: { primary: palette('#7c3aed') },
-    components: { button: { root: { borderRadius: '999px' } } }
-});
-```
-
-At runtime `useTheme()` switches preset, scheme and primary colour:
-
-```ts
-const { setPreset, setColorScheme, toggleDark, setPrimary, isDark } = useTheme();
-setPrimary('{emerald}');
-```
-
-- **Prism** (default): the web-native look. Coloured primary, medium corners,
-  soft shadows, a halo focus ring.
-- **Ink**: quiet and high contrast. Zinc surfaces, hairline borders, a
-  near-black primary, focus ring offset from the control.
-- **Avalonia**: the desktop look. Accent blue, translucent control fills, a 2px
-  accent line under a focused text box, an accent pill on selected items.
-- **Simple**: square, compact, no shadows or animation, 13px type.
-
-Per instance, `dt` overrides tokens and `pt` passes attributes or classes to any
-part. `unstyled` drops every built-in class:
-
-```vue
-<Button label="Tailwind" unstyled :pt="{ root: 'px-4 py-2 rounded bg-violet-600 text-white' }" />
-<Button label="Square" :dt="{ button: { borderRadius: '0' } }" />
-```
-
-Without JavaScript, `@vitral/themes/css/prism.css` and
-`@vitral/styles/vitral.css` theme a page with two `<link>`s.
-
-## Documentation for LLMs
-
-The site publishes its own documentation in the shape
-[llmstxt.org](https://llmstxt.org) describes, so a coding agent can read it
-without a browser:
-
-- [`/llms.txt`](https://vitralui.github.io/vitral/llms.txt): the index, with a line per guide and per component.
-- [`/llms-full.txt`](https://vitralui.github.io/vitral/llms-full.txt): every page in one file, about 650 kB.
-- Any page as Markdown: add `.md` to its URL, as in
-  [`/components/select.md`](https://vitralui.github.io/vitral/components/select.md).
-
-A component's page carries its props, events and slots read from the source,
-and the full source of the examples the site runs.
-
-## Accessibility
-
-Every component ships with its WAI-ARIA pattern (roles, names, states,
-relations and keyboard) and a spec that runs axe over it and drives its keys.
-A component is not considered done without it.
+- [Installation](https://vitralui.github.io/vitral/docs/installation/), [theming](https://vitralui.github.io/vitral/docs/theming/), [colour schemes](https://vitralui.github.io/vitral/docs/dark-mode/), [pass-through](https://vitralui.github.io/vitral/docs/pass-through/), [unstyled mode](https://vitralui.github.io/vitral/docs/unstyled/), [server rendering and Nuxt](https://vitralui.github.io/vitral/docs/server-rendering/).
+- [Every component](https://vitralui.github.io/vitral/components/button/), with live examples, the markup behind each one and an API table read from its source.
+- [Templates](https://vitralui.github.io/vitral/templates/): whole applications built from these components.
+- For coding agents: [`llms.txt`](https://vitralui.github.io/vitral/llms.txt), [`llms-full.txt`](https://vitralui.github.io/vitral/llms-full.txt), or any page as Markdown by adding `.md` to its URL.
 
 ## Developing
 
@@ -222,14 +75,15 @@ pnpm dev:nuxt       # the Nuxt playground
 pnpm test           # vitest + axe
 pnpm typecheck
 pnpm build
-pnpm check:nuxt     # runs the Nuxt playground and checks the server render
+pnpm check:nuxt     # the Nuxt playground's server render and hydration
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how a component is put together.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers how a component is put together, what
+each package holds and what the checks are.
 
 ## Licence
 
 LGPL-3.0-or-later. You can use Vitral in a closed-source application; changes
-to Vitral itself have to stay under the same licence, and your users have to be
-able to replace it with their own build. See [LICENSE](LICENSE) (and
-[LICENSE.GPL](LICENSE.GPL), which the LGPL refers to).
+to Vitral itself stay under the same licence, and your users have to be able to
+replace it with their own build. See [LICENSE](LICENSE) and
+[LICENSE.GPL](LICENSE.GPL).
