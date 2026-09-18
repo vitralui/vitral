@@ -10,8 +10,8 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
-import { Button, Schedule, type ScheduleEvent, type ScheduleEventChange, type ScheduleSelection, type ScheduleViewName } from '@vitral/vue';
-import { ref } from 'vue';
+import { Button, Dialog, Schedule, Tag, type ScheduleEvent, type ScheduleEventChange, type ScheduleOccurrenceInfo, type ScheduleSelection, type ScheduleViewName } from '@vitral/vue';
+import { computed, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
 const today = new Date();
@@ -30,7 +30,22 @@ const events = ref<ScheduleEvent[]>([
 ]);
 
 let nextId = 100;
-const log = ref('Move, resize or select something.');
+const log = ref('Move, resize or select something. Press an event to open it.');
+
+// ---- opening an event
+// `event-click` hands over the event, which occurrence of it was pressed, and
+// the original DOM event. What to do with that is the application's: a dialog
+// here, a drawer or a side panel somewhere else.
+const opened = ref<{ event: ScheduleEvent; occurrence: ScheduleOccurrenceInfo } | null>(null);
+const details = computed(() => {
+    const current = opened.value;
+    if (!current) return null;
+    const { event, occurrence } = current;
+    const when = occurrence.allDay
+        ? occurrence.start.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+        : `${occurrence.start.toLocaleString(undefined, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })} – ${occurrence.end.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+    return { title: event.title, when, recurring: occurrence.recurring, editable: event.editable !== false };
+});
 
 // Applies a change: a single event is updated; one occurrence of a series is
 // split off as an event of its own and left out of the series.
@@ -90,12 +105,42 @@ function rebook(change: ScheduleEventChange) {
 
 <template>
     <DemoSection title="Week" description="Business hours are shaded; overlapping events share the column; the red line is now. The standup repeats every weekday, payroll on the first and last of the month.">
-        <Schedule v-model:view="view" v-model:date="date" :events="events" scroll-time="08:00" style="width: 100%" @event-change="apply" @select="create" />
+        <Schedule
+            v-model:view="view"
+            v-model:date="date"
+            :events="events"
+            scroll-time="08:00"
+            style="width: 100%"
+            @event-change="apply"
+            @select="create"
+            @event-click="opened = { event: $event.event, occurrence: $event.occurrence }"
+        />
         <span class="demo-hint">{{ log }}</span>
+
+        <Dialog :visible="!!opened" modal :header="details?.title" :style="{ width: 'min(26rem, 92vw)' }" @update:visible="opened = null">
+            <div v-if="details" class="demo-stack" style="gap: 0.5rem">
+                <p style="margin: 0">{{ details.when }}</p>
+                <div class="demo-row">
+                    <Tag v-if="details.recurring" value="Repeats" severity="info" />
+                    <Tag v-if="!details.editable" value="Locked" severity="secondary" />
+                </div>
+            </div>
+            <template #footer>
+                <Button label="Close" severity="secondary" variant="text" @click="opened = null" />
+            </template>
+        </Dialog>
     </DemoSection>
 
     <DemoSection title="Month" description="Events run across the days they cover; a busy day shows “+N more”, which opens the full list.">
-        <Schedule v-model:view="monthView" :events="events" :max-events-per-day="2" style="width: 100%" @event-change="apply" @select="create" />
+        <Schedule
+            v-model:view="monthView"
+            :events="events"
+            :max-events-per-day="2"
+            style="width: 100%"
+            @event-change="apply"
+            @select="create"
+            @event-click="opened = { event: $event.event, occurrence: $event.occurrence }"
+        />
     </DemoSection>
 
     <DemoSection title="Agenda" description="The next two weeks as a list, day by day.">
