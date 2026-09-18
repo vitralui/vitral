@@ -32,7 +32,7 @@ const countOf = (name: Family) => chartEntries.filter((entry) => entry.family ==
                 read it point by point.
             </p>
             <p class="charts-head-links">
-                <a :href="href('/components/chart')">The Chart component, in full →</a>
+                <a :href="href('/components/chart')">The Chart component, in full <Icon icon="arrowRight" /></a>
             </p>
         </div>
 
@@ -83,7 +83,7 @@ const countOf = (name: Family) => chartEntries.filter((entry) => entry.family ==
                 <li><Icon icon="sliders" /> <span><b>Themed by tokens.</b> Colours, grid and type come from the same tokens as the components, light and dark.</span></li>
                 <li><Icon icon="terminal" /> <span><b>Without Vue.</b> <code>@vitral/chart</code> mounts into any element; the Vue component is a wrapper over it.</span></li>
             </ul>
-            <p><a :href="href('/components/chart')">All of it is on the Chart page →</a></p>
+            <p><a :href="href('/components/chart')">All of it is on the Chart page <Icon icon="arrowRight" /></a></p>
         </section>
     </main>
 </template>

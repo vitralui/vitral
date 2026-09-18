@@ -828,7 +828,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .tp-app-main {
@@ -921,7 +921,7 @@
     background: var(--vt-content-background);
     color: #fff;
     font: inherit;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -979,7 +979,7 @@
 .tp-product-media .vt-tag {
     position: absolute;
     top: 0.75rem;
-    left: 0.75rem;
+    inset-inline-start: 0.75rem;
 }
 
 .tp-product-body {
@@ -1022,7 +1022,7 @@
 }
 
 .tp-price s {
-    margin-left: 0.375rem;
+    margin-inline-start: 0.375rem;
     font-weight: 400;
     color: var(--vt-text-muted-color);
 }
@@ -1130,7 +1130,7 @@
     background: none;
     color: var(--vt-text-color);
     font: inherit;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -1179,7 +1179,7 @@
 }
 
 .tp-line-total {
-    text-align: right;
+    text-align: end;
     font-variant-numeric: tabular-nums;
 }
 
@@ -1220,7 +1220,7 @@
     background: none;
     color: inherit;
     font: inherit;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -1261,7 +1261,7 @@
     color: inherit;
     font: inherit;
     letter-spacing: inherit;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -1543,7 +1543,7 @@
 .tp-quote {
     margin: 0 0 1.125rem;
     padding: 0.25rem 0 0.25rem 1.25rem;
-    border-left: 3px solid var(--vt-primary-color);
+    border-inline-start: 3px solid var(--vt-primary-color);
     font-size: 1.25rem;
     line-height: 1.5;
     font-weight: 500;
@@ -1607,12 +1607,12 @@
 
 .tp-back {
     align-self: flex-start;
-    margin-left: -0.75rem;
+    margin-inline-start: -0.75rem;
 }
 
 .tp-toc ol {
     margin: 0.5rem 0 0;
-    padding-left: 1.25rem;
+    padding-inline-start: 1.25rem;
     color: var(--vt-text-muted-color);
 }
 
@@ -1648,7 +1648,7 @@
 
 .tp-post-next {
     grid-column: 2;
-    text-align: right;
+    text-align: end;
     align-items: flex-end;
 }
 
@@ -1696,7 +1696,7 @@
 .tp-listing-media .vt-tag {
     position: absolute;
     top: 0.75rem;
-    left: 0.75rem;
+    inset-inline-start: 0.75rem;
 }
 
 .tp-listing-body {
@@ -1774,7 +1774,7 @@
 .tp-map-label {
     position: absolute;
     bottom: 0.75rem;
-    left: 0.75rem;
+    inset-inline-start: 0.75rem;
     padding: 0.25rem 0.5rem;
     border-radius: var(--vt-border-radius-sm);
     background: var(--vt-content-background);
@@ -2141,8 +2141,7 @@
     content: '';
     position: absolute;
     top: 50%;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     border-top: 1px dashed var(--vt-content-border-color);
 }
 
@@ -2369,7 +2368,7 @@
 /* Over a photo whatever the scheme: light text on a dark scrim. */
 .tp-video-time {
     position: absolute;
-    right: 1rem;
+    inset-inline-end: 1rem;
     bottom: 1rem;
     color: #fff;
     font-size: 0.8125rem;
@@ -2407,7 +2406,7 @@
     color: var(--vt-text-color);
     font: inherit;
     font-size: 0.875rem;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -2579,7 +2578,7 @@
 }
 
 .tp-board-log {
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 .tp-board {
@@ -2865,7 +2864,7 @@
     }
 
     .tp-flight-price .vt-button {
-        margin-left: auto;
+        margin-inline-start: auto;
     }
 
     .tp-seat-head,
@@ -2979,7 +2978,7 @@
     }
 
     .tp-board-log {
-        margin-left: 0;
+        margin-inline-start: 0;
         width: 100%;
     }
 

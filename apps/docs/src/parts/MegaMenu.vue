@@ -58,7 +58,13 @@ const componentCount = computed(() => sections.reduce((total, section) => total 
 
 function toggle(panel: Panel, event: MouseEvent) {
     const button = event.currentTarget as HTMLElement;
-    offset.value = button.offsetLeft;
+    // How far the button starts from where the bar starts, which reading right
+    // to left is measured from the right. `offsetLeft` would anchor the panel's
+    // left edge to the button's left in both, and in right-to-left that sends a
+    // 40rem panel off the side of the window.
+    const host = root.value!.getBoundingClientRect();
+    const box = button.getBoundingClientRect();
+    offset.value = getComputedStyle(root.value!).direction === 'rtl' ? host.right - box.right : box.left - host.left;
     open.value = open.value === panel ? null : panel;
 }
 
@@ -116,7 +122,7 @@ onBeforeUnmount(() => {
                         </span>
                     </a>
                 </div>
-                <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components →</a>
+                <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components <Icon icon="arrowRight" /></a>
             </template>
 
             <template v-else-if="open === 'templates'">
@@ -132,7 +138,7 @@ onBeforeUnmount(() => {
                         </a>
                     </div>
                 </div>
-                <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews →</a>
+                <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews <Icon icon="arrowRight" /></a>
             </template>
 
             <template v-else>
@@ -145,7 +151,7 @@ onBeforeUnmount(() => {
                         </span>
                     </a>
                 </div>
-                <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction →</a>
+                <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction <Icon icon="arrowRight" /></a>
             </template>
         </div>
     </div>

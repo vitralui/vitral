@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScrollTop } from '@vitral/vue';
+import { Icon, ScrollTop } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { sections } from './lib/catalog';
 import { guideSections } from './lib/guides';
@@ -93,7 +93,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         </a>
                     </template>
                     <h2>Components</h2>
-                    <a :href="href('/components/button')">All components →</a>
+                    <a :href="href('/components/button')" class="pane-more">All components <Icon icon="arrowRight" /></a>
                 </template>
 
                 <template v-else>
