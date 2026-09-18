@@ -159,6 +159,29 @@ describe('Cropper', () => {
         expect(cropper.value!.crop({ width: 120 })!.width).toBe(120);
     });
 
+    it('draws the thirds over a rectangle, not over a circle, and takes an answer of its own', async () => {
+        const rect = mountCropper();
+        await ready(rect.image, rect.value);
+        expect(document.querySelector('.vt-cropper-grid')).not.toBeNull();
+
+        document.body.innerHTML = '';
+        const round = mountCropper({ shape: 'circle' });
+        await ready(round.image, round.value);
+        // A rule of thirds is for composing a frame; a round crop has no corners
+        // to compose towards.
+        expect(document.querySelector('.vt-cropper-grid')).toBeNull();
+
+        document.body.innerHTML = '';
+        const asked = mountCropper({ shape: 'circle', grid: true });
+        await ready(asked.image, asked.value);
+        expect(document.querySelector('.vt-cropper-grid')).not.toBeNull();
+
+        document.body.innerHTML = '';
+        const off = mountCropper({ grid: false });
+        await ready(off.image, off.value);
+        expect(document.querySelector('.vt-cropper-grid')).toBeNull();
+    });
+
     it('has no axe violations, at rest and while a ratio is being chosen', async () => {
         const { wrapper, image, value } = mountCropper({
             rotatable: true,

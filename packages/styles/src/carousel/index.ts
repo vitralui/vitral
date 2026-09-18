@@ -10,7 +10,7 @@ export const carouselStyle = defineStyle({
         content: 'vt-carousel-content',
         viewport: 'vt-carousel-viewport',
         track: (s: { dragging?: boolean; stacked?: boolean }) => ['vt-carousel-track', { 'vt-carousel-track-dragging': s.dragging, 'vt-carousel-track-stacked': s.stacked }],
-        stack: 'vt-carousel-stack',
+        stack: 'vt-carousel-stack vt-tx-stack',
         item: (s: { active?: boolean }) => ['vt-carousel-item', { 'vt-carousel-item-active': s.active }],
         navigator: 'vt-carousel-navigator',
         footer: 'vt-carousel-footer',

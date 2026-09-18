@@ -21,6 +21,7 @@ const portrait = 'https://picsum.photos/id/1027/900/1200';
 const banner = ref<CropValue>({ x: 0, y: 0, width: 0, height: 0, rotate: 0, flipX: false, flipY: false });
 const avatar = ref<CropValue>({ x: 0, y: 0, width: 0, height: 0, rotate: 0, flipX: false, flipY: false });
 const free = ref<CropValue>({ x: 0, y: 0, width: 0, height: 0, rotate: 0, flipX: false, flipY: false });
+const plain = ref<CropValue>({ x: 0, y: 0, width: 0, height: 0, rotate: 0, flipX: false, flipY: false });
 
 const aspects = [
     { label: 'Free', value: 'free' },
@@ -93,6 +94,10 @@ const model = computed(() => `const crop = ref<CropValue>(${rounded(free.value)}
     <DemoSection title="A ratio, with handles" description="Eight handles for the pointer, hidden from assistive technology: the rectangle itself is the one tab stop.">
         <Cropper v-model="banner" :src="photo" aspect="16:9" alt="A landscape" height="18rem" />
         <span class="demo-hint">{{ rounded(banner) }}</span>
+    </DemoSection>
+
+    <DemoSection title="Without the thirds" description="The guide is on for a rectangle and off for a circle, where a rule of thirds means nothing. `grid` overrules either way.">
+        <Cropper v-model="plain" :src="photo" aspect="4:3" :grid="false" alt="A landscape" height="16rem" />
     </DemoSection>
 
     <DemoSection title="Free, with ratios and turns" description="A chooser locks the ratio; the quarter turns and the flips travel with the crop, so it keeps pointing at the same part of the picture.">

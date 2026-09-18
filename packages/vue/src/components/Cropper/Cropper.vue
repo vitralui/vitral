@@ -45,7 +45,10 @@ defineOptions({ name: 'VtCropper' });
 const props = withDefaults(defineProps<CropperProps>(), {
     unstyled: undefined,
     shape: 'rect',
+    // Three answers, not two: on, off, and unsaid — which lets the shape
+    // decide. Vue would otherwise cast an absent boolean to `false`.
     handles: undefined,
+    grid: undefined,
     zoomable: true,
     height: '20rem',
     previewSize: 0
@@ -70,6 +73,7 @@ const ready = computed(() => natural.value.width > 0 && stage.value.width > 0);
 // application asked for, or what the toolbar was last set to.
 const aspect = computed(() => (props.shape === 'circle' ? 1 : parseAspect(chosenAspect.value ?? props.aspect)));
 const showHandles = computed(() => props.handles ?? props.shape !== 'circle');
+const showGrid = computed(() => props.grid ?? props.shape !== 'circle');
 
 /** The image as the crop sees it: a quarter turn swaps its sides. */
 const bounds = computed(() => turnedBounds(natural.value.width, natural.value.height, value.value.rotate));
@@ -337,7 +341,7 @@ const state = computed(() => ({ shape: props.shape, dragging: drag.active.value,
                 @keydown="onKeydown"
                 @focus="announce"
             >
-                <span v-bind="part('grid')" />
+                <span v-if="showGrid" v-bind="part('grid')" />
                 <span
                     v-for="handle in showHandles ? cropHandles : []"
                     :key="handle"

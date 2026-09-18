@@ -147,7 +147,7 @@ defineExpose({ go });
                         @focusout="onFocusout"
                     >
                         <div v-if="$slots.header" v-bind="part('header')"><slot name="header" /></div>
-                        <div :id="stageId" v-bind="part('stage')" :aria-live="rotating ? 'off' : 'polite'">
+                        <div :id="stageId" v-bind="part('stage', { transition: !!tx })" :aria-live="rotating ? 'off' : 'polite'">
                             <span v-bind="part('status')">{{ count ? formatMessage(locale.aria.slide, { index: current + 1, count }) : '' }}</span>
                             <button
                                 v-if="autoPlay"

@@ -54,10 +54,15 @@
     border-radius: 50%;
 }
 
-/* The thirds, drawn only while the crop is being moved. */
+/*
+ * The thirds, drawn only while the crop is being moved, and clipped to the crop
+ * so a round one does not have four straight lines running out past its edge.
+ */
 .vt-cropper-grid {
     position: absolute;
     inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
     opacity: 0;
     transition: opacity var(--vt-transition-duration);
     background:

@@ -31,15 +31,22 @@
         transform var(--vt-transition-preset-duration) ease;
 }
 
-/* The two overlap rather than queue, so the box never empties between them. */
-.vt-tx-fade-leave-active,
-.vt-tx-slide-leave-active,
-.vt-tx-push-leave-active,
-.vt-tx-cover-leave-active,
-.vt-tx-zoom-leave-active,
-.vt-tx-flip-leave-active {
-    position: absolute;
-    inset: 0;
+/*
+ * The two overlap rather than queue, and they do it by sharing a grid cell
+ * rather than by one of them being taken out of the flow. Taking the leaving
+ * one out meant the box was sized by the one arriving, whose image has no
+ * height until it has loaded — so the whole thing collapsed and sprang back,
+ * which is the flicker. Sharing the cell, the box is as tall as the taller of
+ * the two, and the picture already on screen holds it up until the next is
+ * ready. The container says so with `vt-tx-stack`.
+ */
+.vt-tx-stack {
+    display: grid;
+}
+
+.vt-tx-stack > * {
+    grid-area: 1 / 1;
+    min-width: 0;
 }
 
 /* ---- fade: the plainest, and the one that never gets in the way */

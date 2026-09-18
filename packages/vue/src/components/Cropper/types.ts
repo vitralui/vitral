@@ -27,6 +27,13 @@ export interface CropperProps extends BaseProps {
     rotatable?: boolean;
     /** Offer a zoom slider. */
     zoomable?: boolean;
+    /**
+     * Draw the thirds over the crop while it is being moved. On by default for
+     * a rectangle and off for a circle, where a rule of thirds means nothing:
+     * the guide is for composing a frame, and a round crop has no corners to
+     * compose towards.
+     */
+    grid?: boolean;
     /** The smallest crop, in the image's own pixels. */
     minWidth?: number;
     minHeight?: number;

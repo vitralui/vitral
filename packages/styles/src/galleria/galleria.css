@@ -27,6 +27,17 @@
     border-radius: var(--vt-galleria-border-radius);
 }
 
+/*
+ * Transitioning, the stage stacks its two items in one cell instead of laying
+ * them out side by side. It says so here rather than in the shared presets
+ * because this file is injected after them: at equal specificity the stage's
+ * own `display: flex` won, and the two pictures shared the width for the
+ * length of the transition — which is the flicker, not a loading one.
+ */
+.vt-galleria-stage.vt-tx-stack {
+    display: grid;
+}
+
 .vt-galleria-item {
     display: flex;
     align-items: center;

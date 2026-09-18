@@ -8,7 +8,9 @@ export const galleriaStyle = defineStyle({
         root: (s: { position?: string }) => ['vt-galleria', `vt-galleria-thumbnails-${s.position ?? 'bottom'}`],
         header: 'vt-galleria-header',
         footer: 'vt-galleria-footer',
-        stage: 'vt-galleria-stage',
+        // Only a stage that is transitioning stacks; without a preset it stays
+        // the flex box it has always been, and nothing about the default moves.
+        stage: (s: { transition?: boolean }) => ['vt-galleria-stage', { 'vt-tx-stack': s.transition }],
         status: 'vt-sr-only',
         item: (s: { dragging?: boolean }) => ['vt-galleria-item', { 'vt-galleria-item-dragging': s.dragging }],
         caption: 'vt-galleria-caption',
