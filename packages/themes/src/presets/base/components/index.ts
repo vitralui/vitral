@@ -20,6 +20,7 @@ import command from './command';
 import confirmdialog from './confirmdialog';
 import confirmpopup from './confirmpopup';
 import contextmenu from './contextmenu';
+import cropper from './cropper';
 import datatable from './datatable';
 import dataview from './dataview';
 import datepicker from './datepicker';
@@ -125,6 +126,7 @@ export const components = {
     confirmdialog,
     confirmpopup,
     contextmenu,
+    cropper,
     datatable,
     dataview,
     datepicker,

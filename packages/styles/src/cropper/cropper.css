@@ -1,0 +1,132 @@
+/*
+ * A cropper wants the width it can get: the stage's height is given, its width
+ * comes from the container, and the crop's pixels are mapped onto it. Dropped
+ * into a flex row that centres its items — a toolbar, a form row — it would
+ * otherwise shrink to nothing, because a stage has no intrinsic width.
+ */
+.vt-cropper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-cropper-gap);
+    width: 100%;
+    min-width: 0;
+}
+
+/*
+ * The stage holds the image at whatever size it fits, and everything else is
+ * positioned against it. It is the element the crop's pixels are mapped onto,
+ * so nothing inside it may change its box.
+ */
+.vt-cropper-stage {
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    background: var(--vt-cropper-stage-background);
+    border-radius: var(--vt-cropper-border-radius);
+}
+
+.vt-cropper-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Everything outside the crop is dimmed by a ring drawn as one huge shadow,
+   which needs no second element and no clip path. */
+.vt-cropper-area {
+    position: absolute;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 100vmax var(--vt-cropper-area-veil);
+    outline: 1px solid var(--vt-cropper-area-outline-color);
+    cursor: move;
+}
+
+.vt-cropper-area:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+.vt-cropper-circle .vt-cropper-area {
+    border-radius: 50%;
+}
+
+/* The thirds, drawn only while the crop is being moved. */
+.vt-cropper-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--vt-transition-duration);
+    background:
+        linear-gradient(to right, transparent calc(33.333% - 0.5px), var(--vt-cropper-area-grid-color) calc(33.333% - 0.5px) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px)),
+        linear-gradient(to right, transparent calc(66.666% - 0.5px), var(--vt-cropper-area-grid-color) calc(66.666% - 0.5px) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(33.333% - 0.5px), var(--vt-cropper-area-grid-color) calc(33.333% - 0.5px) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(66.666% - 0.5px), var(--vt-cropper-area-grid-color) calc(66.666% - 0.5px) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px));
+    pointer-events: none;
+}
+
+.vt-cropper-dragging .vt-cropper-grid,
+.vt-cropper-area:focus-visible .vt-cropper-grid {
+    opacity: 1;
+}
+
+.vt-cropper-handle {
+    position: absolute;
+    width: var(--vt-cropper-handle-size);
+    height: var(--vt-cropper-handle-size);
+    background: var(--vt-cropper-handle-background);
+    border: 1px solid var(--vt-cropper-handle-border-color);
+    border-radius: 2px;
+}
+
+.vt-cropper-handle-nw { top: 0; inset-inline-start: 0; transform: translate(-50%, -50%); cursor: nwse-resize; }
+.vt-cropper-handle-n { top: 0; inset-inline-start: 50%; transform: translate(-50%, -50%); cursor: ns-resize; }
+.vt-cropper-handle-ne { top: 0; inset-inline-start: 100%; transform: translate(-50%, -50%); cursor: nesw-resize; }
+.vt-cropper-handle-e { top: 50%; inset-inline-start: 100%; transform: translate(-50%, -50%); cursor: ew-resize; }
+.vt-cropper-handle-se { top: 100%; inset-inline-start: 100%; transform: translate(-50%, -50%); cursor: nwse-resize; }
+.vt-cropper-handle-s { top: 100%; inset-inline-start: 50%; transform: translate(-50%, -50%); cursor: ns-resize; }
+.vt-cropper-handle-sw { top: 100%; inset-inline-start: 0; transform: translate(-50%, -50%); cursor: nesw-resize; }
+.vt-cropper-handle-w { top: 50%; inset-inline-start: 0; transform: translate(-50%, -50%); cursor: ew-resize; }
+
+/* Right to left, a corner's cursor points the other way. */
+[dir='rtl'] .vt-cropper-handle-nw,
+[dir='rtl'] .vt-cropper-handle-se { cursor: nesw-resize; }
+[dir='rtl'] .vt-cropper-handle-ne,
+[dir='rtl'] .vt-cropper-handle-sw { cursor: nwse-resize; }
+
+.vt-cropper-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.vt-cropper-zoom {
+    flex: 1 1 8rem;
+    min-width: 6rem;
+}
+
+.vt-cropper-preview {
+    overflow: hidden;
+    flex: none;
+    background: var(--vt-cropper-stage-background);
+}
+
+.vt-cropper-preview > img {
+    display: block;
+    transform-origin: 0 0;
+    max-width: none;
+}
+
+.vt-cropper-circle .vt-cropper-preview {
+    border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-cropper-grid {
+        transition: none;
+    }
+}

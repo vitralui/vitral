@@ -20,6 +20,7 @@ export * from './Command';
 export * from './ConfirmDialog';
 export * from './ConfirmPopup';
 export * from './ContextMenu';
+export * from './Cropper';
 export * from './DataTable';
 export * from './DataView';
 export * from './DatePicker';

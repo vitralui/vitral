@@ -640,10 +640,23 @@ a {
 }
 
 .demo-body.stack,
+.demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    align-items: center;
+}
+
 .demo-stack {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+}
+
+/* A demo that wants the row to itself. */
+.demo-wide {
+    flex: 1 1 100%;
+    min-width: 0;
 }
 
 .demo-field {

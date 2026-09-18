@@ -26,6 +26,8 @@ export * from './layout/splitter';
 export * from './layout/panels';
 export * from './layout/radial';
 export * from './layout/carousel';
+export * from './layout/cropper';
+export * from './layout/cropCanvas';
 export * from './layout/scrollbar';
 
 export * from './data/filter';

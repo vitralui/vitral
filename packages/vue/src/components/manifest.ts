@@ -37,6 +37,7 @@ export const componentNames = [
     'ConfirmDialog',
     'ConfirmPopup',
     'ContextMenu',
+    'Cropper',
     'DataTable',
     'DataView',
     'DatePicker',

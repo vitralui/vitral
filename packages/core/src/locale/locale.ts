@@ -365,6 +365,14 @@ export interface Locale {
         zoomOut: string;
         rotateLeft: string;
         rotateRight: string;
+        flipHorizontal: string;
+        flipVertical: string;
+        /** Names the crop rectangle. */
+        crop: string;
+        /** Describes the crop's keyboard, read once when it takes focus. */
+        cropInstructions: string;
+        /** `{width}` `{height}` `{x}` `{y}`: announced as the crop is moved or resized. */
+        cropPosition: string;
         /** The button that opens an image's preview. */
         preview: string;
         /** Names a carousel or a gallery's slide. `{index}`, `{count}` */
@@ -682,6 +690,11 @@ export const en: Locale = {
         zoomOut: 'Zoom out',
         rotateLeft: 'Rotate left',
         rotateRight: 'Rotate right',
+        flipHorizontal: 'Flip horizontally',
+        flipVertical: 'Flip vertically',
+        crop: 'Crop',
+        cropInstructions: 'Use the arrow keys to move the crop, Shift with an arrow to resize it, Home and End for the corners.',
+        cropPosition: '{width} by {height} at {x}, {y}',
         preview: 'View image',
         slide: '{index} of {count}',
         goToSlide: 'Go to slide {index}',
@@ -970,6 +983,11 @@ export const ptBR: Locale = {
         zoomOut: 'Diminuir zoom',
         rotateLeft: 'Girar para a esquerda',
         rotateRight: 'Girar para a direita',
+        flipHorizontal: 'Espelhar na horizontal',
+        flipVertical: 'Espelhar na vertical',
+        crop: 'Recorte',
+        cropInstructions: 'Use as setas para mover o recorte, Shift com uma seta para redimensioná-lo, Home e End para os cantos.',
+        cropPosition: '{width} por {height} em {x}, {y}',
         preview: 'Ver imagem',
         slide: '{index} de {count}',
         goToSlide: 'Ir para o slide {index}',

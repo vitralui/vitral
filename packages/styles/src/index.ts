@@ -21,6 +21,7 @@ export * from './command';
 export * from './confirmdialog';
 export * from './confirmpopup';
 export * from './contextmenu';
+export * from './cropper';
 export * from './datatable';
 export * from './dataview';
 export * from './datepicker';
