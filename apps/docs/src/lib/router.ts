@@ -7,7 +7,7 @@ import { computed, ref } from 'vue';
  * `/docs/theming` answers with that page and the application takes over from
  * there.
  *
- * Routes: `/`, `/docs/<id>`, `/components/<id>`, `/icons`, `/templates`,
+ * Routes: `/`, `/docs/<id>`, `/components/<id>`, `/icons`, `/charts`, `/templates`,
  * `/templates/<id>` and `/templates/<id>/preview`. The last one is the
  * template alone, without the site around it.
  *
@@ -15,7 +15,7 @@ import { computed, ref } from 'vue';
  * arrival so nothing that was shared before breaks.
  */
 export interface Route {
-    name: 'home' | 'doc' | 'component' | 'icons' | 'templates' | 'template' | 'template-preview';
+    name: 'home' | 'doc' | 'component' | 'icons' | 'charts' | 'templates' | 'template' | 'template-preview';
     id: string;
     path: string;
 }
@@ -63,6 +63,7 @@ function parse(path: string): Route {
     if (section === 'docs') return { name: 'doc', id: id || 'introduction', path };
     if (section === 'components') return { name: 'component', id: id || 'button', path };
     if (section === 'icons') return { name: 'icons', id: '', path };
+    if (section === 'charts') return { name: 'charts', id: '', path };
     if (section === 'templates') {
         if (!id) return { name: 'templates', id: '', path };
         return { name: view === 'preview' ? 'template-preview' : 'template', id, path };

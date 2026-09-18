@@ -49,6 +49,7 @@ const templates = readdirSync(join(app, 'src/templates'))
 const routes = [
     '/',
     '/icons',
+    '/charts',
     '/templates',
     ...guides.map((id) => `/docs/${id}`),
     ...components.map((id) => `/components/${id}`),
@@ -339,6 +340,7 @@ function writeText(pages) {
         '## Optional\n',
         `- [Everything in one file](${origin}${base}llms-full.txt): every page above, concatenated.`,
         `- [Icons](${origin}${base}icons/): the icon set, searchable on the site.`,
+        `- [Charts](${origin}${base}charts/): every kind of chart, drawn live with the options behind each one.`,
         ''
     ].join('\n');
     writeFileSync(join(dist, 'llms.txt'), index);

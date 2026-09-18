@@ -15,6 +15,7 @@ import { Chart, Tag, type ChartKind, type ChartOptions, type ChartSeries } from 
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 import CodeBlock from '../parts/CodeBlock.vue';
+import { href } from '../lib/router';
 import { mountSalesChart, switchType } from './vanilla/salesChart';
 import salesChartSource from './vanilla/salesChart.ts?raw';
 
@@ -222,6 +223,11 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
 </script>
 
 <template>
+    <p class="demo-lead">
+        Deciding which chart to use is a job for the eye, not for a list of names:
+        <a :href="href('/charts')">every kind on one page</a>, live, with what each one is for and the options behind it.
+    </p>
+
     <DemoSection title="Lines" description="Two y axes, each measuring its own series; a dashed second line with markers. Tab to the plot and use the arrow keys.">
         <Chart type="line" :series="traffic" :options="lineOptions" style="width: 100%" />
     </DemoSection>

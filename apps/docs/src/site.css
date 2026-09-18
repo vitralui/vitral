@@ -2387,3 +2387,164 @@ a {
 }
 
 
+
+/* ---------------------------------------------------------------- charts */
+
+.charts-page {
+    max-width: var(--site-max);
+    margin: 0 auto;
+    padding: 2.25rem var(--site-gutter) 5rem;
+}
+
+.charts-head-links {
+    margin-top: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+/* The filter is the page's one control, so it stays reachable while you scroll the gallery. */
+.charts-filter {
+    position: sticky;
+    top: var(--site-bar-height);
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.875rem 0;
+    background: var(--vt-app-background);
+    border-bottom: 1px solid var(--vt-content-border-color);
+}
+
+.charts-filter button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--vt-text-muted-color);
+    background: transparent;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.charts-filter button:hover {
+    color: var(--vt-text-color);
+}
+
+.charts-filter button.on {
+    color: var(--vt-primary-contrast-color);
+    background: var(--vt-primary-color);
+    border-color: var(--vt-primary-color);
+}
+
+.charts-filter small {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.7;
+}
+
+.charts-group h2 {
+    margin: 2.25rem 0 1rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+    gap: 1.25rem;
+}
+
+.charts-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    align-items: flex-start;
+    padding: 1.125rem;
+    background: var(--vt-content-background);
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-content-border-radius);
+}
+
+.charts-card header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.charts-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.charts-card header code {
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+}
+
+.charts-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--vt-text-muted-color);
+}
+
+/* The plot fills the card, and a chart that has not measured itself yet keeps the card's height. */
+.charts-plot {
+    width: 100%;
+    min-height: 240px;
+}
+
+.charts-code {
+    width: 100%;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.charts-more {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--vt-content-border-color);
+}
+
+.charts-more ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.charts-more li {
+    display: flex;
+    gap: 0.625rem;
+    align-items: flex-start;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--vt-text-muted-color);
+}
+
+.charts-more li b {
+    color: var(--vt-text-color);
+}
+
+.charts-more .vt-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    color: var(--vt-primary-color);
+}
+
+.demo-lead {
+    margin: 0 0 1.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--vt-text-muted-color);
+}

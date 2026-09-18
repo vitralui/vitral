@@ -34,12 +34,32 @@ function headOf(): PageHead {
         };
     }
     if (name === 'icons') return { title: 'Icons', description: 'The outline icon set drawn for Vitral, searchable by name, category and tag.' };
+    if (name === 'charts') {
+        return { title: 'Charts', description: 'Every kind of chart the engine draws, live on one page: line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut and radar.' };
+    }
     if (name === 'templates') return { title: 'Templates', description: 'Multi-screen applications built only from Vitral components, themed by the same tokens.' };
     if (name === 'template' || name === 'template-preview') {
         const entry = templateOf(id);
         return { title: entry ? `${entry.name} template` : 'Templates', description: entry?.description ?? fallback };
     }
     return { title: 'Vitral — a Vue 3 component library with a token engine', description: fallback };
+}
+
+declare global {
+    interface Window {
+        gtag?: (...args: unknown[]) => void;
+    }
+}
+
+/**
+ * The Google tag counts the page it loaded on by itself. After that the address
+ * bar changes without a load, so every route but the first is sent as a view of
+ * its own — otherwise the figures would say every reader saw one page.
+ */
+let counted = false;
+function count(title: string, url: string) {
+    if (counted) window.gtag?.('event', 'page_view', { page_title: title, page_location: url });
+    counted = true;
 }
 
 function meta(selector: string, attribute: 'name' | 'property', key: string, content: string) {
@@ -81,5 +101,6 @@ export function useDocumentHead(): void {
         meta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
         meta('meta[name="twitter:image"]', 'name', 'twitter:image', image);
         canonical(url);
+        count(full, url);
     });
 }
