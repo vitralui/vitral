@@ -76,12 +76,21 @@
     color: var(--vt-datatable-header-cell-sorted-color);
 }
 
+/*
+ * The button is the cell. Sized to its label it left most of the column dead to
+ * the pointer while the whole header looked pressable, so it spans the cell and
+ * takes the cell's own padding — which means the highlight covers exactly what
+ * the press does. Its content follows the column's alignment, since a flex box
+ * does not inherit `text-align`.
+ */
 .vt-datatable-sort-button {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
     align-items: center;
     gap: var(--vt-datatable-header-cell-gap);
-    margin: -0.25rem -0.375rem;
-    padding: 0.25rem 0.375rem;
+    margin: 0;
+    padding: 0;
     font: inherit;
     font-weight: inherit;
     color: inherit;
@@ -95,7 +104,21 @@
         color var(--vt-datatable-transition-duration);
 }
 
-.vt-datatable-sort-button:hover {
+/*
+ * The hover belongs to the cell, not to the button inside it. The button is
+ * only as wide as its label, so highlighting it lit up the words and left the
+ * rest of the column cold — and the whole cell is the target, since pressing
+ * anywhere in it sorts.
+ */
+.vt-datatable-align-center .vt-datatable-sort-button {
+    justify-content: center;
+}
+
+.vt-datatable-align-right .vt-datatable-sort-button {
+    justify-content: flex-end;
+}
+
+.vt-datatable-header-cell-sortable:hover {
     color: var(--vt-datatable-header-cell-hover-color);
     background: var(--vt-datatable-header-cell-hover-background);
 }
