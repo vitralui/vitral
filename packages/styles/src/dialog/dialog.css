@@ -1,0 +1,205 @@
+/*
+ * The mask is the stacking root and lays the dialog out: `position` only moves
+ * the dialog around the flex box. A modeless dialog keeps the mask (it still
+ * positions and stacks) but lets the page behind it take the pointer.
+ */
+.vt-dialog-mask {
+    box-sizing: border-box;
+    padding: var(--vt-dialog-margin);
+}
+
+.vt-dialog-mask-modeless {
+    background: transparent;
+    pointer-events: none;
+}
+
+.vt-dialog-mask-modeless .vt-dialog {
+    pointer-events: auto;
+}
+
+.vt-dialog-mask-maximized {
+    padding: 0;
+}
+
+.vt-dialog-mask-top,
+.vt-dialog-mask-top-left,
+.vt-dialog-mask-top-right {
+    align-items: flex-start;
+}
+
+.vt-dialog-mask-bottom,
+.vt-dialog-mask-bottom-left,
+.vt-dialog-mask-bottom-right {
+    align-items: flex-end;
+}
+
+.vt-dialog-mask-left,
+.vt-dialog-mask-top-left,
+.vt-dialog-mask-bottom-left {
+    justify-content: flex-start;
+}
+
+.vt-dialog-mask-right,
+.vt-dialog-mask-top-right,
+.vt-dialog-mask-bottom-right {
+    justify-content: flex-end;
+}
+
+.vt-dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: min(var(--vt-dialog-min-width), 100%);
+    max-width: 100%;
+    max-height: 100%;
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    color: var(--vt-dialog-color);
+    background: var(--vt-dialog-background);
+    border: 1px solid var(--vt-dialog-border-color);
+    border-radius: var(--vt-dialog-border-radius);
+    box-shadow: var(--vt-dialog-shadow);
+    outline: none;
+}
+
+.vt-dialog-maximized {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0;
+}
+
+.vt-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vt-dialog-gap);
+    flex-shrink: 0;
+    padding: var(--vt-dialog-padding) var(--vt-dialog-padding) 0;
+}
+
+.vt-dialog-title {
+    min-width: 0;
+    font-size: var(--vt-dialog-title-font-size);
+    font-weight: var(--vt-dialog-title-font-weight);
+    line-height: var(--vt-dialog-title-line-height);
+    overflow-wrap: anywhere;
+}
+
+.vt-dialog-header-actions {
+    display: flex;
+    margin-inline-start: auto;
+    align-items: center;
+    gap: 0.25rem;
+    margin-block: -0.25rem;
+    margin-inline-end: -0.5rem;
+    flex-shrink: 0;
+}
+
+.vt-dialog-header-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-dialog-header-button-size);
+    height: var(--vt-dialog-header-button-size);
+    margin: 0;
+    padding: 0;
+    color: var(--vt-dialog-header-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-dialog-header-button-border-radius);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-dialog-header-button:hover {
+    color: var(--vt-dialog-header-button-hover-color);
+    background: var(--vt-dialog-header-button-hover-background);
+}
+
+.vt-dialog-header-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-dialog-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: var(--vt-dialog-padding);
+    overflow: auto;
+}
+
+.vt-dialog-header ~ .vt-dialog-content {
+    padding-top: var(--vt-dialog-gap);
+}
+
+.vt-dialog-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--vt-dialog-footer-gap);
+    flex-shrink: 0;
+    padding: var(--vt-dialog-padding);
+    background: var(--vt-dialog-footer-background);
+    border-top: 1px solid var(--vt-dialog-footer-border-color);
+    border-radius: 0 0 var(--vt-dialog-border-radius) var(--vt-dialog-border-radius);
+}
+
+.vt-dialog-maximized .vt-dialog-footer {
+    border-radius: 0;
+}
+
+/* Enter and leave: the mask fades, the dialog settles from slightly larger, or slides in from its edge. */
+.vt-dialog-motion-enter-active,
+.vt-dialog-motion-leave-active {
+    transition: opacity var(--vt-dialog-transition-duration) ease-out;
+}
+
+.vt-dialog-motion-enter-active .vt-dialog,
+.vt-dialog-motion-leave-active .vt-dialog {
+    transition: transform var(--vt-dialog-transition-duration) cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.vt-dialog-motion-enter-from,
+.vt-dialog-motion-leave-to {
+    opacity: 0;
+}
+
+.vt-dialog-motion-enter-from .vt-dialog,
+.vt-dialog-motion-leave-to .vt-dialog {
+    transform: scale(1.05);
+}
+
+.vt-dialog-mask-top.vt-dialog-motion-enter-from .vt-dialog,
+.vt-dialog-mask-top.vt-dialog-motion-leave-to .vt-dialog {
+    transform: translateY(-1rem);
+}
+
+.vt-dialog-mask-bottom.vt-dialog-motion-enter-from .vt-dialog,
+.vt-dialog-mask-bottom.vt-dialog-motion-leave-to .vt-dialog {
+    transform: translateY(1rem);
+}
+
+.vt-dialog-mask-left.vt-dialog-motion-enter-from .vt-dialog,
+.vt-dialog-mask-left.vt-dialog-motion-leave-to .vt-dialog {
+    transform: translateX(-1rem);
+}
+
+.vt-dialog-mask-right.vt-dialog-motion-enter-from .vt-dialog,
+.vt-dialog-mask-right.vt-dialog-motion-leave-to .vt-dialog {
+    transform: translateX(1rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-dialog-motion-enter-active,
+    .vt-dialog-motion-leave-active,
+    .vt-dialog-motion-enter-active .vt-dialog,
+    .vt-dialog-motion-leave-active .vt-dialog,
+    .vt-dialog-header-button {
+        transition: none;
+    }
+}

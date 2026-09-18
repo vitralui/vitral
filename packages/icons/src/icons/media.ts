@@ -1,0 +1,50 @@
+// Media: playback, sound, pictures, video and colour.
+// Drawn on the 24×24 grid: 2-unit round strokes, no fill, about 2 units of margin.
+import type { IconDef } from '../types';
+
+const category = 'media';
+
+export const play: IconDef = { name: 'play', category, tags: ['start', 'run', 'media'], body: '<path d="M6 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L7.5 3.64A1 1 0 0 0 6 4.5z"/>' };
+export const pause: IconDef = { name: 'pause', category, tags: ['hold', 'media'], body: '<rect x="5.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="14" y="4" width="4.5" height="16" rx="1.5"/>' };
+export const stop: IconDef = { name: 'stop', category, tags: ['end', 'halt', 'media'], body: '<rect x="5" y="5" width="14" height="14" rx="2"/>' };
+export const playCircle: IconDef = { name: 'playCircle', category, tags: ['start video', 'media'], body: '<circle cx="12" cy="12" r="10"/><path d="M10 8.5v7l5.5-3.5z"/>' };
+export const pauseCircle: IconDef = { name: 'pauseCircle', category, tags: ['hold', 'media'], body: '<circle cx="12" cy="12" r="10"/><path d="M10 9v6M14 9v6"/>' };
+export const stopCircle: IconDef = { name: 'stopCircle', category, tags: ['end', 'media'], body: '<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/>' };
+export const skipForward: IconDef = { name: 'skipForward', category, tags: ['next track', 'media'], body: '<path d="M5 5v14l10-7zM19 5v14"/>' };
+export const skipBack: IconDef = { name: 'skipBack', category, tags: ['previous track', 'media'], body: '<path d="M19 19V5L9 12zM5 19V5"/>' };
+export const fastForward: IconDef = { name: 'fastForward', category, tags: ['seek', 'forward', 'media'], body: '<path d="M3 6v12l8.5-6zM12.5 6v12l8.5-6z"/>' };
+export const rewind: IconDef = { name: 'rewind', category, tags: ['seek', 'backward', 'media'], body: '<path d="M21 18V6l-8.5 6zM11.5 18V6L3 12z"/>' };
+export const record: IconDef = { name: 'record', category, tags: ['rec', 'capture', 'dot'], body: '<circle fill="currentColor" cx="12" cy="12" r="8"/>' };
+export const volume: IconDef = { name: 'volume', category, tags: ['speaker', 'sound', 'audio'], body: '<path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4z"/>' };
+export const volumeLow: IconDef = { name: 'volumeLow', category, tags: ['speaker', 'quiet', 'sound'], body: '<path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/>' };
+export const volumeHigh: IconDef = { name: 'volumeHigh', category, tags: ['speaker', 'loud', 'sound'], body: '<path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18.5 6.5a7.8 7.8 0 0 1 0 11"/>' };
+export const volumeX: IconDef = { name: 'volumeX', category, tags: ['mute', 'silent', 'speaker off'], body: '<path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>' };
+export const mic: IconDef = { name: 'mic', category, tags: ['microphone', 'record', 'voice'], body: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3.5M8.5 21.5h7"/>' };
+export const micOff: IconDef = { name: 'micOff', category, tags: ['mute', 'microphone off'], body: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3.5M8.5 21.5h7M3 3l18 18"/>' };
+export const headphones: IconDef = { name: 'headphones', category, tags: ['audio', 'listen', 'music'], body: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M3 14h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM21 14h-2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2 2 2 0 0 0 2-2z"/>' };
+export const music: IconDef = { name: 'music', category, tags: ['notes', 'song', 'audio'], body: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>' };
+export const musicNote: IconDef = { name: 'musicNote', category, tags: ['note', 'song', 'audio'], body: '<path d="M12 18V3l6 3"/><circle cx="9" cy="18" r="3"/>' };
+export const radio: IconDef = { name: 'radio', category, tags: ['fm', 'broadcast', 'receiver'], body: '<rect x="2" y="8" width="20" height="13" rx="2"/><path d="M7 8l11-5M14 12.5h4M14 16.5h4"/><circle cx="8" cy="14.5" r="2.5"/>' };
+export const podcast: IconDef = { name: 'podcast', category, tags: ['broadcast', 'show', 'audio'], body: '<circle cx="12" cy="11" r="2"/><path d="M12 15v6M8 16a6.5 6.5 0 1 1 8 0M9.8 13.2a3 3 0 1 1 4.4 0"/>' };
+export const camera: IconDef = { name: 'camera', category, tags: ['photo', 'picture', 'shoot'], body: '<path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"/><circle cx="12" cy="13" r="4"/>' };
+export const cameraOff: IconDef = { name: 'cameraOff', category, tags: ['no photo', 'camera disabled'], body: '<path d="M9.5 4H15l2 3h3a2 2 0 0 1 2 2v8.5M18 20H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3M9.2 10.2a4 4 0 0 0 5.6 5.6M3 3l18 18"/>' };
+export const video: IconDef = { name: 'video', category, tags: ['camera', 'film', 'record', 'call'], body: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3"/>' };
+export const videoOff: IconDef = { name: 'videoOff', category, tags: ['camera off', 'no video'], body: '<path d="M10 6h4a2 2 0 0 1 2 2v4.5l5-3v9l-4-2.4M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2M3 3l18 18"/>' };
+export const image: IconDef = { name: 'image', category, tags: ['picture', 'photo', 'gallery'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L6 21"/>' };
+export const images: IconDef = { name: 'images', category, tags: ['pictures', 'photos', 'album'], body: '<rect x="7" y="3" width="14" height="14" rx="2"/><circle cx="11.5" cy="7.5" r="1.5"/><path d="M21 12l-3-3-7 7M17 21H5a2 2 0 0 1-2-2V7"/>' };
+export const imagePlus: IconDef = { name: 'imagePlus', category, tags: ['add picture', 'upload photo'], body: '<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L6 21M16 5h6M19 2v6"/>' };
+export const film: IconDef = { name: 'film', category, tags: ['movie', 'cinema', 'reel'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/>' };
+export const clapperboard: IconDef = { name: 'clapperboard', category, tags: ['movie', 'director', 'scene'], body: '<path d="M3 10h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10l-.4-2.6a2 2 0 0 1 1.6-2.3l13.8-2.4a2 2 0 0 1 2.3 1.6l.4 2.3zM7.5 4.4L10 8.7M13 3.4l2.5 4.4"/>' };
+export const tv: IconDef = { name: 'tv', category, tags: ['television', 'screen', 'monitor'], body: '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M8 2l4 4 4-4M8 22h8"/>' };
+export const cast: IconDef = { name: 'cast', category, tags: ['chromecast', 'stream', 'screen share'], body: '<path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6M2 12a8 8 0 0 1 8 8M2 16a4 4 0 0 1 4 4M2 20h.01"/>' };
+export const aperture: IconDef = { name: 'aperture', category, tags: ['camera', 'lens', 'shutter', 'photography'], body: '<circle cx="12" cy="12" r="10"/><path d="M14.25 8.1L19.98 18.03M16.5 12L10.77 21.92M14.25 15.9L2.79 15.9M9.75 15.9L4.02 5.97M7.5 12L13.23 2.08M9.75 8.1L21.21 8.1"/>' };
+export const disc: IconDef = { name: 'disc', category, tags: ['cd', 'dvd', 'album', 'vinyl'], body: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12a6 6 0 0 1 6-6"/>' };
+export const listMusic: IconDef = { name: 'listMusic', category, tags: ['playlist', 'queue', 'songs'], body: '<path d="M3 6h12M3 11h12M3 16h7M20 16V4"/><circle cx="17" cy="16" r="3"/>' };
+export const audioLines: IconDef = { name: 'audioLines', category, tags: ['waveform', 'equalizer', 'sound'], body: '<path d="M3 10v4M7.5 6v12M12 3v18M16.5 7v10M21 10v4"/>' };
+export const crop: IconDef = { name: 'crop', category, tags: ['trim', 'cut', 'resize image'], body: '<path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/>' };
+export const flip: IconDef = { name: 'flip', category, tags: ['mirror', 'reflect', 'horizontal'], body: '<path d="M9 6.5L3 17.5h6zM15 6.5l6 11h-6zM12 3v2M12 8v2M12 13v2M12 18v3"/>' };
+export const contrast: IconDef = { name: 'contrast', category, tags: ['brightness', 'invert', 'half'], body: '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/>' };
+export const palette: IconDef = { name: 'palette', category, tags: ['colour', 'color', 'paint', 'theme'], body: '<path d="M12 2a10 10 0 0 0 0 20c1.2 0 2-.8 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.2 0-1.1.9-2 2-2h2.3c2.6 0 4.7-2.1 4.7-4.7C22 5.8 17.5 2 12 2z"/><circle cx="7.5" cy="11" r="0.5"/><circle cx="10" cy="6.5" r="0.5"/><circle cx="15" cy="6.5" r="0.5"/><circle cx="17.5" cy="10.5" r="0.5"/>' };
+export const brush: IconDef = { name: 'brush', category, tags: ['paint', 'art', 'draw'], body: '<path d="M9.5 15L20 4.5a1.77 1.77 0 0 1 2.5 2.5L12 17.5M7.5 14.5c-2 0-3.5 1.5-3.5 3.5 0 1.3-.5 2.3-2 3 4 .8 8-.2 8-3.5 0-1.8-1-3-2.5-3z"/>' };
+export const layers: IconDef = { name: 'layers', category, tags: ['stack', 'levels', 'overlay'], body: '<path d="M12 2.5l9.5 5-9.5 5-9.5-5zM2.5 12l9.5 5 9.5-5M2.5 16.5l9.5 5 9.5-5"/>' };
+export const sparkle: IconDef = { name: 'sparkle', category, tags: ['shine', 'star', 'new'], body: '<path d="M12 3l2 6.5 6.5 2.5-6.5 2.5L12 21l-2-6.5L3.5 12 10 9.5z"/>' };

@@ -1,0 +1,89 @@
+/*
+ * The ring. The circles carry pathLength="100", so every dash
+ * below is a percentage of the ring whatever its radius or stroke.
+ */
+.vt-progressspinner {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--vt-progressspinner-size);
+    height: var(--vt-progressspinner-size);
+    vertical-align: middle;
+}
+
+.vt-progressspinner-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    /* Its own layer, turning about its centre, so the ring does not wobble as it is redrawn. */
+    transform-origin: 50% 50%;
+    will-change: transform;
+    backface-visibility: hidden;
+    animation: vt-progressspinner-turn var(--vt-progressspinner-animation-duration) linear infinite;
+}
+
+.vt-progressspinner-track {
+    fill: none;
+    stroke: var(--vt-progressspinner-track-color);
+}
+
+.vt-progressspinner-circle {
+    fill: none;
+    stroke: var(--vt-progressspinner-color);
+    stroke-linecap: round;
+    stroke-dasharray: 1 150;
+    stroke-dashoffset: 0;
+    animation: vt-progressspinner-dash calc(var(--vt-progressspinner-animation-duration) * 0.75) ease-in-out infinite;
+}
+
+.vt-progressspinner-determinate .vt-progressspinner-svg {
+    transform: rotate(-90deg);
+    animation: none;
+}
+
+.vt-progressspinner-determinate .vt-progressspinner-circle {
+    stroke-dasharray: var(--_value) 100;
+    animation: none;
+    transition: stroke-dasharray var(--vt-transition-duration) ease-out;
+}
+
+@keyframes vt-progressspinner-turn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes vt-progressspinner-dash {
+    0% {
+        stroke-dasharray: 1 150;
+        stroke-dashoffset: 0;
+    }
+
+    50% {
+        stroke-dasharray: 70 150;
+        stroke-dashoffset: -25;
+    }
+
+    100% {
+        stroke-dasharray: 70 150;
+        stroke-dashoffset: -99;
+    }
+}
+
+/* Reduced motion: a fixed arc that turns slowly — still busy, no longer pulsing — as the base spinner does. */
+@media (prefers-reduced-motion: reduce) {
+    .vt-progressspinner-svg {
+        animation-duration: calc(var(--vt-progressspinner-animation-duration) * 3);
+    }
+
+    .vt-progressspinner-circle {
+        stroke-dasharray: 60 150;
+        animation: none;
+    }
+
+    .vt-progressspinner-determinate .vt-progressspinner-circle {
+        stroke-dasharray: var(--_value) 100;
+        transition: none;
+    }
+}

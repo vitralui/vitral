@@ -1,0 +1,113 @@
+.vt-dock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.vt-dock-list {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--vt-dock-gap);
+    margin: 0;
+    padding: var(--vt-dock-padding);
+    list-style: none;
+    pointer-events: auto;
+    background: var(--vt-dock-background);
+    border: 1px solid var(--vt-dock-border-color);
+    border-radius: var(--vt-dock-border-radius);
+    box-shadow: var(--vt-dock-shadow);
+    backdrop-filter: blur(12px);
+}
+
+/* The shelf keeps its thickness; a magnified item grows out of it, away from
+   the edge the dock sits on, and pushes its neighbours along. Growing the real
+   size — not a transform — is what keeps the item under the pointer the one
+   that is magnified, instead of a scaled neighbour covering it. */
+.vt-dock-bottom .vt-dock-list,
+.vt-dock-top .vt-dock-list {
+    height: calc(var(--vt-dock-item-size) + 2 * var(--vt-dock-padding) + 2px);
+    box-sizing: border-box;
+}
+
+.vt-dock-left .vt-dock-list,
+.vt-dock-right .vt-dock-list {
+    flex-direction: column;
+    width: calc(var(--vt-dock-item-size) + 2 * var(--vt-dock-padding) + 2px);
+    box-sizing: border-box;
+}
+
+.vt-dock-top .vt-dock-list,
+.vt-dock-left .vt-dock-list {
+    align-items: flex-start;
+}
+
+.vt-dock-item {
+    --vt-dock-scale: 1;
+    flex-shrink: 0;
+}
+
+.vt-dock-magnify .vt-dock-item-active {
+    --vt-dock-scale: var(--vt-dock-item-active-scale);
+}
+
+.vt-dock-magnify .vt-dock-item-near {
+    --vt-dock-scale: var(--vt-dock-item-near-scale);
+}
+
+.vt-dock-magnify .vt-dock-item-far {
+    --vt-dock-scale: var(--vt-dock-item-far-scale);
+}
+
+.vt-dock-action {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--vt-dock-item-size) * var(--vt-dock-scale));
+    height: calc(var(--vt-dock-item-size) * var(--vt-dock-scale));
+    color: var(--vt-dock-item-color);
+    text-decoration: none;
+    background: var(--vt-dock-item-background);
+    border-radius: var(--vt-dock-item-border-radius);
+    cursor: pointer;
+    outline: none;
+    transition:
+        width var(--vt-dock-transition-duration) ease-out,
+        height var(--vt-dock-transition-duration) ease-out;
+}
+
+.vt-dock-action:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-dock-action .vt-icon {
+    width: calc(var(--vt-dock-item-icon-size) * var(--vt-dock-scale));
+    height: calc(var(--vt-dock-item-icon-size) * var(--vt-dock-scale));
+    transition:
+        width var(--vt-dock-transition-duration) ease-out,
+        height var(--vt-dock-transition-duration) ease-out;
+}
+
+.vt-dock-action img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.vt-dock-item-disabled .vt-dock-action {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-dock-magnify .vt-dock-item {
+        --vt-dock-scale: 1;
+    }
+
+    .vt-dock-action,
+    .vt-dock-action .vt-icon {
+        transition: none;
+    }
+}

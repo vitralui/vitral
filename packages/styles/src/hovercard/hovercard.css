@@ -1,0 +1,15 @@
+.vt-hovercard-trigger {
+    display: inline-block;
+}
+
+/* Builds on `.vt-overlay` with the popover surface. */
+.vt-hovercard {
+    box-sizing: border-box;
+    width: min(var(--vt-hovercard-width), calc(100vw - 1rem));
+    padding: var(--vt-hovercard-padding);
+    color: var(--vt-hovercard-color);
+    background: var(--vt-hovercard-background);
+    border-color: var(--vt-hovercard-border-color);
+    border-radius: var(--vt-hovercard-border-radius);
+    box-shadow: var(--vt-hovercard-shadow);
+}

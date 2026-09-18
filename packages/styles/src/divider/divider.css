@@ -1,0 +1,73 @@
+/*
+ * The line is drawn by the two pseudo-elements on either side of the content,
+ * so the content needs no background of its own to mask it — it sits on
+ * whatever surface the divider is on.
+ */
+.vt-divider {
+    --_line: solid;
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    color: var(--vt-divider-content-color);
+}
+
+.vt-divider::before,
+.vt-divider::after {
+    content: '';
+    flex: 1 1 0;
+    border: 0 var(--_line) var(--vt-divider-border-color);
+}
+
+.vt-divider:not(.vt-divider-with-content)::after {
+    display: none;
+}
+
+.vt-divider-dashed {
+    --_line: dashed;
+}
+
+.vt-divider-dotted {
+    --_line: dotted;
+}
+
+.vt-divider-horizontal {
+    width: 100%;
+    margin: var(--vt-divider-horizontal-margin);
+}
+
+.vt-divider-horizontal::before,
+.vt-divider-horizontal::after {
+    border-top-width: var(--vt-divider-border-width);
+}
+
+.vt-divider-vertical {
+    flex-direction: column;
+    align-self: stretch;
+    min-height: var(--vt-divider-vertical-min-height);
+    margin: var(--vt-divider-vertical-margin);
+}
+
+.vt-divider-vertical::before,
+.vt-divider-vertical::after {
+    border-inline-start-width: var(--vt-divider-border-width);
+}
+
+.vt-divider-horizontal .vt-divider-content {
+    padding-inline: var(--vt-divider-content-gap);
+}
+
+.vt-divider-vertical .vt-divider-content {
+    padding-block: var(--vt-divider-content-gap);
+}
+
+/* Alignment only moves content; a bare divider is one full line whatever its `align`. */
+.vt-divider-with-content.vt-divider-horizontal.vt-divider-left::before,
+.vt-divider-with-content.vt-divider-horizontal.vt-divider-right::after {
+    flex: 0 0 var(--vt-divider-horizontal-inset);
+}
+
+.vt-divider-with-content.vt-divider-vertical.vt-divider-top::before,
+.vt-divider-with-content.vt-divider-vertical.vt-divider-bottom::after {
+    flex: 0 0 var(--vt-divider-vertical-inset);
+}

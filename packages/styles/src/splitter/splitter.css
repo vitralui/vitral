@@ -1,0 +1,95 @@
+/*
+ * Direction, panel sizes and gutter thickness are inline styles set from the
+ * props and the current sizes, so a Splitter lays out the same unstyled. Here:
+ * the frame, the gutter's look, its handle, and a hit area wider than the
+ * gutter itself so a thin gutter is still easy to grab.
+ */
+.vt-splitter {
+    box-sizing: border-box;
+    color: var(--vt-splitter-color);
+    background: var(--vt-splitter-background);
+    border: 1px solid var(--vt-splitter-border-color);
+    border-radius: var(--vt-splitter-border-radius);
+    overflow: hidden;
+}
+
+.vt-splitterpanel {
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* A splitter nested in a panel fills it, without a second frame. */
+.vt-splitterpanel > .vt-splitter {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+}
+
+.vt-splitter-gutter {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-splitter-gutter-background);
+    cursor: col-resize;
+    user-select: none;
+    transition: background-color var(--vt-splitter-transition-duration);
+}
+
+.vt-splitter-vertical > .vt-splitter-gutter {
+    cursor: row-resize;
+}
+
+.vt-splitter-gutter::before {
+    content: '';
+    position: absolute;
+    inset: 0 -4px;
+}
+
+.vt-splitter-vertical > .vt-splitter-gutter::before {
+    inset: -4px 0;
+}
+
+.vt-splitter-gutter:hover {
+    background: var(--vt-splitter-gutter-hover-background);
+}
+
+.vt-splitter-gutter-active,
+.vt-splitter-gutter-active:hover {
+    background: var(--vt-splitter-gutter-active-background);
+}
+
+.vt-splitter-gutter:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-splitter-gutter-handle {
+    width: var(--vt-splitter-handle-thickness);
+    height: var(--vt-splitter-handle-length);
+    background: var(--vt-splitter-handle-background);
+    border-radius: var(--vt-splitter-handle-border-radius);
+    transition: background-color var(--vt-splitter-transition-duration);
+}
+
+.vt-splitter-vertical > .vt-splitter-gutter > .vt-splitter-gutter-handle {
+    width: var(--vt-splitter-handle-length);
+    height: var(--vt-splitter-handle-thickness);
+}
+
+.vt-splitter-gutter-active > .vt-splitter-gutter-handle {
+    background: var(--vt-splitter-handle-active-background);
+}
+
+.vt-splitter-resizing {
+    user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-splitter-gutter,
+    .vt-splitter-gutter-handle {
+        transition: none;
+    }
+}

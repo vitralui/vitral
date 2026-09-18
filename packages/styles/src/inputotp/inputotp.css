@@ -1,0 +1,26 @@
+.vt-inputotp {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-inputotp-gap);
+}
+
+/* Each box is a field of its own, as narrow as it is tall. */
+.vt-inputotp-field {
+    width: var(--vt-inputotp-input-width);
+    padding: 0;
+}
+
+.vt-inputotp-field.vt-field-sm {
+    width: var(--vt-inputotp-input-sm-width);
+}
+
+.vt-inputotp-field.vt-field-lg {
+    width: var(--vt-inputotp-input-lg-width);
+}
+
+.vt-inputotp-input {
+    text-align: center;
+    font-size: var(--vt-inputotp-input-font-size);
+    font-weight: var(--vt-inputotp-input-font-weight);
+    font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,108 @@
+.vt-colorpicker {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.vt-colorpicker-swatch {
+    display: inline-block;
+    width: var(--vt-colorpicker-swatch-size);
+    height: var(--vt-colorpicker-swatch-size);
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--vt-colorpicker-swatch-border-color);
+    border-radius: var(--vt-colorpicker-swatch-border-radius);
+    cursor: pointer;
+}
+
+.vt-colorpicker-swatch:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-colorpicker-swatch:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-colorpicker-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-colorpicker-panel-gap);
+    box-sizing: border-box;
+    width: var(--vt-colorpicker-panel-width);
+    padding: var(--vt-colorpicker-panel-padding);
+    background: var(--vt-colorpicker-panel-background);
+    border: 1px solid var(--vt-colorpicker-panel-border-color);
+    border-radius: var(--vt-colorpicker-panel-border-radius);
+}
+
+.vt-colorpicker-overlay {
+    box-shadow: var(--vt-colorpicker-panel-shadow);
+}
+
+.vt-colorpicker-disabled .vt-colorpicker-panel {
+    opacity: var(--vt-disabled-opacity);
+    pointer-events: none;
+}
+
+/* The area paints white across and black down over the pure hue, which the component sets inline. */
+.vt-colorpicker-area {
+    position: relative;
+    height: var(--vt-colorpicker-area-height);
+    border-radius: var(--vt-colorpicker-area-border-radius);
+    background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+    cursor: crosshair;
+    touch-action: none;
+    outline: none;
+}
+
+.vt-colorpicker-hue {
+    position: relative;
+    height: var(--vt-colorpicker-hue-height);
+    border-radius: var(--vt-colorpicker-hue-border-radius);
+    background: linear-gradient(to right, #f00 0%, #ff0 16.67%, #0f0 33.33%, #0ff 50%, #00f 66.67%, #f0f 83.33%, #f00 100%);
+    cursor: pointer;
+    touch-action: none;
+    outline: none;
+}
+
+.vt-colorpicker-handle {
+    position: absolute;
+    box-sizing: border-box;
+    width: var(--vt-colorpicker-handle-size);
+    height: var(--vt-colorpicker-handle-size);
+    border: 2px solid var(--vt-colorpicker-handle-border-color);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--vt-colorpicker-handle-ring-color);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.vt-colorpicker-hue .vt-colorpicker-handle {
+    top: 50%;
+}
+
+.vt-colorpicker-area:focus-visible .vt-colorpicker-handle,
+.vt-colorpicker-hue:focus-visible .vt-colorpicker-handle {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-colorpicker-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vt-colorpicker-preview {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--vt-colorpicker-swatch-border-color);
+    border-radius: var(--vt-colorpicker-swatch-border-radius);
+}
+
+.vt-colorpicker-input {
+    flex: 1 1 auto;
+    font-family: var(--vt-font-family-mono);
+}

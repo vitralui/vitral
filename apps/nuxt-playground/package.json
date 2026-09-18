@@ -1,0 +1,17 @@
+{
+  "name": "nuxt-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -w run build && nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@vitral/nuxt": "workspace:*",
+    "@vitral/vue": "workspace:*",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.42"
+  }
+}

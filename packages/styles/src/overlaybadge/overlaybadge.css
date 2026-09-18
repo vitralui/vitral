@@ -1,0 +1,18 @@
+.vt-overlaybadge {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.vt-overlaybadge-badge {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    outline: var(--vt-overlaybadge-outline-width) solid var(--vt-overlaybadge-outline-color);
+    transform: translate(50%, -50%);
+    pointer-events: none;
+}
+
+.vt-overlaybadge-badge:dir(rtl) {
+    transform: translate(-50%, -50%);
+}

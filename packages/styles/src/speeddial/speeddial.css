@@ -1,0 +1,146 @@
+.vt-speeddial {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.vt-speeddial-button {
+    width: var(--vt-speeddial-button-size);
+    height: var(--vt-speeddial-button-size);
+    border-radius: 50%;
+}
+
+.vt-speeddial-button .vt-icon {
+    transition: transform var(--vt-speeddial-transition-duration);
+}
+
+.vt-speeddial-rotate.vt-speeddial-open .vt-speeddial-button .vt-icon {
+    transform: rotate(45deg);
+}
+
+.vt-speeddial-list {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-speeddial-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear var(--vt-speeddial-transition-duration);
+}
+
+.vt-speeddial-open .vt-speeddial-list {
+    visibility: visible;
+    pointer-events: auto;
+    transition: none;
+}
+
+/* A line opens away from the button along its direction, centred across it. */
+.vt-speeddial-up .vt-speeddial-list {
+    bottom: calc(100% + var(--vt-speeddial-gap));
+    flex-direction: column-reverse;
+}
+
+.vt-speeddial-down .vt-speeddial-list {
+    top: calc(100% + var(--vt-speeddial-gap));
+    flex-direction: column;
+}
+
+.vt-speeddial-left .vt-speeddial-list {
+    right: calc(100% + var(--vt-speeddial-gap));
+    flex-direction: row-reverse;
+}
+
+.vt-speeddial-right .vt-speeddial-list {
+    left: calc(100% + var(--vt-speeddial-gap));
+    flex-direction: row;
+}
+
+.vt-speeddial-up .vt-speeddial-list,
+.vt-speeddial-down .vt-speeddial-list {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.vt-speeddial-left .vt-speeddial-list,
+.vt-speeddial-right .vt-speeddial-list {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Circles are laid out by the component, around the button's centre. */
+.vt-speeddial-radial .vt-speeddial-list {
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+}
+
+.vt-speeddial-radial .vt-speeddial-item {
+    position: absolute;
+    left: calc(var(--vt-speeddial-action-size) / -2);
+    top: calc(var(--vt-speeddial-action-size) / -2);
+}
+
+.vt-speeddial-item {
+    display: flex;
+    opacity: 0;
+    transform: translate(var(--_x, 0), var(--_y, 0)) scale(0);
+    transition:
+        opacity var(--vt-speeddial-transition-duration),
+        transform var(--vt-speeddial-transition-duration);
+    transition-delay: var(--_delay, 0s);
+}
+
+.vt-speeddial-open .vt-speeddial-item {
+    opacity: 1;
+    transform: translate(var(--_x, 0), var(--_y, 0)) scale(1);
+}
+
+.vt-speeddial-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-speeddial-action-size);
+    height: var(--vt-speeddial-action-size);
+    margin: 0;
+    padding: 0;
+    color: var(--vt-speeddial-action-color);
+    text-decoration: none;
+    background: var(--vt-speeddial-action-background);
+    border: 0;
+    border-radius: 50%;
+    box-shadow: var(--vt-speeddial-action-shadow);
+    cursor: pointer;
+}
+
+.vt-speeddial-action:hover {
+    background: var(--vt-speeddial-action-hover-background);
+}
+
+.vt-speeddial-action:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-speeddial-action-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-speeddial-mask {
+    position: fixed;
+    inset: 0;
+    background: var(--vt-speeddial-mask-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-speeddial-item,
+    .vt-speeddial-button .vt-icon {
+        transition: none;
+    }
+}

@@ -1,0 +1,277 @@
+/*
+ * One rule set for every severity: the severity classes only swap the private
+ * `--_*` colours, and the variants (outlined, text, link) decide which of those
+ * colours paint what.
+ */
+.vt-button {
+    --_bg: var(--vt-primary-color);
+    --_fg: var(--vt-primary-contrast-color);
+    --_hover-bg: var(--vt-primary-hover-color);
+    --_active-bg: var(--vt-primary-active-color);
+    --_border: var(--vt-primary-border-color);
+    --_hover-border: var(--vt-primary-hover-border-color);
+    --_subtle-bg: var(--vt-primary-subtle-background);
+    --_subtle-hover-bg: var(--vt-primary-subtle-hover-background);
+    --_subtle-fg: var(--vt-primary-subtle-color);
+    --_subtle-border: var(--vt-primary-subtle-border-color);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--vt-button-gap);
+    box-sizing: border-box;
+    min-height: var(--vt-button-min-height);
+    margin: 0;
+    padding: var(--vt-button-padding-y) var(--vt-button-padding-x);
+    font: inherit;
+    font-weight: var(--vt-button-font-weight);
+    line-height: 1.25;
+    color: var(--_fg);
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    background: var(--_bg);
+    border: 1px solid var(--_border);
+    border-radius: var(--vt-button-border-radius);
+    box-shadow: var(--vt-button-shadow);
+    cursor: pointer;
+    user-select: none;
+    transition:
+        background-color var(--vt-button-transition-duration),
+        border-color var(--vt-button-transition-duration),
+        color var(--vt-button-transition-duration),
+        box-shadow var(--vt-button-transition-duration);
+}
+
+.vt-button:not(:disabled):hover {
+    background: var(--_hover-bg);
+    border-color: var(--_hover-border);
+}
+
+.vt-button:not(:disabled):active {
+    background: var(--_active-bg);
+}
+
+.vt-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-button:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+    box-shadow: none;
+}
+
+.vt-button-secondary {
+    --_bg: var(--vt-secondary-color);
+    --_fg: var(--vt-secondary-contrast-color);
+    --_hover-bg: var(--vt-secondary-hover-color);
+    --_active-bg: var(--vt-secondary-active-color);
+    --_border: var(--vt-secondary-border-color);
+    --_hover-border: var(--vt-secondary-hover-border-color);
+    --_subtle-bg: var(--vt-secondary-subtle-background);
+    --_subtle-hover-bg: var(--vt-secondary-subtle-hover-background);
+    --_subtle-fg: var(--vt-secondary-subtle-color);
+    --_subtle-border: var(--vt-secondary-subtle-border-color);
+}
+
+.vt-button-success {
+    --_bg: var(--vt-success-color);
+    --_fg: var(--vt-success-contrast-color);
+    --_hover-bg: var(--vt-success-hover-color);
+    --_active-bg: var(--vt-success-active-color);
+    --_border: var(--vt-success-border-color);
+    --_hover-border: var(--vt-success-hover-border-color);
+    --_subtle-bg: var(--vt-success-subtle-background);
+    --_subtle-hover-bg: var(--vt-success-subtle-hover-background);
+    --_subtle-fg: var(--vt-success-subtle-color);
+    --_subtle-border: var(--vt-success-subtle-border-color);
+}
+
+.vt-button-info {
+    --_bg: var(--vt-info-color);
+    --_fg: var(--vt-info-contrast-color);
+    --_hover-bg: var(--vt-info-hover-color);
+    --_active-bg: var(--vt-info-active-color);
+    --_border: var(--vt-info-border-color);
+    --_hover-border: var(--vt-info-hover-border-color);
+    --_subtle-bg: var(--vt-info-subtle-background);
+    --_subtle-hover-bg: var(--vt-info-subtle-hover-background);
+    --_subtle-fg: var(--vt-info-subtle-color);
+    --_subtle-border: var(--vt-info-subtle-border-color);
+}
+
+.vt-button-warn {
+    --_bg: var(--vt-warn-color);
+    --_fg: var(--vt-warn-contrast-color);
+    --_hover-bg: var(--vt-warn-hover-color);
+    --_active-bg: var(--vt-warn-active-color);
+    --_border: var(--vt-warn-border-color);
+    --_hover-border: var(--vt-warn-hover-border-color);
+    --_subtle-bg: var(--vt-warn-subtle-background);
+    --_subtle-hover-bg: var(--vt-warn-subtle-hover-background);
+    --_subtle-fg: var(--vt-warn-subtle-color);
+    --_subtle-border: var(--vt-warn-subtle-border-color);
+}
+
+.vt-button-danger {
+    --_bg: var(--vt-danger-color);
+    --_fg: var(--vt-danger-contrast-color);
+    --_hover-bg: var(--vt-danger-hover-color);
+    --_active-bg: var(--vt-danger-active-color);
+    --_border: var(--vt-danger-border-color);
+    --_hover-border: var(--vt-danger-hover-border-color);
+    --_subtle-bg: var(--vt-danger-subtle-background);
+    --_subtle-hover-bg: var(--vt-danger-subtle-hover-background);
+    --_subtle-fg: var(--vt-danger-subtle-color);
+    --_subtle-border: var(--vt-danger-subtle-border-color);
+}
+
+.vt-button-help {
+    --_bg: var(--vt-help-color);
+    --_fg: var(--vt-help-contrast-color);
+    --_hover-bg: var(--vt-help-hover-color);
+    --_active-bg: var(--vt-help-active-color);
+    --_border: var(--vt-help-border-color);
+    --_hover-border: var(--vt-help-hover-border-color);
+    --_subtle-bg: var(--vt-help-subtle-background);
+    --_subtle-hover-bg: var(--vt-help-subtle-hover-background);
+    --_subtle-fg: var(--vt-help-subtle-color);
+    --_subtle-border: var(--vt-help-subtle-border-color);
+}
+
+.vt-button-contrast {
+    --_bg: var(--vt-contrast-color);
+    --_fg: var(--vt-contrast-contrast-color);
+    --_hover-bg: var(--vt-contrast-hover-color);
+    --_active-bg: var(--vt-contrast-active-color);
+    --_border: var(--vt-contrast-border-color);
+    --_hover-border: var(--vt-contrast-hover-border-color);
+    --_subtle-bg: var(--vt-contrast-subtle-background);
+    --_subtle-hover-bg: var(--vt-contrast-subtle-hover-background);
+    --_subtle-fg: var(--vt-contrast-subtle-color);
+    --_subtle-border: var(--vt-contrast-subtle-border-color);
+}
+
+/* ---- variants --------------------------------------------------------- */
+
+.vt-button-outlined {
+    color: var(--_subtle-fg);
+    background: transparent;
+    border-color: var(--_subtle-border);
+    box-shadow: none;
+}
+
+.vt-button-text,
+.vt-button-link {
+    color: var(--_subtle-fg);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.vt-button-outlined:not(:disabled):hover,
+.vt-button-text:not(:disabled):hover {
+    background: var(--_subtle-bg);
+    border-color: var(--_subtle-border);
+}
+
+.vt-button-text:not(:disabled):hover {
+    border-color: transparent;
+}
+
+.vt-button-outlined:not(:disabled):active,
+.vt-button-text:not(:disabled):active {
+    background: var(--_subtle-hover-bg);
+}
+
+.vt-button-link {
+    padding-inline: 0;
+    min-height: 0;
+}
+
+.vt-button-link:not(:disabled):hover,
+.vt-button-link:not(:disabled):active {
+    background: transparent;
+    border-color: transparent;
+    text-decoration: underline;
+}
+
+/* ---- shape and size --------------------------------------------------- */
+
+.vt-button-sm {
+    min-height: var(--vt-button-sm-min-height);
+    padding: var(--vt-button-sm-padding-y) var(--vt-button-sm-padding-x);
+    font-size: var(--vt-button-sm-font-size);
+}
+
+.vt-button-lg {
+    min-height: var(--vt-button-lg-min-height);
+    padding: var(--vt-button-lg-padding-y) var(--vt-button-lg-padding-x);
+    font-size: var(--vt-button-lg-font-size);
+}
+
+.vt-button-icon-only {
+    width: var(--vt-button-icon-only-width);
+    padding-inline: 0;
+}
+
+.vt-button-sm.vt-button-icon-only {
+    width: var(--vt-button-sm-min-height);
+}
+
+.vt-button-lg.vt-button-icon-only {
+    width: var(--vt-button-lg-min-height);
+}
+
+.vt-button-rounded {
+    border-radius: var(--vt-button-rounded-border-radius);
+}
+
+.vt-button-raised {
+    box-shadow: var(--vt-button-raised-shadow);
+}
+
+.vt-button-fluid {
+    display: flex;
+    width: 100%;
+}
+
+.vt-button-icon-right {
+    flex-direction: row-reverse;
+}
+
+.vt-button-icon-top {
+    flex-direction: column;
+}
+
+.vt-button-icon-bottom {
+    flex-direction: column-reverse;
+}
+
+.vt-button-loading {
+    cursor: progress;
+}
+
+.vt-button-badge {
+    min-width: 1.25rem;
+    padding: 0 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    text-align: center;
+    color: var(--_bg);
+    background: var(--_fg);
+    border-radius: 999px;
+}
+
+/* Where the button's own fill is translucent or absent, an inverted badge
+   would vanish into it; the badge takes the accent instead. */
+.vt-button-secondary .vt-button-badge,
+.vt-button-outlined .vt-button-badge,
+.vt-button-text .vt-button-badge,
+.vt-button-link .vt-button-badge {
+    color: var(--vt-primary-contrast-color);
+    background: var(--vt-primary-color);
+}

@@ -1,0 +1,63 @@
+.vt-orderlist {
+    display: flex;
+    gap: var(--vt-orderlist-gap);
+}
+
+/*
+ * The reorderable list OrderList and PickList share, under this component's
+ * own class and token names: a header, the listbox in a field-like box, and a
+ * column of buttons beside it.
+ */
+.vt-orderlist-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: var(--vt-orderlist-list-min-width);
+}
+
+.vt-orderlist-header {
+    padding: var(--vt-orderlist-header-padding);
+    font-weight: var(--vt-orderlist-header-font-weight);
+    color: var(--vt-orderlist-header-color);
+}
+
+.vt-orderlist-list {
+    box-sizing: border-box;
+    height: var(--vt-orderlist-list-height);
+    overflow: auto;
+    background: var(--vt-orderlist-list-background);
+    border: 1px solid var(--vt-orderlist-list-border-color);
+    border-radius: var(--vt-orderlist-list-border-radius);
+}
+
+.vt-orderlist-list:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-orderlist-disabled .vt-orderlist-list {
+    opacity: var(--vt-disabled-opacity);
+}
+
+.vt-orderlist-option {
+    white-space: normal;
+}
+
+.vt-orderlist-option-drop-before {
+    box-shadow: inset 0 2px 0 var(--vt-orderlist-drop-indicator-color);
+}
+
+.vt-orderlist-option-drop-after {
+    box-shadow: inset 0 -2px 0 var(--vt-orderlist-drop-indicator-color);
+}
+
+.vt-orderlist-option[draggable='true'] {
+    cursor: grab;
+}
+
+.vt-orderlist-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--vt-orderlist-controls-gap);
+}

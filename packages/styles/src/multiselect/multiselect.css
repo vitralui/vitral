@@ -1,0 +1,162 @@
+.vt-multiselect {
+    cursor: pointer;
+    user-select: none;
+    padding-inline-end: calc(var(--vt-form-field-padding-x) - 0.25rem);
+    outline: none;
+}
+
+.vt-multiselect.vt-field-disabled {
+    cursor: default;
+}
+
+/* The combobox is a <button>, so a <label for> reaches it; strip its native look. */
+.vt-multiselect-label {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-multiselect-chip-gap);
+    min-width: 0;
+    margin: 0;
+    padding: var(--vt-form-field-padding-y) 0;
+    overflow: hidden;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    cursor: inherit;
+}
+
+.vt-field-sm .vt-multiselect-label {
+    padding-block: var(--vt-form-field-sm-padding-y);
+}
+
+.vt-field-lg .vt-multiselect-label {
+    padding-block: var(--vt-form-field-lg-padding-y);
+}
+
+.vt-multiselect-chips .vt-multiselect-label {
+    flex-wrap: wrap;
+    white-space: normal;
+    padding-block: 0.25rem;
+}
+
+.vt-multiselect-placeholder .vt-multiselect-label {
+    color: var(--vt-form-field-placeholder-color);
+}
+
+.vt-multiselect-clear {
+    color: var(--vt-multiselect-clear-icon-color);
+}
+
+.vt-multiselect-dropdown {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-multiselect-dropdown-width);
+    flex-shrink: 0;
+    color: var(--vt-multiselect-dropdown-color);
+    transition: transform var(--vt-transition-duration);
+}
+
+.vt-multiselect-open .vt-multiselect-dropdown {
+    transform: rotate(180deg);
+}
+
+.vt-multiselect-overlay {
+    display: flex;
+    flex-direction: column;
+}
+
+.vt-multiselect-header {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-multiselect-header-gap);
+    padding: var(--vt-list-header-padding);
+    border-bottom: 1px solid var(--vt-multiselect-header-border-color);
+}
+
+.vt-multiselect-filter {
+    flex: 1 1 auto;
+}
+
+.vt-multiselect-list {
+    max-height: var(--vt-multiselect-overlay-max-height);
+    overflow: auto;
+}
+
+.vt-multiselect-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-list-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-multiselect-option {
+    gap: var(--vt-multiselect-option-gap);
+}
+
+.vt-multiselect-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* The drawn box reads the checkbox's tokens; the option carries the state. */
+.vt-multiselect-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: var(--vt-checkbox-sm-size);
+    height: var(--vt-checkbox-sm-size);
+    color: var(--vt-checkbox-icon-color);
+    background: var(--vt-checkbox-background);
+    border: var(--vt-checkbox-border-width) solid var(--vt-checkbox-border-color);
+    border-radius: var(--vt-checkbox-border-radius);
+}
+
+.vt-multiselect-box-checked {
+    background: var(--vt-checkbox-checked-background);
+    border-color: var(--vt-checkbox-checked-border-color);
+}
+
+.vt-multiselect-box .vt-icon {
+    width: var(--vt-checkbox-sm-icon-size);
+    height: var(--vt-checkbox-sm-icon-size);
+    stroke-width: 3;
+}
+
+.vt-multiselect-toggle-all {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+}
+
+.vt-multiselect-toggle-all-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.vt-multiselect-toggle-all-input:focus-visible + .vt-multiselect-box {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-multiselect-dropdown {
+        transition: none;
+    }
+}

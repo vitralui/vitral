@@ -1,0 +1,100 @@
+.vt-autocomplete {
+    cursor: text;
+    gap: var(--vt-autocomplete-gap);
+}
+
+.vt-autocomplete.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-autocomplete-dropdown-on {
+    padding-inline-end: 0;
+}
+
+/* Several values: chips and the text box share lines, and wrap. */
+.vt-autocomplete-multiple {
+    flex-wrap: wrap;
+    row-gap: var(--vt-autocomplete-chip-gap);
+    padding-block: var(--vt-autocomplete-chip-padding-y);
+}
+
+.vt-autocomplete-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--vt-autocomplete-chip-gap);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-autocomplete-chip-item {
+    display: inline-flex;
+    min-width: 0;
+}
+
+.vt-autocomplete-multiple .vt-autocomplete-input {
+    flex: 1 1 5rem;
+    width: auto;
+    padding-block: 0.125rem;
+}
+
+.vt-autocomplete-loader {
+    color: var(--vt-form-field-icon-color);
+}
+
+/* The dropdown button sits flush against the field's end, behind a divider. */
+.vt-autocomplete-dropdown {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-autocomplete-dropdown-width);
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    color: var(--vt-autocomplete-dropdown-color);
+    background: transparent;
+    border: 0;
+    border-inline-start: 1px solid var(--vt-autocomplete-dropdown-border-color);
+    cursor: pointer;
+}
+
+.vt-autocomplete-dropdown:hover {
+    color: var(--vt-autocomplete-dropdown-hover-color);
+}
+
+.vt-autocomplete-dropdown:disabled {
+    cursor: default;
+}
+
+.vt-autocomplete-dropdown:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-autocomplete-overlay {
+    display: flex;
+    flex-direction: column;
+}
+
+.vt-autocomplete-list {
+    max-height: var(--vt-autocomplete-overlay-max-height);
+    overflow: auto;
+}
+
+.vt-autocomplete-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-list-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-autocomplete-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

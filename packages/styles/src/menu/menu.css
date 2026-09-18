@@ -1,0 +1,101 @@
+.vt-menu {
+    box-sizing: border-box;
+    min-width: var(--vt-menu-min-width);
+    color: var(--vt-menu-color);
+}
+
+.vt-menu-inline {
+    display: inline-block;
+    background: var(--vt-menu-background);
+    border: var(--vt-menu-border-width) solid var(--vt-menu-border-color);
+    border-radius: var(--vt-menu-border-radius);
+}
+
+/* The popup takes `.vt-overlay` for its chrome; menus cast the navigation shadow. */
+.vt-menu-overlay {
+    box-shadow: var(--vt-menu-overlay-shadow);
+}
+
+.vt-menu-list,
+.vt-menu-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-menu-list-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    outline: none;
+}
+
+.vt-menu-list {
+    padding: var(--vt-menu-list-padding);
+}
+
+.vt-menu-item-content {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-menu-item-gap);
+    padding: var(--vt-menu-item-padding);
+    color: var(--vt-menu-item-color);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--vt-menu-item-border-radius);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-menu-item:not(.vt-menu-item-disabled) > .vt-menu-item-content:hover,
+.vt-menu-item-content:focus-visible {
+    color: var(--vt-menu-item-focus-color);
+    background: var(--vt-menu-item-focus-background);
+}
+
+.vt-menu-item-content:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-menu-item-disabled > .vt-menu-item-content {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-menu-item-icon {
+    color: var(--vt-menu-item-icon-color);
+}
+
+.vt-menu-item-content:hover .vt-menu-item-icon,
+.vt-menu-item-content:focus-visible .vt-menu-item-icon {
+    color: var(--vt-menu-item-icon-focus-color);
+}
+
+.vt-menu-item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-menu-submenu-label {
+    padding: var(--vt-menu-submenu-label-padding);
+    font-weight: var(--vt-menu-submenu-label-font-weight);
+    color: var(--vt-menu-submenu-label-color);
+    background: var(--vt-menu-submenu-label-background);
+    cursor: default;
+    user-select: none;
+}
+
+.vt-menu-separator {
+    margin: var(--vt-menu-separator-margin);
+    border-top: 1px solid var(--vt-menu-separator-border-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-menu-item-content {
+        transition: none;
+    }
+}

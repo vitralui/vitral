@@ -1,0 +1,112 @@
+.vt-inputnumber {
+    gap: var(--vt-inputnumber-gap);
+    cursor: text;
+}
+
+.vt-inputnumber.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-inputnumber-input {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- spin buttons ----------------------------------------------------- */
+
+.vt-inputnumber-button {
+    flex-shrink: 0;
+    align-self: stretch;
+    width: var(--vt-inputnumber-button-width);
+    padding: 0;
+    color: var(--vt-inputnumber-button-color);
+    border-radius: var(--vt-inputnumber-button-border-radius);
+    touch-action: manipulation;
+    user-select: none;
+    transition:
+        background-color var(--vt-form-field-transition-duration),
+        color var(--vt-form-field-transition-duration);
+}
+
+.vt-inputnumber-button:not(:disabled):hover {
+    color: var(--vt-inputnumber-button-hover-color);
+    background: var(--vt-inputnumber-button-hover-background);
+}
+
+.vt-inputnumber-button:not(:disabled):active {
+    background: var(--vt-inputnumber-button-active-background);
+}
+
+.vt-inputnumber-button:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+/* Stacked: up over down, at the end of the field. */
+.vt-inputnumber-stacked {
+    padding-inline-end: 3px;
+}
+
+.vt-inputnumber-spinner {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    gap: 1px;
+    padding-block: 3px;
+}
+
+.vt-inputnumber-spinner .vt-inputnumber-button {
+    flex: 1 1 0;
+    min-height: 0;
+    width: var(--vt-inputnumber-spinner-width);
+}
+
+.vt-inputnumber-spinner .vt-icon {
+    width: var(--vt-inputnumber-spinner-icon-size);
+    height: var(--vt-inputnumber-spinner-icon-size);
+}
+
+/* Horizontal: minus before the number, plus after it. */
+.vt-inputnumber-horizontal {
+    padding-inline: 3px;
+}
+
+.vt-inputnumber-horizontal .vt-inputnumber-input {
+    text-align: center;
+}
+
+.vt-inputnumber-horizontal .vt-inputnumber-button {
+    margin-block: 3px;
+}
+
+.vt-field-sm.vt-inputnumber-horizontal .vt-inputnumber-button,
+.vt-field-sm .vt-inputnumber-spinner {
+    margin-block: 0;
+    padding-block: 2px;
+}
+
+.vt-field-sm .vt-inputnumber-button {
+    width: var(--vt-inputnumber-sm-button-width);
+}
+
+.vt-field-sm .vt-inputnumber-spinner .vt-inputnumber-button {
+    width: var(--vt-inputnumber-sm-spinner-width);
+}
+
+.vt-field-lg .vt-inputnumber-button {
+    width: var(--vt-inputnumber-lg-button-width);
+}
+
+.vt-field-lg .vt-inputnumber-spinner .vt-inputnumber-button {
+    width: var(--vt-inputnumber-lg-spinner-width);
+}
+
+.vt-field-lg .vt-inputnumber-spinner .vt-icon {
+    width: var(--vt-inputnumber-lg-spinner-icon-size);
+    height: var(--vt-inputnumber-lg-spinner-icon-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-inputnumber-button {
+        transition: none;
+    }
+}

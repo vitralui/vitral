@@ -1,0 +1,102 @@
+.vt-tag {
+    --_bg: var(--vt-primary-subtle-background);
+    --_fg: var(--vt-primary-subtle-color);
+    --_hover-bg: var(--vt-primary-subtle-hover-background);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-tag-gap);
+    box-sizing: border-box;
+    padding: var(--vt-tag-padding);
+    font-size: var(--vt-tag-font-size);
+    font-weight: var(--vt-tag-font-weight);
+    line-height: var(--vt-tag-line-height);
+    color: var(--_fg);
+    white-space: nowrap;
+    vertical-align: middle;
+    background: var(--_bg);
+    border-radius: var(--vt-tag-border-radius);
+}
+
+.vt-tag-secondary {
+    --_bg: var(--vt-secondary-subtle-background);
+    --_fg: var(--vt-secondary-subtle-color);
+    --_hover-bg: var(--vt-secondary-subtle-hover-background);
+}
+
+.vt-tag-success {
+    --_bg: var(--vt-success-subtle-background);
+    --_fg: var(--vt-success-subtle-color);
+    --_hover-bg: var(--vt-success-subtle-hover-background);
+}
+
+.vt-tag-info {
+    --_bg: var(--vt-info-subtle-background);
+    --_fg: var(--vt-info-subtle-color);
+    --_hover-bg: var(--vt-info-subtle-hover-background);
+}
+
+.vt-tag-warn {
+    --_bg: var(--vt-warn-subtle-background);
+    --_fg: var(--vt-warn-subtle-color);
+    --_hover-bg: var(--vt-warn-subtle-hover-background);
+}
+
+.vt-tag-danger {
+    --_bg: var(--vt-danger-subtle-background);
+    --_fg: var(--vt-danger-subtle-color);
+    --_hover-bg: var(--vt-danger-subtle-hover-background);
+}
+
+.vt-tag-help {
+    --_bg: var(--vt-help-subtle-background);
+    --_fg: var(--vt-help-subtle-color);
+    --_hover-bg: var(--vt-help-subtle-hover-background);
+}
+
+/* Contrast is the one solid tag: it exists to stand out from the tinted ones. */
+.vt-tag-contrast {
+    --_bg: var(--vt-contrast-color);
+    --_fg: var(--vt-contrast-contrast-color);
+    --_hover-bg: var(--vt-contrast-hover-color);
+}
+
+.vt-tag-rounded {
+    border-radius: var(--vt-tag-rounded-border-radius);
+}
+
+.vt-tag-icon {
+    width: var(--vt-tag-icon-size);
+    height: var(--vt-tag-icon-size);
+}
+
+.vt-tag-remove-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-tag-remove-button-size);
+    height: var(--vt-tag-remove-button-size);
+    margin: 0 calc(-0.125 * var(--vt-tag-remove-button-size)) 0 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-tag-remove-button-border-radius);
+    cursor: pointer;
+}
+
+.vt-tag-remove-button:hover {
+    background: var(--_hover-bg);
+}
+
+.vt-tag-remove-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-tag-remove-button .vt-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+}

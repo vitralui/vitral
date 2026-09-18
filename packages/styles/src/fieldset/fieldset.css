@@ -1,0 +1,80 @@
+/* A real <fieldset> and <legend>: the legend sits in the border, and when the
+   group can collapse it holds the button that does it. */
+.vt-fieldset {
+    margin: 0;
+    padding: var(--vt-fieldset-padding);
+    color: var(--vt-fieldset-color);
+    background: var(--vt-fieldset-background);
+    border: 1px solid var(--vt-fieldset-border-color);
+    border-radius: var(--vt-fieldset-border-radius);
+    min-inline-size: 0;
+}
+
+.vt-fieldset-legend {
+    display: flex;
+    padding: 0;
+    margin-inline-start: -0.25rem;
+    font-weight: var(--vt-fieldset-legend-font-weight);
+    color: var(--vt-fieldset-legend-color);
+}
+
+.vt-fieldset-legend-content,
+.vt-fieldset-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-fieldset-legend-gap);
+    padding: var(--vt-fieldset-legend-padding);
+    border-radius: var(--vt-fieldset-legend-border-radius);
+}
+
+.vt-fieldset-toggle {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.vt-fieldset-toggle:hover {
+    background: var(--vt-fieldset-legend-hover-background);
+}
+
+.vt-fieldset-toggle:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-fieldset-toggle-icon {
+    display: inline-flex;
+    color: var(--vt-fieldset-toggle-icon-color);
+    transition: transform var(--vt-transition-duration);
+}
+
+.vt-fieldset-toggle:hover .vt-fieldset-toggle-icon {
+    color: var(--vt-fieldset-toggle-icon-hover-color);
+}
+
+.vt-fieldset-toggle-icon-open {
+    transform: rotate(180deg);
+}
+
+.vt-fieldset-content-container {
+    overflow: hidden;
+}
+
+.vt-fieldset-content {
+    padding: var(--vt-fieldset-content-padding);
+}
+
+.vt-fieldset-collapse-enter-active,
+.vt-fieldset-collapse-leave-active {
+    transition: height var(--vt-transition-duration) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-fieldset-toggle-icon,
+    .vt-fieldset-collapse-enter-active,
+    .vt-fieldset-collapse-leave-active {
+        transition: none;
+    }
+}

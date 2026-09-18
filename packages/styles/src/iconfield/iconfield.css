@@ -1,0 +1,63 @@
+/*
+ * The field and its icons are siblings; the icons are laid over the field's
+ * padding, and the field pads its text past them. Which side an icon is on
+ * follows its place: before the field, it is at the start; after, at the end.
+ */
+.vt-iconfield {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.vt-iconfield > .vt-field {
+    flex: 1 1 auto;
+}
+
+.vt-iconfield-fluid {
+    display: flex;
+    width: 100%;
+}
+
+.vt-inputicon {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-iconfield-icon-size);
+    height: var(--vt-iconfield-icon-size);
+    color: var(--vt-iconfield-icon-color);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.vt-inputicon .vt-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.vt-iconfield > .vt-inputicon:first-child {
+    inset-inline-start: var(--vt-iconfield-icon-inset);
+}
+
+.vt-iconfield > .vt-inputicon:last-child {
+    inset-inline-end: var(--vt-iconfield-icon-inset);
+}
+
+.vt-iconfield > .vt-inputicon:first-child ~ .vt-field {
+    padding-inline-start: calc(var(--vt-iconfield-icon-inset) + var(--vt-iconfield-icon-size) + var(--vt-iconfield-icon-gap));
+}
+
+.vt-iconfield > .vt-field:has(~ .vt-inputicon:last-child) {
+    padding-inline-end: calc(var(--vt-iconfield-icon-inset) + var(--vt-iconfield-icon-size) + var(--vt-iconfield-icon-gap));
+}
+
+/* A native control with its own chrome — `.vt-field-input` used on its own — pads the same way. */
+.vt-iconfield > .vt-inputicon:first-child ~ input {
+    padding-inline-start: calc(var(--vt-iconfield-icon-inset) + var(--vt-iconfield-icon-size) + var(--vt-iconfield-icon-gap));
+}
+
+.vt-iconfield > input:has(~ .vt-inputicon:last-child) {
+    padding-inline-end: calc(var(--vt-iconfield-icon-inset) + var(--vt-iconfield-icon-size) + var(--vt-iconfield-icon-gap));
+}

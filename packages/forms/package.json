@@ -1,0 +1,23 @@
+{
+  "name": "@vitral/forms",
+  "version": "0.1.0",
+  "description": "Framework-free form state and validation for Vitral: nested paths, field arrays, built-in rules, async validation and structural resolvers for schema libraries.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json"
+  }
+}

@@ -1,0 +1,603 @@
+/*
+ * The chart. Marks take their colour from the data (inline `fill`/`stroke`,
+ * usually a palette colour such as `--vt-chart-1`); everything else — axes, grid,
+ * readouts, controls — from the component's tokens.
+ *
+ * It stands on its own: a page that uses the chart without the Vue components
+ * (and so without the shared base styles) still gets sized icons and a boxed menu.
+ */
+.vt-chart {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-chart-gap);
+    box-sizing: border-box;
+    min-width: 0;
+    font-family: var(--vt-chart-font-family);
+    font-size: var(--vt-chart-font-size);
+    color: var(--vt-chart-color);
+    background: var(--vt-chart-background);
+}
+
+/* Without a title beside it, the toolbar gets a row of its own. */
+.vt-chart-with-toolbar {
+    padding-top: calc(var(--vt-chart-toolbar-button-size) + var(--vt-chart-gap));
+}
+
+.vt-chart-sparkline {
+    gap: 0;
+}
+
+.vt-chart-dragging,
+.vt-chart-dragging * {
+    user-select: none;
+}
+
+/* ---- toolbar ---- */
+
+.vt-chart-toolbar {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    z-index: 2;
+    display: flex;
+    gap: var(--vt-chart-toolbar-gap);
+}
+
+.vt-chart-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-chart-toolbar-button-size);
+    height: var(--vt-chart-toolbar-button-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--vt-chart-toolbar-border-radius);
+    background: transparent;
+    color: var(--vt-chart-toolbar-color);
+    cursor: pointer;
+}
+
+.vt-chart-tool > svg {
+    width: var(--vt-icon-size);
+    height: var(--vt-icon-size);
+    flex-shrink: 0;
+    stroke-width: var(--vt-icon-stroke-width, 2);
+}
+
+.vt-chart-tool:hover {
+    color: var(--vt-chart-toolbar-hover-color);
+    background: var(--vt-chart-toolbar-hover-background);
+}
+
+.vt-chart-tool-active {
+    color: var(--vt-chart-toolbar-active-color);
+    background: var(--vt-chart-toolbar-active-background);
+}
+
+.vt-chart-tool:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+    background: transparent;
+}
+
+.vt-chart-tool:focus-visible,
+.vt-chart-menu-item:focus-visible,
+.vt-chart-legend-interactive:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-chart-menu {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-width: 10rem;
+    padding: var(--vt-list-padding);
+    margin: 0;
+    list-style: none;
+    background: var(--vt-overlay-select-background);
+    border: 1px solid var(--vt-overlay-select-border-color);
+    border-radius: var(--vt-overlay-select-border-radius);
+    box-shadow: var(--vt-overlay-select-shadow);
+    color: var(--vt-overlay-select-color);
+    font-family: inherit;
+    overflow: hidden;
+}
+
+.vt-chart-menu-item {
+    padding: var(--vt-list-option-padding);
+    border: 0;
+    border-radius: var(--vt-list-option-border-radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.vt-chart-menu-item:hover,
+.vt-chart-menu-item:focus {
+    background: var(--vt-list-option-focus-background);
+}
+
+/* ---- layout ---- */
+
+.vt-chart-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-chart-gap);
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.vt-chart-body-legend-left,
+.vt-chart-body-legend-right {
+    flex-direction: row;
+}
+
+.vt-chart-canvas {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    outline: none;
+    border-radius: var(--vt-focus-ring-offset);
+}
+
+.vt-chart-interactive {
+    touch-action: pan-y;
+}
+
+.vt-chart-canvas:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-chart-mode-zoom .vt-chart-svg,
+.vt-chart-mode-selection .vt-chart-svg {
+    cursor: crosshair;
+}
+
+.vt-chart-mode-pan .vt-chart-svg {
+    cursor: grab;
+}
+
+.vt-chart-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    font-family: inherit;
+}
+
+.vt-chart-title {
+    font-size: var(--vt-chart-title-font-size);
+    font-weight: var(--vt-chart-title-font-weight);
+    fill: var(--vt-chart-title-color);
+}
+
+.vt-chart-subtitle {
+    font-size: var(--vt-chart-subtitle-font-size);
+    font-weight: var(--vt-chart-subtitle-font-weight);
+    fill: var(--vt-chart-subtitle-color);
+}
+
+/* ---- grid and axes ---- */
+
+.vt-chart-grid-line {
+    stroke: var(--vt-chart-grid-line-color);
+    stroke-width: var(--vt-chart-grid-line-width);
+    shape-rendering: crispEdges;
+}
+
+.vt-chart-axis-line,
+.vt-chart-axis-tick {
+    stroke: var(--vt-chart-axis-line-color);
+    shape-rendering: crispEdges;
+}
+
+.vt-chart-axis-tick {
+    stroke: var(--vt-chart-axis-tick-color);
+}
+
+.vt-chart-axis-label {
+    font-size: var(--vt-chart-axis-font-size);
+    fill: var(--vt-chart-axis-color);
+}
+
+.vt-chart-axis-title {
+    font-size: var(--vt-chart-axis-title-font-size);
+    font-weight: var(--vt-chart-axis-title-font-weight);
+    fill: var(--vt-chart-axis-title-color);
+}
+
+/* ---- marks ---- */
+
+.vt-chart-series {
+    transition: opacity var(--vt-chart-transition-duration);
+}
+
+.vt-chart-series-line.vt-chart-dim,
+.vt-chart-series-points.vt-chart-dim,
+.vt-chart-radar-area.vt-chart-dim {
+    opacity: var(--vt-chart-line-dim-opacity);
+}
+
+.vt-chart-series-bar.vt-chart-dim,
+.vt-chart-series-bar-horizontal.vt-chart-dim,
+.vt-chart-series-candle.vt-chart-dim,
+.vt-chart-bar.vt-chart-dim,
+.vt-chart-slice.vt-chart-dim,
+.vt-chart-cell.vt-chart-dim {
+    opacity: var(--vt-chart-bar-dim-opacity);
+}
+
+.vt-chart-line {
+    fill: none;
+    stroke-linejoin: round;
+}
+
+.vt-chart-marker {
+    stroke: var(--vt-chart-marker-stroke-color);
+    transition: transform var(--vt-chart-transition-duration);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.vt-chart-marker.vt-chart-hover {
+    transform: scale(var(--vt-chart-marker-hover-scale));
+}
+
+.vt-chart-bar,
+.vt-chart-cell,
+.vt-chart-slice,
+.vt-chart-candle {
+    transition:
+        opacity var(--vt-chart-transition-duration),
+        filter var(--vt-chart-transition-duration);
+}
+
+.vt-chart-bar.vt-chart-hover,
+.vt-chart-candle.vt-chart-hover,
+.vt-chart-cell.vt-chart-hover {
+    opacity: var(--vt-chart-bar-hover-opacity);
+}
+
+.vt-chart-cell {
+    stroke: none;
+}
+
+.vt-chart-slice {
+    stroke: var(--vt-chart-pie-stroke-color);
+    stroke-linejoin: round;
+}
+
+.vt-chart-wick {
+    stroke-width: var(--vt-chart-candle-wick-width);
+}
+
+.vt-chart-candle-hollow {
+    fill: var(--vt-chart-marker-stroke-color) !important;
+}
+
+.vt-chart-data-label {
+    font-size: var(--vt-chart-data-label-font-size);
+    font-weight: var(--vt-chart-data-label-font-weight);
+    fill: var(--vt-chart-data-label-color);
+    pointer-events: none;
+}
+
+.vt-chart-data-label-on-fill {
+    fill: var(--vt-chart-data-label-on-fill-color);
+}
+
+.vt-chart-data-label-bg {
+    fill: var(--vt-chart-data-label-background);
+}
+
+.vt-chart-series-heatmap .vt-chart-data-label {
+    fill: var(--vt-chart-heatmap-color);
+}
+
+.vt-chart-series-heatmap .vt-chart-data-label-on-fill {
+    fill: var(--vt-chart-heatmap-on-fill-color);
+}
+
+.vt-chart-center-label {
+    font-size: var(--vt-chart-pie-total-label-font-size);
+    fill: var(--vt-chart-pie-total-label-color);
+}
+
+.vt-chart-center-value {
+    font-size: var(--vt-chart-pie-total-value-font-size);
+    font-weight: var(--vt-chart-pie-total-value-font-weight);
+    fill: var(--vt-chart-pie-total-value-color);
+}
+
+.vt-chart-radar-ring,
+.vt-chart-radar-spoke {
+    fill: none;
+    stroke: var(--vt-chart-radar-grid-color);
+}
+
+.vt-chart-radar-ring-filled {
+    stroke: none;
+}
+
+.vt-chart-radar-label,
+.vt-chart-radar-tick {
+    font-size: var(--vt-chart-axis-font-size);
+    fill: var(--vt-chart-axis-color);
+}
+
+/* ---- overlays ---- */
+
+.vt-chart-annotation line,
+.vt-chart-annotation rect {
+    stroke: var(--vt-chart-annotation-line-color);
+}
+
+.vt-chart-annotation-yrange rect,
+.vt-chart-annotation-xrange rect {
+    stroke: none;
+    fill: var(--vt-chart-annotation-fill-color);
+}
+
+.vt-chart-annotation-point circle {
+    fill: var(--vt-chart-annotation-point-color);
+    stroke: var(--vt-chart-marker-stroke-color);
+}
+
+.vt-chart-annotation-label {
+    font-size: var(--vt-chart-annotation-label-font-size);
+    fill: var(--vt-chart-annotation-label-color);
+}
+
+.vt-chart-annotation-label-box {
+    fill: var(--vt-chart-annotation-label-background);
+    stroke: var(--vt-chart-annotation-label-border-color);
+}
+
+.vt-chart-crosshair {
+    stroke: var(--vt-chart-crosshair-color);
+    stroke-width: var(--vt-chart-crosshair-width);
+    stroke-dasharray: var(--vt-chart-crosshair-dash);
+    pointer-events: none;
+    shape-rendering: crispEdges;
+}
+
+.vt-chart-crosshair-band {
+    fill: var(--vt-chart-crosshair-band-color);
+    pointer-events: none;
+}
+
+.vt-chart-selection {
+    fill: var(--vt-chart-selection-background);
+    stroke: var(--vt-chart-selection-border-color);
+    stroke-width: 1;
+}
+
+.vt-chart-brush-shade {
+    fill: var(--vt-chart-brush-shade);
+    pointer-events: none;
+}
+
+.vt-chart-brush-handle {
+    fill: var(--vt-chart-brush-handle-color);
+    cursor: ew-resize;
+}
+
+.vt-chart-focus-ring {
+    fill: none;
+    stroke: var(--vt-chart-focus-ring-color);
+    stroke-width: var(--vt-chart-focus-ring-width);
+    pointer-events: none;
+}
+
+.vt-chart-no-data {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vt-chart-no-data-color);
+    font-size: var(--vt-chart-no-data-font-size);
+}
+
+/* ---- tooltip ---- */
+
+.vt-chart-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-chart-tooltip-gap);
+    min-width: 7rem;
+    max-width: 18rem;
+    padding: var(--vt-chart-tooltip-padding);
+    border: 1px solid var(--vt-chart-tooltip-border-color);
+    border-radius: var(--vt-chart-tooltip-border-radius);
+    background: var(--vt-chart-tooltip-background);
+    box-shadow: var(--vt-chart-tooltip-shadow);
+    color: var(--vt-chart-tooltip-color);
+    font-size: var(--vt-chart-tooltip-font-size);
+    line-height: 1.35;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.vt-chart-tooltip-title {
+    font-weight: var(--vt-chart-tooltip-title-font-weight);
+}
+
+.vt-chart-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.vt-chart-tooltip-swatch {
+    flex: none;
+    width: var(--vt-chart-tooltip-swatch-size);
+    height: var(--vt-chart-tooltip-swatch-size);
+    border-radius: var(--vt-chart-tooltip-swatch-radius);
+}
+
+.vt-chart-tooltip-name {
+    flex: 1 1 auto;
+    color: var(--vt-chart-tooltip-muted-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-chart-tooltip-value {
+    font-weight: var(--vt-chart-tooltip-value-font-weight);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- legend ---- */
+
+.vt-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--vt-chart-legend-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--vt-chart-legend-font-size);
+    color: var(--vt-chart-legend-color);
+}
+
+.vt-chart-legend-align-left {
+    justify-content: flex-start;
+}
+
+.vt-chart-legend-align-right {
+    justify-content: flex-end;
+}
+
+.vt-chart-legend-left,
+.vt-chart-legend-right {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    max-width: 40%;
+    overflow-y: auto;
+}
+
+.vt-chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: var(--vt-chart-legend-item-padding);
+    border: 0;
+    border-radius: var(--vt-chart-legend-item-radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    transition: opacity var(--vt-chart-transition-duration);
+}
+
+.vt-chart-legend-interactive {
+    cursor: pointer;
+}
+
+.vt-chart-legend-interactive:hover {
+    background: var(--vt-chart-legend-hover-background);
+}
+
+.vt-chart-legend-hidden {
+    opacity: var(--vt-chart-legend-hidden-opacity);
+}
+
+.vt-chart-legend-hidden .vt-chart-legend-text {
+    text-decoration: line-through;
+}
+
+.vt-chart-legend-item.vt-chart-dim {
+    opacity: var(--vt-chart-legend-dim-opacity);
+}
+
+.vt-chart-legend-marker {
+    flex: none;
+    width: var(--vt-chart-legend-marker-size);
+    height: var(--vt-chart-legend-marker-size);
+    border-radius: var(--vt-chart-legend-marker-radius);
+}
+
+.vt-chart-legend-marker-circle {
+    border-radius: 50%;
+}
+
+.vt-chart-legend-marker-diamond {
+    rotate: 45deg;
+    scale: 0.8;
+}
+
+/* ---- motion ---- */
+
+@keyframes vt-chart-reveal {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes vt-chart-rise {
+    from {
+        transform: scale(1, 0);
+    }
+}
+
+@keyframes vt-chart-rise-x {
+    from {
+        transform: scale(0, 1);
+    }
+}
+
+@keyframes vt-chart-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+}
+
+.vt-chart-animated .vt-chart-series-line,
+.vt-chart-animated .vt-chart-series-points {
+    animation: vt-chart-reveal var(--vt-chart-animation-duration) ease-out;
+}
+
+.vt-chart-animated .vt-chart-series-bar,
+.vt-chart-animated .vt-chart-series-bar-horizontal,
+.vt-chart-animated .vt-chart-series-candle {
+    transform-origin: var(--vt-chart-origin, center bottom);
+    animation: vt-chart-rise var(--vt-chart-animation-duration) ease-out;
+}
+
+.vt-chart-animated .vt-chart-series-bar-horizontal {
+    animation-name: vt-chart-rise-x;
+}
+
+.vt-chart-animated .vt-chart-series-pie,
+.vt-chart-animated .vt-chart-series-radar,
+.vt-chart-animated .vt-chart-series-heatmap {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: vt-chart-pop var(--vt-chart-animation-duration) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-chart *,
+    .vt-chart-animated * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

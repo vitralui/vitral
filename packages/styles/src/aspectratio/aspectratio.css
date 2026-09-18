@@ -1,0 +1,21 @@
+.vt-aspectratio {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--vt-aspectratio-border-radius);
+}
+
+/* What goes inside fills the box: an image or a video is cropped to it. */
+.vt-aspectratio > * {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.vt-aspectratio > img,
+.vt-aspectratio > video,
+.vt-aspectratio > iframe {
+    object-fit: cover;
+    border: 0;
+}

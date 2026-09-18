@@ -1,0 +1,80 @@
+/* The label starts over the field and lifts out of it once the field holds a
+   value or the focus. Which state the field is in is read from the control
+   itself — :placeholder-shown, :focus, [data-vt-filled] — so the wrapper needs
+   no JavaScript and no props. */
+.vt-floatlabel {
+    display: block;
+    position: relative;
+}
+
+.vt-floatlabel > label {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: var(--vt-floatlabel-position-x);
+    transform: translateY(-50%);
+    transform-origin: 0 center;
+    pointer-events: none;
+    line-height: 1;
+    color: var(--vt-floatlabel-color);
+    transition:
+        transform var(--vt-floatlabel-transition-duration) ease,
+        font-size var(--vt-floatlabel-transition-duration) ease,
+        color var(--vt-floatlabel-transition-duration) ease;
+}
+
+/* Lifted: the field has focus, holds a value, or is a control that always
+   shows one (a select, a date picker — they carry data-vt-filled). */
+.vt-floatlabel:focus-within > label,
+.vt-floatlabel-filled > label,
+.vt-floatlabel:has(.vt-field-input:not(:placeholder-shown)) > label,
+.vt-floatlabel:has([data-vt-filled='true']) > label {
+    transform: translateY(-50%) scale(0.85);
+    font-size: var(--vt-floatlabel-active-font-size);
+}
+
+.vt-floatlabel-over:focus-within > label,
+.vt-floatlabel-over.vt-floatlabel-filled > label,
+.vt-floatlabel-over:has(.vt-field-input:not(:placeholder-shown)) > label,
+.vt-floatlabel-over:has([data-vt-filled='true']) > label {
+    top: 0;
+    padding: 0 0.25rem;
+    margin-inline-start: -0.25rem;
+    background: var(--vt-floatlabel-active-background);
+}
+
+.vt-floatlabel-in:focus-within > label,
+.vt-floatlabel-in.vt-floatlabel-filled > label,
+.vt-floatlabel-in:has(.vt-field-input:not(:placeholder-shown)) > label,
+.vt-floatlabel-in:has([data-vt-filled='true']) > label {
+    top: 0.5rem;
+    transform: none;
+}
+
+.vt-floatlabel-on:focus-within > label,
+.vt-floatlabel-on.vt-floatlabel-filled > label,
+.vt-floatlabel-on:has(.vt-field-input:not(:placeholder-shown)) > label,
+.vt-floatlabel-on:has([data-vt-filled='true']) > label {
+    top: 0;
+    padding: 0 0.25rem;
+    background: var(--vt-floatlabel-active-background);
+}
+
+.vt-floatlabel:focus-within > label {
+    color: var(--vt-floatlabel-focus-color);
+}
+
+.vt-floatlabel-invalid > label {
+    color: var(--vt-floatlabel-invalid-color);
+}
+
+/* The field's own placeholder would sit under the label; it only shows once
+   the label has moved out of the way. */
+.vt-floatlabel:not(:focus-within) .vt-field-input::placeholder {
+    color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-floatlabel > label {
+        transition: none;
+    }
+}

@@ -1,0 +1,162 @@
+.vt-tabs {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.vt-tabs-vertical {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+/* Holds the tab strip and the indicator, which is measured against it. */
+.vt-tabs-tablist {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    padding: var(--vt-tabs-tablist-padding);
+    border-bottom: var(--vt-tabs-tablist-border-width) solid var(--vt-tabs-tablist-border-color);
+}
+
+.vt-tabs-tablist-vertical {
+    flex-direction: column;
+    border-bottom: 0;
+    border-inline-end: var(--vt-tabs-tablist-border-width) solid var(--vt-tabs-tablist-border-color);
+}
+
+.vt-tabs-list {
+    display: flex;
+    gap: var(--vt-tabs-tablist-gap);
+    min-width: 0;
+}
+
+.vt-tabs-list-vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.vt-tabs-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: var(--vt-tabs-tab-padding);
+    font: inherit;
+    font-weight: var(--vt-tabs-tab-font-weight);
+    color: var(--vt-tabs-tab-color);
+    white-space: nowrap;
+    background: var(--vt-tabs-tab-background);
+    border: 0;
+    border-radius: var(--vt-tabs-tab-border-radius);
+    cursor: pointer;
+    user-select: none;
+    transition:
+        color var(--vt-transition-duration),
+        background-color var(--vt-transition-duration);
+}
+
+.vt-tabs-list-vertical .vt-tabs-tab {
+    justify-content: flex-start;
+}
+
+.vt-tabs-tab:not(:disabled):hover {
+    color: var(--vt-tabs-tab-hover-color);
+    background: var(--vt-tabs-tab-hover-background);
+}
+
+.vt-tabs-tab-selected,
+.vt-tabs-tab-selected:not(:disabled):hover {
+    color: var(--vt-tabs-tab-active-color);
+}
+
+.vt-tabs-tab-selected {
+    background: var(--vt-tabs-tab-active-background);
+}
+
+.vt-tabs-tab:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-tabs-tab:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+/*
+ * The indicator spans the selected tab's box (placed by script) and draws a
+ * pill of the token width centred in it, so a preset can choose a short pill
+ * or a full underline without touching the script.
+ */
+.vt-tabs-indicator {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    height: var(--vt-tabs-indicator-thickness);
+    pointer-events: none;
+}
+
+.vt-tabs-indicator::after {
+    content: '';
+    width: var(--vt-tabs-indicator-width);
+    max-width: 100%;
+    height: 100%;
+    background: var(--vt-tabs-indicator-color);
+    border-radius: var(--vt-tabs-indicator-border-radius);
+}
+
+.vt-tabs-indicator-vertical {
+    top: 0;
+    bottom: auto;
+    flex-direction: column;
+    justify-content: center;
+    width: var(--vt-tabs-indicator-thickness);
+    height: auto;
+}
+
+.vt-tabs-indicator-vertical::after {
+    width: 100%;
+    height: var(--vt-tabs-indicator-width);
+    max-height: 100%;
+}
+
+.vt-tabs-indicator-hidden {
+    visibility: hidden;
+}
+
+.vt-tabs-indicator-animated {
+    transition:
+        transform var(--vt-tabs-indicator-duration) cubic-bezier(0.1, 0.9, 0.2, 1),
+        width var(--vt-tabs-indicator-duration) cubic-bezier(0.1, 0.9, 0.2, 1),
+        height var(--vt-tabs-indicator-duration) cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.vt-tabs-panels {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.vt-tabs-panel {
+    padding: var(--vt-tabs-tabpanel-padding);
+    color: var(--vt-tabs-tabpanel-color);
+}
+
+.vt-tabs-vertical .vt-tabs-panel {
+    padding: var(--vt-tabs-tabpanel-vertical-padding);
+}
+
+.vt-tabs-panel:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tabs-tab,
+    .vt-tabs-indicator-animated {
+        transition: none;
+    }
+}

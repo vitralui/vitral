@@ -1,0 +1,155 @@
+/* ---- the text box ------------------------------------------------------ */
+
+.vt-datepicker {
+    gap: var(--vt-datepicker-gap);
+    padding-inline-end: calc(var(--vt-form-field-padding-x) - 0.375rem);
+    cursor: text;
+}
+
+.vt-datepicker.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-datepicker-dropdown {
+    padding: 0.25rem;
+    color: var(--vt-datepicker-dropdown-color);
+}
+
+.vt-datepicker-dropdown:hover {
+    color: var(--vt-datepicker-dropdown-hover-color);
+}
+
+.vt-datepicker-dropdown:disabled {
+    color: inherit;
+    cursor: default;
+}
+
+/* ---- the calendar ------------------------------------------------------ */
+
+.vt-datepicker-panel {
+    display: inline-flex;
+    flex-direction: column;
+    padding: var(--vt-datepicker-panel-padding);
+    outline: none;
+}
+
+.vt-datepicker-inline {
+    box-shadow: none;
+}
+
+.vt-datepicker-inline.vt-datepicker-disabled {
+    opacity: var(--vt-disabled-opacity);
+    pointer-events: none;
+}
+
+.vt-datepicker-header {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-datepicker-header-gap);
+    padding: var(--vt-datepicker-header-padding);
+}
+
+.vt-datepicker-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: var(--vt-datepicker-header-font-size);
+    font-weight: var(--vt-datepicker-header-font-weight);
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.vt-datepicker-grid {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: var(--vt-datepicker-day-gap);
+    margin-inline: calc(var(--vt-datepicker-day-gap) * -1);
+}
+
+.vt-datepicker-weekday {
+    width: var(--vt-datepicker-day-size);
+    height: var(--vt-datepicker-weekday-height);
+    padding: 0;
+    font-size: var(--vt-datepicker-weekday-font-size);
+    font-weight: var(--vt-datepicker-weekday-font-weight);
+    color: var(--vt-datepicker-weekday-color);
+    text-align: center;
+}
+
+.vt-datepicker-day {
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+}
+
+.vt-datepicker-day-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--vt-datepicker-day-size);
+    height: var(--vt-datepicker-day-size);
+    color: var(--vt-datepicker-day-color);
+    border: 1px solid transparent;
+    border-radius: var(--vt-datepicker-day-border-radius);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    transition:
+        background-color var(--vt-datepicker-day-transition-duration),
+        color var(--vt-datepicker-day-transition-duration);
+}
+
+.vt-datepicker-day:not(.vt-datepicker-day-disabled):hover .vt-datepicker-day-label {
+    background: var(--vt-datepicker-day-hover-background);
+}
+
+.vt-datepicker-day-other-month .vt-datepicker-day-label {
+    color: var(--vt-datepicker-day-other-month-color);
+}
+
+.vt-datepicker-day-today .vt-datepicker-day-label {
+    color: var(--vt-datepicker-day-today-color);
+    border-color: var(--vt-datepicker-day-today-border-color);
+    font-weight: var(--vt-datepicker-day-today-font-weight);
+}
+
+.vt-datepicker-day-selected .vt-datepicker-day-label,
+.vt-datepicker-day-selected:not(.vt-datepicker-day-disabled):hover .vt-datepicker-day-label {
+    color: var(--vt-datepicker-day-selected-color);
+    background: var(--vt-datepicker-day-selected-background);
+    border-color: var(--vt-datepicker-day-selected-background);
+}
+
+.vt-datepicker-day-selected:not(.vt-datepicker-day-disabled):hover .vt-datepicker-day-label {
+    background: var(--vt-datepicker-day-selected-hover-background);
+}
+
+.vt-datepicker-day-disabled {
+    cursor: default;
+}
+
+.vt-datepicker-day-disabled .vt-datepicker-day-label {
+    opacity: var(--vt-disabled-opacity);
+    text-decoration: line-through;
+}
+
+.vt-datepicker-day:focus-visible .vt-datepicker-day-label {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-datepicker-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vt-datepicker-footer-gap);
+    margin-top: 0.25rem;
+    padding: var(--vt-datepicker-footer-padding);
+    border-top: 1px solid var(--vt-datepicker-footer-border-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-datepicker-day-label {
+        transition: none;
+    }
+}

@@ -1,0 +1,85 @@
+.vt-listbox {
+    display: inline-flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 14rem;
+    color: var(--vt-listbox-color);
+    background: var(--vt-listbox-background);
+    border: var(--vt-listbox-border-width) solid var(--vt-listbox-border-color);
+    border-radius: var(--vt-listbox-border-radius);
+    overflow: hidden;
+    transition: border-color var(--vt-listbox-transition-duration);
+}
+
+.vt-listbox:not(.vt-listbox-disabled):hover {
+    border-color: var(--vt-listbox-hover-border-color);
+}
+
+.vt-listbox-invalid,
+.vt-listbox-invalid:not(.vt-listbox-disabled):hover {
+    border-color: var(--vt-listbox-invalid-border-color);
+}
+
+/* Focus sits on the list inside; the ring goes round the whole box. */
+.vt-listbox:has(.vt-listbox-list:focus-visible) {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-listbox-disabled {
+    color: var(--vt-listbox-disabled-color);
+    background: var(--vt-listbox-disabled-background);
+}
+
+.vt-listbox-disabled .vt-option {
+    cursor: default;
+}
+
+.vt-listbox-fluid {
+    display: flex;
+    width: 100%;
+}
+
+.vt-listbox-header {
+    padding: var(--vt-listbox-header-padding);
+}
+
+.vt-listbox-filter {
+    margin: var(--vt-listbox-filter-margin);
+}
+
+.vt-listbox-list {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+/* Options keep their height and the list scrolls, rather than squeezing them to fit its max-height. */
+.vt-listbox-list > li {
+    flex-shrink: 0;
+}
+
+.vt-listbox-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-list-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-listbox-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-listbox-option-check {
+    color: var(--vt-listbox-checkmark-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-listbox {
+        transition: none;
+    }
+}

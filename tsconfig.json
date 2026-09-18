@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vitral/core": ["packages/core/src/index.ts"],
+      "@vitral/themes": ["packages/themes/src/index.ts"],
+      "@vitral/styles": ["packages/styles/src/index.ts"],
+      "@vitral/forms": ["packages/forms/src/index.ts"],
+      "@vitral/chart": ["packages/chart/src/index.ts"],
+      "@vitral/chart/engine": ["packages/chart/src/engine/index.ts"],
+      "@vitral/chart/style": ["packages/chart/src/style/index.ts"],
+      "@vitral/icons": ["packages/icons/src/index.ts"],
+      "@vitral/icons/registry": ["packages/icons/src/registry.ts"],
+      "@vitral/vue": ["packages/vue/src/index.ts"],
+      "@vitral/vue/manifest": ["packages/vue/src/components/manifest.ts"],
+      "@vitral/vue/resolver": ["packages/vue/src/resolver.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*", "apps/*/src/**/*", "*.ts", "scripts/**/*.ts"]
+}

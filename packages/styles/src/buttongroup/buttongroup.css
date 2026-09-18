@@ -1,0 +1,50 @@
+.vt-buttongroup {
+    display: inline-flex;
+    align-items: stretch;
+    vertical-align: middle;
+}
+
+.vt-buttongroup-vertical {
+    flex-direction: column;
+}
+
+.vt-buttongroup > .vt-button {
+    border-radius: 0;
+}
+
+.vt-buttongroup:not(.vt-buttongroup-vertical) > .vt-button:first-child {
+    border-start-start-radius: var(--vt-buttongroup-border-radius);
+    border-end-start-radius: var(--vt-buttongroup-border-radius);
+}
+
+.vt-buttongroup:not(.vt-buttongroup-vertical) > .vt-button:last-child {
+    border-start-end-radius: var(--vt-buttongroup-border-radius);
+    border-end-end-radius: var(--vt-buttongroup-border-radius);
+}
+
+.vt-buttongroup-vertical > .vt-button:first-child {
+    border-start-start-radius: var(--vt-buttongroup-border-radius);
+    border-start-end-radius: var(--vt-buttongroup-border-radius);
+}
+
+.vt-buttongroup-vertical > .vt-button:last-child {
+    border-end-start-radius: var(--vt-buttongroup-border-radius);
+    border-end-end-radius: var(--vt-buttongroup-border-radius);
+}
+
+/* Neighbours share one border; filled ones get a hairline instead. */
+.vt-buttongroup:not(.vt-buttongroup-vertical) > .vt-button + .vt-button {
+    margin-inline-start: -1px;
+    box-shadow: inset 1px 0 0 var(--vt-buttongroup-divider-color);
+}
+
+.vt-buttongroup-vertical > .vt-button + .vt-button {
+    margin-block-start: -1px;
+    box-shadow: inset 0 1px 0 var(--vt-buttongroup-divider-color);
+}
+
+.vt-buttongroup > .vt-button:hover,
+.vt-buttongroup > .vt-button:focus-visible {
+    position: relative;
+    z-index: 1;
+}

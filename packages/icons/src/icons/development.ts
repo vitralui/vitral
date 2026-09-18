@@ -1,0 +1,37 @@
+// Development: code, terminals, version control, data and infrastructure.
+// Drawn on the 24×24 grid: 2-unit round strokes, no fill, about 2 units of margin.
+import type { IconDef } from '../types';
+
+const category = 'development';
+
+export const terminal: IconDef = { name: 'terminal', category, tags: ['console', 'shell', 'command line', 'cli'], body: '<rect x="2" y="3" width="20" height="18" rx="2"/><path d="M6 9l3 3-3 3M12 15h6"/>' };
+export const squareTerminal: IconDef = { name: 'squareTerminal', category, tags: ['console', 'prompt'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>' };
+export const code: IconDef = { name: 'code', category, tags: ['source', 'brackets', 'html', 'programming'], body: '<path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/>' };
+export const codeXml: IconDef = { name: 'codeXml', category, tags: ['markup', 'tags', 'html'], body: '<path d="M7 7l-5 5 5 5M17 7l5 5-5 5M14 4l-4 16"/>' };
+export const braces: IconDef = { name: 'braces', category, tags: ['curly brackets', 'json', 'object'], body: '<path d="M8 3H7a2 2 0 0 0-2 2v4a3 3 0 0 1-2 3 3 3 0 0 1 2 3v4a2 2 0 0 0 2 2h1M16 3h1a2 2 0 0 1 2 2v4a3 3 0 0 0 2 3 3 3 0 0 0-2 3v4a2 2 0 0 1-2 2h-1"/>' };
+export const brackets: IconDef = { name: 'brackets', category, tags: ['square brackets', 'array', 'list'], body: '<path d="M8 3H5v18h3M16 3h3v18h-3"/>' };
+export const variable: IconDef = { name: 'variable', category, tags: ['function', 'math', 'x'], body: '<path d="M7 3C4 6 4 18 7 21M17 3c3 3 3 15 0 18M9 9l6 6M15 9l-6 6"/>' };
+export const functionSquare: IconDef = { name: 'functionSquare', category, tags: ['function', 'formula', 'f'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17c2 0 2.5-1 3-3.5L13.5 8c.4-1.6 1-2 2.5-2M9 11h6"/>' };
+export const gitBranch: IconDef = { name: 'gitBranch', category, tags: ['version control', 'branch'], body: '<circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 3v12M18 9a9 9 0 0 1-9 9"/>' };
+export const gitCommit: IconDef = { name: 'gitCommit', category, tags: ['version control', 'commit', 'save point'], body: '<circle cx="12" cy="12" r="4"/><path d="M2 12h6M16 12h6"/>' };
+export const gitMerge: IconDef = { name: 'gitMerge', category, tags: ['version control', 'merge', 'combine'], body: '<circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v12M6 9a9 9 0 0 0 9 9"/>' };
+export const gitPullRequest: IconDef = { name: 'gitPullRequest', category, tags: ['version control', 'review', 'pr'], body: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v6M18 15V8a2 2 0 0 0-2-2h-4M14 3.5L11.5 6 14 8.5"/>' };
+export const gitFork: IconDef = { name: 'gitFork', category, tags: ['version control', 'fork', 'copy'], body: '<circle cx="6" cy="5" r="2.5"/><circle cx="18" cy="5" r="2.5"/><circle cx="12" cy="19" r="2.5"/><path d="M6 7.5V9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.5M12 11v5.5"/>' };
+export const gitCompare: IconDef = { name: 'gitCompare', category, tags: ['diff', 'compare', 'version control'], body: '<circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v6a3 3 0 0 0 3 3h3M18 15V9a3 3 0 0 0-3-3h-3M14.5 15.5L12 18l2.5 2.5M9.5 3.5L12 6 9.5 8.5"/>' };
+export const bug: IconDef = { name: 'bug', category, tags: ['error', 'issue', 'debug', 'insect'], body: '<path d="M8 8.5V8a4 4 0 0 1 8 0v.5M7 9h10a1 1 0 0 1 1 1v4a6 6 0 0 1-12 0v-4a1 1 0 0 1 1-1zM12 20v-9M3 13h3M18 13h3M4 7l2.5 2.5M20 7l-2.5 2.5M4 20l2.5-2.5M20 20l-2.5-2.5"/>' };
+export const database: IconDef = { name: 'database', category, tags: ['storage', 'sql', 'data'], body: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>' };
+export const databaseZap: IconDef = { name: 'databaseZap', category, tags: ['cache', 'fast database'], body: '<ellipse cx="11" cy="5" rx="7" ry="3"/><path d="M4 5v14c0 1.66 3.13 3 7 3M18 5v4M4 12c0 1.66 3.13 3 7 3M20 11l-3 5h4l-3 5"/>' };
+export const server2: IconDef = { name: 'server2', category, tags: ['hosting', 'datacenter', 'stack'], body: '<rect x="3" y="2" width="18" height="6" rx="2"/><rect x="3" y="9" width="18" height="6" rx="2"/><rect x="3" y="16" width="18" height="6" rx="2"/><path d="M7 5h.01M7 12h.01M7 19h.01"/>' };
+export const cloudUpload: IconDef = { name: 'cloudUpload', category, tags: ['sync', 'backup', 'upload'], body: '<path d="M7.5 18A5 5 0 0 1 6.1 8.1 6.5 6.5 0 0 1 18.5 8.5 4.8 4.8 0 0 1 18 18M12 12v9M9 15l3-3 3 3"/>' };
+export const cloudDownload: IconDef = { name: 'cloudDownload', category, tags: ['sync', 'restore', 'download'], body: '<path d="M7.5 16A5 5 0 0 1 6.1 6.1 6.5 6.5 0 0 1 18.5 6.5 4.8 4.8 0 0 1 18 16M12 11v10M9 18l3 3 3-3"/>' };
+export const cloudOff: IconDef = { name: 'cloudOff', category, tags: ['offline', 'disconnected'], body: '<path d="M6 9.1A5 5 0 0 0 7 19h10.5M20.5 17.5A4.8 4.8 0 0 0 18.5 9.5 6.5 6.5 0 0 0 9 5.2M3 3l18 18"/>' };
+export const api: IconDef = { name: 'api', category, tags: ['endpoint', 'integration', 'webhook'], body: '<path d="M5 16l2.5-8 2.5 8M5.8 13.5h3.4M13 16V8h2a2 2 0 0 1 0 4h-2M20 8v8"/>' };
+export const webhook: IconDef = { name: 'webhook', category, tags: ['hook', 'callback', 'event'], body: '<circle cx="12" cy="6" r="2.5"/><circle cx="5.5" cy="17" r="2.5"/><circle cx="18.5" cy="17" r="2.5"/><path d="M10.8 8.2L7 14.8M13.2 8.2L17 14.8M8 17h8"/>' };
+export const npmPackage: IconDef = { name: 'npmPackage', category, tags: ['module', 'dependency', 'library', 'box'], body: '<path d="M12 2.5l8.5 4.75v9.5L12 21.5l-8.5-4.75v-9.5zM3.5 7.25L12 12l8.5-4.75M12 12v9.5M7.75 4.9l8.5 4.7"/>' };
+export const blocks: IconDef = { name: 'blocks', category, tags: ['components', 'modules', 'lego'], body: '<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="M17.5 2l4.5 4.5-4.5 4.5L13 6.5z"/>' };
+export const workflow: IconDef = { name: 'workflow', category, tags: ['pipeline', 'automation', 'flow'], body: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><path d="M6.5 10v4a3 3 0 0 0 3 3H14"/>' };
+export const network: IconDef = { name: 'network', category, tags: ['topology', 'nodes', 'lan'], body: '<rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M5 16v-3h14v3M12 8v5"/>' };
+export const binary: IconDef = { name: 'binary', category, tags: ['bits', 'code', 'zeros ones'], body: '<rect x="4" y="3" width="4" height="7" rx="2"/><rect x="16" y="14" width="4" height="7" rx="2"/><path d="M14 3h2v7M14 10h4M6 14h2v7M4 21h6"/>' };
+export const regex: IconDef = { name: 'regex', category, tags: ['pattern', 'regular expression', 'search'], body: '<path d="M17 3v10M12.7 5.5l8.6 5M12.7 10.5l8.6-5"/><rect x="3" y="15" width="6" height="6" rx="1"/>' };
+export const scanCode: IconDef = { name: 'scanCode', category, tags: ['barcode scanner', 'qr', 'read'], body: '<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M10 9l-2 3 2 3M14 9l2 3-2 3"/>' };
+export const robot: IconDef = { name: 'robot', category, tags: ['bot', 'ai', 'automation'], body: '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 13v1M15 13v1M2 13v3M22 13v3M10 17h4"/><circle cx="12" cy="3" r="1"/>' };

@@ -1,0 +1,37 @@
+.vt-blockui {
+    position: relative;
+}
+
+.vt-blockui-mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vt-blockui-color);
+    background: var(--vt-blockui-background);
+    border-radius: var(--vt-blockui-border-radius);
+    outline: none;
+}
+
+.vt-blockui-mask-fullscreen {
+    position: fixed;
+    border-radius: 0;
+}
+
+.vt-blockui-enter-active,
+.vt-blockui-leave-active {
+    transition: opacity var(--vt-blockui-transition-duration);
+}
+
+.vt-blockui-enter-from,
+.vt-blockui-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-blockui-enter-active,
+    .vt-blockui-leave-active {
+        transition: none;
+    }
+}

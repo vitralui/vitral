@@ -1,0 +1,33 @@
+{
+  "name": "vitral-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.12.1",
+  "pnpm": {
+    "overrides": {
+      "typescript": "~5.9.3"
+    }
+  },
+  "scripts": {
+    "dev": "pnpm --filter docs dev",
+    "dev:playground": "pnpm --filter playground dev",
+    "dev:nuxt": "pnpm --filter nuxt-playground dev",
+    "gen": "node scripts/gen-index.mjs",
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "check:nuxt": "node scripts/check-nuxt.mjs",
+    "build": "pnpm gen && pnpm -r --filter \"./packages/*\" build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.0",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vue/test-utils": "^2.5.0",
+    "axe-core": "^4.13.0",
+    "jsdom": "^30.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1",
+    "vue": "^3.5.42",
+    "vue-tsc": "^3.3.11"
+  }
+}

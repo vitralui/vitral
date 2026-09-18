@@ -1,0 +1,113 @@
+.vt-panel {
+    box-sizing: border-box;
+    color: var(--vt-panel-color);
+    background: var(--vt-panel-background);
+    border: var(--vt-panel-border-width) solid var(--vt-panel-border-color);
+    border-radius: var(--vt-panel-border-radius);
+}
+
+.vt-panel-header {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-panel-header-gap);
+    box-sizing: border-box;
+    min-height: var(--vt-panel-header-min-height);
+    padding: var(--vt-panel-header-padding);
+    color: var(--vt-panel-header-color);
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+    transition: background-color var(--vt-transition-duration);
+}
+
+.vt-panel-collapsed > .vt-panel-header {
+    border-radius: inherit;
+}
+
+.vt-panel-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: var(--vt-panel-title-font-weight);
+}
+
+/* An Expander: the whole header is the button, so the button carries the header's padding. */
+.vt-panel-toggleable > .vt-panel-header {
+    padding: 0;
+    padding-inline-end: var(--vt-panel-header-gap);
+}
+
+.vt-panel-toggleable > .vt-panel-header:hover {
+    background: var(--vt-panel-header-hover-background);
+}
+
+.vt-panel-toggle {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--vt-panel-header-gap);
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: var(--vt-panel-header-min-height);
+    margin: 0;
+    padding: var(--vt-panel-header-padding);
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    background: transparent;
+    border: 0;
+    border-radius: inherit;
+    cursor: pointer;
+}
+
+.vt-panel-toggle:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-panel-toggle-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--vt-panel-toggle-icon-color);
+    transition: transform var(--vt-panel-collapse-duration) ease;
+}
+
+.vt-panel-toggle:hover .vt-panel-toggle-icon {
+    color: var(--vt-panel-toggle-icon-hover-color);
+}
+
+.vt-panel-toggle-icon-open {
+    transform: rotate(180deg);
+}
+
+.vt-panel-icons {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.vt-panel-header + .vt-panel-content-container {
+    border-top: var(--vt-panel-border-width) solid var(--vt-panel-content-border-color);
+}
+
+.vt-panel-content {
+    padding: var(--vt-panel-content-padding);
+}
+
+.vt-panel-footer {
+    padding: var(--vt-panel-footer-padding);
+}
+
+.vt-panel-collapse-enter-active,
+.vt-panel-collapse-leave-active {
+    overflow: hidden;
+    transition: height var(--vt-panel-collapse-duration) cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-panel-header,
+    .vt-panel-toggle-icon,
+    .vt-panel-collapse-enter-active,
+    .vt-panel-collapse-leave-active {
+        transition: none;
+    }
+}

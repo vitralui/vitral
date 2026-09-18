@@ -1,0 +1,61 @@
+.vt-terminal {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-terminal-gap);
+    height: var(--vt-terminal-height);
+    padding: var(--vt-terminal-padding);
+    overflow: auto;
+    font-family: var(--vt-terminal-font-family);
+    font-size: var(--vt-terminal-font-size);
+    color: var(--vt-terminal-color);
+    background: var(--vt-terminal-background);
+    border: 1px solid var(--vt-terminal-border-color);
+    border-radius: var(--vt-terminal-border-radius);
+    cursor: text;
+}
+
+.vt-terminal-log {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-terminal-gap);
+}
+
+.vt-terminal-entry,
+.vt-terminal-response,
+.vt-terminal-welcome {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.vt-terminal-response {
+    color: var(--vt-terminal-response-color);
+}
+
+.vt-terminal-prompt {
+    color: var(--vt-terminal-prompt-color);
+    user-select: none;
+}
+
+.vt-terminal-line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--vt-terminal-prompt-gap);
+}
+
+.vt-terminal-entry .vt-terminal-prompt {
+    margin-inline-end: var(--vt-terminal-prompt-gap);
+}
+
+.vt-terminal-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    outline: none;
+}

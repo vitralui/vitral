@@ -1,0 +1,47 @@
+.vt-confirmdialog-body {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-confirmdialog-body-gap);
+}
+
+.vt-confirmdialog-icon {
+    width: var(--vt-confirmdialog-icon-size);
+    height: var(--vt-confirmdialog-icon-size);
+    flex-shrink: 0;
+    color: var(--vt-confirmdialog-icon-color);
+}
+
+.vt-confirmdialog-icon-primary {
+    color: var(--vt-primary-color);
+}
+
+.vt-confirmdialog-icon-success {
+    color: var(--vt-success-subtle-color);
+}
+
+.vt-confirmdialog-icon-info {
+    color: var(--vt-info-subtle-color);
+}
+
+.vt-confirmdialog-icon-warn {
+    color: var(--vt-warn-subtle-color);
+}
+
+.vt-confirmdialog-icon-danger {
+    color: var(--vt-danger-subtle-color);
+}
+
+.vt-confirmdialog-icon-help {
+    color: var(--vt-help-subtle-color);
+}
+
+.vt-confirmdialog-icon-contrast {
+    color: var(--vt-contrast-color);
+}
+
+.vt-confirmdialog-message {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    align-self: center;
+}

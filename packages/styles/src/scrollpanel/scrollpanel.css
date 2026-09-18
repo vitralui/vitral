@@ -1,0 +1,79 @@
+.vt-scrollpanel {
+    position: relative;
+    overflow: hidden;
+}
+
+/* The native bars are hidden; the content still scrolls natively, by wheel, touch and keys. */
+.vt-scrollpanel-content {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    scrollbar-width: none;
+    outline: none;
+}
+
+.vt-scrollpanel-content::-webkit-scrollbar {
+    display: none;
+}
+
+.vt-scrollpanel-content:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-scrollpanel-bar {
+    position: absolute;
+    z-index: 1;
+    background: var(--vt-scrollpanel-bar-track-background);
+    opacity: 0;
+    transition: opacity var(--vt-scrollpanel-bar-transition-duration);
+}
+
+.vt-scrollpanel:hover .vt-scrollpanel-bar,
+.vt-scrollpanel:focus-within .vt-scrollpanel-bar,
+.vt-scrollpanel-bar-active {
+    opacity: 1;
+}
+
+.vt-scrollpanel-bar-y {
+    top: var(--vt-scrollpanel-bar-gap);
+    bottom: var(--vt-scrollpanel-bar-gap);
+    inset-inline-end: var(--vt-scrollpanel-bar-gap);
+    width: var(--vt-scrollpanel-bar-size);
+}
+
+.vt-scrollpanel-bar-x {
+    inset-inline: var(--vt-scrollpanel-bar-gap);
+    bottom: var(--vt-scrollpanel-bar-gap);
+    height: var(--vt-scrollpanel-bar-size);
+}
+
+.vt-scrollpanel-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--vt-scrollpanel-bar-background);
+    border-radius: var(--vt-scrollpanel-bar-border-radius);
+    cursor: pointer;
+    touch-action: none;
+}
+
+.vt-scrollpanel-bar-y .vt-scrollpanel-thumb {
+    width: 100%;
+}
+
+.vt-scrollpanel-bar-x .vt-scrollpanel-thumb {
+    height: 100%;
+}
+
+.vt-scrollpanel-thumb:hover,
+.vt-scrollpanel-bar-active .vt-scrollpanel-thumb {
+    background: var(--vt-scrollpanel-bar-hover-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-scrollpanel-bar {
+        transition: none;
+    }
+}

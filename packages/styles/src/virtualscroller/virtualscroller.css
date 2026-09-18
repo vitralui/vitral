@@ -1,0 +1,64 @@
+.vt-virtualscroller {
+    position: relative;
+    overflow: auto;
+    contain: strict;
+    border-radius: var(--vt-virtualscroller-border-radius);
+    outline: none;
+}
+
+.vt-virtualscroller:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-virtualscroller-inline {
+    contain: none;
+    overflow: visible;
+}
+
+/* The spacer is as long as every item together; it is what the scrollbar measures. */
+.vt-virtualscroller-spacer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.vt-virtualscroller-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    will-change: transform;
+}
+
+.vt-virtualscroller-horizontal .vt-virtualscroller-content {
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+}
+
+.vt-virtualscroller-inline .vt-virtualscroller-content {
+    position: static;
+}
+
+.vt-virtualscroller-loader {
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--vt-virtualscroller-loader-color);
+    background: var(--vt-virtualscroller-loader-background);
+}
+
+.vt-virtualscroller-loader .vt-icon {
+    width: var(--vt-virtualscroller-loader-icon-size);
+    height: var(--vt-virtualscroller-loader-icon-size);
+}

@@ -1,0 +1,24 @@
+.vt-inputtext {
+    gap: var(--vt-inputtext-gap);
+    cursor: text;
+}
+
+.vt-inputtext.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-inputtext-prefix,
+.vt-inputtext-suffix {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--vt-form-field-icon-color);
+}
+
+.vt-inputtext-clear {
+    color: var(--vt-inputtext-clear-icon-color);
+}
+
+.vt-inputtext-clear:hover {
+    color: var(--vt-inputtext-clear-icon-hover-color);
+}

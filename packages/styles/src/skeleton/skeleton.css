@@ -1,0 +1,37 @@
+/* The shape of what is loading. The sweep is a gradient moved across the box;
+   it is decorative, and it stops when the system asks for less motion. */
+.vt-skeleton {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 1rem;
+    background: var(--vt-skeleton-background);
+    border-radius: var(--vt-skeleton-border-radius);
+}
+
+.vt-skeleton-circle {
+    border-radius: 50%;
+}
+
+.vt-skeleton-animated::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--vt-skeleton-highlight), transparent);
+    animation: vt-skeleton-sweep var(--vt-skeleton-animation-duration) ease-in-out infinite;
+}
+
+@keyframes vt-skeleton-sweep {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-skeleton-animated::after {
+        animation: none;
+        display: none;
+    }
+}

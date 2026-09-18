@@ -1,0 +1,9 @@
+/*
+ * The grid, its named areas and which region sits in which area are inline
+ * styles computed from the slots present and `dockOrder`, so a DockPanel lays
+ * out the same unstyled; the classes are hooks for application CSS.
+ */
+.vt-dockpanel {
+    box-sizing: border-box;
+    min-width: 0;
+}

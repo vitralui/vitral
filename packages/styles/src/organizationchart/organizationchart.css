@@ -1,0 +1,139 @@
+/*
+ * The chart is a nested list. Each child draws the top line towards its
+ * siblings with ::before and ::after, and each group draws the line down from
+ * its parent — the classic CSS family tree, so the lines follow any width.
+ */
+.vt-organizationchart {
+    overflow: auto;
+    padding: 0.25rem;
+}
+
+.vt-organizationchart-root,
+.vt-organizationchart-group {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-organizationchart-group {
+    position: relative;
+    padding-top: var(--vt-organizationchart-connector-height);
+}
+
+.vt-organizationchart-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: var(--vt-organizationchart-connector-height);
+    border-left: 1px solid var(--vt-organizationchart-connector-color);
+}
+
+.vt-organizationchart-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--vt-organizationchart-connector-height) calc(var(--vt-organizationchart-gap) / 2) 0;
+    outline: none;
+}
+
+.vt-organizationchart-root > .vt-organizationchart-item {
+    padding-top: 0;
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item::before,
+.vt-organizationchart-group > .vt-organizationchart-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    width: 50%;
+    height: var(--vt-organizationchart-connector-height);
+    border-top: 1px solid var(--vt-organizationchart-connector-color);
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item::after {
+    right: auto;
+    left: 50%;
+    border-left: 1px solid var(--vt-organizationchart-connector-color);
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item:only-child::before {
+    display: none;
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item:only-child::after {
+    border-top: 0;
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item:first-child::before,
+.vt-organizationchart-group > .vt-organizationchart-item:last-child::after {
+    border: 0;
+}
+
+.vt-organizationchart-group > .vt-organizationchart-item:last-child::before {
+    border-right: 1px solid var(--vt-organizationchart-connector-color);
+}
+
+.vt-organizationchart-node {
+    position: relative;
+    box-sizing: border-box;
+    padding: var(--vt-organizationchart-node-padding);
+    color: var(--vt-organizationchart-node-color);
+    text-align: center;
+    background: var(--vt-organizationchart-node-background);
+    border: 1px solid var(--vt-organizationchart-node-border-color);
+    border-radius: var(--vt-organizationchart-node-border-radius);
+    transition: background-color var(--vt-organizationchart-node-transition-duration);
+}
+
+.vt-organizationchart-node-selectable {
+    cursor: pointer;
+}
+
+.vt-organizationchart-node-selectable:hover {
+    background: var(--vt-organizationchart-node-hover-background);
+}
+
+.vt-organizationchart-node-selected,
+.vt-organizationchart-node-selected:hover {
+    color: var(--vt-organizationchart-node-selected-color);
+    background: var(--vt-organizationchart-node-selected-background);
+}
+
+.vt-organizationchart-item:focus-visible > .vt-organizationchart-node {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-organizationchart-toggler {
+    position: absolute;
+    bottom: calc(var(--vt-organizationchart-toggler-size) / -2);
+    left: 50%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-organizationchart-toggler-size);
+    height: var(--vt-organizationchart-toggler-size);
+    color: var(--vt-organizationchart-toggler-color);
+    background: var(--vt-organizationchart-toggler-background);
+    border: 1px solid var(--vt-organizationchart-toggler-border-color);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+}
+
+.vt-organizationchart-toggler .vt-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-organizationchart-node {
+        transition: none;
+    }
+}

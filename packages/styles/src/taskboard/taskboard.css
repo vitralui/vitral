@@ -1,0 +1,332 @@
+/*
+ * A board: one CSS grid whose columns are the board's columns. A column is its
+ * header cell, one cell per lane and a footer cell, stacked in the same grid
+ * column and drawn as one tinted track; lane headers span the whole row.
+ */
+.vt-taskboard {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: auto;
+    padding: var(--vt-taskboard-padding);
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    color: var(--vt-text-color);
+}
+
+.vt-taskboard-grid {
+    display: grid;
+    column-gap: var(--vt-taskboard-gap);
+    align-items: stretch;
+    width: max-content;
+    min-width: 100%;
+}
+
+.vt-taskboard-disabled {
+    opacity: var(--vt-disabled-opacity);
+}
+
+.vt-taskboard-dragging,
+.vt-taskboard-dragging * {
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+/* ---- the column track ---- */
+
+.vt-taskboard-header,
+.vt-taskboard-cell,
+.vt-taskboard-footer {
+    box-sizing: border-box;
+    min-width: 0;
+    background: var(--vt-taskboard-column-background);
+    border: var(--vt-taskboard-column-border-width) solid var(--vt-taskboard-column-border-color);
+    transition:
+        background-color var(--vt-taskboard-transition-duration),
+        border-color var(--vt-taskboard-transition-duration),
+        opacity var(--vt-taskboard-transition-duration);
+}
+
+.vt-taskboard-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-taskboard-header-gap);
+    padding: var(--vt-taskboard-header-padding);
+    border-bottom: 0;
+    border-radius: var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius) 0 0;
+    font-size: var(--vt-taskboard-header-font-size);
+    font-weight: var(--vt-taskboard-header-font-weight);
+    color: var(--vt-taskboard-header-color);
+    overflow: hidden;
+}
+
+.vt-taskboard-accent {
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--vt-taskboard-column-accent-width);
+}
+
+.vt-taskboard-cell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-taskboard-list-gap);
+    padding: 0 var(--vt-taskboard-column-padding) var(--vt-taskboard-column-padding);
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.vt-taskboard-footer {
+    padding: var(--vt-taskboard-footer-padding);
+    border-top: 0;
+    border-radius: 0 0 var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius);
+    min-height: var(--vt-taskboard-column-padding);
+}
+
+.vt-taskboard-drop {
+    background: var(--vt-taskboard-column-drop-background);
+    border-color: var(--vt-taskboard-column-drop-border-color);
+}
+
+.vt-taskboard-refused {
+    border-color: var(--vt-taskboard-column-refused-border-color);
+}
+
+.vt-taskboard-column-dragging {
+    opacity: var(--vt-taskboard-column-dragging-opacity);
+}
+
+.vt-taskboard-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vt-taskboard-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: var(--vt-taskboard-count-min-width);
+    padding: var(--vt-taskboard-count-padding);
+    border-radius: var(--vt-taskboard-count-border-radius);
+    font-size: var(--vt-taskboard-count-font-size);
+    font-weight: var(--vt-taskboard-count-font-weight);
+    background: var(--vt-taskboard-count-background);
+    color: var(--vt-taskboard-count-color);
+    white-space: nowrap;
+}
+
+.vt-taskboard-count-at {
+    background: var(--vt-taskboard-count-at-background);
+    color: var(--vt-taskboard-count-at-color);
+}
+
+.vt-taskboard-count-over {
+    background: var(--vt-taskboard-count-over-background);
+    color: var(--vt-taskboard-count-over-color);
+}
+
+.vt-taskboard-handle,
+.vt-taskboard-toggle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-taskboard-handle-size);
+    height: var(--vt-taskboard-handle-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--vt-taskboard-handle-border-radius);
+    background: transparent;
+    color: var(--vt-taskboard-handle-color);
+    font: inherit;
+    cursor: pointer;
+}
+
+.vt-taskboard-handle {
+    cursor: grab;
+    touch-action: none;
+}
+
+.vt-taskboard-handle:hover,
+.vt-taskboard-toggle:hover,
+.vt-taskboard-handle-grabbed {
+    color: var(--vt-taskboard-handle-hover-color);
+    background: var(--vt-taskboard-handle-hover-background);
+}
+
+.vt-taskboard-handle:focus-visible,
+.vt-taskboard-toggle:focus-visible,
+.vt-taskboard-card:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-taskboard-handle:disabled {
+    cursor: default;
+    opacity: var(--vt-disabled-opacity);
+}
+
+/* A collapsed column is a narrow strip with its title running down it. */
+.vt-taskboard-header.vt-taskboard-collapsed {
+    flex-direction: column;
+    padding-inline: 0;
+}
+
+.vt-taskboard-header.vt-taskboard-collapsed .vt-taskboard-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.vt-taskboard-strip {
+    align-self: center;
+    writing-mode: vertical-rl;
+    padding-block: var(--vt-taskboard-column-padding);
+    font-size: var(--vt-taskboard-header-font-size);
+    font-weight: var(--vt-taskboard-header-font-weight);
+    color: var(--vt-taskboard-header-color);
+    white-space: nowrap;
+}
+
+.vt-taskboard-header.vt-taskboard-collapsed .vt-taskboard-handle {
+    display: none;
+}
+
+.vt-taskboard-cell.vt-taskboard-collapsed {
+    padding-inline: 0;
+}
+
+/* ---- lanes ---- */
+
+.vt-taskboard-lane {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-taskboard-lane-gap);
+    padding: var(--vt-taskboard-lane-padding);
+    font-size: var(--vt-taskboard-lane-font-size);
+    font-weight: var(--vt-taskboard-lane-font-weight);
+    color: var(--vt-taskboard-lane-color);
+    border-top: 1px solid var(--vt-taskboard-lane-border-color);
+    position: sticky;
+    left: 0;
+}
+
+.vt-taskboard-lane-title {
+    white-space: nowrap;
+}
+
+.vt-taskboard-lane-count {
+    font-weight: normal;
+}
+
+/* ---- cards ---- */
+
+.vt-taskboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-taskboard-list-gap);
+    min-height: var(--vt-taskboard-list-min-height);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+}
+
+.vt-taskboard-collapsed .vt-taskboard-list {
+    min-height: var(--vt-taskboard-list-min-height);
+}
+
+.vt-taskboard-card {
+    position: relative;
+    box-sizing: border-box;
+    padding: var(--vt-taskboard-card-padding);
+    border: var(--vt-taskboard-card-border-width) solid var(--vt-taskboard-card-border-color);
+    border-radius: var(--vt-taskboard-card-border-radius);
+    background: var(--vt-taskboard-card-background);
+    color: var(--vt-taskboard-card-color);
+    font-size: var(--vt-taskboard-card-font-size);
+    box-shadow: var(--vt-taskboard-card-shadow);
+    transition:
+        border-color var(--vt-taskboard-transition-duration),
+        box-shadow var(--vt-taskboard-transition-duration),
+        opacity var(--vt-taskboard-transition-duration);
+}
+
+.vt-taskboard-card-draggable {
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.vt-taskboard-card:hover {
+    border-color: var(--vt-taskboard-card-hover-border-color);
+}
+
+.vt-taskboard-card-grabbed {
+    border-color: var(--vt-taskboard-card-grabbed-border-color);
+    box-shadow: var(--vt-taskboard-card-grabbed-shadow);
+}
+
+.vt-taskboard-card-dragging:not(.vt-taskboard-card-grabbed) {
+    opacity: var(--vt-taskboard-card-dragging-opacity);
+    border-style: dashed;
+    box-shadow: none;
+}
+
+.vt-taskboard-card-disabled {
+    opacity: var(--vt-taskboard-card-disabled-opacity);
+    cursor: default;
+}
+
+.vt-taskboard-card-title {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.vt-taskboard-lock {
+    float: right;
+    margin-inline-start: 0.25rem;
+    color: var(--vt-taskboard-card-locked-icon-color);
+}
+
+.vt-taskboard-empty {
+    padding: var(--vt-taskboard-empty-padding);
+    border: 1px dashed var(--vt-taskboard-empty-border-color);
+    border-radius: var(--vt-taskboard-empty-border-radius);
+    color: var(--vt-taskboard-empty-color);
+    font-size: var(--vt-taskboard-empty-font-size);
+    text-align: center;
+}
+
+.vt-taskboard-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    background: var(--vt-taskboard-preview-background);
+    box-shadow: var(--vt-taskboard-preview-shadow);
+    opacity: var(--vt-taskboard-preview-opacity);
+    rotate: var(--vt-taskboard-preview-rotate);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-taskboard-header,
+    .vt-taskboard-cell,
+    .vt-taskboard-footer,
+    .vt-taskboard-card {
+        transition: none;
+    }
+
+    .vt-taskboard-preview {
+        rotate: none;
+    }
+}

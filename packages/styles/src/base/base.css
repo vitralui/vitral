@@ -1,0 +1,365 @@
+/*
+ * Shared chrome. Every component builds on these instead of restyling the same
+ * thing: a text box, a select and a date picker are one `.vt-field`; a select's
+ * panel and an autocomplete's are one `.vt-overlay` holding `.vt-option`s.
+ * Changing the look of "a field" is then one edit, and one set of tokens.
+ */
+
+.vt-app {
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    color: var(--vt-text-color);
+    background: var(--vt-app-background);
+    -webkit-font-smoothing: antialiased;
+}
+
+.vt-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* An overlay scope's host lets presses through to the page under it, but not
+   past the popups it holds. */
+.vt-overlay-host > * {
+    pointer-events: auto;
+}
+
+/* A Button used as a close or remove control takes the same shape as the
+   built-in ones; the doubled class outranks the button's own radius. */
+.vt-button.vt-icon-button {
+    border-radius: var(--vt-icon-button-border-radius);
+}
+
+.vt-icon {
+    display: inline-block;
+    width: var(--vt-icon-size);
+    height: var(--vt-icon-size);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+/*
+ * The stroke comes from the theme, in units of the 24×24 drawing grid. It is
+ * declared without specificity so a part that wants a heavier mark (a checkbox's
+ * tick) overrides it by class, and an instance's `stroke-width` style beats both.
+ */
+:where(svg.vt-icon) {
+    stroke-width: var(--vt-icon-stroke-width, 2);
+}
+
+/* SVG markup handed in as a string fills the icon box. */
+.vt-icon-markup > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/*
+ * A spinning icon turns on its own compositor layer, about its centre: without
+ * that, an inline SVG is re-rasterised at a slightly different sub-pixel spot
+ * every frame and visibly wobbles. The doubled class outranks a part's own
+ * `transition: transform` (a tree toggler's), which would otherwise fight the
+ * animation for the same property.
+ */
+.vt-icon.vt-icon-spin {
+    transform-origin: 50% 50%;
+    will-change: transform;
+    backface-visibility: hidden;
+    transition: none;
+    animation: vt-spin 0.9s linear infinite;
+}
+
+@keyframes vt-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---- field ------------------------------------------------------------ */
+
+.vt-field {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    min-height: var(--vt-control-min-height);
+    padding: 0 var(--vt-form-field-padding-x);
+    font: inherit;
+    color: var(--vt-form-field-color);
+    background: var(--vt-form-field-background);
+    border: var(--vt-form-field-border-width) solid var(--vt-form-field-border-color);
+    border-radius: var(--vt-form-field-border-radius);
+    box-shadow: var(--vt-form-field-shadow);
+    transition:
+        background-color var(--vt-form-field-transition-duration),
+        border-color var(--vt-form-field-transition-duration),
+        box-shadow var(--vt-form-field-transition-duration);
+}
+
+.vt-field:not(.vt-field-disabled):hover {
+    background: var(--vt-form-field-hover-background);
+    border-color: var(--vt-form-field-hover-border-color);
+}
+
+.vt-field:not(.vt-field-disabled):focus-within,
+.vt-field.vt-field-focus {
+    background: var(--vt-form-field-focus-background);
+    border-color: var(--vt-form-field-focus-border-color);
+    box-shadow: var(--vt-form-field-focus-shadow);
+}
+
+.vt-field-filled {
+    background: var(--vt-form-field-filled-background);
+}
+
+.vt-field-filled:not(.vt-field-disabled):hover {
+    background: var(--vt-form-field-filled-hover-background);
+}
+
+.vt-field-filled:not(.vt-field-disabled):focus-within,
+.vt-field-filled.vt-field-focus {
+    background: var(--vt-form-field-filled-focus-background);
+}
+
+.vt-field-invalid,
+.vt-field-invalid:not(.vt-field-disabled):hover,
+.vt-field-invalid:not(.vt-field-disabled):focus-within {
+    border-color: var(--vt-form-field-invalid-border-color);
+}
+
+.vt-field-disabled {
+    background: var(--vt-form-field-disabled-background);
+    color: var(--vt-form-field-disabled-color);
+    box-shadow: none;
+    cursor: default;
+}
+
+.vt-field-sm {
+    min-height: var(--vt-control-sm-min-height);
+    padding-inline: var(--vt-form-field-sm-padding-x);
+    font-size: var(--vt-form-field-sm-font-size);
+}
+
+.vt-field-lg {
+    min-height: var(--vt-control-lg-min-height);
+    padding-inline: var(--vt-form-field-lg-padding-x);
+    font-size: var(--vt-form-field-lg-font-size);
+}
+
+.vt-field-fluid {
+    display: flex;
+    width: 100%;
+}
+
+/* The native control inside a field: no chrome of its own, the field draws it. */
+.vt-field-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: var(--vt-form-field-padding-y) 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    appearance: none;
+}
+
+.vt-field-sm .vt-field-input {
+    padding-block: var(--vt-form-field-sm-padding-y);
+}
+
+.vt-field-lg .vt-field-input {
+    padding-block: var(--vt-form-field-lg-padding-y);
+}
+
+.vt-field-input::placeholder {
+    color: var(--vt-form-field-placeholder-color);
+    opacity: 1;
+}
+
+.vt-field-invalid .vt-field-input::placeholder {
+    color: var(--vt-form-field-invalid-placeholder-color);
+}
+
+.vt-field-input:disabled {
+    cursor: default;
+}
+
+/* An icon button that lives inside a field: clear, reveal, spin. */
+.vt-field-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.125rem;
+    margin: 0;
+    color: var(--vt-form-field-icon-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-icon-button-border-radius);
+    cursor: pointer;
+}
+
+.vt-field-button:hover {
+    color: var(--vt-text-color);
+}
+
+.vt-field-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+/* ---- overlay panel ---------------------------------------------------- */
+
+.vt-overlay {
+    box-sizing: border-box;
+    color: var(--vt-overlay-select-color);
+    background: var(--vt-overlay-select-background);
+    border: 1px solid var(--vt-overlay-select-border-color);
+    border-radius: var(--vt-overlay-select-border-radius);
+    box-shadow: var(--vt-overlay-select-shadow);
+    font-family: inherit;
+    overflow: hidden;
+}
+
+.vt-overlay-enter-active,
+.vt-overlay-leave-active {
+    transition:
+        opacity 0.12s ease-out,
+        transform 0.12s ease-out;
+}
+
+.vt-overlay-enter-from,
+.vt-overlay-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.vt-overlay[data-placement^='top'].vt-overlay-enter-from,
+.vt-overlay[data-placement^='top'].vt-overlay-leave-to {
+    transform: translateY(4px);
+}
+
+/* ---- option list ------------------------------------------------------ */
+
+.vt-option-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-list-gap);
+    margin: 0;
+    padding: var(--vt-list-padding);
+    list-style: none;
+    outline: none;
+}
+
+/* Options keep their height inside a scrolling list; the list scrolls, they do not shrink. */
+.vt-option,
+.vt-option-group {
+    flex-shrink: 0;
+}
+
+.vt-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--vt-list-option-padding);
+    color: var(--vt-list-option-color);
+    border-radius: var(--vt-list-option-border-radius);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-option-focused {
+    color: var(--vt-list-option-focus-color);
+    background: var(--vt-list-option-focus-background);
+}
+
+.vt-option-selected {
+    color: var(--vt-list-option-selected-color);
+    background: var(--vt-list-option-selected-background);
+}
+
+.vt-option-selected.vt-option-focused {
+    color: var(--vt-list-option-selected-focus-color);
+    background: var(--vt-list-option-selected-focus-background);
+}
+
+/* The selection pill; transparent in presets that do not draw one. */
+.vt-option-selected::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 1rem;
+    border-radius: 3px;
+    background: var(--vt-list-option-selected-indicator);
+    transform: translateY(-50%);
+}
+
+.vt-option-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-option-group {
+    padding: var(--vt-list-option-group-padding);
+    font-weight: var(--vt-list-option-group-font-weight);
+    color: var(--vt-list-option-group-color);
+    background: var(--vt-list-option-group-background);
+    cursor: default;
+}
+
+.vt-option-empty {
+    padding: var(--vt-list-option-padding);
+    color: var(--vt-text-muted-color);
+    cursor: default;
+}
+
+/* ---- modal mask ------------------------------------------------------- */
+
+.vt-mask {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-mask-background);
+}
+
+.vt-fade-enter-active,
+.vt-fade-leave-active {
+    transition: opacity 0.15s ease-out;
+}
+
+.vt-fade-enter-from,
+.vt-fade-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-overlay-enter-active,
+    .vt-overlay-leave-active,
+    .vt-fade-enter-active,
+    .vt-fade-leave-active {
+        transition: none;
+    }
+
+    .vt-icon.vt-icon-spin {
+        animation-duration: 2.4s;
+    }
+}

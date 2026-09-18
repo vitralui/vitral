@@ -1,0 +1,250 @@
+.vt-treetable {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--vt-treetable-color);
+    background: var(--vt-treetable-background);
+    border: 1px solid var(--vt-treetable-border-color);
+    border-radius: var(--vt-treetable-border-radius);
+    overflow: hidden;
+}
+
+.vt-treetable-header,
+.vt-treetable-footer {
+    padding: var(--vt-treetable-header-padding);
+}
+
+.vt-treetable-header {
+    border-bottom: 1px solid var(--vt-treetable-header-border-color);
+}
+
+.vt-treetable-footer {
+    border-top: 1px solid var(--vt-treetable-header-border-color);
+}
+
+.vt-treetable-table-container {
+    min-width: 0;
+    overflow: auto;
+}
+
+.vt-treetable-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font: inherit;
+    color: inherit;
+}
+
+.vt-treetable-scrollable .vt-treetable-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.vt-treetable-scrollable .vt-treetable-header-cell {
+    background: var(--vt-treetable-header-cell-sticky-background);
+}
+
+.vt-treetable-header-cell {
+    padding: var(--vt-treetable-header-cell-padding);
+    font-weight: var(--vt-treetable-header-cell-font-weight);
+    text-align: start;
+    white-space: nowrap;
+    color: var(--vt-treetable-header-cell-color);
+    background: var(--vt-treetable-header-cell-background);
+    border-bottom: 1px solid var(--vt-treetable-header-cell-border-color);
+}
+
+.vt-treetable-sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-treetable-header-cell-gap);
+    margin: -0.25rem -0.375rem;
+    padding: 0.25rem 0.375rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+}
+
+.vt-treetable-sort-button:hover {
+    color: var(--vt-treetable-header-cell-hover-color);
+    background: var(--vt-treetable-header-cell-hover-background);
+}
+
+.vt-treetable-sort-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-treetable-sort-icon {
+    color: var(--vt-treetable-sort-icon-color);
+}
+
+.vt-treetable-sort-icon-active {
+    color: var(--vt-treetable-sort-icon-active-color);
+}
+
+.vt-treetable-row {
+    outline: none;
+    transition: background-color var(--vt-treetable-transition-duration);
+}
+
+.vt-treetable-striped .vt-treetable-row:nth-child(even) {
+    background: var(--vt-treetable-row-striped-background);
+}
+
+.vt-treetable-row-selectable {
+    cursor: pointer;
+}
+
+.vt-treetable-row:hover {
+    background: var(--vt-treetable-row-hover-background);
+}
+
+.vt-treetable-row-selected,
+.vt-treetable-row-selected:hover {
+    color: var(--vt-treetable-row-selected-color);
+    background: var(--vt-treetable-row-selected-background);
+}
+
+.vt-treetable-row:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-treetable-body-cell {
+    padding: var(--vt-treetable-body-cell-padding);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--vt-treetable-body-cell-border-color);
+}
+
+.vt-treetable-sm .vt-treetable-body-cell {
+    padding: var(--vt-treetable-body-cell-sm-padding);
+}
+
+.vt-treetable-lg .vt-treetable-body-cell {
+    padding: var(--vt-treetable-body-cell-lg-padding);
+}
+
+.vt-treetable-gridlines .vt-treetable-body-cell + .vt-treetable-body-cell,
+.vt-treetable-gridlines .vt-treetable-header-cell + .vt-treetable-header-cell {
+    border-inline-start: 1px solid var(--vt-treetable-body-cell-border-color);
+}
+
+.vt-treetable-tbody > .vt-treetable-row:last-child > .vt-treetable-body-cell {
+    border-bottom: 0;
+}
+
+.vt-treetable-align-center {
+    text-align: center;
+}
+
+.vt-treetable-align-right {
+    text-align: end;
+}
+
+/* The expander cell: indent, toggle, box, then the value. */
+.vt-treetable-node {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-inline-start: calc(var(--_depth, 0) * var(--vt-treetable-toggler-indent));
+}
+
+.vt-treetable-toggler {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-treetable-toggler-size);
+    height: var(--vt-treetable-toggler-size);
+    color: var(--vt-treetable-toggler-color);
+    border-radius: var(--vt-treetable-toggler-border-radius);
+    cursor: pointer;
+}
+
+.vt-treetable-toggler:hover {
+    color: var(--vt-treetable-toggler-hover-color);
+    background: var(--vt-treetable-toggler-hover-background);
+}
+
+.vt-treetable-toggler-leaf {
+    visibility: hidden;
+}
+
+.vt-treetable-toggler-icon {
+    transition: transform var(--vt-treetable-transition-duration);
+}
+
+.vt-treetable-toggler-open .vt-treetable-toggler-icon {
+    transform: rotate(90deg);
+}
+
+.vt-treetable-toggler-icon:dir(rtl) {
+    transform: scaleX(-1);
+}
+
+.vt-treetable-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--vt-treetable-checkbox-size);
+    height: var(--vt-treetable-checkbox-size);
+    margin-inline-end: 0.25rem;
+    color: var(--vt-treetable-checkbox-checked-color);
+    background: var(--vt-treetable-checkbox-background);
+    border: 1px solid var(--vt-treetable-checkbox-border-color);
+    border-radius: var(--vt-treetable-checkbox-border-radius);
+}
+
+.vt-treetable-checkbox-on {
+    background: var(--vt-treetable-checkbox-checked-background);
+    border-color: var(--vt-treetable-checkbox-checked-border-color);
+}
+
+.vt-treetable-checkbox .vt-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    stroke-width: 3;
+}
+
+.vt-treetable-empty-cell {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: var(--vt-treetable-header-cell-color);
+}
+
+.vt-treetable-paginator {
+    border: 0;
+    border-top: 1px solid var(--vt-treetable-border-color);
+    border-radius: 0;
+}
+
+.vt-treetable-loading-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-treetable-loading-mask-background);
+}
+
+.vt-treetable-loading-mask .vt-icon {
+    width: var(--vt-treetable-loading-mask-icon-size);
+    height: var(--vt-treetable-loading-mask-icon-size);
+    color: var(--vt-treetable-loading-mask-icon-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-treetable-row,
+    .vt-treetable-toggler-icon {
+        transition: none;
+    }
+}

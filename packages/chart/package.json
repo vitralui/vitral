@@ -1,0 +1,38 @@
+{
+  "name": "@vitral/chart",
+  "version": "0.1.0",
+  "description": "Framework-free SVG charts for Vitral: the engine (scales, scenes, formats, the options schema) and a DOM renderer with interaction and accessibility, which the Vue, React and Angular components wrap.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./engine": {
+      "types": "./dist/engine/index.d.ts",
+      "import": "./dist/engine/index.js"
+    },
+    "./style": {
+      "types": "./dist/style/index.d.ts",
+      "import": "./dist/style/index.js"
+    },
+    "./chart.css": "./dist/chart.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node -e \"require('node:fs').copyFileSync('src/style/chart.css','dist/chart.css')\""
+  },
+  "dependencies": {
+    "@vitral/core": "workspace:*",
+    "@vitral/icons": "workspace:*"
+  }
+}

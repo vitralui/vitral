@@ -1,0 +1,370 @@
+.vt-datatable {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--vt-datatable-color);
+    background: var(--vt-datatable-background);
+    border: 1px solid var(--vt-datatable-border-color);
+    border-radius: var(--vt-datatable-border-radius);
+    overflow: hidden;
+}
+
+.vt-datatable-header {
+    padding: var(--vt-datatable-header-padding);
+    color: var(--vt-datatable-header-color);
+    border-bottom: 1px solid var(--vt-datatable-header-border-color);
+}
+
+.vt-datatable-footer {
+    padding: var(--vt-datatable-footer-padding);
+    color: var(--vt-datatable-footer-color);
+    border-top: 1px solid var(--vt-datatable-border-color);
+}
+
+.vt-datatable-table-container {
+    min-width: 0;
+    overflow: auto;
+}
+
+.vt-datatable-flex-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.vt-datatable-table {
+    width: 100%;
+    /* Separate borders, so a sticky header keeps its bottom rule while rows scroll under it. */
+    border-collapse: separate;
+    border-spacing: 0;
+    font: inherit;
+    color: inherit;
+}
+
+.vt-datatable-caption {
+    caption-side: top;
+    padding: var(--vt-datatable-header-padding);
+    font-weight: 600;
+    text-align: start;
+}
+
+/* ---- header ----------------------------------------------------------- */
+
+.vt-datatable-scrollable .vt-datatable-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.vt-datatable-scrollable .vt-datatable-header-cell,
+.vt-datatable-scrollable .vt-datatable-filter-cell {
+    background: var(--vt-datatable-header-cell-sticky-background);
+}
+
+.vt-datatable-header-cell {
+    padding: var(--vt-datatable-header-cell-padding);
+    font-weight: var(--vt-datatable-header-cell-font-weight);
+    text-align: start;
+    white-space: nowrap;
+    vertical-align: middle;
+    color: var(--vt-datatable-header-cell-color);
+    background: var(--vt-datatable-header-cell-background);
+    border-bottom: 1px solid var(--vt-datatable-header-cell-border-color);
+}
+
+.vt-datatable-header-cell-sorted {
+    color: var(--vt-datatable-header-cell-sorted-color);
+}
+
+.vt-datatable-sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-datatable-header-cell-gap);
+    margin: -0.25rem -0.375rem;
+    padding: 0.25rem 0.375rem;
+    font: inherit;
+    font-weight: inherit;
+    color: inherit;
+    text-align: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-datatable-transition-duration),
+        color var(--vt-datatable-transition-duration);
+}
+
+.vt-datatable-sort-button:hover {
+    color: var(--vt-datatable-header-cell-hover-color);
+    background: var(--vt-datatable-header-cell-hover-background);
+}
+
+.vt-datatable-sort-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-datatable-sort-icon {
+    color: var(--vt-datatable-sort-icon-color);
+}
+
+.vt-datatable-sort-icon-active {
+    color: var(--vt-datatable-sort-icon-active-color);
+}
+
+/* An unsorted column shows its sort affordance only when pointed at or focused, as a desktop grid does. */
+.vt-datatable-sort-icon-idle {
+    opacity: 0;
+    transition: opacity var(--vt-datatable-transition-duration);
+}
+
+.vt-datatable-sort-button:hover .vt-datatable-sort-icon-idle,
+.vt-datatable-sort-button:focus-visible .vt-datatable-sort-icon-idle {
+    opacity: 1;
+}
+
+.vt-datatable-sort-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--vt-datatable-sort-badge-size);
+    height: var(--vt-datatable-sort-badge-size);
+    font-size: var(--vt-datatable-sort-badge-font-size);
+    line-height: 1;
+    color: var(--vt-datatable-sort-badge-color);
+    background: var(--vt-datatable-sort-badge-background);
+    border-radius: 999px;
+}
+
+.vt-datatable-filter-cell {
+    padding: var(--vt-datatable-filter-cell-padding);
+    font-weight: normal;
+    vertical-align: middle;
+    background: var(--vt-datatable-header-cell-background);
+    border-bottom: 1px solid var(--vt-datatable-header-cell-border-color);
+}
+
+.vt-datatable-filter-input {
+    width: 100%;
+    min-width: 6rem;
+}
+
+/* ---- body ------------------------------------------------------------- */
+
+.vt-datatable-row {
+    color: var(--vt-datatable-row-color);
+    background: var(--vt-datatable-row-background);
+    transition: background-color var(--vt-datatable-transition-duration);
+}
+
+.vt-datatable-striped .vt-datatable-row:nth-child(even) {
+    background: var(--vt-datatable-row-striped-background);
+}
+
+.vt-datatable-row-selectable {
+    cursor: pointer;
+}
+
+.vt-datatable-row-selectable:hover,
+.vt-datatable-striped .vt-datatable-row-selectable:nth-child(even):hover {
+    background: var(--vt-datatable-row-hover-background);
+}
+
+.vt-datatable-row-selected,
+.vt-datatable-row-selected:hover,
+.vt-datatable-striped .vt-datatable-row-selected:nth-child(even) {
+    color: var(--vt-datatable-row-selected-color);
+    background: var(--vt-datatable-row-selected-background);
+}
+
+.vt-datatable-row:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(-1 * var(--vt-focus-ring-width));
+}
+
+.vt-datatable-body-cell {
+    padding: var(--vt-datatable-body-cell-padding);
+    text-align: start;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--vt-datatable-body-cell-border-color);
+}
+
+.vt-datatable-tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+/* The selection pill at the row's leading edge; transparent in presets that do not draw one. */
+.vt-datatable-row-selected > td:first-child {
+    position: relative;
+}
+
+.vt-datatable-row-selected > td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 1rem;
+    border-radius: 3px;
+    background: var(--vt-datatable-row-selected-indicator);
+    transform: translateY(-50%);
+}
+
+.vt-datatable-align-center {
+    text-align: center;
+}
+
+.vt-datatable-align-right {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-datatable-selection-cell {
+    width: 2.5rem;
+    text-align: center;
+}
+
+.vt-datatable-empty-cell {
+    padding: var(--vt-datatable-body-cell-padding);
+    color: var(--vt-text-muted-color);
+    text-align: center;
+}
+
+/* ---- sizes and grid lines -------------------------------------------- */
+
+.vt-datatable-sm .vt-datatable-body-cell,
+.vt-datatable-sm .vt-datatable-header-cell,
+.vt-datatable-sm .vt-datatable-footer-cell {
+    padding: var(--vt-datatable-body-cell-sm-padding);
+}
+
+.vt-datatable-lg .vt-datatable-body-cell,
+.vt-datatable-lg .vt-datatable-header-cell,
+.vt-datatable-lg .vt-datatable-footer-cell {
+    padding: var(--vt-datatable-body-cell-lg-padding);
+}
+
+.vt-datatable-gridlines .vt-datatable-header-cell,
+.vt-datatable-gridlines .vt-datatable-filter-cell,
+.vt-datatable-gridlines .vt-datatable-body-cell,
+.vt-datatable-gridlines .vt-datatable-footer-cell {
+    border-inline-end: 1px solid var(--vt-datatable-body-cell-border-color);
+}
+
+.vt-datatable-gridlines tr > :last-child {
+    border-inline-end: 0;
+}
+
+.vt-datatable-gridlines .vt-datatable-tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+/* ---- footer ----------------------------------------------------------- */
+
+.vt-datatable-footer-cell {
+    padding: var(--vt-datatable-body-cell-padding);
+    font-weight: var(--vt-datatable-footer-cell-font-weight);
+    text-align: start;
+    color: var(--vt-datatable-footer-cell-color);
+    border-top: 1px solid var(--vt-datatable-border-color);
+}
+
+.vt-datatable-paginator {
+    border-top: 1px solid var(--vt-datatable-border-color);
+    border-radius: 0;
+    background: transparent;
+}
+
+.vt-datatable-paginator-top {
+    border-top: 0;
+    border-bottom: 1px solid var(--vt-datatable-border-color);
+}
+
+/* ---- selection controls ---------------------------------------------- */
+
+.vt-datatable-checkbox {
+    position: relative;
+    display: inline-flex;
+    width: var(--vt-datatable-checkbox-size);
+    height: var(--vt-datatable-checkbox-size);
+    vertical-align: middle;
+}
+
+.vt-datatable-checkbox-input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: var(--vt-datatable-checkbox-background);
+    border: 1px solid var(--vt-datatable-checkbox-border-color);
+    border-radius: var(--vt-datatable-checkbox-border-radius);
+    appearance: none;
+    cursor: pointer;
+    transition:
+        background-color var(--vt-datatable-transition-duration),
+        border-color var(--vt-datatable-transition-duration);
+}
+
+.vt-datatable-checkbox-input[type='radio'] {
+    border-radius: 50%;
+}
+
+.vt-datatable-checkbox-input:hover {
+    border-color: var(--vt-datatable-checkbox-hover-border-color);
+}
+
+.vt-datatable-checkbox-input:checked,
+.vt-datatable-checkbox-input:indeterminate {
+    background: var(--vt-datatable-checkbox-checked-background);
+    border-color: var(--vt-datatable-checkbox-checked-border-color);
+}
+
+/* A checked radio is a ring around a dot of the field colour. */
+.vt-datatable-checkbox-input[type='radio']:checked {
+    box-shadow: inset 0 0 0 0.3rem var(--vt-datatable-checkbox-checked-background);
+    background: var(--vt-datatable-checkbox-checked-color);
+}
+
+.vt-datatable-checkbox-input:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-datatable-checkbox-icon {
+    position: absolute;
+    inset: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin: auto;
+    color: var(--vt-datatable-checkbox-checked-color);
+    stroke-width: 3;
+    pointer-events: none;
+}
+
+/* ---- loading ---------------------------------------------------------- */
+
+.vt-datatable-loading-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-datatable-loading-mask-background);
+}
+
+.vt-datatable-loading-icon {
+    width: var(--vt-datatable-loading-icon-size);
+    height: var(--vt-datatable-loading-icon-size);
+    color: var(--vt-datatable-loading-icon-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-datatable-row,
+    .vt-datatable-sort-button,
+    .vt-datatable-sort-icon-idle,
+    .vt-datatable-checkbox-input {
+        transition: none;
+    }
+}

@@ -1,0 +1,17 @@
+/* Builds on `.vt-overlay` (enter/leave, placement-aware motion) with the popover surface. */
+.vt-popover {
+    max-width: min(var(--vt-popover-max-width), calc(100vw - 1rem));
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    color: var(--vt-popover-color);
+    background: var(--vt-popover-background);
+    border-color: var(--vt-popover-border-color);
+    border-radius: var(--vt-popover-border-radius);
+    box-shadow: var(--vt-popover-shadow);
+    outline: none;
+}
+
+.vt-popover-content {
+    padding: var(--vt-popover-padding);
+}

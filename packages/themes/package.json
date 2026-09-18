@@ -1,0 +1,27 @@
+{
+  "name": "@vitral/themes",
+  "version": "0.1.0",
+  "description": "Design-token engine and presets (Prism, Ink, Avalonia, Simple) for Vitral.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./css/*": "./dist/css/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/build-theme-css.mjs"
+  },
+  "dependencies": {
+    "@vitral/core": "workspace:*"
+  }
+}

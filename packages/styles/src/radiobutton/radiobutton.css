@@ -1,0 +1,132 @@
+/*
+ * A native radio, transparent and laid over a drawn ring: radios that share a
+ * name move with the arrow keys and submit with the form without any script.
+ */
+.vt-radiobutton {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-radiobutton-gap);
+    color: var(--vt-radiobutton-label-color);
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.vt-radiobutton-control {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    width: var(--vt-radiobutton-size);
+    height: var(--vt-radiobutton-size);
+}
+
+.vt-radiobutton-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: inherit;
+    appearance: none;
+}
+
+.vt-radiobutton-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: var(--vt-radiobutton-background);
+    border: var(--vt-radiobutton-border-width) solid var(--vt-radiobutton-border-color);
+    border-radius: 50%;
+    transition:
+        background-color var(--vt-radiobutton-transition-duration),
+        border-color var(--vt-radiobutton-transition-duration);
+}
+
+.vt-radiobutton-dot {
+    width: var(--vt-radiobutton-dot-size);
+    height: var(--vt-radiobutton-dot-size);
+    background: var(--vt-radiobutton-dot-color);
+    border-radius: 50%;
+    transform: scale(0);
+    transition:
+        transform var(--vt-radiobutton-transition-duration),
+        width var(--vt-radiobutton-transition-duration),
+        height var(--vt-radiobutton-transition-duration);
+}
+
+.vt-radiobutton:not(.vt-radiobutton-disabled):hover .vt-radiobutton-box {
+    background: var(--vt-radiobutton-hover-background);
+    border-color: var(--vt-radiobutton-hover-border-color);
+}
+
+.vt-radiobutton-checked .vt-radiobutton-box,
+.vt-radiobutton-checked:not(.vt-radiobutton-disabled):hover .vt-radiobutton-box {
+    background: var(--vt-radiobutton-checked-background);
+    border-color: var(--vt-radiobutton-checked-border-color);
+}
+
+.vt-radiobutton-checked:not(.vt-radiobutton-disabled):hover .vt-radiobutton-box {
+    background: var(--vt-radiobutton-checked-hover-background);
+}
+
+.vt-radiobutton-checked .vt-radiobutton-dot {
+    transform: scale(1);
+}
+
+.vt-radiobutton-checked:not(.vt-radiobutton-disabled):hover .vt-radiobutton-dot {
+    width: var(--vt-radiobutton-dot-hover-size);
+    height: var(--vt-radiobutton-dot-hover-size);
+}
+
+.vt-radiobutton-checked:not(.vt-radiobutton-disabled):active .vt-radiobutton-dot {
+    width: var(--vt-radiobutton-dot-active-size);
+    height: var(--vt-radiobutton-dot-active-size);
+}
+
+.vt-radiobutton-invalid .vt-radiobutton-box,
+.vt-radiobutton-invalid:not(.vt-radiobutton-disabled):hover .vt-radiobutton-box {
+    border-color: var(--vt-radiobutton-invalid-border-color);
+}
+
+.vt-radiobutton-input:focus-visible + .vt-radiobutton-box {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-radiobutton-label {
+    cursor: inherit;
+    user-select: none;
+}
+
+.vt-radiobutton-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-radiobutton-sm {
+    font-size: var(--vt-radiobutton-sm-font-size);
+    --vt-radiobutton-size: var(--vt-radiobutton-sm-size);
+    --vt-radiobutton-dot-size: var(--vt-radiobutton-sm-dot-size);
+    --vt-radiobutton-dot-hover-size: var(--vt-radiobutton-sm-dot-hover-size);
+    --vt-radiobutton-dot-active-size: var(--vt-radiobutton-sm-dot-active-size);
+}
+
+.vt-radiobutton-lg {
+    font-size: var(--vt-radiobutton-lg-font-size);
+    --vt-radiobutton-size: var(--vt-radiobutton-lg-size);
+    --vt-radiobutton-dot-size: var(--vt-radiobutton-lg-dot-size);
+    --vt-radiobutton-dot-hover-size: var(--vt-radiobutton-lg-dot-hover-size);
+    --vt-radiobutton-dot-active-size: var(--vt-radiobutton-lg-dot-active-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-radiobutton-box,
+    .vt-radiobutton-dot {
+        transition: none;
+    }
+}

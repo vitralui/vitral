@@ -1,0 +1,125 @@
+/*
+ * The root is the press target — a control-high band around a thin track, so a
+ * press near the track counts — and pads the track by half a thumb on each end
+ * so a thumb at either end stays inside it.
+ */
+.vt-slider {
+    --_half-thumb: calc(var(--vt-slider-thumb-size) / 2);
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: var(--vt-control-min-height);
+    padding-inline: var(--_half-thumb);
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+.vt-slider-vertical {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    height: var(--vt-slider-vertical-length);
+    min-width: var(--vt-control-min-height);
+    min-height: 0;
+    padding-inline: 0;
+    padding-block: var(--_half-thumb);
+    vertical-align: top;
+}
+
+.vt-slider-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-slider-track {
+    position: relative;
+    flex: 1 1 auto;
+    height: var(--vt-slider-track-size);
+    background: var(--vt-slider-track-background);
+    border-radius: var(--vt-slider-track-border-radius);
+}
+
+.vt-slider-vertical .vt-slider-track {
+    width: var(--vt-slider-track-size);
+    height: auto;
+}
+
+.vt-slider-range {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: var(--vt-slider-range-background);
+    border-radius: inherit;
+}
+
+.vt-slider-vertical .vt-slider-range {
+    top: auto;
+    left: 0;
+    right: 0;
+}
+
+.vt-slider-thumb {
+    position: absolute;
+    top: 50%;
+    box-sizing: border-box;
+    width: var(--vt-slider-thumb-size);
+    height: var(--vt-slider-thumb-size);
+    background: var(--vt-slider-thumb-background);
+    border-radius: var(--vt-slider-thumb-border-radius);
+    box-shadow: var(--vt-slider-thumb-shadow);
+    transform: translate(-50%, -50%);
+    outline: none;
+}
+
+.vt-slider-vertical .vt-slider-thumb {
+    top: auto;
+    left: 50%;
+    transform: translate(-50%, 50%);
+}
+
+/* The accent dot; its size is the thumb's state. */
+.vt-slider-thumb::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--vt-slider-dot-size);
+    height: var(--vt-slider-dot-size);
+    background: var(--vt-slider-dot-color);
+    border-radius: var(--vt-slider-thumb-border-radius);
+    transform: translate(-50%, -50%);
+    transition:
+        width var(--vt-slider-transition-duration) ease-out,
+        height var(--vt-slider-transition-duration) ease-out;
+}
+
+.vt-slider:not(.vt-slider-disabled) .vt-slider-thumb:hover::before {
+    width: var(--vt-slider-dot-hover-size);
+    height: var(--vt-slider-dot-hover-size);
+}
+
+.vt-slider:not(.vt-slider-disabled) .vt-slider-thumb.vt-slider-thumb-active::before {
+    width: var(--vt-slider-dot-active-size);
+    height: var(--vt-slider-dot-active-size);
+}
+
+.vt-slider-thumb:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+/* The thumb being dragged sits above the other when the two meet. */
+.vt-slider-thumb-active,
+.vt-slider-thumb:focus-visible {
+    z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-slider-thumb::before {
+        transition: none;
+    }
+}

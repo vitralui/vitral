@@ -1,0 +1,9 @@
+/*
+ * A StackPanel is pure layout: direction, spacing, alignment and wrapping come
+ * from its props as inline styles, so it lays out the same unstyled. Nothing
+ * here is required; the classes are hooks for application CSS.
+ */
+.vt-stackpanel {
+    box-sizing: border-box;
+    min-width: 0;
+}

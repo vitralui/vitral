@@ -1,0 +1,186 @@
+.vt-drawer-mask {
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.vt-drawer-mask-modeless {
+    background: transparent;
+    pointer-events: none;
+}
+
+.vt-drawer-mask-modeless .vt-drawer {
+    pointer-events: auto;
+}
+
+.vt-drawer-mask-right {
+    justify-content: flex-end;
+}
+
+.vt-drawer-mask-top {
+    align-items: flex-start;
+}
+
+.vt-drawer-mask-bottom {
+    align-items: flex-end;
+}
+
+.vt-drawer {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    max-width: 100%;
+    max-height: 100%;
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    color: var(--vt-drawer-color);
+    background: var(--vt-drawer-background);
+    box-shadow: var(--vt-drawer-shadow);
+    outline: none;
+}
+
+.vt-drawer-left {
+    width: var(--vt-drawer-width);
+    border-inline-end: 1px solid var(--vt-drawer-border-color);
+}
+
+.vt-drawer-right {
+    width: var(--vt-drawer-width);
+    border-inline-start: 1px solid var(--vt-drawer-border-color);
+}
+
+.vt-drawer-top {
+    width: 100%;
+    height: var(--vt-drawer-height);
+    border-bottom: 1px solid var(--vt-drawer-border-color);
+}
+
+.vt-drawer-bottom {
+    width: 100%;
+    height: var(--vt-drawer-height);
+    border-top: 1px solid var(--vt-drawer-border-color);
+}
+
+.vt-drawer-full {
+    width: 100%;
+    height: 100%;
+}
+
+.vt-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vt-drawer-gap);
+    flex-shrink: 0;
+    padding: var(--vt-drawer-padding) var(--vt-drawer-padding) 0;
+}
+
+.vt-drawer-title {
+    min-width: 0;
+    font-size: var(--vt-drawer-title-font-size);
+    font-weight: var(--vt-drawer-title-font-weight);
+    line-height: var(--vt-drawer-title-line-height);
+    overflow-wrap: anywhere;
+}
+
+.vt-drawer-close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-drawer-header-button-size);
+    height: var(--vt-drawer-header-button-size);
+    margin-block: -0.25rem;
+    margin-inline: auto -0.5rem;
+    padding: 0;
+    color: var(--vt-drawer-header-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-drawer-header-button-border-radius);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-drawer-close-button:hover {
+    color: var(--vt-drawer-header-button-hover-color);
+    background: var(--vt-drawer-header-button-hover-background);
+}
+
+.vt-drawer-close-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-drawer-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: var(--vt-drawer-padding);
+    overflow: auto;
+}
+
+.vt-drawer-header ~ .vt-drawer-content {
+    padding-top: var(--vt-drawer-gap);
+}
+
+.vt-drawer-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vt-drawer-footer-gap);
+    flex-shrink: 0;
+    padding: var(--vt-drawer-padding);
+    border-top: 1px solid var(--vt-drawer-footer-border-color);
+}
+
+/* The mask fades while the panel slides in from its edge. */
+.vt-drawer-motion-enter-active,
+.vt-drawer-motion-leave-active {
+    transition: opacity var(--vt-drawer-transition-duration) ease-out;
+}
+
+.vt-drawer-motion-enter-active .vt-drawer,
+.vt-drawer-motion-leave-active .vt-drawer {
+    transition: transform var(--vt-drawer-transition-duration) cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.vt-drawer-motion-enter-from,
+.vt-drawer-motion-leave-to {
+    opacity: 0;
+}
+
+.vt-drawer-motion-enter-from .vt-drawer-left,
+.vt-drawer-motion-leave-to .vt-drawer-left {
+    transform: translateX(-100%);
+}
+
+.vt-drawer-motion-enter-from .vt-drawer-right,
+.vt-drawer-motion-leave-to .vt-drawer-right {
+    transform: translateX(100%);
+}
+
+.vt-drawer-motion-enter-from .vt-drawer-top,
+.vt-drawer-motion-leave-to .vt-drawer-top {
+    transform: translateY(-100%);
+}
+
+.vt-drawer-motion-enter-from .vt-drawer-bottom,
+.vt-drawer-motion-leave-to .vt-drawer-bottom {
+    transform: translateY(100%);
+}
+
+.vt-drawer-motion-enter-from .vt-drawer-full,
+.vt-drawer-motion-leave-to .vt-drawer-full {
+    transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-drawer-motion-enter-active,
+    .vt-drawer-motion-leave-active,
+    .vt-drawer-motion-enter-active .vt-drawer,
+    .vt-drawer-motion-leave-active .vt-drawer,
+    .vt-drawer-close-button {
+        transition: none;
+    }
+}

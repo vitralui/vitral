@@ -1,0 +1,55 @@
+.vt-knob {
+    display: inline-block;
+    line-height: 0;
+    touch-action: none;
+}
+
+.vt-knob-svg {
+    display: block;
+    overflow: visible;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+}
+
+.vt-knob-svg:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-knob-range {
+    fill: none;
+    stroke: var(--vt-knob-range-background);
+    stroke-linecap: round;
+}
+
+.vt-knob-value {
+    fill: none;
+    stroke: var(--vt-knob-value-background);
+    stroke-linecap: round;
+    transition: stroke var(--vt-knob-transition-duration);
+}
+
+.vt-knob-text {
+    fill: var(--vt-knob-text-color);
+    font-size: var(--vt-knob-text-font-size);
+    font-weight: var(--vt-knob-text-font-weight);
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.vt-knob-readonly .vt-knob-svg,
+.vt-knob-disabled .vt-knob-svg {
+    cursor: default;
+}
+
+.vt-knob-disabled {
+    opacity: var(--vt-disabled-opacity);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-knob-value {
+        transition: none;
+    }
+}

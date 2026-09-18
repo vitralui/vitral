@@ -1,0 +1,27 @@
+{
+  "name": "@vitral/icons",
+  "version": "0.1.0",
+  "description": "Framework-agnostic SVG icons for Vitral: an outline set on a 24\u00d724 grid, one named export per icon.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json"
+  }
+}

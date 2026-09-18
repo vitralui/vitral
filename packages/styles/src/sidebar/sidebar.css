@@ -1,0 +1,270 @@
+.vt-sidebar {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-sidebar-gap);
+    width: var(--vt-sidebar-width);
+    height: 100%;
+    padding: var(--vt-sidebar-padding);
+    overflow: hidden;
+    color: var(--vt-sidebar-color);
+    background: var(--vt-sidebar-background);
+    border-inline-end: 1px solid var(--vt-sidebar-border-color);
+    transition: width var(--vt-sidebar-transition-duration);
+}
+
+.vt-sidebar-right {
+    border-inline-end: 0;
+    border-inline-start: 1px solid var(--vt-sidebar-border-color);
+}
+
+.vt-sidebar-collapsed {
+    width: var(--vt-sidebar-collapsed-width);
+}
+
+.vt-sidebar-offcanvas.vt-sidebar-collapsed {
+    width: var(--vt-sidebar-rail-width);
+    padding: 0;
+}
+
+/* The content is one box for inert, not for layout. */
+.vt-sidebar-content {
+    display: contents;
+}
+
+.vt-sidebar-offcanvas.vt-sidebar-collapsed .vt-sidebar-content {
+    display: none;
+}
+
+/* Off the canvas, the strip left along the edge brings the sidebar back. */
+.vt-sidebar-rail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--vt-sidebar-item-icon-color);
+    background: transparent;
+    border: 0;
+    cursor: e-resize;
+}
+
+.vt-sidebar-right .vt-sidebar-rail {
+    cursor: w-resize;
+}
+
+.vt-sidebar-rail:hover {
+    color: var(--vt-sidebar-item-hover-color);
+    background: var(--vt-sidebar-rail-hover-background);
+}
+
+.vt-sidebar-rail:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-sidebar-rail .vt-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.vt-sidebar-right .vt-sidebar-rail .vt-icon,
+.vt-sidebar-rail .vt-icon:dir(rtl) {
+    transform: scaleX(-1);
+}
+
+/* In a drawer, the drawer draws the column. */
+.vt-sidebar-in-drawer {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.vt-sidebar-header,
+.vt-sidebar-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-sidebar-gap);
+    min-width: 0;
+}
+
+.vt-sidebar-collapsed .vt-sidebar-header,
+.vt-sidebar-collapsed .vt-sidebar-footer {
+    flex-direction: column;
+}
+
+.vt-sidebar-header-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.vt-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-sidebar-toggle-size);
+    height: var(--vt-sidebar-toggle-size);
+    margin: 0 0 0 auto;
+    padding: 0;
+    color: var(--vt-sidebar-item-icon-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-sidebar-item-border-radius);
+    cursor: pointer;
+}
+
+.vt-sidebar-collapsed .vt-sidebar-toggle {
+    margin: 0 auto;
+}
+
+.vt-sidebar-toggle:hover {
+    color: var(--vt-sidebar-item-hover-color);
+    background: var(--vt-sidebar-item-hover-background);
+}
+
+.vt-sidebar-nav {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-sidebar-gap);
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.vt-sidebar-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-sidebar-group-gap);
+}
+
+.vt-sidebar-group-label {
+    padding: var(--vt-sidebar-group-label-padding);
+    font-size: var(--vt-sidebar-group-label-font-size);
+    font-weight: var(--vt-sidebar-group-label-font-weight);
+    color: var(--vt-sidebar-group-label-color);
+    white-space: nowrap;
+}
+
+.vt-sidebar-list,
+.vt-sidebar-sublist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-sidebar-group-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-sidebar-sublist {
+    padding-inline-start: var(--vt-sidebar-item-sub-indent);
+}
+
+.vt-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-sidebar-item-gap);
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: var(--vt-sidebar-item-padding);
+    font: inherit;
+    color: var(--vt-sidebar-item-color);
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-sidebar-item-border-radius);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-sidebar-transition-duration),
+        color var(--vt-sidebar-transition-duration);
+}
+
+.vt-sidebar-item:hover {
+    color: var(--vt-sidebar-item-hover-color);
+    background: var(--vt-sidebar-item-hover-background);
+}
+
+.vt-sidebar-item-active,
+.vt-sidebar-item-active:hover {
+    color: var(--vt-sidebar-item-active-color);
+    background: var(--vt-sidebar-item-active-background);
+    font-weight: 500;
+}
+
+.vt-sidebar-item:focus-visible,
+.vt-sidebar-toggle:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-sidebar-item-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-sidebar-item-icon {
+    flex-shrink: 0;
+    color: var(--vt-sidebar-item-icon-color);
+}
+
+.vt-sidebar-item-active .vt-sidebar-item-icon {
+    color: inherit;
+}
+
+.vt-sidebar-item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-sidebar-item-toggle {
+    flex-shrink: 0;
+    color: var(--vt-sidebar-item-icon-color);
+    transition: transform var(--vt-sidebar-transition-duration);
+}
+
+.vt-sidebar-item-toggle-open {
+    transform: rotate(90deg);
+}
+
+/* Collapsed: the icons stay, centred; the words stay for screen readers only. */
+.vt-sidebar-collapsed .vt-sidebar-item {
+    justify-content: center;
+}
+
+.vt-sidebar-collapsed .vt-sidebar-item-label,
+.vt-sidebar-collapsed .vt-sidebar-group-label,
+.vt-sidebar-collapsed .vt-sidebar-header-content,
+.vt-sidebar-collapsed .vt-sidebar-footer-content {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.vt-sidebar-collapsed .vt-sidebar-item-toggle,
+.vt-sidebar-collapsed .vt-sidebar-sublist {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-sidebar,
+    .vt-sidebar-item,
+    .vt-sidebar-item-toggle {
+        transition: none;
+    }
+}

@@ -1,0 +1,116 @@
+.vt-tieredmenu {
+    box-sizing: border-box;
+    display: inline-block;
+    color: var(--vt-tieredmenu-item-color);
+}
+
+.vt-tieredmenu-inline {
+    background: var(--vt-tieredmenu-background);
+    border: 1px solid var(--vt-tieredmenu-border-color);
+    border-radius: var(--vt-tieredmenu-border-radius);
+}
+
+/* The popup takes `.vt-overlay` for its chrome, but lets submenus out. */
+.vt-tieredmenu-overlay {
+    overflow: visible;
+    box-shadow: var(--vt-tieredmenu-shadow);
+}
+/*
+ * The nested-menu look TieredMenu, ContextMenu and Menubar share, under this
+ * component's own class and token names: a list of menuitems, and submenus
+ * that open beside their item on the overlay surface.
+ */
+.vt-tieredmenu-root-list,
+.vt-tieredmenu-submenu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-tieredmenu-list-gap);
+    min-width: var(--vt-tieredmenu-submenu-min-width);
+    margin: 0;
+    padding: var(--vt-tieredmenu-list-padding);
+    list-style: none;
+    outline: none;
+}
+
+.vt-tieredmenu-item {
+    position: relative;
+}
+
+.vt-tieredmenu-item-content {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-tieredmenu-item-gap);
+    padding: var(--vt-tieredmenu-item-padding);
+    color: var(--vt-tieredmenu-item-color);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--vt-tieredmenu-item-border-radius);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-tieredmenu-item:not(.vt-tieredmenu-item-disabled) > .vt-tieredmenu-item-content:hover,
+.vt-tieredmenu-item-active > .vt-tieredmenu-item-content,
+.vt-tieredmenu-item-content:focus-visible {
+    color: var(--vt-tieredmenu-item-focus-color);
+    background: var(--vt-tieredmenu-item-focus-background);
+}
+
+.vt-tieredmenu-item-content:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-tieredmenu-item-disabled > .vt-tieredmenu-item-content {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-tieredmenu-item-icon,
+.vt-tieredmenu-submenu-icon {
+    flex-shrink: 0;
+    color: var(--vt-tieredmenu-item-icon-color);
+}
+
+.vt-tieredmenu-submenu-icon {
+    width: var(--vt-tieredmenu-submenu-icon-size);
+    height: var(--vt-tieredmenu-submenu-icon-size);
+    margin-inline-start: auto;
+}
+
+.vt-tieredmenu-item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-tieredmenu-separator {
+    margin: var(--vt-tieredmenu-separator-margin);
+    border-top: 1px solid var(--vt-tieredmenu-separator-border-color);
+}
+
+/* A submenu opens beside its item, on the overlay surface. It is placed with
+   position: fixed from script, so an ancestor's overflow does not clip it. */
+.vt-tieredmenu-submenu {
+    position: fixed;
+    color: var(--vt-overlay-select-color);
+    background: var(--vt-tieredmenu-background);
+    border: 1px solid var(--vt-tieredmenu-border-color);
+    border-radius: var(--vt-tieredmenu-border-radius);
+    box-shadow: var(--vt-tieredmenu-shadow);
+}
+
+.vt-tieredmenu-submenu-icon:dir(rtl) {
+    transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tieredmenu-item-content {
+        transition: none;
+    }
+}

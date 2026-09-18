@@ -1,0 +1,129 @@
+.vt-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-stepper-gap);
+}
+
+.vt-stepper-list {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+}
+
+.vt-stepper-step {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.vt-stepper-step:last-child {
+    flex: 0 0 auto;
+}
+
+.vt-stepper-header {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-stepper-step-gap);
+    margin: 0;
+    padding: var(--vt-stepper-step-padding);
+    font: inherit;
+    font-weight: var(--vt-stepper-step-font-weight);
+    color: var(--vt-stepper-step-color);
+    text-align: start;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-stepper-step-border-radius);
+    cursor: pointer;
+}
+
+.vt-stepper-header:disabled {
+    cursor: default;
+}
+
+.vt-stepper-header:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-stepper-step-active .vt-stepper-header {
+    color: var(--vt-stepper-step-active-color);
+}
+
+.vt-stepper-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--vt-stepper-number-size);
+    height: var(--vt-stepper-number-size);
+    font-size: var(--vt-stepper-number-font-size);
+    font-weight: var(--vt-stepper-number-font-weight);
+    color: var(--vt-stepper-number-color);
+    background: var(--vt-stepper-number-background);
+    border: 1px solid var(--vt-stepper-number-border-color);
+    border-radius: 50%;
+}
+
+.vt-stepper-step-done .vt-stepper-number {
+    color: var(--vt-stepper-number-done-color);
+    border-color: var(--vt-stepper-number-done-border-color);
+}
+
+.vt-stepper-step-active .vt-stepper-number {
+    color: var(--vt-stepper-number-active-color);
+    background: var(--vt-stepper-number-active-background);
+    border-color: var(--vt-stepper-number-active-border-color);
+}
+
+.vt-stepper-separator {
+    flex: 1 1 auto;
+    min-width: 1rem;
+    height: var(--vt-stepper-separator-size);
+    margin: var(--vt-stepper-separator-margin);
+    background: var(--vt-stepper-separator-background);
+}
+
+.vt-stepper-step-done .vt-stepper-separator {
+    background: var(--vt-stepper-separator-active-background);
+}
+
+.vt-stepper-panel {
+    padding: var(--vt-stepper-panel-padding);
+}
+
+/* Vertical: each item is a step with its panel under it, beside the line. */
+.vt-stepper-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.vt-stepper-item .vt-stepper-step {
+    flex: 0 0 auto;
+}
+
+.vt-stepper-item .vt-stepper-panel,
+.vt-stepper-item:not(:last-child)::after {
+    margin-inline-start: calc(var(--vt-stepper-step-padding) + var(--vt-stepper-number-size) / 2 - var(--vt-stepper-separator-size) / 2);
+    padding-inline-start: var(--vt-stepper-panel-indent);
+    border-inline-start: var(--vt-stepper-separator-size) solid var(--vt-stepper-separator-background);
+}
+
+/* A closed item still draws the line down to the next step. */
+.vt-stepper-item:not(:last-child)::after {
+    content: '';
+    display: block;
+    min-height: 1rem;
+}
+
+.vt-stepper-item:has(.vt-stepper-panel)::after {
+    display: none;
+}
+
+.vt-stepper-item:last-child .vt-stepper-panel {
+    border-inline-start-color: transparent;
+}

@@ -1,0 +1,18 @@
+/* The fixed part of an input group: a unit, a currency, an icon, a button. */
+.vt-inputgroupaddon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    box-sizing: border-box;
+    min-width: var(--vt-inputgroupaddon-min-width);
+    padding: 0 var(--vt-inputgroupaddon-padding-x);
+    color: var(--vt-inputgroupaddon-color);
+    background: var(--vt-inputgroupaddon-background);
+    border: 1px solid var(--vt-inputgroupaddon-border-color);
+}
+
+.vt-inputgroupaddon .vt-icon {
+    width: var(--vt-icon-size);
+    height: var(--vt-icon-size);
+}

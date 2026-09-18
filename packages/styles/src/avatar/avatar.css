@@ -1,0 +1,47 @@
+/* An image, initials or an icon in one box. The box is the size; the content
+   is centred in it whatever it is. */
+.vt-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    box-sizing: border-box;
+    width: var(--vt-avatar-width);
+    height: var(--vt-avatar-height);
+    overflow: hidden;
+    font-size: var(--vt-avatar-font-size);
+    font-weight: var(--vt-avatar-font-weight);
+    line-height: 1;
+    color: var(--vt-avatar-color);
+    background: var(--vt-avatar-background);
+    border-radius: var(--vt-avatar-border-radius);
+    vertical-align: middle;
+    user-select: none;
+}
+
+.vt-avatar-lg {
+    width: var(--vt-avatar-lg-width);
+    height: var(--vt-avatar-lg-height);
+    font-size: var(--vt-avatar-lg-font-size);
+}
+
+.vt-avatar-xl {
+    width: var(--vt-avatar-xl-width);
+    height: var(--vt-avatar-xl-height);
+    font-size: var(--vt-avatar-xl-font-size);
+}
+
+.vt-avatar-circle {
+    border-radius: var(--vt-avatar-rounded-border-radius);
+}
+
+.vt-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vt-avatar-icon {
+    width: var(--vt-avatar-icon-size);
+    height: var(--vt-avatar-icon-size);
+}

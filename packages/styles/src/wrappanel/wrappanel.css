@@ -1,0 +1,22 @@
+/*
+ * Flow, direction and spacing are inline styles set from the props. `itemWidth`
+ * and `itemHeight` size every child, which a parent can only do with a child
+ * selector: the panel sets `--vt-wrappanel-item-width/-height` inline and
+ * these rules hand them to each child.
+ */
+.vt-wrappanel {
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.vt-wrappanel-item-width > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: var(--vt-wrappanel-item-width);
+}
+
+.vt-wrappanel-item-height > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    height: var(--vt-wrappanel-item-height);
+}

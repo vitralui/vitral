@@ -1,0 +1,21 @@
+/*
+ * Tracks, spacing and every item's placement are inline styles, so a Grid lays
+ * out the same unstyled. What lives here is `showGridLines`, the debugging
+ * aid: an outline around the grid and a dashed box around each cell,
+ * drawn by absolutely positioned cells that take no part in placement.
+ */
+.vt-grid {
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.vt-grid-show-lines {
+    outline: var(--vt-grid-line-width) var(--vt-grid-line-style) var(--vt-grid-line-color);
+    outline-offset: 0;
+}
+
+.vt-grid-line {
+    box-sizing: border-box;
+    border: var(--vt-grid-line-width) var(--vt-grid-line-style) color-mix(in srgb, var(--vt-grid-line-color) 70%, transparent);
+    background: color-mix(in srgb, var(--vt-grid-line-color) 4%, transparent);
+}

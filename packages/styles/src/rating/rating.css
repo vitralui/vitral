@@ -1,0 +1,51 @@
+.vt-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-rating-gap);
+    outline: none;
+}
+
+.vt-rating-option {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vt-rating-icon-color);
+    border-radius: var(--vt-rating-icon-border-radius);
+    cursor: pointer;
+    outline: none;
+    transition: color var(--vt-rating-transition-duration);
+}
+
+.vt-rating-option-active {
+    color: var(--vt-rating-icon-active-color);
+}
+
+/* Under the pointer, the stars up to the hovered one preview the choice. */
+.vt-rating-interactive .vt-rating-option-hover {
+    color: var(--vt-rating-icon-hover-color);
+}
+
+.vt-rating-option:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-rating-icon {
+    width: var(--vt-rating-icon-size);
+    height: var(--vt-rating-icon-size);
+}
+
+.vt-rating-readonly .vt-rating-option,
+.vt-rating-disabled .vt-rating-option {
+    cursor: default;
+}
+
+.vt-rating-disabled {
+    opacity: var(--vt-disabled-opacity);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-rating-option {
+        transition: none;
+    }
+}

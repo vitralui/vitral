@@ -1,0 +1,80 @@
+/* A button that stays pressed, wearing the field's chrome so it lines up with
+   the inputs beside it. */
+.vt-togglebutton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--vt-togglebutton-gap);
+    box-sizing: border-box;
+    min-height: var(--vt-control-min-height);
+    padding: var(--vt-togglebutton-padding-y) var(--vt-togglebutton-padding-x);
+    font: inherit;
+    font-weight: var(--vt-togglebutton-font-weight);
+    color: var(--vt-togglebutton-color);
+    background: var(--vt-togglebutton-background);
+    border: 1px solid var(--vt-togglebutton-border-color);
+    border-radius: var(--vt-togglebutton-border-radius);
+    cursor: pointer;
+    transition:
+        background var(--vt-transition-duration),
+        color var(--vt-transition-duration),
+        border-color var(--vt-transition-duration);
+}
+
+.vt-togglebutton:not(:disabled):hover {
+    color: var(--vt-togglebutton-hover-color);
+    background: var(--vt-togglebutton-hover-background);
+}
+
+.vt-togglebutton-checked,
+.vt-togglebutton-checked:not(:disabled):hover {
+    color: var(--vt-togglebutton-checked-color);
+    background: var(--vt-togglebutton-checked-background);
+    border-color: var(--vt-togglebutton-checked-border-color);
+}
+
+.vt-togglebutton-checked:not(:disabled):hover {
+    background: var(--vt-togglebutton-checked-hover-background);
+}
+
+.vt-togglebutton:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-togglebutton:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-togglebutton-invalid {
+    border-color: var(--vt-togglebutton-invalid-border-color);
+}
+
+.vt-togglebutton-fluid {
+    display: flex;
+    width: 100%;
+}
+
+.vt-togglebutton-sm {
+    min-height: var(--vt-control-sm-min-height);
+    padding: var(--vt-togglebutton-sm-padding-y) var(--vt-togglebutton-sm-padding-x);
+    font-size: var(--vt-togglebutton-sm-font-size);
+}
+
+.vt-togglebutton-lg {
+    min-height: var(--vt-control-lg-min-height);
+    padding: var(--vt-togglebutton-lg-padding-y) var(--vt-togglebutton-lg-padding-x);
+    font-size: var(--vt-togglebutton-lg-font-size);
+}
+
+.vt-togglebutton-icon {
+    width: var(--vt-togglebutton-icon-size);
+    height: var(--vt-togglebutton-icon-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-togglebutton {
+        transition: none;
+    }
+}

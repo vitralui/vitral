@@ -1,0 +1,117 @@
+/* A form is a column of fields; each field a column of label, control, hint and error. */
+.vt-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-form-gap);
+}
+
+/* Buttons placed straight in the form keep their own width. */
+.vt-form > :where(.vt-form-submit, .vt-form-reset) {
+    align-self: flex-start;
+}
+
+.vt-form-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--vt-form-field-gap);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.vt-form-description {
+    margin: 0;
+    color: var(--vt-form-description-color);
+    font-size: var(--vt-form-description-font-size);
+    line-height: var(--vt-form-description-line-height);
+}
+
+/* The error keeps its place in the tree (it is a live region) and takes no room while empty. */
+.vt-form-message {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-form-message-gap);
+    margin: 0;
+    color: var(--vt-form-message-color);
+    font-size: var(--vt-form-message-font-size);
+    font-weight: var(--vt-form-message-font-weight);
+    line-height: var(--vt-form-message-line-height);
+}
+
+.vt-form-message:empty {
+    display: block;
+    height: 0;
+    margin-top: calc(var(--vt-form-field-gap) * -1);
+}
+
+.vt-form-message-icon {
+    flex: none;
+    width: var(--vt-form-message-icon-size);
+    height: var(--vt-form-message-icon-size);
+    margin-top: calc((1em * var(--vt-form-message-line-height) - var(--vt-form-message-icon-size)) / 2);
+}
+
+.vt-form-summary {
+    padding: var(--vt-form-summary-padding);
+    border: var(--vt-form-summary-border-width) solid var(--vt-form-summary-border-color);
+    border-left: var(--vt-form-summary-accent-width) solid var(--vt-form-summary-accent-color);
+    border-radius: var(--vt-form-summary-border-radius);
+    background: var(--vt-form-summary-background);
+    color: var(--vt-form-summary-color);
+}
+
+/* Focus moves here from a failed submit, not from the keyboard: show where it went all the same. */
+.vt-form-summary:focus {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-form-summary-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-form-summary-gap);
+}
+
+.vt-form-summary-title {
+    margin: 0;
+    color: var(--vt-form-summary-title-color);
+    font-size: var(--vt-form-summary-title-font-size);
+    font-weight: var(--vt-form-summary-title-font-weight);
+    line-height: 1.3;
+}
+
+.vt-form-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-form-summary-link {
+    color: var(--vt-form-summary-link-color);
+    font-weight: var(--vt-form-summary-link-font-weight);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
+
+.vt-form-summary-link:hover {
+    color: var(--vt-form-summary-link-hover-color);
+    text-decoration-thickness: 2px;
+}
+
+.vt-form-summary-link:focus-visible {
+    border-radius: 2px;
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-form-fieldarray {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-form-fieldarray-gap);
+    min-width: 0;
+}

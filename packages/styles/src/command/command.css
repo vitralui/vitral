@@ -1,0 +1,101 @@
+.vt-command {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--vt-command-color);
+    background: var(--vt-command-background);
+    border: 1px solid var(--vt-command-border-color);
+    border-radius: var(--vt-command-border-radius);
+}
+
+.vt-command-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-command-input-gap);
+    padding: var(--vt-command-input-padding);
+    color: var(--vt-command-input-icon-color);
+    border-bottom: 1px solid var(--vt-command-input-border-color);
+}
+
+.vt-command-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--vt-command-color);
+    background: transparent;
+    border: 0;
+    outline: none;
+}
+
+.vt-command-input::placeholder {
+    color: var(--vt-command-input-placeholder-color);
+}
+
+.vt-command-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-command-list-gap);
+    max-height: var(--vt-command-list-max-height);
+    padding: var(--vt-command-list-padding);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.vt-command-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-command-list-gap);
+}
+
+.vt-command-group-heading {
+    padding: var(--vt-command-group-heading-padding);
+    font-size: var(--vt-command-group-heading-font-size);
+    font-weight: var(--vt-command-group-heading-font-weight);
+    color: var(--vt-command-group-heading-color);
+}
+
+.vt-command-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-command-list-gap);
+}
+
+.vt-command-item {
+    gap: var(--vt-command-item-gap);
+}
+
+.vt-command-shortcut {
+    margin-inline-start: auto;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--vt-command-item-shortcut-color);
+}
+
+.vt-command-empty {
+    padding: var(--vt-command-empty-padding);
+    text-align: center;
+    color: var(--vt-command-empty-color);
+}
+
+.vt-command-separator {
+    margin: var(--vt-command-separator-margin);
+    border-top: 1px solid var(--vt-command-separator-border-color);
+}
+
+/* In a dialog, the command is the dialog's whole content. */
+.vt-command-dialog {
+    width: min(var(--vt-command-dialog-width), calc(100vw - 2rem));
+    padding: 0;
+    overflow: hidden;
+}
+
+.vt-command-dialog .vt-dialog-content {
+    padding: 0;
+}
+
+.vt-command-dialog .vt-command {
+    border: 0;
+    border-radius: 0;
+}

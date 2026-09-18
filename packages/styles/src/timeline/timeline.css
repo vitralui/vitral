@@ -1,0 +1,116 @@
+.vt-timeline {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-timeline-horizontal {
+    flex-direction: row;
+}
+
+.vt-timeline-event {
+    position: relative;
+    display: flex;
+    min-height: var(--vt-timeline-event-min-height);
+}
+
+.vt-timeline-horizontal .vt-timeline-event {
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.vt-timeline-opposite,
+.vt-timeline-content {
+    flex: 1 1 0;
+    padding: var(--vt-timeline-event-padding);
+}
+
+.vt-timeline-horizontal .vt-timeline-opposite,
+.vt-timeline-horizontal .vt-timeline-content {
+    padding: 1rem 0;
+}
+
+/* Vertical: opposite on the start side, content on the end; right swaps them, alternate takes turns. */
+.vt-timeline-vertical .vt-timeline-opposite {
+    text-align: end;
+}
+
+.vt-timeline-align-right .vt-timeline-event {
+    flex-direction: row-reverse;
+}
+
+.vt-timeline-align-right .vt-timeline-opposite {
+    text-align: start;
+}
+
+.vt-timeline-align-right .vt-timeline-content {
+    text-align: end;
+}
+
+.vt-timeline-align-alternate .vt-timeline-event:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+.vt-timeline-align-alternate .vt-timeline-event:nth-child(even) .vt-timeline-opposite {
+    text-align: start;
+}
+
+.vt-timeline-align-alternate .vt-timeline-event:nth-child(even) .vt-timeline-content {
+    text-align: end;
+}
+
+.vt-timeline-align-bottom .vt-timeline-event {
+    flex-direction: column-reverse;
+}
+
+.vt-timeline-horizontal.vt-timeline-align-alternate .vt-timeline-event:nth-child(even) {
+    flex-direction: column-reverse;
+}
+
+/* No opposite content: the axis sits at the start. */
+.vt-timeline-no-opposite .vt-timeline-opposite {
+    flex: 0 0 0;
+    padding: 0;
+}
+
+.vt-timeline-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.vt-timeline-horizontal .vt-timeline-separator {
+    flex-direction: row;
+}
+
+.vt-timeline-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: var(--vt-timeline-marker-size);
+    height: var(--vt-timeline-marker-size);
+    background: var(--vt-timeline-marker-background);
+    border: var(--vt-timeline-marker-border-width) solid var(--vt-timeline-marker-border-color);
+    border-radius: var(--vt-timeline-marker-border-radius);
+}
+
+.vt-timeline-connector {
+    flex: 1 1 auto;
+    width: var(--vt-timeline-connector-size);
+    background: var(--vt-timeline-connector-color);
+}
+
+.vt-timeline-horizontal .vt-timeline-connector {
+    width: auto;
+    height: var(--vt-timeline-connector-size);
+}
+
+.vt-timeline-event:last-child .vt-timeline-connector {
+    display: none;
+}

@@ -1,0 +1,62 @@
+/*
+ * Where the pane sits, how wide it is and whether it floats are inline styles
+ * set from the props, so a SplitView lays out the same unstyled. Here: the
+ * pane's surface, its edge, the shadow it casts while floating, and the width
+ * animation.
+ *
+ * The pane stays visible for the length of the closing animation and is hidden
+ * when it ends — `visibility` switches after a delay on the way out, at once on
+ * the way in.
+ */
+.vt-splitview {
+    color: var(--vt-splitview-content-color);
+}
+
+.vt-splitview-pane {
+    color: var(--vt-splitview-pane-color);
+    background: var(--vt-splitview-pane-background);
+    transition:
+        width var(--vt-splitview-transition-duration) var(--vt-splitview-transition-easing),
+        background-color var(--vt-splitview-transition-duration),
+        box-shadow var(--vt-splitview-transition-duration),
+        visibility 0s linear var(--vt-splitview-transition-duration);
+}
+
+.vt-splitview-open > .vt-splitview-pane {
+    transition:
+        width var(--vt-splitview-transition-duration) var(--vt-splitview-transition-easing),
+        background-color var(--vt-splitview-transition-duration),
+        box-shadow var(--vt-splitview-transition-duration),
+        visibility 0s linear 0s;
+}
+
+.vt-splitview-left > .vt-splitview-pane {
+    border-inline-end: 1px solid var(--vt-splitview-pane-border-color);
+}
+
+.vt-splitview-right > .vt-splitview-pane {
+    border-inline-start: 1px solid var(--vt-splitview-pane-border-color);
+}
+
+/* Floating over the content, the pane is a layer: the popup surface and a shadow. */
+.vt-splitview-floating.vt-splitview-open > .vt-splitview-pane {
+    background: var(--vt-splitview-pane-overlay-background);
+    border-color: var(--vt-splitview-pane-overlay-border-color);
+    box-shadow: var(--vt-splitview-pane-overlay-shadow);
+}
+
+.vt-splitview-pane:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(-1 * var(--vt-focus-ring-width));
+}
+
+.vt-splitview-content {
+    background: var(--vt-splitview-content-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-splitview-pane,
+    .vt-splitview-open > .vt-splitview-pane {
+        transition: none;
+    }
+}

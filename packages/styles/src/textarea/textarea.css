@@ -1,0 +1,23 @@
+/* A multi-line field: the shared `.vt-field` chrome, stretched around a textarea. */
+.vt-textarea {
+    align-items: stretch;
+    cursor: text;
+}
+
+.vt-textarea.vt-field-disabled {
+    cursor: default;
+}
+
+.vt-textarea-input {
+    display: block;
+    box-sizing: border-box;
+    min-height: 0;
+    line-height: inherit;
+    resize: var(--vt-textarea-resize);
+}
+
+/* Grows with its content: the script sets the height, so no scrollbar and no handle. */
+.vt-textarea-auto-resize .vt-textarea-input {
+    overflow: hidden;
+    resize: none;
+}

@@ -1,0 +1,217 @@
+/* The catalog's own chrome, in the manner of a desktop control catalog: a pane
+   on the window background, content on a raised card. */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+#app {
+    height: 100%;
+}
+
+.shell {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+}
+
+.shell-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.625rem 1rem;
+}
+
+.shell-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: auto;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.shell-brand-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: conic-gradient(from 45deg, var(--vt-primary-color), var(--vt-chart-2), var(--vt-chart-3), var(--vt-chart-4), var(--vt-primary-color));
+}
+
+.shell-bar label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
+.shell-nav {
+    overflow: auto;
+    padding: 0.25rem 0.5rem 1rem;
+}
+
+.shell-nav h2 {
+    margin: 1rem 0.75rem 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--vt-text-muted-color);
+}
+
+.shell-nav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--vt-navigation-item-padding);
+    border-radius: var(--vt-navigation-item-border-radius);
+    color: var(--vt-navigation-item-color);
+    text-decoration: none;
+}
+
+.shell-nav a:hover {
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.shell-nav a[aria-current='page'] {
+    background: var(--vt-navigation-item-active-background);
+    color: var(--vt-navigation-item-active-color);
+    font-weight: 500;
+}
+
+.shell-nav a[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 1rem;
+    border-radius: 3px;
+    transform: translateY(-50%);
+    background: var(--vt-primary-color);
+}
+
+.shell-nav a:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -2px;
+}
+
+.shell-main {
+    overflow: auto;
+    padding: 1.5rem 2rem 3rem;
+    background: var(--vt-content-background);
+    border-top: 1px solid var(--vt-content-border-color);
+    border-left: 1px solid var(--vt-content-border-color);
+    border-top-left-radius: var(--vt-border-radius-lg);
+}
+
+.page-head h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--vt-text-hover-color);
+}
+
+.page-head p {
+    margin: 0 0 1.5rem;
+    max-width: 70ch;
+    color: var(--vt-text-muted-color);
+}
+
+.demo-section {
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-content-border-radius);
+    background: var(--vt-app-background);
+}
+
+.demo-section header {
+    padding: 0.875rem 1rem 0;
+}
+
+.demo-section h3 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.demo-section header p {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
+.demo-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.demo-body.stack,
+.demo-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.demo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 16rem;
+}
+
+.demo-field > label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.demo-hint {
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+}
+
+.swatch {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.swatch[aria-pressed='true'] {
+    border-color: var(--vt-text-color);
+}
+
+.swatch:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+    .shell {
+        grid-template-columns: 1fr;
+    }
+
+    .shell-nav {
+        display: none;
+    }
+
+    .shell-main {
+        padding: 1rem;
+        border-radius: 0;
+    }
+}

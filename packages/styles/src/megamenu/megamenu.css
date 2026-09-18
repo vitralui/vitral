@@ -1,0 +1,150 @@
+.vt-megamenu {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-megamenu-gap);
+    padding: var(--vt-megamenu-padding);
+    color: var(--vt-megamenu-item-color);
+    background: var(--vt-megamenu-background);
+    border: 1px solid var(--vt-megamenu-border-color);
+    border-radius: var(--vt-megamenu-border-radius);
+}
+
+.vt-megamenu-vertical {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.vt-megamenu-start,
+.vt-megamenu-end {
+    display: flex;
+    align-items: center;
+}
+
+.vt-megamenu-end {
+    margin-inline-start: auto;
+}
+
+.vt-megamenu-root-list {
+    display: flex;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    outline: none;
+}
+
+.vt-megamenu-vertical .vt-megamenu-root-list {
+    flex-direction: column;
+}
+
+.vt-megamenu-root-item {
+    position: static;
+}
+
+.vt-megamenu-vertical .vt-megamenu-root-item {
+    position: relative;
+}
+
+.vt-megamenu-item-content {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-megamenu-item-gap);
+    padding: var(--vt-megamenu-item-padding);
+    color: var(--vt-megamenu-item-color);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--vt-megamenu-item-border-radius);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-megamenu-item:not(.vt-megamenu-item-disabled) > .vt-megamenu-item-content:hover,
+.vt-megamenu-item-active > .vt-megamenu-item-content,
+.vt-megamenu-item-content:focus-visible {
+    color: var(--vt-megamenu-item-focus-color);
+    background: var(--vt-megamenu-item-focus-background);
+}
+
+.vt-megamenu-item-content:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+.vt-megamenu-item-disabled > .vt-megamenu-item-content {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-megamenu-item-icon,
+.vt-megamenu-submenu-icon {
+    flex-shrink: 0;
+    color: var(--vt-megamenu-item-icon-color);
+}
+
+.vt-megamenu-submenu-icon {
+    width: var(--vt-megamenu-submenu-icon-size);
+    height: var(--vt-megamenu-submenu-icon-size);
+    margin-inline-start: auto;
+}
+
+.vt-megamenu-item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The panel spans the bar under it; beside a vertical menu, it opens to the
+   side. Script places it with position: fixed, clear of any overflow. */
+.vt-megamenu-panel {
+    position: fixed;
+    box-sizing: border-box;
+    max-width: calc(100vw - 1rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vt-megamenu-panel-gap);
+    padding: var(--vt-megamenu-panel-padding);
+    color: var(--vt-megamenu-item-color);
+    background: var(--vt-megamenu-background);
+    border: 1px solid var(--vt-megamenu-border-color);
+    border-radius: var(--vt-megamenu-border-radius);
+    box-shadow: var(--vt-megamenu-shadow);
+}
+
+.vt-megamenu-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: var(--vt-megamenu-panel-min-column-width);
+}
+
+.vt-megamenu-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-megamenu-group-label {
+    padding: var(--vt-megamenu-group-label-padding);
+    font-weight: var(--vt-megamenu-group-label-font-weight);
+    color: var(--vt-megamenu-group-label-color);
+    cursor: default;
+}
+
+.vt-megamenu-submenu-icon:dir(rtl) {
+    transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-megamenu-item-content {
+        transition: none;
+    }
+}

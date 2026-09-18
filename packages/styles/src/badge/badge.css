@@ -1,0 +1,82 @@
+.vt-badge {
+    --_bg: var(--vt-primary-color);
+    --_fg: var(--vt-primary-contrast-color);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: var(--vt-badge-height);
+    min-width: var(--vt-badge-min-width);
+    padding: var(--vt-badge-padding);
+    font-size: var(--vt-badge-font-size);
+    font-weight: var(--vt-badge-font-weight);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--_fg);
+    white-space: nowrap;
+    vertical-align: middle;
+    background: var(--_bg);
+    border-radius: var(--vt-badge-border-radius);
+}
+
+/* A neutral solid fill: the secondary *button* fill is a translucent control surface, too faint for a dot. */
+.vt-badge-secondary {
+    --_bg: var(--vt-text-muted-color);
+    --_fg: var(--vt-app-background);
+}
+
+.vt-badge-success {
+    --_bg: var(--vt-success-color);
+    --_fg: var(--vt-success-contrast-color);
+}
+
+.vt-badge-info {
+    --_bg: var(--vt-info-color);
+    --_fg: var(--vt-info-contrast-color);
+}
+
+.vt-badge-warn {
+    --_bg: var(--vt-warn-color);
+    --_fg: var(--vt-warn-contrast-color);
+}
+
+.vt-badge-danger {
+    --_bg: var(--vt-danger-color);
+    --_fg: var(--vt-danger-contrast-color);
+}
+
+.vt-badge-help {
+    --_bg: var(--vt-help-color);
+    --_fg: var(--vt-help-contrast-color);
+}
+
+.vt-badge-contrast {
+    --_bg: var(--vt-contrast-color);
+    --_fg: var(--vt-contrast-contrast-color);
+}
+
+.vt-badge-sm {
+    height: var(--vt-badge-sm-height);
+    min-width: var(--vt-badge-sm-min-width);
+    font-size: var(--vt-badge-sm-font-size);
+}
+
+.vt-badge-lg {
+    height: var(--vt-badge-lg-height);
+    min-width: var(--vt-badge-lg-min-width);
+    font-size: var(--vt-badge-lg-font-size);
+}
+
+.vt-badge-xl {
+    height: var(--vt-badge-xl-height);
+    min-width: var(--vt-badge-xl-min-width);
+    font-size: var(--vt-badge-xl-font-size);
+}
+
+.vt-badge-dot {
+    width: var(--vt-badge-dot-size);
+    height: var(--vt-badge-dot-size);
+    min-width: 0;
+    padding: 0;
+}

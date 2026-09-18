@@ -1,0 +1,22 @@
+.vt-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vt-toolbar-gap);
+    box-sizing: border-box;
+    padding: var(--vt-toolbar-padding);
+    color: var(--vt-toolbar-color);
+    background: var(--vt-toolbar-background);
+    border: var(--vt-toolbar-border-width) solid var(--vt-toolbar-border-color);
+    border-radius: var(--vt-toolbar-border-radius);
+}
+
+.vt-toolbar-start,
+.vt-toolbar-center,
+.vt-toolbar-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vt-toolbar-gap);
+}

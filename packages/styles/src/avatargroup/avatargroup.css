@@ -1,0 +1,14 @@
+/* Overlapping avatars. Each carries a ring of the surface behind it, so the
+   stack reads as separate faces; the first one keeps its place. */
+.vt-avatargroup {
+    display: inline-flex;
+    align-items: center;
+}
+
+.vt-avatargroup > .vt-avatar {
+    box-shadow: 0 0 0 var(--vt-avatargroup-border-width) var(--vt-avatargroup-border-color);
+}
+
+.vt-avatargroup > .vt-avatar + .vt-avatar {
+    margin-left: var(--vt-avatargroup-offset);
+}

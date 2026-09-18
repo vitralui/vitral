@@ -1,0 +1,163 @@
+/*
+ * One rule set for every severity: the severity classes swap the private
+ * `--_*` colours, and the variants decide which of them paint what.
+ */
+.vt-message {
+    --_bg: var(--vt-info-subtle-background);
+    --_fg: var(--vt-info-subtle-color);
+    --_border: var(--vt-info-subtle-border-color);
+    --_hover-bg: var(--vt-info-subtle-hover-background);
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-message-gap);
+    box-sizing: border-box;
+    min-height: var(--vt-message-min-height);
+    padding: var(--vt-message-padding);
+    color: var(--vt-message-text-color);
+    background: var(--vt-message-background, var(--_bg));
+    border: var(--vt-message-border-width) solid var(--_border);
+    border-radius: var(--vt-message-border-radius);
+}
+
+.vt-message-primary {
+    --_bg: var(--vt-primary-subtle-background);
+    --_fg: var(--vt-primary-subtle-color);
+    --_border: var(--vt-primary-subtle-border-color);
+    --_hover-bg: var(--vt-primary-subtle-hover-background);
+}
+
+.vt-message-secondary {
+    --_bg: var(--vt-secondary-subtle-background);
+    --_fg: var(--vt-secondary-subtle-color);
+    --_border: var(--vt-secondary-subtle-border-color);
+    --_hover-bg: var(--vt-secondary-subtle-hover-background);
+}
+
+.vt-message-success {
+    --_bg: var(--vt-success-subtle-background);
+    --_fg: var(--vt-success-subtle-color);
+    --_border: var(--vt-success-subtle-border-color);
+    --_hover-bg: var(--vt-success-subtle-hover-background);
+}
+
+.vt-message-warn {
+    --_bg: var(--vt-warn-subtle-background);
+    --_fg: var(--vt-warn-subtle-color);
+    --_border: var(--vt-warn-subtle-border-color);
+    --_hover-bg: var(--vt-warn-subtle-hover-background);
+}
+
+.vt-message-danger {
+    --_bg: var(--vt-danger-subtle-background);
+    --_fg: var(--vt-danger-subtle-color);
+    --_border: var(--vt-danger-subtle-border-color);
+    --_hover-bg: var(--vt-danger-subtle-hover-background);
+}
+
+.vt-message-help {
+    --_bg: var(--vt-help-subtle-background);
+    --_fg: var(--vt-help-subtle-color);
+    --_border: var(--vt-help-subtle-border-color);
+    --_hover-bg: var(--vt-help-subtle-hover-background);
+}
+
+.vt-message-contrast {
+    --_bg: var(--vt-contrast-subtle-background);
+    --_fg: var(--vt-contrast-subtle-color);
+    --_border: var(--vt-contrast-subtle-border-color);
+    --_hover-bg: var(--vt-contrast-subtle-hover-background);
+}
+
+/* The outline is the severity's colour, softened so a neutral message is not framed in black. */
+.vt-message-outlined {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--_fg) 55%, transparent);
+}
+
+.vt-message-simple {
+    min-height: 0;
+    padding: 0;
+    color: var(--_fg);
+    background: transparent;
+    border-color: transparent;
+}
+
+.vt-message-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-message-gap);
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.vt-message-icon {
+    width: var(--vt-message-icon-size);
+    height: var(--vt-message-icon-size);
+    margin-block: calc((var(--vt-line-height) * 1em - var(--vt-message-icon-size)) / 2);
+    color: var(--_fg);
+}
+
+/* Title and message share a line while they fit, as the InfoBar's do, and wrap when they do not. */
+.vt-message-body {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    row-gap: 0.125rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.vt-message-title {
+    font-weight: var(--vt-message-title-font-weight);
+}
+
+.vt-message-action {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.vt-message-close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-message-close-button-size);
+    height: var(--vt-message-close-button-size);
+    margin: calc((var(--vt-line-height) * 1em - var(--vt-message-close-button-size)) / 2) calc(-0.25 * var(--vt-message-close-button-size));
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-message-close-button-border-radius);
+    cursor: pointer;
+    transition: background-color var(--vt-transition-duration);
+}
+
+.vt-message-close-button:hover {
+    background: var(--_hover-bg);
+}
+
+.vt-message-close-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-message-motion-leave-active {
+    transition: opacity var(--vt-message-transition-duration) ease-out;
+}
+
+.vt-message-motion-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-message-motion-leave-active,
+    .vt-message-close-button {
+        transition: none;
+    }
+}

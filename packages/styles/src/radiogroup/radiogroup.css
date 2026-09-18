@@ -1,0 +1,13 @@
+.vt-radiogroup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--vt-radiogroup-gap);
+}
+
+.vt-radiogroup-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--vt-radiogroup-horizontal-gap);
+}

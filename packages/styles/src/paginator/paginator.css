@@ -1,0 +1,103 @@
+.vt-paginator {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--vt-paginator-gap);
+    padding: var(--vt-paginator-padding);
+    color: var(--vt-paginator-color);
+    background: var(--vt-paginator-background);
+    border-radius: var(--vt-paginator-border-radius);
+}
+
+.vt-paginator-start {
+    margin-inline-end: auto;
+}
+
+.vt-paginator-end {
+    margin-inline-start: auto;
+}
+
+.vt-paginator-pages {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-paginator-gap);
+}
+
+.vt-paginator-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: var(--vt-paginator-nav-button-width);
+    height: var(--vt-paginator-nav-button-height);
+    margin: 0;
+    padding: 0 0.375rem;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    color: var(--vt-paginator-nav-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-paginator-nav-button-border-radius);
+    cursor: pointer;
+    user-select: none;
+    transition:
+        background-color var(--vt-paginator-transition-duration),
+        color var(--vt-paginator-transition-duration);
+}
+
+.vt-paginator-button:not([aria-disabled='true']):hover {
+    color: var(--vt-paginator-nav-button-hover-color);
+    background: var(--vt-paginator-nav-button-hover-background);
+}
+
+.vt-paginator-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+/* Announced as disabled but left focusable, so focus is not dropped when "Next" reaches the last page. */
+.vt-paginator-button[aria-disabled='true'] {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-paginator-page-selected,
+.vt-paginator-page-selected:hover {
+    color: var(--vt-paginator-nav-button-selected-color);
+    background: var(--vt-paginator-nav-button-selected-background);
+    font-weight: var(--vt-paginator-nav-button-selected-font-weight);
+}
+
+/* The accent pill, lying under the number; transparent where a preset draws none. */
+.vt-paginator-page-selected::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 0.75rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--vt-paginator-nav-button-selected-indicator);
+    transform: translateX(-50%);
+}
+
+.vt-paginator-current {
+    padding: var(--vt-paginator-current-page-report-padding);
+    color: var(--vt-paginator-current-page-report-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.vt-paginator-rows-per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-paginator-rows-per-page-gap);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-paginator-button {
+        transition: none;
+    }
+}

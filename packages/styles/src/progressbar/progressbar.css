@@ -1,0 +1,63 @@
+/* The value runs over a thin line drawn as the track's background. */
+.vt-progressbar {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-progressbar-gap);
+    width: 100%;
+}
+
+.vt-progressbar-track {
+    position: relative;
+    flex: 1 1 auto;
+    height: var(--vt-progressbar-height);
+    overflow: hidden;
+    border-radius: var(--vt-progressbar-border-radius);
+    background: linear-gradient(var(--vt-progressbar-track-color), var(--vt-progressbar-track-color)) center / 100% var(--vt-progressbar-track-height) no-repeat;
+}
+
+.vt-progressbar-value {
+    height: 100%;
+    background: var(--vt-progressbar-value-color);
+    border-radius: var(--vt-progressbar-border-radius);
+    transition: width var(--vt-transition-duration) ease-out;
+}
+
+.vt-progressbar-indeterminate .vt-progressbar-value {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 40%;
+    animation: vt-progressbar-slide var(--vt-progressbar-animation-duration) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.vt-progressbar-label {
+    flex-shrink: 0;
+    min-width: 3ch;
+    font-size: var(--vt-progressbar-label-font-size);
+    font-weight: var(--vt-progressbar-label-font-weight);
+    font-variant-numeric: tabular-nums;
+    color: var(--vt-progressbar-label-color);
+    text-align: end;
+}
+
+@keyframes vt-progressbar-slide {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(250%);
+    }
+}
+
+/* Reduced motion: no easing of the value, and the busy indicator slows to a drift, as the base spinner does. */
+@media (prefers-reduced-motion: reduce) {
+    .vt-progressbar-value {
+        transition: none;
+    }
+
+    .vt-progressbar-indeterminate .vt-progressbar-value {
+        animation-duration: calc(var(--vt-progressbar-animation-duration) * 3);
+        animation-timing-function: linear;
+    }
+}

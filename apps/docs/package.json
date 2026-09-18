@@ -1,0 +1,16 @@
+{
+    "name": "docs",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@vitral/chart": "workspace:*",
+        "@vitral/themes": "workspace:*",
+        "@vitral/vue": "workspace:*",
+        "vue": "^3.5.0"
+    }
+}

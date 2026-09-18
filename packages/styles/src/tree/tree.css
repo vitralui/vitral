@@ -1,0 +1,183 @@
+.vt-tree {
+    display: flex;
+    flex-direction: column;
+    color: var(--vt-tree-color);
+}
+
+.vt-tree-filter {
+    margin: var(--vt-tree-filter-margin);
+}
+
+.vt-tree-container,
+.vt-tree-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-tree-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-tree-container {
+    padding: var(--vt-tree-padding);
+    overflow: auto;
+    outline: none;
+}
+
+.vt-tree-group {
+    /* The gap between a node and its first child. */
+    margin-top: var(--vt-tree-gap);
+}
+
+.vt-tree-node {
+    outline: none;
+}
+
+/*
+ * The row spans the full width; its content is
+ * indented by depth. `--_depth` comes from the component.
+ */
+.vt-tree-node-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--vt-tree-node-gap);
+    box-sizing: border-box;
+    min-height: var(--vt-tree-node-min-height);
+    padding: var(--vt-tree-node-padding-y) var(--vt-tree-node-padding-x);
+    padding-inline-start: calc(var(--vt-tree-node-padding-y) + var(--_depth, 0) * var(--vt-tree-indent));
+    color: var(--vt-tree-node-color);
+    border-radius: var(--vt-tree-node-border-radius);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--vt-tree-transition-duration);
+}
+
+.vt-tree-node-content:hover {
+    color: var(--vt-tree-node-hover-color);
+    background: var(--vt-tree-node-hover-background);
+}
+
+.vt-tree-node-selected > .vt-tree-node-content {
+    color: var(--vt-tree-node-selected-color);
+    background: var(--vt-tree-node-selected-background);
+}
+
+/* The selection pill; transparent in presets that do not draw one. */
+.vt-tree-node-selected > .vt-tree-node-content::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 1rem;
+    border-radius: 3px;
+    background: var(--vt-tree-node-selected-indicator);
+    transform: translateY(-50%);
+}
+
+/* Focus is on the tree item, which holds its children too; ring only its own row. */
+.vt-tree-node:focus-visible > .vt-tree-node-content {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(-1 * var(--vt-focus-ring-width));
+}
+
+.vt-tree-node-disabled > .vt-tree-node-content {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-tree-toggler {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-tree-toggler-size);
+    height: var(--vt-tree-toggler-size);
+    color: var(--vt-tree-toggler-color);
+    border-radius: var(--vt-tree-toggler-border-radius);
+    transition: background-color var(--vt-tree-transition-duration);
+}
+
+.vt-tree-toggler:hover {
+    color: var(--vt-tree-toggler-hover-color);
+    background: var(--vt-tree-toggler-hover-background);
+}
+
+.vt-tree-toggler-leaf {
+    visibility: hidden;
+}
+
+.vt-tree-toggler-icon {
+    transition: transform var(--vt-tree-transition-duration);
+}
+
+.vt-tree-node-expanded > .vt-tree-node-content .vt-tree-toggler-icon {
+    transform: rotate(90deg);
+}
+
+.vt-tree-node-icon {
+    flex-shrink: 0;
+    color: var(--vt-tree-node-icon-color);
+}
+
+.vt-tree-node-selected > .vt-tree-node-content .vt-tree-node-icon {
+    color: var(--vt-tree-node-icon-selected-color);
+}
+
+.vt-tree-node-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vt-tree-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--vt-tree-checkbox-size);
+    height: var(--vt-tree-checkbox-size);
+    margin-inline-end: 0.25rem;
+    color: var(--vt-tree-checkbox-checked-color);
+    background: var(--vt-tree-checkbox-background);
+    border: 1px solid var(--vt-tree-checkbox-border-color);
+    border-radius: var(--vt-tree-checkbox-border-radius);
+}
+
+.vt-tree-checkbox-checked,
+.vt-tree-checkbox-partial {
+    background: var(--vt-tree-checkbox-checked-background);
+    border-color: var(--vt-tree-checkbox-checked-border-color);
+}
+
+.vt-tree-checkbox-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    stroke-width: 3;
+}
+
+.vt-tree-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: var(--vt-tree-empty-padding);
+    color: var(--vt-tree-empty-color);
+}
+
+.vt-tree-empty {
+    padding: var(--vt-tree-empty-padding);
+    color: var(--vt-tree-empty-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tree-node-content,
+    .vt-tree-toggler,
+    .vt-tree-toggler-icon {
+        transition: none;
+    }
+}

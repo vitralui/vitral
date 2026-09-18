@@ -1,0 +1,32 @@
+.vt-label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--vt-label-gap);
+    color: var(--vt-label-color);
+    font-size: var(--vt-label-font-size);
+    font-weight: var(--vt-label-font-weight);
+    line-height: var(--vt-label-line-height);
+    cursor: default;
+}
+
+/* A label whose control can be pressed through it says so. */
+.vt-label[for] {
+    cursor: pointer;
+}
+
+.vt-label-sm {
+    font-size: var(--vt-label-sm-font-size);
+}
+
+.vt-label-lg {
+    font-size: var(--vt-label-lg-font-size);
+}
+
+.vt-label-disabled {
+    opacity: var(--vt-label-disabled-opacity);
+    cursor: default;
+}
+
+.vt-label-required {
+    color: var(--vt-label-required-color);
+}

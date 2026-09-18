@@ -1,0 +1,29 @@
+{
+  "name": "@vitral/styles",
+  "version": "0.1.0",
+  "description": "Framework-agnostic component CSS and class maps for Vitral, written against theme tokens.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./vitral.css": "./dist/vitral.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/bundle-css.mjs"
+  },
+  "dependencies": {
+    "@vitral/core": "workspace:*"
+  }
+}

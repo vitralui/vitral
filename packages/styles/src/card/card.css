@@ -1,0 +1,54 @@
+.vt-card {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    color: var(--vt-card-color);
+    background: var(--vt-card-background);
+    border: var(--vt-card-border-width) solid var(--vt-card-border-color);
+    border-radius: var(--vt-card-border-radius);
+    box-shadow: var(--vt-card-shadow);
+}
+
+/* A header image follows the card's corners without clipping the body's focus rings. */
+.vt-card-header {
+    overflow: hidden;
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+}
+
+.vt-card-header > img {
+    display: block;
+    width: 100%;
+}
+
+.vt-card-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--vt-card-body-gap);
+    padding: var(--vt-card-body-padding);
+}
+
+.vt-card-caption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-card-caption-gap);
+}
+
+.vt-card-title {
+    font-size: var(--vt-card-title-font-size);
+    font-weight: var(--vt-card-title-font-weight);
+    color: var(--vt-card-title-color);
+}
+
+.vt-card-subtitle {
+    color: var(--vt-card-subtitle-color);
+}
+
+.vt-card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+}

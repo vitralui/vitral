@@ -1,0 +1,68 @@
+.vt-metergroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-metergroup-gap);
+}
+
+.vt-metergroup-vertical {
+    flex-direction: row;
+    height: 100%;
+}
+
+.vt-metergroup-label-start {
+    flex-direction: column-reverse;
+}
+
+.vt-metergroup-vertical.vt-metergroup-label-start {
+    flex-direction: row-reverse;
+}
+
+.vt-metergroup-track {
+    display: flex;
+    height: var(--vt-metergroup-track-size);
+    overflow: hidden;
+    background: var(--vt-metergroup-track-background);
+    border-radius: var(--vt-metergroup-border-radius);
+}
+
+.vt-metergroup-vertical .vt-metergroup-track {
+    flex-direction: column-reverse;
+    width: var(--vt-metergroup-track-size);
+    height: auto;
+    min-height: 8rem;
+}
+
+.vt-metergroup-meter {
+    flex-shrink: 0;
+}
+
+.vt-metergroup-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vt-metergroup-label-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-metergroup-labels-vertical {
+    flex-direction: column;
+    gap: var(--vt-metergroup-label-item-gap);
+}
+
+.vt-metergroup-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-metergroup-label-item-gap);
+}
+
+.vt-metergroup-marker {
+    flex-shrink: 0;
+    width: var(--vt-metergroup-label-marker-size);
+    height: var(--vt-metergroup-label-marker-size);
+    border-radius: 50%;
+}
+
+.vt-metergroup-value {
+    color: var(--vt-metergroup-label-value-color);
+}

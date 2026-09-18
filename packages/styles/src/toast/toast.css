@@ -1,0 +1,194 @@
+/*
+ * A fixed stack in one corner (or the centre). The stack itself lets the
+ * pointer through; only the cards take it. Cards are spaced with margins, not a
+ * flex gap, so a leaving card can be taken out of flow in place while the rest
+ * slide into its room.
+ */
+.vt-toast {
+    position: fixed;
+    box-sizing: border-box;
+    width: var(--vt-toast-width);
+    max-width: calc(100vw - 2 * var(--vt-toast-offset));
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    line-height: var(--vt-line-height);
+    pointer-events: none;
+}
+
+.vt-toast-top-right {
+    top: var(--vt-toast-offset);
+    right: var(--vt-toast-offset);
+}
+
+.vt-toast-top-left {
+    top: var(--vt-toast-offset);
+    left: var(--vt-toast-offset);
+}
+
+.vt-toast-top-center {
+    top: var(--vt-toast-offset);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.vt-toast-bottom-right {
+    bottom: var(--vt-toast-offset);
+    right: var(--vt-toast-offset);
+}
+
+.vt-toast-bottom-left {
+    bottom: var(--vt-toast-offset);
+    left: var(--vt-toast-offset);
+}
+
+.vt-toast-bottom-center {
+    bottom: var(--vt-toast-offset);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.vt-toast-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.vt-toast-message {
+    --_accent: var(--vt-info-subtle-color);
+
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-toast-message-gap);
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--vt-toast-message-padding);
+    color: var(--vt-toast-message-color);
+    background: var(--vt-toast-message-background);
+    border: 1px solid var(--vt-toast-message-border-color);
+    border-radius: var(--vt-toast-message-border-radius);
+    box-shadow: var(--vt-toast-message-shadow);
+    pointer-events: auto;
+}
+
+.vt-toast-message + .vt-toast-message {
+    margin-top: var(--vt-toast-gap);
+}
+
+.vt-toast-message-success {
+    --_accent: var(--vt-success-subtle-color);
+}
+
+.vt-toast-message-warn {
+    --_accent: var(--vt-warn-subtle-color);
+}
+
+.vt-toast-message-danger {
+    --_accent: var(--vt-danger-subtle-color);
+}
+
+.vt-toast-message-secondary {
+    --_accent: var(--vt-text-muted-color);
+}
+
+.vt-toast-message-contrast {
+    --_accent: var(--vt-contrast-color);
+}
+
+.vt-toast-message-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-toast-message-gap);
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.vt-toast-message-icon {
+    width: var(--vt-toast-icon-size);
+    height: var(--vt-toast-icon-size);
+    margin-block: calc((var(--vt-line-height) * 1em - var(--vt-toast-icon-size)) / 2);
+    color: var(--_accent);
+}
+
+.vt-toast-message-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.vt-toast-summary {
+    font-weight: var(--vt-toast-summary-font-weight);
+}
+
+.vt-toast-detail {
+    color: var(--vt-toast-detail-color);
+}
+
+.vt-toast-close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-toast-close-button-size);
+    height: var(--vt-toast-close-button-size);
+    margin: calc((var(--vt-line-height) * 1em - var(--vt-toast-close-button-size)) / 2) 0;
+    padding: 0;
+    color: var(--vt-toast-close-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-toast-close-button-border-radius);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-toast-close-button:hover {
+    color: var(--vt-toast-close-button-hover-color);
+    background: var(--vt-toast-close-button-hover-background);
+}
+
+.vt-toast-close-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-toast-motion-enter-active,
+.vt-toast-motion-leave-active,
+.vt-toast-motion-move {
+    transition:
+        opacity var(--vt-toast-transition-duration) ease-out,
+        transform var(--vt-toast-transition-duration) cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.vt-toast-motion-leave-active {
+    position: absolute;
+}
+
+.vt-toast-motion-enter-from {
+    opacity: 0;
+    transform: translateY(-0.75rem);
+}
+
+.vt-toast-bottom-left .vt-toast-motion-enter-from,
+.vt-toast-bottom-center .vt-toast-motion-enter-from,
+.vt-toast-bottom-right .vt-toast-motion-enter-from {
+    transform: translateY(0.75rem);
+}
+
+.vt-toast-motion-leave-to {
+    opacity: 0;
+    transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-toast-motion-enter-active,
+    .vt-toast-motion-leave-active,
+    .vt-toast-motion-move,
+    .vt-toast-close-button {
+        transition: none;
+    }
+}

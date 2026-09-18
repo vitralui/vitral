@@ -1,0 +1,11 @@
+.vt-dynamicdialog-header,
+.vt-dynamicdialog-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-dynamicdialog-gap);
+}
+
+.vt-dynamicdialog-footer {
+    justify-content: flex-end;
+    width: 100%;
+}

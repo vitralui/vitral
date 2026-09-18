@@ -1,0 +1,67 @@
+.vt-dataview {
+    position: relative;
+    box-sizing: border-box;
+    color: var(--vt-dataview-color);
+    background: var(--vt-dataview-background);
+    border: 1px solid var(--vt-dataview-border-color);
+    border-radius: var(--vt-dataview-border-radius);
+    overflow: hidden;
+}
+
+.vt-dataview-header,
+.vt-dataview-footer {
+    padding: var(--vt-dataview-header-padding);
+}
+
+.vt-dataview-header {
+    border-bottom: 1px solid var(--vt-dataview-header-border-color);
+}
+
+.vt-dataview-footer {
+    border-top: 1px solid var(--vt-dataview-header-border-color);
+}
+
+.vt-dataview-content {
+    padding: var(--vt-dataview-content-padding);
+}
+
+/* A grid lays the items out in as many columns as fit; the item templates do the rest. */
+.vt-dataview-grid .vt-dataview-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--vt-dataview-content-grid-min-width), 1fr));
+    gap: var(--vt-dataview-content-gap);
+    padding: var(--vt-dataview-content-gap);
+}
+
+.vt-dataview-empty {
+    padding: var(--vt-dataview-empty-padding);
+    color: var(--vt-dataview-empty-color);
+    text-align: center;
+}
+
+.vt-dataview-paginator {
+    border: 0;
+    border-radius: 0;
+}
+
+.vt-dataview-paginator-top {
+    border-bottom: 1px solid var(--vt-dataview-header-border-color);
+}
+
+.vt-dataview-paginator-bottom {
+    border-top: 1px solid var(--vt-dataview-header-border-color);
+}
+
+.vt-dataview-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-dataview-loader-background);
+}
+
+.vt-dataview-loader .vt-icon {
+    width: var(--vt-dataview-loader-icon-size);
+    height: var(--vt-dataview-loader-icon-size);
+}

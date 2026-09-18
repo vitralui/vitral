@@ -1,0 +1,127 @@
+/*
+ * A native checkbox, transparent and laid exactly over a drawn box: the
+ * browser keeps the focus, the keyboard, the form value and the label
+ * association; the box only paints what the input's state is.
+ */
+.vt-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-checkbox-gap);
+    color: var(--vt-checkbox-label-color);
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.vt-checkbox-control {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    width: var(--vt-checkbox-size);
+    height: var(--vt-checkbox-size);
+}
+
+.vt-checkbox-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: inherit;
+    appearance: none;
+}
+
+.vt-checkbox-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    color: var(--vt-checkbox-icon-color);
+    background: var(--vt-checkbox-background);
+    border: var(--vt-checkbox-border-width) solid var(--vt-checkbox-border-color);
+    border-radius: var(--vt-checkbox-border-radius);
+    transition:
+        background-color var(--vt-checkbox-transition-duration),
+        border-color var(--vt-checkbox-transition-duration);
+}
+
+.vt-checkbox-icon {
+    width: var(--vt-checkbox-icon-size);
+    height: var(--vt-checkbox-icon-size);
+    stroke-width: 3;
+}
+
+.vt-checkbox:not(.vt-checkbox-disabled):hover .vt-checkbox-box {
+    background: var(--vt-checkbox-hover-background);
+    border-color: var(--vt-checkbox-hover-border-color);
+}
+
+.vt-checkbox-checked .vt-checkbox-box,
+.vt-checkbox-indeterminate .vt-checkbox-box {
+    background: var(--vt-checkbox-checked-background);
+    border-color: var(--vt-checkbox-checked-border-color);
+}
+
+.vt-checkbox-checked:not(.vt-checkbox-disabled):hover .vt-checkbox-box,
+.vt-checkbox-indeterminate:not(.vt-checkbox-disabled):hover .vt-checkbox-box {
+    background: var(--vt-checkbox-checked-hover-background);
+    border-color: var(--vt-checkbox-checked-hover-border-color);
+}
+
+.vt-checkbox-invalid .vt-checkbox-box,
+.vt-checkbox-invalid:not(.vt-checkbox-disabled):hover .vt-checkbox-box {
+    border-color: var(--vt-checkbox-invalid-border-color);
+}
+
+.vt-checkbox-input:focus-visible + .vt-checkbox-box {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-checkbox-label {
+    cursor: inherit;
+    user-select: none;
+}
+
+.vt-checkbox-disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-checkbox-sm {
+    font-size: var(--vt-checkbox-sm-font-size);
+}
+
+.vt-checkbox-sm .vt-checkbox-control {
+    width: var(--vt-checkbox-sm-size);
+    height: var(--vt-checkbox-sm-size);
+}
+
+.vt-checkbox-sm .vt-checkbox-icon {
+    width: var(--vt-checkbox-sm-icon-size);
+    height: var(--vt-checkbox-sm-icon-size);
+}
+
+.vt-checkbox-lg {
+    font-size: var(--vt-checkbox-lg-font-size);
+}
+
+.vt-checkbox-lg .vt-checkbox-control {
+    width: var(--vt-checkbox-lg-size);
+    height: var(--vt-checkbox-lg-size);
+}
+
+.vt-checkbox-lg .vt-checkbox-icon {
+    width: var(--vt-checkbox-lg-icon-size);
+    height: var(--vt-checkbox-lg-icon-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-checkbox-box {
+        transition: none;
+    }
+}

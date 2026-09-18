@@ -1,0 +1,37 @@
+.vt-scrolltop {
+    position: fixed;
+    right: var(--vt-scrolltop-offset);
+    bottom: var(--vt-scrolltop-offset);
+    z-index: 1;
+    width: var(--vt-scrolltop-size);
+    height: var(--vt-scrolltop-size);
+    border-radius: 50%;
+    box-shadow: var(--vt-scrolltop-shadow);
+}
+
+.vt-scrolltop-parent {
+    position: sticky;
+    display: flex;
+    margin-inline-start: auto;
+    right: auto;
+}
+
+.vt-scrolltop-enter-active,
+.vt-scrolltop-leave-active {
+    transition:
+        opacity var(--vt-scrolltop-transition-duration),
+        transform var(--vt-scrolltop-transition-duration);
+}
+
+.vt-scrolltop-enter-from,
+.vt-scrolltop-leave-to {
+    opacity: 0;
+    transform: translateY(0.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-scrolltop-enter-active,
+    .vt-scrolltop-leave-active {
+        transition: none;
+    }
+}

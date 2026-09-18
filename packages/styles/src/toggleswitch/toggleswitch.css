@@ -1,0 +1,134 @@
+/*
+ * A native checkbox with role="switch", transparent over a drawn pill. The
+ * knob's travel is the track's inner width less its own; it is positioned from
+ * the start, so a wider (hovered or pressed) knob still ends at the far edge.
+ */
+.vt-toggleswitch {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--vt-toggleswitch-header-gap);
+    color: var(--vt-toggleswitch-label-color);
+    vertical-align: middle;
+}
+
+.vt-toggleswitch-header {
+    cursor: pointer;
+}
+
+.vt-toggleswitch-body {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-toggleswitch-gap);
+    cursor: pointer;
+}
+
+.vt-toggleswitch-track {
+    --_knob: var(--vt-toggleswitch-knob-size);
+    --_travel: calc(var(--vt-toggleswitch-width) - 2 * var(--vt-toggleswitch-border-width) - 2 * var(--vt-toggleswitch-knob-inset) - var(--_knob));
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: var(--vt-toggleswitch-width);
+    height: var(--vt-toggleswitch-height);
+    background: var(--vt-toggleswitch-background);
+    border: var(--vt-toggleswitch-border-width) solid var(--vt-toggleswitch-border-color);
+    border-radius: var(--vt-toggleswitch-border-radius);
+    transition:
+        background-color var(--vt-toggleswitch-transition-duration),
+        border-color var(--vt-toggleswitch-transition-duration);
+}
+
+.vt-toggleswitch-input {
+    position: absolute;
+    inset: calc(-1 * var(--vt-toggleswitch-border-width));
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: inherit;
+    appearance: none;
+}
+
+.vt-toggleswitch-knob {
+    position: absolute;
+    inset-inline-start: var(--vt-toggleswitch-knob-inset);
+    width: var(--_knob);
+    height: var(--vt-toggleswitch-knob-size);
+    background: var(--vt-toggleswitch-knob-color);
+    border-radius: var(--vt-toggleswitch-border-radius);
+    transform: translateX(0);
+    transition:
+        transform var(--vt-toggleswitch-transition-duration) cubic-bezier(0.55, 0, 0, 1),
+        width var(--vt-toggleswitch-transition-duration),
+        height var(--vt-toggleswitch-transition-duration),
+        background-color var(--vt-toggleswitch-transition-duration);
+}
+
+.vt-toggleswitch-checked .vt-toggleswitch-track {
+    background: var(--vt-toggleswitch-checked-background);
+    border-color: var(--vt-toggleswitch-checked-border-color);
+}
+
+.vt-toggleswitch-checked .vt-toggleswitch-knob {
+    background: var(--vt-toggleswitch-checked-knob-color);
+    transform: translateX(var(--_travel));
+}
+
+.vt-toggleswitch:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-track {
+    --_knob: var(--vt-toggleswitch-knob-hover-size);
+    background: var(--vt-toggleswitch-hover-background);
+    border-color: var(--vt-toggleswitch-hover-border-color);
+}
+
+.vt-toggleswitch:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-knob {
+    height: var(--vt-toggleswitch-knob-hover-size);
+    background: var(--vt-toggleswitch-knob-hover-color);
+}
+
+.vt-toggleswitch-checked:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-track {
+    background: var(--vt-toggleswitch-checked-hover-background);
+    border-color: var(--vt-toggleswitch-checked-border-color);
+}
+
+.vt-toggleswitch-checked:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-knob {
+    background: var(--vt-toggleswitch-checked-knob-color);
+}
+
+.vt-toggleswitch:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:active .vt-toggleswitch-track {
+    --_knob: var(--vt-toggleswitch-knob-pressed-width);
+}
+
+.vt-toggleswitch-invalid .vt-toggleswitch-track,
+.vt-toggleswitch-invalid:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-track {
+    border-color: var(--vt-toggleswitch-invalid-border-color);
+}
+
+/* The ring goes round the whole pill, not just the input laid over it. */
+.vt-toggleswitch-track:has(.vt-toggleswitch-input:focus-visible) {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-toggleswitch-content {
+    user-select: none;
+}
+
+.vt-toggleswitch-disabled {
+    opacity: var(--vt-disabled-opacity);
+}
+
+.vt-toggleswitch-disabled .vt-toggleswitch-header,
+.vt-toggleswitch-disabled .vt-toggleswitch-body {
+    cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-toggleswitch-track,
+    .vt-toggleswitch-knob {
+        transition: none;
+    }
+}

@@ -1,0 +1,58 @@
+/* Builds on `.vt-overlay` with the popover surface. */
+.vt-confirmpopup {
+    max-width: min(var(--vt-confirmpopup-max-width), calc(100vw - 1rem));
+    color: var(--vt-confirmpopup-color);
+    background: var(--vt-confirmpopup-background);
+    border-color: var(--vt-confirmpopup-border-color);
+    border-radius: var(--vt-confirmpopup-border-radius);
+    box-shadow: var(--vt-confirmpopup-shadow);
+    outline: none;
+}
+
+.vt-confirmpopup-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vt-confirmpopup-content-gap);
+    padding: var(--vt-confirmpopup-content-padding);
+}
+
+.vt-confirmpopup-icon {
+    width: var(--vt-confirmpopup-icon-size);
+    height: var(--vt-confirmpopup-icon-size);
+    flex-shrink: 0;
+    color: var(--vt-confirmpopup-icon-color);
+}
+
+.vt-confirmpopup-icon-success {
+    color: var(--vt-success-subtle-color);
+}
+
+.vt-confirmpopup-icon-info {
+    color: var(--vt-info-subtle-color);
+}
+
+.vt-confirmpopup-icon-warn {
+    color: var(--vt-warn-subtle-color);
+}
+
+.vt-confirmpopup-icon-danger {
+    color: var(--vt-danger-subtle-color);
+}
+
+.vt-confirmpopup-message {
+    flex: 1 1 auto;
+    align-self: center;
+}
+
+.vt-confirmpopup-header {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.vt-confirmpopup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--vt-confirmpopup-footer-gap);
+    padding: var(--vt-confirmpopup-footer-padding);
+}

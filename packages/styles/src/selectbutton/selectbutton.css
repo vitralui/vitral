@@ -1,0 +1,89 @@
+/* Buttons welded into one control, of which one — or several — is pressed. */
+.vt-selectbutton {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--vt-selectbutton-border-color);
+    border-radius: var(--vt-selectbutton-border-radius);
+    overflow: hidden;
+}
+
+.vt-selectbutton-fluid {
+    display: flex;
+    width: 100%;
+}
+
+.vt-selectbutton-invalid {
+    border-color: var(--vt-selectbutton-invalid-border-color);
+}
+
+.vt-selectbutton-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    flex: 1 1 auto;
+    min-height: calc(var(--vt-control-min-height) - 2px);
+    padding: var(--vt-selectbutton-item-padding-y) var(--vt-selectbutton-item-padding-x);
+    font: inherit;
+    font-weight: var(--vt-selectbutton-item-font-weight);
+    color: var(--vt-selectbutton-item-color);
+    background: var(--vt-selectbutton-item-background);
+    border: 0;
+    cursor: pointer;
+    transition:
+        background var(--vt-transition-duration),
+        color var(--vt-transition-duration);
+}
+
+.vt-selectbutton-item + .vt-selectbutton-item {
+    border-inline-start: 1px solid var(--vt-selectbutton-border-color);
+}
+
+.vt-selectbutton-item:not(:disabled):hover {
+    color: var(--vt-selectbutton-item-hover-color);
+    background: var(--vt-selectbutton-item-hover-background);
+}
+
+.vt-selectbutton-item-checked,
+.vt-selectbutton-item-checked:not(:disabled):hover {
+    color: var(--vt-selectbutton-item-checked-color);
+    background: var(--vt-selectbutton-item-checked-background);
+}
+
+.vt-selectbutton-item-checked:not(:disabled):hover {
+    background: var(--vt-selectbutton-item-checked-hover-background);
+}
+
+.vt-selectbutton-item:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+    z-index: 1;
+}
+
+.vt-selectbutton-item:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-selectbutton-sm .vt-selectbutton-item {
+    min-height: calc(var(--vt-control-sm-min-height) - 2px);
+    padding: var(--vt-selectbutton-item-sm-padding-y) var(--vt-selectbutton-item-sm-padding-x);
+    font-size: var(--vt-selectbutton-item-sm-font-size);
+}
+
+.vt-selectbutton-lg .vt-selectbutton-item {
+    min-height: calc(var(--vt-control-lg-min-height) - 2px);
+    padding: var(--vt-selectbutton-item-lg-padding-y) var(--vt-selectbutton-item-lg-padding-x);
+    font-size: var(--vt-selectbutton-item-lg-font-size);
+}
+
+.vt-selectbutton-icon {
+    width: var(--vt-selectbutton-icon-size);
+    height: var(--vt-selectbutton-icon-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-selectbutton-item {
+        transition: none;
+    }
+}

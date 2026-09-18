@@ -1,0 +1,31 @@
+.vt-tooltip {
+    box-sizing: border-box;
+    max-width: min(var(--vt-tooltip-max-width), calc(100vw - 1rem));
+    padding: var(--vt-tooltip-padding);
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-tooltip-font-size);
+    line-height: var(--vt-tooltip-line-height);
+    color: var(--vt-tooltip-color);
+    background: var(--vt-tooltip-background);
+    border: 1px solid var(--vt-tooltip-border-color);
+    border-radius: var(--vt-tooltip-border-radius);
+    box-shadow: var(--vt-tooltip-shadow);
+    overflow-wrap: break-word;
+    animation: vt-tooltip-in var(--vt-tooltip-transition-duration) ease-out;
+}
+
+.vt-tooltip-text {
+    white-space: pre-line;
+}
+
+@keyframes vt-tooltip-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tooltip {
+        animation: none;
+    }
+}

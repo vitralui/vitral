@@ -1,0 +1,12 @@
+.vt-inputmask {
+    cursor: text;
+}
+
+.vt-inputmask.vt-field-disabled {
+    cursor: default;
+}
+
+/* The pattern is read one column per character, so the slots line up as they fill. */
+.vt-inputmask-input {
+    font-variant-numeric: var(--vt-inputmask-font-variant-numeric);
+}
