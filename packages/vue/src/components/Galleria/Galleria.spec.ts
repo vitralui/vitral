@@ -50,8 +50,7 @@ describe('Galleria', () => {
 
     it('keeps the one image element across a move, and says where it landed', async () => {
         const { index, slide } = mountGalleria();
-        const stage = document.getElementById(slide()!.parentElement!.id)!;
-        const status = stage.querySelector('.vt-sr-only')!;
+        const status = document.querySelector('.vt-galleria-stage .vt-sr-only')!;
         const first = slide()!.querySelector('img')!;
         expect(status.textContent).toBe('1 of 5');
 

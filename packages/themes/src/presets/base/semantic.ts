@@ -65,6 +65,8 @@ export const semantic: TokenTree = {
     fontSize: '0.875rem',
     lineHeight: '1.5',
     transitionDuration: '0.15s',
+    /* A named transition is a movement you are meant to notice, so it is slower than a hover. */
+    transitionPresetDuration: '0.35s',
     disabledOpacity: '0.55',
     /**
      * `<Icon>`: the box every icon is drawn in unless a component sizes it, and

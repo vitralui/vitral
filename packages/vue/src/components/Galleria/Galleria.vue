@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatMessage, rovingMove } from '@vitral/core';
-import { galleriaStyle } from '@vitral/styles';
+import { galleriaStyle, transitionName } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { useSwipe } from '../../base/useSwipe';
@@ -25,7 +25,8 @@ const props = withDefaults(defineProps<GalleriaProps>(), {
     showThumbnails: true,
     thumbnailsPosition: 'bottom',
     showThumbnailNavigators: true,
-    transitionInterval: 4000
+    transitionInterval: 4000,
+    transition: 'none'
 });
 const overlayTarget = useOverlayTarget();
 const activeIndex = defineModel<number>('activeIndex', { default: 0 });
@@ -38,6 +39,12 @@ const stageId = `${id}-stage`;
 const maskRef = ref<HTMLElement | null>(null);
 const dialogRef = ref<HTMLElement | null>(null);
 const thumbEls: (HTMLElement | null)[] = [];
+
+// With a preset the item is keyed, so the two overlap and the one arriving can
+// be animated against the one leaving. Without one it is the same element
+// throughout, which is what keeps an <img> painting until its next source has
+// loaded — see the note on the item below.
+const tx = computed(() => transitionName(props.transition));
 
 const count = computed(() => props.value.length);
 const current = computed(() => Math.max(0, Math.min(activeIndex.value, count.value - 1)));
@@ -162,8 +169,10 @@ defineExpose({ go });
                                 The move is announced by the status line above rather than by this
                                 element appearing, which is what the key was doing for the live region.
                             -->
+                            <Transition :name="tx">
                             <div
                                 v-if="count"
+                                :key="tx ? current : undefined"
                                 role="group"
                                 aria-roledescription="slide"
                                 :aria-label="formatMessage(locale.aria.slide, { index: current + 1, count })"
@@ -175,6 +184,7 @@ defineExpose({ go });
                                     <slot name="caption" :item="value[current]" :index="current" />
                                 </div>
                             </div>
+                            </Transition>
                             <template v-if="showItemNavigators && count > 1">
                                 <button type="button" :aria-label="locale.aria.previous" :disabled="!canPrev" v-bind="part('navigator', { side: 'prev' })" @click="go(current - 1)">
                                     <Icon icon="chevronLeft" />

@@ -10,7 +10,8 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
-import { Carousel } from '@vitral/vue';
+import { Carousel, SelectButton, transitionPresets, type TransitionPreset } from '@vitral/vue';
+import { ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
 const photos = [
@@ -23,6 +24,9 @@ const photos = [
     { id: 1022, title: 'Aurora' },
     { id: 1024, title: 'Vulture' }
 ];
+const preset = ref<TransitionPreset>('zoom');
+const presetOptions = transitionPresets.filter((p) => p !== 'none').map((value) => ({ label: value[0]!.toUpperCase() + value.slice(1), value }));
+
 const responsive = [
     { breakpoint: '1024px', numVisible: 2, numScroll: 2 },
     { breakpoint: '640px', numVisible: 1, numScroll: 1 }
@@ -53,5 +57,21 @@ const responsive = [
                 <img :src="`https://picsum.photos/id/${(data as { id: number }).id}/320/200`" :alt="(data as { title: string }).title" style="display: block; width: 100%; height: 100%; object-fit: cover; padding: 0.25rem 0; box-sizing: border-box" />
             </template>
         </Carousel>
+    </DemoSection>
+    <DemoSection
+        title="Transitions, one at a time"
+        description="The default slides the whole strip, which is what lets a carousel show several at once. Every other preset shows one and animates it where it stands, so it applies only where numVisible is 1. They are the same presets Galleria uses."
+    >
+        <div class="demo-stack demo-wide" style="gap: 0.75rem">
+            <SelectButton v-model="preset" :options="presetOptions" option-label="label" option-value="value" size="small" :allow-empty="false" aria-label="Transition" />
+            <Carousel :value="photos" :num-visible="1" :num-scroll="1" :transition="preset" circular aria-label="Photographs, with a transition">
+                <template #item="{ data }">
+                    <figure style="margin: 0">
+                        <img :src="`https://picsum.photos/id/${(data as { id: number }).id}/800/400`" :alt="(data as { title: string }).title" style="display: block; width: 100%" />
+                        <figcaption class="demo-hint">{{ (data as { title: string }).title }}</figcaption>
+                    </figure>
+                </template>
+            </Carousel>
+        </div>
     </DemoSection>
 </template>

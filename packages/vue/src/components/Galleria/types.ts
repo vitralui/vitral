@@ -1,3 +1,4 @@
+import type { TransitionPreset } from '@vitral/styles';
 import type { BaseProps } from '../../base/types';
 
 export interface GalleriaProps extends BaseProps {
@@ -22,6 +23,12 @@ export interface GalleriaProps extends BaseProps {
     autoPlay?: boolean;
     /** Milliseconds between items when playing. Defaults to 4000. */
     transitionInterval?: number;
+    /**
+     * How one item gives way to the next: `'fade'`, `'slide'`, `'push'`,
+     * `'cover'`, `'zoom'`, `'flip'`, or `'none'`, which is the default — a
+     * gallery being browsed quickly is better off swapping at once.
+     */
+    transition?: TransitionPreset;
     /** Names the gallery. */
     ariaLabel?: string;
 }

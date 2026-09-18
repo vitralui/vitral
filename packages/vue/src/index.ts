@@ -5,6 +5,8 @@ export * from './base/types';
 export { useComponent, useSplitAttrs } from './base/useComponent';
 
 export { loadStyle } from './composables/useStyle';
+// The named transitions a Galleria or a Carousel can be given.
+export { transitionPresets, type TransitionPreset } from '@vitral/styles';
 export { collectStyles, colorSchemeTag, type CollectedStyles } from './ssr';
 export { useTheme } from './composables/useTheme';
 export { useLocale } from './composables/useLocale';

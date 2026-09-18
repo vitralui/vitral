@@ -532,4 +532,26 @@ describe('createChart', () => {
         expect(remove.mock.calls.map((c) => c[0]).sort()).toEqual(['keydown', 'pointercancel', 'pointermove', 'pointerup', 'touchmove']);
         remove.mockRestore();
     });
+
+    it('opens the tooltip away from the data being read towards', async () => {
+        const { chart, svg } = mount();
+        const scene = chart.scene();
+        const offsetOf = () => {
+            const tip = document.querySelector<HTMLElement>('.vt-chart-tooltip')!;
+            return Number(/translate\((-?\d+(?:\.\d+)?)px/.exec(tip.style.transform)![1]);
+        };
+
+        // In the left half the panel opens to the right of the column; in the
+        // right half to its left, over what has been read rather than over the
+        // points the eye is travelling towards.
+        const first = scene.columns[0]!;
+        svg().dispatchEvent(pointer('pointermove', first.pos, scene.plot.y + 20));
+        await tick();
+        expect(offsetOf()).toBeGreaterThan(first.pos);
+
+        const last = scene.columns[scene.columns.length - 1]!;
+        svg().dispatchEvent(pointer('pointermove', last.pos, scene.plot.y + 20));
+        await tick();
+        expect(offsetOf()).toBeLessThan(last.pos);
+    });
 });

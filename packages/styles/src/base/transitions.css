@@ -1,0 +1,141 @@
+/*
+ * The transition presets a Galleria or a Carousel can be given by name, the way
+ * a slide deck offers them. They are defined once, here, because the two
+ * components show one thing at a time in the same way and should not drift
+ * apart — and because a preset is a pair of movements, one for what is arriving
+ * and one for what is leaving, which is easy to get out of step when it is
+ * written twice.
+ *
+ * The names are Vue's transition classes, so a component only has to say
+ * `name="vt-tx-fade"`. The same keyframes drive a Carousel, which animates the
+ * item it has rather than swapping two.
+ *
+ * Every one of them stops under `prefers-reduced-motion`: a slide that flies in
+ * is decoration, and the picture underneath is the content.
+ */
+
+.vt-tx-fade-enter-active,
+.vt-tx-fade-leave-active,
+.vt-tx-slide-enter-active,
+.vt-tx-slide-leave-active,
+.vt-tx-push-enter-active,
+.vt-tx-push-leave-active,
+.vt-tx-cover-enter-active,
+.vt-tx-cover-leave-active,
+.vt-tx-zoom-enter-active,
+.vt-tx-zoom-leave-active,
+.vt-tx-flip-enter-active,
+.vt-tx-flip-leave-active {
+    transition:
+        opacity var(--vt-transition-preset-duration) ease,
+        transform var(--vt-transition-preset-duration) ease;
+}
+
+/* The two overlap rather than queue, so the box never empties between them. */
+.vt-tx-fade-leave-active,
+.vt-tx-slide-leave-active,
+.vt-tx-push-leave-active,
+.vt-tx-cover-leave-active,
+.vt-tx-zoom-leave-active,
+.vt-tx-flip-leave-active {
+    position: absolute;
+    inset: 0;
+}
+
+/* ---- fade: the plainest, and the one that never gets in the way */
+
+.vt-tx-fade-enter-from,
+.vt-tx-fade-leave-to {
+    opacity: 0;
+}
+
+/* ---- slide: the new one comes from the end of the line, the old goes the other way */
+
+.vt-tx-slide-enter-from {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.vt-tx-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+/* ---- push: the same, without the fade, so they move as one strip */
+
+.vt-tx-push-enter-from {
+    transform: translateX(100%);
+}
+
+.vt-tx-push-leave-to {
+    transform: translateX(-100%);
+}
+
+/* ---- cover: the new one slides over the old, which stays put */
+
+.vt-tx-cover-enter-from {
+    transform: translateX(100%);
+}
+
+.vt-tx-cover-leave-to {
+    opacity: 1;
+}
+
+/* ---- zoom: in from slightly small, out to slightly large */
+
+.vt-tx-zoom-enter-from {
+    opacity: 0;
+    transform: scale(0.92);
+}
+
+.vt-tx-zoom-leave-to {
+    opacity: 0;
+    transform: scale(1.06);
+}
+
+/* ---- flip: a half turn about the upright axis */
+
+.vt-tx-flip-enter-active,
+.vt-tx-flip-leave-active {
+    backface-visibility: hidden;
+}
+
+.vt-tx-flip-enter-from {
+    opacity: 0;
+    transform: perspective(60rem) rotateY(90deg);
+}
+
+.vt-tx-flip-leave-to {
+    opacity: 0;
+    transform: perspective(60rem) rotateY(-90deg);
+}
+
+/* Right to left, the horizontal presets travel the other way. */
+[dir='rtl'] .vt-tx-slide-enter-from,
+[dir='rtl'] .vt-tx-push-enter-from,
+[dir='rtl'] .vt-tx-cover-enter-from {
+    transform: translateX(-100%);
+}
+
+[dir='rtl'] .vt-tx-slide-leave-to,
+[dir='rtl'] .vt-tx-push-leave-to {
+    transform: translateX(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tx-fade-enter-active,
+    .vt-tx-fade-leave-active,
+    .vt-tx-slide-enter-active,
+    .vt-tx-slide-leave-active,
+    .vt-tx-push-enter-active,
+    .vt-tx-push-leave-active,
+    .vt-tx-cover-enter-active,
+    .vt-tx-cover-leave-active,
+    .vt-tx-zoom-enter-active,
+    .vt-tx-zoom-leave-active,
+    .vt-tx-flip-enter-active,
+    .vt-tx-flip-leave-active {
+        transition: opacity 1ms linear;
+        transform: none !important;
+    }
+}

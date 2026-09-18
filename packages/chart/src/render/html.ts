@@ -135,9 +135,16 @@ export interface TooltipProps {
  */
 export function tooltipView(part: Part, p: TooltipProps): Child {
     const gap = 12;
-    let left = p.x + gap;
-    if (left + p.size.width > p.bounds.width) left = p.x - gap - p.size.width;
-    left = Math.max(0, left);
+    // Beside the point, on the side the reader has already been: in the left
+    // half it opens to the right, in the right half to the left. Opening to the
+    // same side always meant that halfway across a chart the panel lay over the
+    // markers being read towards. If the chosen side does not fit, the other
+    // one does.
+    const before = p.x > p.bounds.width / 2;
+    let left = before ? p.x - gap - p.size.width : p.x + gap;
+    if (left < 0) left = p.x + gap;
+    else if (left + p.size.width > p.bounds.width) left = p.x - gap - p.size.width;
+    left = Math.max(0, Math.min(left, Math.max(0, p.bounds.width - p.size.width)));
     let top = p.y - p.size.height / 2;
     top = Math.max(0, Math.min(top, p.bounds.height - p.size.height));
     const position = { transform: `translate(${Math.round(left)}px, ${Math.round(top)}px)` };

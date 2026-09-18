@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { carouselFirst, carouselPageCount, carouselStep, formatMessage, isClient } from '@vitral/core';
-import { carouselStyle } from '@vitral/styles';
+import { carouselStyle, transitionName } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { useSwipe } from '../../base/useSwipe';
@@ -62,11 +62,21 @@ const swipe = useSwipe({
         if (step < 0 ? canPrev.value : canNext.value) go(carouselStep(current.value, step, layout.value, props.circular));
     }
 });
+/**
+ * A preset other than `'slide'` shows one item at a time and animates it where
+ * it stands, so the strip stops moving and the items are stacked instead. With
+ * more than one visible there is no "the item" to animate, and the strip is
+ * what a carousel is for, so the preset is ignored there.
+ */
+const stacked = computed(() => props.transition !== undefined && props.transition !== 'slide' && props.transition !== 'none' && layout.value.numVisible === 1);
+const tx = computed(() => (stacked.value ? transitionName(props.transition as never) : undefined));
+
 const trackStyle = computed(() => {
+    if (stacked.value) return undefined;
     const at = `calc(${-first.value * share.value}% + ${swipe.offset.value}px)`;
     return { transform: vertical.value ? `translateY(${at})` : `translateX(${at})` };
 });
-const itemStyle = computed(() => (vertical.value ? { height: `${share.value}%` } : { width: `${share.value}%` }));
+const itemStyle = computed(() => (stacked.value ? undefined : vertical.value ? { height: `${share.value}%` } : { width: `${share.value}%` }));
 const isVisible = (index: number) => index >= first.value && index < first.value + layout.value.numVisible;
 
 watch(pages, (count) => {
@@ -106,7 +116,7 @@ function onFocusout(event: FocusEvent) {
     <section
         aria-roledescription="carousel"
         :aria-label="ariaLabel"
-        v-bind="part('root', { orientation })"
+        v-bind="part('root', { orientation, stacked: stacked })"
         @pointerenter="held = true"
         @pointerleave="held = false"
         @focusin="held = true"
@@ -126,9 +136,21 @@ function onFocusout(event: FocusEvent) {
                 <Icon icon="chevronLeft" />
             </button>
             <div v-bind="mergeProps(part('viewport'), swipe.handlers)" :style="vertical ? { height: verticalViewPortHeight } : undefined">
-                <div :id="trackId" :aria-live="rotating ? 'off' : 'polite'" v-bind="part('track', { dragging: swipe.dragging.value })" :style="trackStyle">
+                <div :id="trackId" :aria-live="rotating ? 'off' : 'polite'" v-bind="part('track', { dragging: swipe.dragging.value, stacked: stacked })" :style="trackStyle">
+                    <TransitionGroup v-if="stacked" :name="tx" tag="div" v-bind="part('stack')">
+                        <div
+                            v-for="(item, index) in value.filter((_, i) => isVisible(i))"
+                            :key="first"
+                            role="group"
+                            aria-roledescription="slide"
+                            :aria-label="formatMessage(locale.aria.slide, { index: first + 1, count: value.length })"
+                            v-bind="part('item', { active: true })"
+                        >
+                            <slot name="item" :data="item" :index="first" />
+                        </div>
+                    </TransitionGroup>
                     <div
-                        v-for="(item, index) in value"
+                        v-for="(item, index) in stacked ? [] : value"
                         :key="index"
                         role="group"
                         aria-roledescription="slide"

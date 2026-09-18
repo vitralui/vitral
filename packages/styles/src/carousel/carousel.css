@@ -129,3 +129,25 @@
         transition: none;
     }
 }
+
+/*
+ * Stacked: one item at a time, animated where it stands rather than carried
+ * past on a moving strip. The two overlap during the change, which is what
+ * gives the preset something to animate against, and the box keeps the height
+ * of whichever is taller.
+ */
+.vt-carousel-track-stacked {
+    display: block;
+    transform: none;
+    transition: none;
+}
+
+.vt-carousel-stack {
+    position: relative;
+    display: grid;
+}
+
+.vt-carousel-stack > * {
+    grid-area: 1 / 1;
+    width: 100%;
+}

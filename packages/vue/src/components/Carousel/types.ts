@@ -1,3 +1,4 @@
+import type { TransitionPreset } from '@vitral/styles';
 import type { BaseProps } from '../../base/types';
 
 export interface CarouselResponsiveOption {
@@ -29,6 +30,13 @@ export interface CarouselProps extends BaseProps {
     showIndicators?: boolean;
     /** Names the carousel. */
     ariaLabel?: string;
+    /**
+     * How one slide gives way to the next. The default `'slide'` moves the
+     * whole strip, which is what lets a carousel show several at once; every
+     * other preset shows one at a time and animates it in place, so it applies
+     * only where `numVisible` is 1.
+     */
+    transition?: TransitionPreset | 'slide';
 }
 
 export type CarouselEmits = {
