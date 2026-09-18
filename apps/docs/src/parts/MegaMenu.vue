@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Icon } from '@vitral/vue';
+import { Button, Drawer, Icon } from '@vitral/vue';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { sections } from '../lib/catalog';
 import { guideSections } from '../lib/guides';
 import { route, href } from '../lib/router';
+import { chartEntries } from '../lib/charts';
 import { templateCategories, templates } from '../templates';
 
 /**
@@ -19,6 +20,31 @@ type Panel = 'components' | 'templates' | 'docs';
 const open = ref<Panel | null>(null);
 const offset = ref(0);
 const root = ref<HTMLElement | null>(null);
+
+/**
+ * The same sections, on a phone. Below 900px the bar has no room for the
+ * panels, and until now it simply dropped them: the only way to another part of
+ * the site was the footer. The drawer is the panels' content in one column,
+ * opened by the one button there is room for.
+ */
+const drawer = ref(false);
+const search = defineModel<boolean>('search', { default: false });
+
+const shortcuts = computed(() => [
+    { label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' },
+    { label: 'Charts', to: '/charts', note: `${chartEntries.length} kinds, drawn live`, icon: 'grip', active: route.value.name === 'charts' }
+]);
+
+// A link inside the drawer has done its job; the drawer should not stay open
+// over the page it just opened.
+function leave() {
+    drawer.value = false;
+}
+
+function openSearch() {
+    drawer.value = false;
+    search.value = true;
+}
 
 const categoryIcons: Record<string, string> = {
     Form: 'pencil',
@@ -110,6 +136,61 @@ onBeforeUnmount(() => {
             <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
             <a :href="href('/charts')" :class="{ 'is-active': route.name === 'charts' }" :aria-current="route.name === 'charts' ? 'page' : undefined">Charts</a>
         </nav>
+
+        <Button
+            class="mega-burger"
+            icon="menu"
+            variant="text"
+            severity="secondary"
+            aria-label="Sections"
+            aria-haspopup="dialog"
+            :aria-expanded="drawer"
+            @click="drawer = true"
+        />
+
+        <Drawer v-model:visible="drawer" header="Sections" position="left" class="mega-drawer">
+            <button type="button" class="mega-drawer-search" @click="openSearch">
+                <Icon icon="search" />
+                Search the documentation
+            </button>
+
+            <nav aria-label="Sections">
+                <a v-for="item in shortcuts" :key="item.to" :href="href(item.to)" class="mega-drawer-link" :aria-current="item.active ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon :icon="item.icon" /></span>
+                    <span>
+                        <b>{{ item.label }}</b>
+                        <em>{{ item.note }}</em>
+                    </span>
+                </a>
+
+                <h2>Components <small>{{ componentCount }}</small></h2>
+                <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
+                    <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
+                    <span>
+                        <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
+                        <em>{{ categoryNotes[group.category] }}</em>
+                    </span>
+                </a>
+
+                <h2>Documentation</h2>
+                <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
+                    <span class="mega-icon"><Icon icon="file" /></span>
+                    <span>
+                        <b>{{ group.section }}</b>
+                        <em>{{ guideNotes[group.section] }}</em>
+                    </span>
+                </a>
+
+                <h2>Templates <small>{{ templates.length }}</small></h2>
+                <a v-for="entry in templates" :key="entry.id" :href="href(`/templates/${entry.id}`)" class="mega-drawer-link" @click="leave">
+                    <span class="mega-icon"><Icon :icon="entry.icon" /></span>
+                    <span>
+                        <b>{{ entry.name }}</b>
+                        <em>{{ entry.summary }}</em>
+                    </span>
+                </a>
+            </nav>
+        </Drawer>
 
         <div v-if="open" class="mega-panel" :class="{ wide: open === 'templates' }" :style="{ '--mega-offset': `${offset}px` }" @click="open = null">
             <template v-if="open === 'components'">

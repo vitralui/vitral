@@ -60,7 +60,7 @@ const toc = computed(() => [
 
             <template v-if="api.props.length">
                 <h3 style="margin: 1.25rem 0 0; font-size: 1rem">Props</h3>
-                <table class="api-table">
+                <div class="api-scroll"><table class="api-table">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -75,7 +75,7 @@ const toc = computed(() => [
                             <td class="doc">{{ prop.doc ?? '—' }}</td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
                 <p v-if="api.extends.includes('BaseProps')" style="margin: -0.75rem 0 1.5rem; font-size: 0.8125rem; color: var(--vt-text-muted-color)">
                     Plus <code>pt</code>, <code>dt</code> and <code>unstyled</code> from <code>BaseProps</code>, see
                     <a :href="href('/docs/pass-through')">pass-through</a> and <a :href="href('/docs/unstyled')">unstyled mode</a>.
@@ -84,7 +84,7 @@ const toc = computed(() => [
 
             <template v-if="api.emits.length">
                 <h3 style="margin: 1.25rem 0 0; font-size: 1rem">Emits</h3>
-                <table class="api-table">
+                <div class="api-scroll"><table class="api-table">
                     <thead>
                         <tr>
                             <th>Event</th>
@@ -99,12 +99,12 @@ const toc = computed(() => [
                             <td class="doc">{{ event.doc ?? '—' }}</td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
             </template>
 
             <template v-if="api.slots.length">
                 <h3 style="margin: 1.25rem 0 0; font-size: 1rem">Slots</h3>
-                <table class="api-table">
+                <div class="api-scroll"><table class="api-table">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -119,7 +119,7 @@ const toc = computed(() => [
                             <td class="doc">{{ slot.doc ?? '—' }}</td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
             </template>
         </template>
 

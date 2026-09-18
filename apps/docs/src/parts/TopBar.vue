@@ -19,7 +19,7 @@ const theme = useTheme();
                 <span class="brand-version">0.1</span>
             </a>
 
-            <MegaMenu />
+            <MegaMenu v-model:search="search" />
 
             <div class="top-actions">
                 <button class="search-btn" type="button" @click="search = true">

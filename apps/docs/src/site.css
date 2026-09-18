@@ -468,6 +468,8 @@ a {
     padding: 0.0625rem 0.3125rem;
     border-radius: 4px;
     background: var(--vt-navigation-item-focus-background);
+    /* `updatePrimaryPalette` in a sentence is wider than a phone. */
+    overflow-wrap: anywhere;
 }
 
 .prose blockquote {
@@ -639,6 +641,15 @@ a {
     padding: 1rem;
 }
 
+/*
+ * A flex item refuses to go below its content's width unless told to, so a
+ * table or a chart that scrolls perfectly well inside its own box still pushed
+ * the page sideways on a phone. This is what lets it shrink and scroll.
+ */
+.demo-body > * {
+    min-width: 0;
+}
+
 .demo-body.stack,
 .demo-row {
     display: flex;
@@ -682,7 +693,35 @@ a {
     border-radius: 0;
 }
 
+/*
+ * A token with no spaces in it — a prop name, a URL, a token path — is one word
+ * to the line breaker, and at 320px one word can be wider than the page. Text
+ * wraps inside its own column rather than widening the document.
+ */
+.doc-head p,
+.doc-main,
+.prose,
+.demo-hint,
+.notfound-lead,
+.tpl-head p {
+    overflow-wrap: break-word;
+}
+
 /* --------------------------------------------------------------- API table */
+
+/*
+ * A table of props has four columns of things that cannot be hyphenated — a
+ * name, a type, a default — so at 320px it is wider than the page whatever the
+ * font size. It scrolls in its own box rather than taking the page with it.
+ */
+.api-scroll {
+    overflow-x: auto;
+    margin: 0.75rem 0 1.5rem;
+}
+
+.api-scroll > .api-table {
+    margin: 0;
+}
 
 .api-table {
     width: 100%;
@@ -815,6 +854,10 @@ a {
     .top-nav,
     .search-btn {
         display: none;
+    }
+
+    .mega {
+        margin-inline-end: 0;
     }
 
     .docs {
@@ -1051,6 +1094,98 @@ a {
     width: 0.875em;
     height: 0.875em;
     vertical-align: -1px;
+}
+
+/* ---- the phone's way in */
+
+/*
+ * Two classes, not one: the component's own stylesheet is injected at runtime,
+ * after this file, so at equal specificity `.vt-button` would win and the
+ * button would show at every width.
+ */
+/*
+ * At 320px the bar's own contents are wider than the bar: the brand, the
+ * button and three actions come to about 300px inside a 280px line. The
+ * version chip is the least of them, and a tighter gap finds the rest.
+ */
+@media (max-width: 480px) {
+    .topbar-inner {
+        gap: 0.5rem;
+    }
+
+    .brand-version {
+        display: none;
+    }
+}
+
+.mega .mega-burger {
+    display: none;
+}
+
+/* Below the breakpoint the panels have no room, so the drawer carries them. */
+@media (max-width: 900px) {
+    .mega .mega-burger {
+        display: inline-flex;
+    }
+}
+
+.mega-drawer-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--vt-text-muted-color);
+    background: var(--vt-form-field-background);
+    border: 1px solid var(--vt-form-field-border-color);
+    border-radius: var(--vt-border-radius-md);
+    cursor: pointer;
+}
+
+.mega-drawer h2 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--vt-text-muted-color);
+}
+
+.mega-drawer h2 small {
+    margin-inline-start: 0.25rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.mega-drawer-link {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: var(--vt-border-radius-md);
+    color: inherit;
+    text-decoration: none;
+}
+
+.mega-drawer-link:hover,
+.mega-drawer-link[aria-current='page'] {
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.mega-drawer-link b {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.mega-drawer-link em {
+    display: block;
+    font-size: 0.75rem;
+    font-style: normal;
+    color: var(--vt-text-muted-color);
 }
 
 .mega-foot:hover {
