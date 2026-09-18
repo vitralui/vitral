@@ -460,6 +460,28 @@ a {
 
 /* ------------------------------------------------------------ code blocks */
 
+/*
+ * Code is left to right in every language: the characters are English and the
+ * punctuation is syntax rather than words. Left to inherit a right-to-left
+ * page, the bidi algorithm moves the neutral characters to the other end and
+ * `import { createApp } from 'vue';` is drawn `;'import { createApp } from 'vue`,
+ * with the lines flush right and the first one clipped. So a code block is an
+ * island: the card, its label and its copy button included, since a file name
+ * is not prose either.
+ *
+ * `isolate` is for the inline kind, so a token in the middle of a sentence
+ * cannot drag the sentence's own punctuation around with it.
+ */
+.code,
+.prose :not(pre) > code,
+.api-table code,
+.home-install code,
+.charts-card header code,
+.settings-grid code {
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
 .code {
     position: relative;
     margin: 1rem 0;
