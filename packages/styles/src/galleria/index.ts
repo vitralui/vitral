@@ -9,6 +9,7 @@ export const galleriaStyle = defineStyle({
         header: 'vt-galleria-header',
         footer: 'vt-galleria-footer',
         stage: 'vt-galleria-stage',
+        status: 'vt-sr-only',
         item: (s: { dragging?: boolean }) => ['vt-galleria-item', { 'vt-galleria-item-dragging': s.dragging }],
         caption: 'vt-galleria-caption',
         navigator: (s: { side?: 'prev' | 'next' }) => ['vt-galleria-navigator', `vt-galleria-navigator-${s.side}`],

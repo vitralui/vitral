@@ -48,6 +48,24 @@ describe('Galleria', () => {
         expect(document.getElementById(thumbs()[0]!.getAttribute('aria-controls')!)!.getAttribute('aria-live')).toBe('polite');
     });
 
+    it('keeps the one image element across a move, and says where it landed', async () => {
+        const { index, slide } = mountGalleria();
+        const stage = document.getElementById(slide()!.parentElement!.id)!;
+        const status = stage.querySelector('.vt-sr-only')!;
+        const first = slide()!.querySelector('img')!;
+        expect(status.textContent).toBe('1 of 5');
+
+        index.value = 2;
+        await nextTick();
+
+        // The same <img>, with a new source: it goes on showing the picture it
+        // has until the next one has loaded, so the stage never empties and
+        // nothing below it moves. A rebuilt element would be a different one.
+        expect(slide()!.querySelector('img')).toBe(first);
+        expect(first.getAttribute('src')).toBe('c.jpg');
+        expect(status.textContent).toBe('3 of 5');
+    });
+
     it('moves with the arrows on the thumbnails and follows with the window', async () => {
         const { index, thumbs, slide } = mountGalleria();
         thumbs()[0]!.focus();

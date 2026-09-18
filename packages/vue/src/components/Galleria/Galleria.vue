@@ -141,6 +141,7 @@ defineExpose({ go });
                     >
                         <div v-if="$slots.header" v-bind="part('header')"><slot name="header" /></div>
                         <div :id="stageId" v-bind="part('stage')" :aria-live="rotating ? 'off' : 'polite'">
+                            <span v-bind="part('status')">{{ count ? formatMessage(locale.aria.slide, { index: current + 1, count }) : '' }}</span>
                             <button
                                 v-if="autoPlay"
                                 type="button"
@@ -151,9 +152,18 @@ defineExpose({ go });
                             >
                                 <Icon :icon="playing ? 'pause' : 'play'" />
                             </button>
+                            <!--
+                                One element for every item, never rebuilt: the slot is nearly always an
+                                <img>, and an <img> whose `src` changes keeps painting the image it has
+                                until the new one has arrived, then swaps in one go. Keying this on the
+                                index instead would throw that element away on every move, leaving an
+                                empty box of no height while the next image loads — the picture gone and
+                                the thumbnails and indicators jumping up and back down as it arrives.
+                                The move is announced by the status line above rather than by this
+                                element appearing, which is what the key was doing for the live region.
+                            -->
                             <div
                                 v-if="count"
-                                :key="current"
                                 role="group"
                                 aria-roledescription="slide"
                                 :aria-label="formatMessage(locale.aria.slide, { index: current + 1, count })"
