@@ -23,6 +23,33 @@ useDocumentHead();
 const search = ref(false);
 const isDocs = computed(() => route.value.name === 'doc');
 
+// ---- the pane follows the page --------------------------------------------
+// The pane scrolls on its own and the component list is long, so a direct hit
+// on /components/treetable would open with the pane at the top and the page you
+// are on out of sight below it. This brings the current link into view, but
+// only when it is not already there: clicking a link you can see must not make
+// the list jump under the pointer.
+const pane = ref<HTMLElement | null>(null);
+
+function revealCurrent(smooth: boolean) {
+    const el = pane.value;
+    if (!el || el.scrollHeight <= el.clientHeight) return;
+    const link = el.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!link) return;
+    const box = el.getBoundingClientRect();
+    const item = link.getBoundingClientRect();
+    if (item.top >= box.top && item.bottom <= box.bottom) return;
+    // Centred rather than flush against an edge: the links around it are how
+    // you tell where you are in a list of ninety.
+    const delta = item.top - box.top - (box.height - item.height) / 2;
+    el.scrollTo({ top: el.scrollTop + delta, behavior: smooth ? 'smooth' : 'instant' });
+}
+
+// On arrival there is nothing to animate, and afterwards the movement says the
+// list followed you rather than jumped.
+onMounted(() => nextTick(() => revealCurrent(false)));
+watch(() => route.value.path, () => nextTick(() => revealCurrent(true)));
+
 // A new page starts at its top, at once, whatever the page's smooth scrolling
 // says, and for every route in one place.
 watch(
@@ -57,7 +84,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <ChartsPage v-else-if="route.name === 'charts'" />
 
         <div v-else class="docs">
-            <nav class="pane" :aria-label="isDocs ? 'Documentation' : 'Components'">
+            <nav ref="pane" class="pane" :aria-label="isDocs ? 'Documentation' : 'Components'">
                 <template v-if="isDocs">
                     <template v-for="group in guideSections" :key="group.section">
                         <h2>{{ group.section }}</h2>
