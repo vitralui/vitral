@@ -22,17 +22,6 @@ export const swatches = [
     { name: 'Rose', value: '{rose}', color: '#f43f5e' }
 ];
 
-export const schemeOptions = [
-    { label: 'System', value: 'system' },
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' }
-];
-
-export const variantOptions = [
-    { label: 'Outlined', value: 'outlined' },
-    { label: 'Filled', value: 'filled' }
-];
-
 export const directionOptions = [
     { label: 'Left to right', value: 'ltr' },
     { label: 'Right to left', value: 'rtl' }
