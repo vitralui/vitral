@@ -20,27 +20,31 @@ interface PageHead {
     description: string;
 }
 
+// An address with nothing behind it says so, whether the shape was wrong
+// (`/nonsense`) or only the id was (`/docs/typo`).
+const notFound: PageHead = { title: 'Page not found', description: 'Nothing is published at this address.' };
+
 function headOf(): PageHead {
     const { name, id } = route.value;
     if (name === 'doc') {
         const guide = guideOf(id);
-        return { title: guide ? `${guide.meta.title} — documentation` : 'Documentation', description: guide?.meta.description ?? fallback };
+        return guide ? { title: `${guide.meta.title} — documentation`, description: guide.meta.description } : notFound;
     }
     if (name === 'component') {
         const entry = entryOf(id);
-        return {
-            title: entry ? `${entry.meta.title} — Vue component` : 'Components',
-            description: entry?.meta.description ?? `The ${id} component: live examples, its API and the markup behind each example.`
-        };
+        return entry
+            ? { title: `${entry.meta.title} — Vue component`, description: entry.meta.description ?? `The ${id} component: live examples, its API and the markup behind each example.` }
+            : notFound;
     }
     if (name === 'icons') return { title: 'Icons', description: 'The outline icon set drawn for Vitral, searchable by name, category and tag.' };
+    if (name === 'not-found') return notFound;
     if (name === 'charts') {
         return { title: 'Charts', description: 'Every kind of chart the engine draws, live on one page: line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut and radar.' };
     }
     if (name === 'templates') return { title: 'Templates', description: 'Multi-screen applications built only from Vitral components, themed by the same tokens.' };
     if (name === 'template' || name === 'template-preview') {
         const entry = templateOf(id);
-        return { title: entry ? `${entry.name} template` : 'Templates', description: entry?.description ?? fallback };
+        return entry ? { title: `${entry.name} template`, description: entry.description } : notFound;
     }
     return { title: 'Vitral — a Vue 3 component library with a token engine', description: fallback };
 }

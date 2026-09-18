@@ -68,11 +68,16 @@ a {
 }
 
 /*
- * The mark, which is the favicon: the same rounded square and the same V, drawn
- * on the same 32 grid. The letter rides on the gradient as a background layer
- * rather than as markup, so the two places that show it — the bar and the
- * footer — stay one empty span and there is one drawing to keep in step with
- * the icon in the head of the page.
+ * The mark, which is the favicon: the same rounded square, the same V and the
+ * same three colours, drawn on the same 32 grid. The letter rides on the
+ * gradient as a background layer rather than as markup, so the two places that
+ * show it — the bar and the footer — stay one empty span and there is one
+ * drawing to keep in step with the icon in the head of the page.
+ *
+ * The colours are fixed rather than the theme's primary: the swatches in the
+ * theme menu are for trying the library on, and a logo that changes colour with
+ * them is not a logo. It is the one mark on the page that means us rather than
+ * the preset being demonstrated.
  */
 .brand-mark {
     width: 26px;
@@ -80,7 +85,7 @@ a {
     border-radius: 8px;
     background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 9h4l3 9 3-9h4l-5.5 14h-3z' fill='%23fff'/%3E%3C/svg%3E") center / 100% no-repeat,
-        linear-gradient(135deg, var(--vt-primary-400), var(--vt-primary-700));
+        linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #06b6d4 100%);
     box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12) inset;
 }
 
@@ -193,6 +198,27 @@ a {
     gap: 1.5rem 2.5rem;
     align-items: flex-start;
     justify-content: space-between;
+}
+
+.footer-about {
+    max-width: 30ch;
+}
+
+.footer-about .brand {
+    margin-bottom: 0.5rem;
+}
+
+.footer-about p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* The count rides with the label rather than in a column of its own. */
+.footer-inner a small {
+    margin-inline-start: 0.375rem;
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--vt-text-muted-color);
 }
 
 .footer-note {
@@ -2587,5 +2613,78 @@ a {
     margin: 0 0 1.5rem;
     font-size: 0.9375rem;
     line-height: 1.6;
+    color: var(--vt-text-muted-color);
+}
+
+/* ---------------------------------------------------------------- not found */
+
+.notfound {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 38rem;
+    margin: 0 auto;
+    padding: 5rem var(--site-gutter) 7rem;
+}
+
+.notfound-code {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--vt-primary-color);
+}
+
+.notfound h1 {
+    margin: 0.5rem 0 0;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.notfound-lead {
+    margin: 0.75rem 0 0;
+    line-height: 1.6;
+    color: var(--vt-text-muted-color);
+}
+
+.notfound-lead code {
+    word-break: break-all;
+}
+
+.notfound-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin-top: 1.75rem;
+}
+
+.notfound-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    margin: 3rem 0 0;
+    padding: 2rem 0 0;
+    border-top: 1px solid var(--vt-content-border-color);
+    list-style: none;
+}
+
+.notfound-links a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--vt-border-radius-md);
+    color: inherit;
+    text-decoration: none;
+}
+
+.notfound-links a:hover {
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.notfound-links span {
+    font-size: 0.8125rem;
     color: var(--vt-text-muted-color);
 }

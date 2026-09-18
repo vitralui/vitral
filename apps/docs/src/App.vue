@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Icon, ScrollTop } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { sections } from './lib/catalog';
-import { guideSections } from './lib/guides';
+import { entryOf, sections } from './lib/catalog';
+import { guideOf, guideSections } from './lib/guides';
+import { templateOf } from './templates';
 import { useDocumentHead } from './lib/head';
 import { route, href } from './lib/router';
 import { installThemeSwitcher } from './lib/theme';
@@ -11,6 +12,7 @@ import DocPage from './pages/DocPage.vue';
 import Home from './pages/Home.vue';
 import ChartsPage from './pages/ChartsPage.vue';
 import IconsPage from './pages/IconsPage.vue';
+import NotFound from './pages/NotFound.vue';
 import TemplateFullscreen from './pages/TemplateFullscreen.vue';
 import TemplatePage from './pages/TemplatePage.vue';
 import TemplatesPage from './pages/TemplatesPage.vue';
@@ -22,6 +24,20 @@ useDocumentHead();
 
 const search = ref(false);
 const isDocs = computed(() => route.value.name === 'doc');
+
+/**
+ * A route whose shape is right but whose id names nothing: `/docs/typo`,
+ * `/components/buton`. The catalogues are here already, so the shell answers
+ * it rather than each page falling back to its first entry and showing the
+ * wrong thing at an address that has nothing behind it.
+ */
+const missing = computed(() => {
+    const { name, id } = route.value;
+    if (name === 'doc') return !guideOf(id);
+    if (name === 'component') return !entryOf(id);
+    if (name === 'template' || name === 'template-preview') return !templateOf(id);
+    return false;
+});
 
 // ---- the pane follows the page --------------------------------------------
 // The pane scrolls on its own and the component list is long, so a direct hit
@@ -72,12 +88,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 <template>
     <!-- A template opened full screen is the whole page: no bar, no footer. -->
-    <TemplateFullscreen v-if="route.name === 'template-preview'" />
+    <TemplateFullscreen v-if="route.name === 'template-preview' && !missing" />
 
     <template v-else>
         <TopBar v-model:search="search" />
 
-        <Home v-if="route.name === 'home'" />
+        <NotFound v-if="route.name === 'not-found' || missing" />
+        <Home v-else-if="route.name === 'home'" />
         <TemplatesPage v-else-if="route.name === 'templates'" />
         <TemplatePage v-else-if="route.name === 'template'" />
         <IconsPage v-else-if="route.name === 'icons'" />

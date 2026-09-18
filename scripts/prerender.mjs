@@ -51,6 +51,8 @@ const routes = [
     '/icons',
     '/charts',
     '/templates',
+    // Not a page anyone links to: rendered so the host has a 404 to serve.
+    '/404',
     ...guides.map((id) => `/docs/${id}`),
     ...components.map((id) => `/components/${id}`),
     ...templates.map((id) => `/templates/${id}`)
@@ -280,11 +282,18 @@ const url = (route) => `${origin}${base}${route === '/' ? '' : route.slice(1) + 
 writeFileSync(
     join(dist, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-        routes.map((route) => `    <url>\n        <loc>${url(route)}</loc>\n        <lastmod>${today}</lastmod>\n    </url>`).join('\n') +
+        routes.filter((route) => route !== '/404').map((route) => `    <url>\n        <loc>${url(route)}</loc>\n        <lastmod>${today}</lastmod>\n    </url>`).join('\n') +
         `\n</urlset>\n`
 );
 writeFileSync(join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${origin}${base}sitemap.xml\n`);
-console.log('Wrote sitemap.xml and robots.txt.');
+
+// A static host has no router: an address that is not a file it holds gets
+// `404.html`, and the application reads the address and draws the page. It is
+// the not-found page prerendered, so it is readable before the bundle arrives,
+// and it is deliberately not in the sitemap.
+const notFound = join(dist, '404', 'index.html');
+if (existsSync(notFound)) writeFileSync(join(dist, '404.html'), readFileSync(notFound, 'utf8'));
+console.log('Wrote sitemap.xml, robots.txt and 404.html.');
 
 // ---- llms.txt
 

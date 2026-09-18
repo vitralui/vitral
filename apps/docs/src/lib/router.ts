@@ -15,7 +15,7 @@ import { computed, ref } from 'vue';
  * arrival so nothing that was shared before breaks.
  */
 export interface Route {
-    name: 'home' | 'doc' | 'component' | 'icons' | 'charts' | 'templates' | 'template' | 'template-preview';
+    name: 'home' | 'doc' | 'component' | 'icons' | 'charts' | 'templates' | 'template' | 'template-preview' | 'not-found';
     id: string;
     path: string;
 }
@@ -68,7 +68,11 @@ function parse(path: string): Route {
         if (!id) return { name: 'templates', id: '', path };
         return { name: view === 'preview' ? 'template-preview' : 'template', id, path };
     }
-    return { name: 'home', id: '', path: '/' };
+    // Anything else is not one of ours. It used to fall through to the home
+    // page, which answered a broken link with 200 and the wrong content: the
+    // reader saw the front page at an address that had nothing behind it, and
+    // so did a crawler.
+    return section === '' ? { name: 'home', id: '', path: '/' } : { name: 'not-found', id: '', path };
 }
 
 export const route = computed(() => parse(current.value));
