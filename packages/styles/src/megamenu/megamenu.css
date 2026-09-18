@@ -34,10 +34,21 @@
     padding: 0;
     list-style: none;
     outline: none;
+    /* More items than the bar is wide — a phone, usually — and the row scrolls
+       rather than being cut off at the edge. The panels are positioned from
+       script and fixed, so they are not caught by it. */
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.vt-megamenu-root-list::-webkit-scrollbar {
+    display: none;
 }
 
 .vt-megamenu-vertical .vt-megamenu-root-list {
     flex-direction: column;
+    overflow-x: visible;
 }
 
 .vt-megamenu-root-item {

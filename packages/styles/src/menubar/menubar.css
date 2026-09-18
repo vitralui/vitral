@@ -134,6 +134,8 @@
     border: 1px solid var(--vt-menubar-border-color);
     border-radius: var(--vt-menubar-border-radius);
     box-shadow: var(--vt-menubar-shadow);
+    /* A floating panel never outgrows the window it floats in. */
+    max-width: calc(100vw - 1rem);
 }
 
 .vt-menubar-submenu-icon:dir(rtl) {

@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import { aliases } from '../../aliases.ts';
+import { cssFallbacks } from '../../scripts/css-fallbacks.ts';
 import { vitralVue } from '../../scripts/vue-plugin.ts';
 
 // The site reads two things from outside its own folder: the demo pages it
@@ -10,7 +11,7 @@ import { vitralVue } from '../../scripts/vue-plugin.ts';
 const workspace = fileURLToPath(new URL('../..', import.meta.url));
 
 export default defineConfig(({ command }) => ({
-    plugins: [vitralVue()],
+    plugins: [vitralVue(), cssFallbacks()],
     resolve: { alias: aliases },
     server: { port: 5180, fs: { allow: [workspace] } },
     // The guides quote `import` statements inside code samples, and the dev
@@ -20,5 +21,9 @@ export default defineConfig(({ command }) => ({
     // Pages are real paths now, so assets cannot be addressed relative to the
     // page: `/docs/theming` and `/` sit at different depths. $DOCS_BASE is
     // where the site will be served from (`/vitral/` on GitHub Pages).
-    base: command === 'build' ? (process.env.DOCS_BASE ?? '/') : '/'
+    base: command === 'build' ? (process.env.DOCS_BASE ?? '/') : '/',
+    // The site is read on whatever phone the reader has, and an iPhone 7 stops
+    // at iOS 15 — older than the default target, which would ship syntax its
+    // Safari cannot parse.
+    build: { target: ['es2021', 'safari15', 'chrome91', 'firefox90', 'edge91'], cssTarget: ['safari15', 'chrome91', 'firefox90', 'edge91'] }
 }));

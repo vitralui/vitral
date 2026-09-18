@@ -103,6 +103,8 @@
     border: 1px solid var(--vt-tieredmenu-border-color);
     border-radius: var(--vt-tieredmenu-border-radius);
     box-shadow: var(--vt-tieredmenu-shadow);
+    /* A floating panel never outgrows the window it floats in. */
+    max-width: calc(100vw - 1rem);
 }
 
 .vt-tieredmenu-submenu-icon:dir(rtl) {

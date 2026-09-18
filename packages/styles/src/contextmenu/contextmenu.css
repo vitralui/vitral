@@ -93,6 +93,8 @@
     border: 1px solid var(--vt-contextmenu-border-color);
     border-radius: var(--vt-contextmenu-border-radius);
     box-shadow: var(--vt-contextmenu-shadow);
+    /* A floating panel never outgrows the window it floats in. */
+    max-width: calc(100vw - 1rem);
 }
 
 .vt-contextmenu-submenu-icon:dir(rtl) {

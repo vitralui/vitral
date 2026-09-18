@@ -17,6 +17,7 @@
     border: 1px solid var(--vt-dock-border-color);
     border-radius: var(--vt-dock-border-radius);
     box-shadow: var(--vt-dock-shadow);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
 }
 

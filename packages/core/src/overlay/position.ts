@@ -1,4 +1,4 @@
-import { autoUpdate, computePosition, flip, offset as offsetBy, shift, size, type Middleware, type Placement } from '@floating-ui/dom';
+import { autoUpdate, computePosition, flip, limitShift, offset as offsetBy, shift, size, type Middleware, type Placement } from '@floating-ui/dom';
 
 export type { Placement };
 
@@ -31,12 +31,20 @@ export function anchorTo(reference: Element, floating: HTMLElement, options: Anc
 
     const middleware: Middleware[] = [offsetBy({ mainAxis: offset, alignmentAxis: alignmentOffset })];
     if (allowFlip) middleware.push(flip({ padding: 8 }));
-    middleware.push(shift({ padding: 8 }));
+    // Both axes: a submenu opening to the right of its item slides along the
+    // item's edge by default, and on a phone what it needs is to come back from
+    // off the right of the screen. The limiter stops it sliding so far that it
+    // leaves the item it belongs to.
+    middleware.push(shift({ padding: 8, crossAxis: true, limiter: limitShift() }));
     if (matchWidth) {
         middleware.push(
             size({
                 apply({ rects }) {
-                    floating.style.minWidth = `${rects.reference.width}px`;
+                    // As wide as what it hangs from, but never wider than the
+                    // window: a bar that scrolls sideways on a phone would
+                    // otherwise hand its panel a width the screen has not got,
+                    // and a minimum outranks a maximum.
+                    floating.style.minWidth = `min(${rects.reference.width}px, calc(100vw - 1rem))`;
                 }
             })
         );

@@ -12,11 +12,19 @@
 
 html {
     scroll-behavior: smooth;
+    /* Safari on a phone grows the text when it turns to landscape, which
+       reflows a page that was laid out for the portrait width. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
     margin: 0;
+    /* On a phone `vh` is the height with the toolbars hidden, so a page that
+       asks for 100vh is taller than the window it is read in. `dvh` is the
+       height it actually has; browsers that do not know it keep `vh`. */
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 a {
@@ -44,6 +52,7 @@ a {
     align-items: center;
     border-bottom: 1px solid var(--vt-content-border-color);
     background: color-mix(in srgb, var(--vt-app-background) 82%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
     backdrop-filter: blur(12px) saturate(140%);
 }
 
@@ -937,11 +946,15 @@ a {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    /*
+     * The pane is a hundred links. Stacked above the page on a phone it is a
+     * wall to scroll past before the documentation starts, and the drawer in
+     * the bar already carries the same navigation with a search box on top of
+     * it — so below this width the drawer is the way around and the pane steps
+     * out of the way.
+     */
     .pane {
-        position: static;
-        max-height: none;
-        padding: 1rem 0 0;
-        border-bottom: 1px solid var(--vt-content-border-color);
+        display: none;
     }
 }
 
@@ -2572,10 +2585,12 @@ a {
 
 .tpl-full {
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .tpl-full > .tp {
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .tpl-float {
@@ -2591,6 +2606,7 @@ a {
     border: 1px solid var(--vt-content-border-color);
     border-radius: 999px;
     background: color-mix(in srgb, var(--vt-content-background) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.35);
 }

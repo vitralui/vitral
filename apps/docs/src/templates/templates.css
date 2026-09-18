@@ -506,6 +506,7 @@
     z-index: 5;
     border-bottom: 1px solid var(--vt-content-border-color);
     background: color-mix(in srgb, var(--vt-content-background) 92%, transparent);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }
 
@@ -739,6 +740,7 @@
 
 .tp-app-inset .tp-app-bar {
     background: transparent;
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
 }
 
@@ -817,6 +819,7 @@
     padding: 0.5rem 1.5rem;
     border-bottom: 1px solid var(--vt-content-border-color);
     background: color-mix(in srgb, var(--vt-content-background) 92%, transparent);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }
 
