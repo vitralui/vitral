@@ -396,3 +396,53 @@ describe('DataTable columns', () => {
         await expectNoA11yViolations();
     });
 });
+
+describe('DataTable groups', () => {
+    /** Two tables under one group name, as an application would write them. */
+    function mountPair(columnsB: () => VNode[] = defaultColumns) {
+        mountVt(
+            defineComponent(() => () => [
+                h(DataTable, { 'aria-label': 'Above', value: people.slice(0, 3), dataKey: 'id', group: 'people', resizableColumns: true }, { default: defaultColumns }),
+                h(DataTable, { 'aria-label': 'Below', value: people.slice(3, 6), dataKey: 'id', group: 'people' }, { default: columnsB })
+            ])
+        );
+        const tables = () => Array.from(document.querySelectorAll<HTMLTableElement>('table'));
+        const headersOf = (i: number) => Array.from(tables()[i]!.tHead!.rows[0]!.cells);
+        const containers = () => Array.from(document.querySelectorAll<HTMLElement>('.vt-datatable-table-container'));
+        return { tables, headersOf, containers };
+    }
+
+    it('keeps one column layout across the group', async () => {
+        const { headersOf } = mountPair();
+        await nextTick();
+        const handle = headersOf(0)[1]!.querySelector<HTMLElement>('[role="separator"]')!;
+        await press(handle, 'ArrowRight');
+        await nextTick();
+        // The table that was not touched takes the same widths.
+        const widths = (i: number) => headersOf(i).map((th) => th.style.width);
+        expect(widths(1)).toEqual(widths(0));
+        // The column that was resized, and the one that gave up the room, both
+        // have one; in a browser every column would, since they measure.
+        expect(widths(0)[1]).toBeTruthy();
+        expect(widths(1)[1]).toBe(widths(0)[1]);
+    });
+
+    it('gives a table only what applies to the columns it has', async () => {
+        const { headersOf } = mountPair(() => [h(Column, { field: 'name', header: 'Name' }), h(Column, { field: 'age', header: 'Age' })]);
+        await nextTick();
+        await press(headersOf(0)[0]!.querySelector<HTMLElement>('[role="separator"]')!, 'ArrowRight');
+        await nextTick();
+        expect(headersOf(1).map((th) => th.textContent?.trim())).toEqual(['Name', 'Age']);
+        expect(headersOf(1)[0]!.style.width).toBe(headersOf(0)[0]!.style.width);
+    });
+
+    it('scrolls the others sideways to where it was scrolled', async () => {
+        const { containers } = mountPair();
+        await nextTick();
+        const [first, second] = containers();
+        Object.defineProperty(first!, 'scrollLeft', { value: 140, writable: true, configurable: true });
+        first!.dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(second!.scrollLeft).toBe(140);
+    });
+});

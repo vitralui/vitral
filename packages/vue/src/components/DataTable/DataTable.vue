@@ -12,7 +12,9 @@ import {
     resizeColumn,
     selectionState,
     selectRows,
+    layoutFor,
     stickyOffsets,
+    tableBus,
     toggleColumn,
     toggleSelection,
     toggleSort,
@@ -180,7 +182,9 @@ const declared = computed(() => {
  * something.
  */
 const layout = computed<ColumnLayout>(() => {
-    const given = columnLayout.value ?? {};
+    const own = columnLayout.value ?? {};
+    // What the group has agreed, for the columns this table has, over its own.
+    const given = props.group ? layoutFor(declared.value.map((c) => c.key), shared.value, own) : own;
     const widths = { ...Object.fromEntries(declared.value.filter((c) => c.width !== undefined).map((c) => [c.key, c.width!])), ...given.widths };
     const pinned = { ...Object.fromEntries(declared.value.filter((c) => c.pinned).map((c) => [c.key, c.pinned!])), ...given.pinned };
     return { order: given.order, hidden: given.hidden ?? [], widths, pinned };
@@ -426,7 +430,13 @@ function measured(): Record<string, number> {
     return Object.fromEntries(columns.value.map((col, i) => [col.key, Math.round(cells[i]?.getBoundingClientRect().width ?? 0)]));
 }
 
-const write = (next: ColumnLayout) => (columnLayout.value = next as ColumnLayoutLike);
+function write(next: ColumnLayout) {
+    columnLayout.value = next as ColumnLayoutLike;
+    if (props.group) {
+        tableBus.lastLayout.set(props.group, next);
+        tableBus.publish(props.group, { kind: 'layout', source: id, layout: next });
+    }
+}
 const sticky = computed(() => stickyOffsets(columns.value.map((c) => c.key), layout.value, {}, 0));
 const canResize = (col: ColumnDef) => !!props.resizableColumns && col.resizable !== false;
 const canReorder = (col: ColumnDef) => !!props.reorderableColumns && !col.selectionMode;
@@ -557,6 +567,41 @@ function setVisible(col: ColumnDef, visible: boolean, event: Event) {
     emit('column-toggle', { originalEvent: event, key: col.key, visible, layout: next });
 }
 
+// ---- tables that work together --------------------------------------------------
+
+/*
+ * A group is a name two tables share: one above another, read as one thing.
+ * What travels between them is about the columns — the sideways scroll and the
+ * layout — so they stay lined up; the rows are each table's own.
+ */
+const containerRef = ref<HTMLElement | null>(null);
+const shared = ref<ColumnLayout | null>(props.group ? (tableBus.lastLayout.get(props.group) ?? null) : null);
+let echo = false;
+
+function onContainerScroll(event: Event) {
+    if (!props.group || echo) return;
+    tableBus.publish(props.group, { kind: 'scroll', source: id, left: (event.currentTarget as HTMLElement).scrollLeft });
+}
+
+watch(
+    () => props.group,
+    (group, _old, onCleanup) => {
+        if (!group) return;
+        shared.value = tableBus.lastLayout.get(group) ?? null;
+        const stop = tableBus.subscribe(group, (message) => {
+            if (message.source === id) return;
+            if (message.kind === 'scroll') {
+                // The echo guard stops the answer coming back as a new message.
+                echo = true;
+                if (containerRef.value) containerRef.value.scrollLeft = message.left;
+                requestAnimationFrame(() => (echo = false));
+            } else shared.value = message.layout;
+        });
+        onCleanup(stop);
+    },
+    { immediate: true }
+);
+
 const chooserRef = ref<InstanceType<typeof Popover> | null>(null);
 const chooserId = `${id}-columns`;
 /** Every column the reader may show or hide, in the order they were declared. */
@@ -638,7 +683,7 @@ defineExpose({ reload: () => source.reload() });
             <template v-if="$slots.paginatorstart" #start="s"><slot name="paginatorstart" v-bind="s" /></template>
             <template v-if="$slots.paginatorend" #end="s"><slot name="paginatorend" v-bind="s" /></template>
         </Paginator>
-        <div v-bind="part('tableContainer', rootState)" :style="containerStyle">
+        <div ref="containerRef" v-bind="part('tableContainer', rootState)" :style="containerStyle" @scroll="onContainerScroll">
             <table v-bind="mergeProps(tableAttrs, part('table'))" :style="tableStyle" :aria-busy="busy ? 'true' : undefined">
                 <caption v-if="caption" v-bind="part(showCaption ? 'caption' : 'hiddenCaption')">{{ caption }}</caption>
                 <thead v-bind="part('thead')">

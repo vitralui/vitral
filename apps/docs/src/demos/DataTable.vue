@@ -231,6 +231,30 @@ const remoteFilters = ref({ global: { value: null as string | null, matchMode: '
         </div>
     </DemoSection>
 
+    <DemoSection
+        title="Two tables, one set of columns"
+        description="`group` is a name two tables share: rearrange a column in either and both follow, and scrolling one sideways scrolls the other. The rows are each table's own — here, this quarter above last quarter."
+    >
+        <div class="demo-stack" style="width: 100%; gap: 0.5rem">
+            <DataTable :value="people.slice(0, 4)" data-key="id" aria-label="This quarter" group="quarters" resizable-columns reorderable-columns size="small" scrollable class="demo-table">
+                <Column field="name" header="Name" :width="170" />
+                <Column field="country" header="Country" :width="140" />
+                <Column field="city" header="City" :width="150" />
+                <Column field="balance" header="Balance" align="right" :width="130">
+                    <template #body="{ data }">{{ money.format(data.balance) }}</template>
+                </Column>
+            </DataTable>
+            <DataTable :value="people.slice(4, 8)" data-key="id" aria-label="Last quarter" group="quarters" resizable-columns reorderable-columns size="small" scrollable class="demo-table">
+                <Column field="name" header="Name" :width="170" />
+                <Column field="country" header="Country" :width="140" />
+                <Column field="city" header="City" :width="150" />
+                <Column field="balance" header="Balance" align="right" :width="130">
+                    <template #body="{ data }">{{ money.format(data.balance) }}</template>
+                </Column>
+            </DataTable>
+        </div>
+    </DemoSection>
+
     <DemoSection title="From a data source" description="The rows come from `createDataSource({ load })`, a stand-in for a server that answers in 450 ms. The table asks it for one page at a time with the sort and the search; a slow answer that arrives after a newer one is thrown away.">
         <DataTable :data-source="remote" v-model:filters="remoteFilters" :global-filter-fields="['name', 'city', 'country']" aria-label="Remote people" paginator :rows="6" :filter-delay="250" class="demo-table">
             <template #header>

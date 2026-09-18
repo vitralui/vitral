@@ -40,6 +40,7 @@ export * from './data/expansion';
 export * from './data/paging';
 export * from './data/table';
 export * from './data/columns';
+export * from './data/tableGroup';
 export * from './data/options';
 export * from './data/score';
 export * from './data/virtual';

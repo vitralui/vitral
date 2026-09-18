@@ -86,6 +86,8 @@ export interface DataTableProps extends BaseProps {
     reorderableColumns?: boolean;
     /** A button that opens the list of columns, each with a checkbox. */
     columnToggle?: boolean;
+    /** A name two tables share: they scroll sideways together and keep one column layout. */
+    group?: string;
 
     stripedRows?: boolean;
     showGridlines?: boolean;
