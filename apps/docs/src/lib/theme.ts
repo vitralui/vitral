@@ -1,4 +1,4 @@
-import { en, ptBR, useLocale, useTheme, useVitral, type Preset } from '@vitral/vue';
+import { en, ptBR, useDirection, useLocale, useTheme, useVitral, type Direction, type Preset } from '@vitral/vue';
 import { ref, watch } from 'vue';
 import { themes } from './presets';
 
@@ -33,6 +33,11 @@ export const variantOptions = [
     { label: 'Filled', value: 'filled' }
 ];
 
+export const directionOptions = [
+    { label: 'Left to right', value: 'ltr' },
+    { label: 'Right to left', value: 'rtl' }
+];
+
 // `?preset=ink` and `?scheme=dark` open the site in that look without
 // remembering it, which is what a screenshot or a shared link needs.
 const params = new URLSearchParams(location.search);
@@ -40,6 +45,7 @@ const params = new URLSearchParams(location.search);
 export const presetId = ref(params.get('preset') ?? themes[0]!.id);
 export const localeId = ref('en');
 export const primary = ref<string | null>(null);
+export const direction = ref<Direction>(params.get('dir') === 'rtl' ? 'rtl' : 'ltr');
 
 let controls: ReturnType<typeof useTheme> | null = null;
 
@@ -59,6 +65,19 @@ export function installThemeSwitcher() {
     );
 
     watch(localeId, (id) => setLocale(id === 'pt-BR' ? ptBR : en));
+
+    // The layout follows the `dir` attribute, so that is what is set; the
+    // configuration follows it for the popups teleported out of the page and
+    // for anything that has to branch on the direction itself.
+    const { setDirection } = useDirection();
+    watch(
+        direction,
+        (value) => {
+            document.documentElement.dir = value;
+            setDirection(value);
+        },
+        { immediate: true }
+    );
 
     return { controls, config };
 }

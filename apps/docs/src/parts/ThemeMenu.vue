@@ -2,7 +2,7 @@
 import { palette } from '@vitral/icons';
 import { Button, Icon, Popover, Select, useTheme, useVitral } from '@vitral/vue';
 import { ref } from 'vue';
-import { presetId, presetOptions, primary, schemeOptions, setPrimary, swatches, variantOptions } from '../lib/theme';
+import { direction, directionOptions, presetId, presetOptions, primary, schemeOptions, setPrimary, swatches, variantOptions } from '../lib/theme';
 
 // The bar at the top opens it downwards; the preview's bar at the foot, upwards.
 withDefaults(defineProps<{ placement?: 'bottom-end' | 'top'; size?: 'small' }>(), { placement: 'bottom-end', size: undefined });
@@ -28,6 +28,10 @@ const popover = ref<InstanceType<typeof Popover> | null>(null);
                 Fields
                 <Select v-model="config.inputVariant" :options="variantOptions" option-label="label" option-value="value" size="small" aria-label="Field variant" fluid />
             </label>
+            <label>
+                Direction
+                <Select v-model="direction" :options="directionOptions" option-label="label" option-value="value" size="small" aria-label="Reading direction" fluid />
+            </label>
             <div>
                 <div style="margin-bottom: 0.375rem; font-size: 0.8125rem; font-weight: 500">Primary</div>
                 <div role="group" aria-label="Primary colour" style="display: flex; gap: 0.375rem">
@@ -44,7 +48,7 @@ const popover = ref<InstanceType<typeof Popover> | null>(null);
                 </div>
             </div>
             <p style="margin: 0; font-size: 0.75rem; line-height: 1.5; color: var(--vt-text-muted-color)">
-                <Icon icon="info" style="vertical-align: -2px" /> Every choice here is one call on <code>useTheme()</code>.
+                <Icon icon="info" style="vertical-align: -2px" /> Every choice here is one call on <code>useTheme()</code>, <code>useDirection()</code> or the configuration.
             </p>
         </div>
     </Popover>
