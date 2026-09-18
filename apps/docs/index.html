@@ -79,6 +79,19 @@
                     /* storage blocked: the application sorts it out on mount */
                 }
             })();
+
+            // The direction, for the same reason and before the same paint: the
+            // prerendered pages are left to right, and a reader who asked for
+            // right to left should not watch the page turn over on hydration.
+            (function () {
+                try {
+                    var pinned = new URLSearchParams(location.search).get('dir');
+                    var dir = pinned === 'rtl' || pinned === 'ltr' ? pinned : localStorage.getItem('vitral-docs-direction');
+                    if (dir === 'rtl') document.documentElement.dir = 'rtl';
+                } catch (error) {
+                    /* storage blocked: the application sorts it out on mount */
+                }
+            })();
         </script>
     </head>
     <body class="vt-app">

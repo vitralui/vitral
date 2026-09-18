@@ -45,7 +45,31 @@ const params = new URLSearchParams(location.search);
 export const presetId = ref(params.get('preset') ?? themes[0]!.id);
 export const localeId = ref('en');
 export const primary = ref<string | null>(null);
-export const direction = ref<Direction>(params.get('dir') === 'rtl' ? 'rtl' : 'ltr');
+/**
+ * The direction is remembered the way the colour scheme is, in localStorage and
+ * under the same shape of key, because it is the same kind of choice: a reader
+ * who reads right to left reads right to left on the next visit too. `?dir=`
+ * pins it for one load without remembering, which is what a shared link and a
+ * screenshot need — and what keeps the prerender, which has no storage, from
+ * baking a direction into the published HTML.
+ *
+ * The script in the head of the page has already applied it, before the first
+ * paint; this is the same decision, made again where the application can see it.
+ */
+const DIRECTION_KEY = 'vitral-docs-direction';
+const pinnedDirection = params.get('dir') === 'rtl' ? 'rtl' : params.get('dir') === 'ltr' ? 'ltr' : null;
+
+function rememberedDirection(): Direction {
+    if (pinnedDirection) return pinnedDirection;
+    try {
+        return localStorage.getItem(DIRECTION_KEY) === 'rtl' ? 'rtl' : 'ltr';
+    } catch {
+        // Private windows and blocked storage: the default, not a crash.
+        return 'ltr';
+    }
+}
+
+export const direction = ref<Direction>(rememberedDirection());
 
 let controls: ReturnType<typeof useTheme> | null = null;
 
@@ -75,6 +99,13 @@ export function installThemeSwitcher() {
         (value) => {
             document.documentElement.dir = value;
             setDirection(value);
+            // A pinned direction is for this load only, so it is not written back.
+            if (pinnedDirection) return;
+            try {
+                localStorage.setItem(DIRECTION_KEY, value);
+            } catch {
+                /* blocked: the choice lasts as long as the tab does */
+            }
         },
         { immediate: true }
     );
