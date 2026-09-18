@@ -182,6 +182,18 @@ A page that needs a browser to draw itself therefore prerenders correctly: the
 capture happens after the page has drawn. The Markdown leaves the live examples
 out and appends the demo file instead, which is the source they run.
 
+### Search engines
+
+`robots.txt` points at `sitemap.xml`, which lists every prerendered page, so a
+crawler that finds the site finds all of it. Search Console wants the site
+verified before it will accept the sitemap by hand, and verification is a file
+or a tag it hands you:
+
+- the HTML file it offers goes in `apps/docs/public/`, and is served from the
+  site's root (`/vitral/google….html`);
+- or the meta tag goes in `apps/docs/index.html`, which every prerendered page
+  inherits.
+
 ## Checks
 
 ```sh
