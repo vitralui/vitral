@@ -15,7 +15,7 @@ import { chartCsv, chartSummary, chartTable } from './engine/a11y';
 import { buildChartScene } from './engine/build';
 import { seriesColor } from './engine/common';
 import { chartFormatter } from './engine/format';
-import { brushChannel, chartBus, groupChannel, type ChartGroupMessage } from './engine/group';
+import { brushChannel, chartBus, groupChannel, releaseInset, type ChartGroupMessage } from './engine/group';
 import { chartKeyTarget, columnAt, datumAt, isFullWindow, normalizeWindow, panWindow, rectAt, zoomWindow } from './engine/interaction';
 import { resolveChartOptions, type ResolvedChartOptions } from './engine/options';
 import { sliceAt, spokeAt } from './engine/polar';
@@ -1411,6 +1411,9 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             subscriptions.splice(0).forEach((off) => off());
             const chart = derive().chart;
             if ((hover || keyFocus) && chart.group) chartBus.publish(groupChannel(chart.group), { kind: 'leave', source: chart.id ?? id });
+            // A chart that has gone should not go on holding the group open at
+            // its own axis width.
+            if (chart.group && chart.id) releaseInset(chart.group, chart.id);
             root.clear();
             if (original.class !== null) element.setAttribute('class', original.class);
             if (original.style !== null) element.setAttribute('style', original.style);

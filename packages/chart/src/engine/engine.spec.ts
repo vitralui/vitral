@@ -4,7 +4,7 @@ import { chartCsv, chartSummary, chartTable } from './a11y';
 import { buildChartScene } from './build';
 import { chartFormatter, formatTemplate } from './format';
 import { curvePath, linePath, rectPath, sectorPath } from './geometry';
-import { chartBus } from './group';
+import { chartBus, releaseInset } from './group';
 import { chartKeyTarget, columnAt, datumAt, insidePlot, isFullWindow, normalizeWindow, panWindow, rectAt, zoomWindow } from './interaction';
 import { sliceAt } from './polar';
 import { chartOptionsSchema, defaultChartOptions, resolveChartOptions, type ChartOptionSchema } from './options';
@@ -329,6 +329,29 @@ describe('interaction', () => {
         off();
         chartBus.publish('group:g', { kind: 'leave', source: 'a' });
         expect(seen).toEqual([{ kind: 'hover', source: 'a', column: 2 }]);
+    });
+
+    it('lines the plots of a group up on its widest axis', () => {
+        const wideLabels = { yaxis: { labels: { formatter: '{value} million dollars' } }, xaxis: { categories: ['a', 'b', 'c'] } };
+        const plain = { xaxis: { categories: ['a', 'b', 'c'] } };
+        const data: ChartSeries = [{ name: 'a', data: [1, 2, 3] }];
+
+        // Apart, each chart makes room for its own labels, and they differ.
+        const aloneWide = scene('line', data, wideLabels).scene.plot.x;
+        const aloneNarrow = scene('line', data, plain).scene.plot.x;
+        expect(aloneWide).toBeGreaterThan(aloneNarrow);
+
+        // In a group, the widest sets the inset and the others follow it.
+        const grouped = (options: ChartOptions, id: string) => scene('line', data, { ...options, chart: { group: 'lineup', id } }).scene.plot;
+        const wide = grouped(wideLabels, 'wide');
+        const narrow = grouped(plain, 'narrow');
+        expect(narrow.x).toBe(wide.x);
+        expect(narrow.width).toBe(wide.width);
+
+        // A chart that goes stops holding the rest open at its width.
+        releaseInset('lineup', 'wide');
+        expect(grouped(plain, 'narrow').x).toBeLessThan(wide.x);
+        releaseInset('lineup', 'narrow');
     });
 });
 

@@ -2,6 +2,7 @@ import { formatDate } from '@vitral/core';
 import { emptyScene, fonts, fraction, measurer, seriesColor, sizeToPx, titles } from './common';
 import { chartFormatter, formatNumber } from './format';
 import { areaPath, linePath, rectPath, type Corners, type Pt } from './geometry';
+import { alignInset } from './group';
 import { perSeries } from './options';
 import { linear, niceScale, timeTicks, type TimeUnit } from './scale';
 import type {
@@ -242,6 +243,13 @@ export function buildCartesian(input: SceneInput): ChartScene {
         }
     }
     if (!sparkline) top = Math.max(top, labelSize / 2 + 2);
+    // In a group, the plots line up: the widest axis in the group decides where
+    // every plot starts and ends, so a price and its volume share a column.
+    if (o.chart?.group && o.chart.id && !sparkline) {
+        const shared = alignInset(o.chart.group, o.chart.id, { left, right });
+        left = shared.left;
+        right = shared.right;
+    }
     const plot = {
         x: left,
         y: top,
