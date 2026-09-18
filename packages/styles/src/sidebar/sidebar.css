@@ -86,9 +86,23 @@
 .vt-sidebar-header,
 .vt-sidebar-footer {
     display: flex;
-    align-items: center;
     gap: var(--vt-sidebar-gap);
     min-width: 0;
+}
+
+.vt-sidebar-footer {
+    align-items: center;
+}
+
+/*
+ * The collapse button keeps to the top of the header, beside the brand, rather
+ * than to the middle of it. A header holding only a name is one line and the
+ * two are the same either way; a header that also carries a workspace switcher
+ * or a search box is three or four lines tall, and centring drops the button
+ * halfway down the sidebar, away from the thing it belongs to.
+ */
+.vt-sidebar-header {
+    align-items: flex-start;
 }
 
 .vt-sidebar-collapsed .vt-sidebar-header,
@@ -100,6 +114,23 @@
     flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
+}
+
+/*
+ * The footer's content takes the width the footer has, the way the header's
+ * does. Without this it is a flex item at its default `0 1 auto`, so it is as
+ * wide as the name inside it and anything else put there — a meter, a balance,
+ * a switch with a label at the far end — stops short of the edge and cannot be
+ * made to reach it, `width: 100%` included, since 100% of a shrink-to-fit box
+ * is the shrink-to-fit width.
+ *
+ * It is not given the header's `overflow: hidden`: the header clips a brand
+ * that is too long, while a footer is where a template hangs a control, and a
+ * popup opened from one must not be cut off.
+ */
+.vt-sidebar-footer-content {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .vt-sidebar-toggle {
