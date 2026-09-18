@@ -748,6 +748,38 @@ a {
     }
 }
 
+/*
+ * One focus ring for the whole site. The library's components draw it from the
+ * theme's tokens; the site's own controls are plain HTML, and plain HTML was
+ * falling back to the browser's black hairline — so half the bar answered the
+ * keyboard in one colour and half in another. These are the ones that had no
+ * rule of their own.
+ */
+.brand:focus-visible,
+.top-nav a:focus-visible,
+.search-btn:focus-visible,
+.icon-link:focus-visible,
+.copy-btn:focus-visible,
+.mega-foot:focus-visible,
+.mega-drawer-search:focus-visible,
+.mega-drawer-link:focus-visible,
+.footer a:focus-visible,
+.toc a:focus-visible,
+.pager a:focus-visible,
+.notfound-links a:focus-visible,
+.notfound-lead a:focus-visible,
+.charts-filter button:focus-visible,
+.charts-head-links a:focus-visible,
+.prose a:focus-visible,
+.doc-head a:focus-visible,
+.api-table a:focus-visible,
+.demo-hint a:focus-visible,
+.icons-external a:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+    border-radius: var(--vt-border-radius-sm);
+}
+
 /* --------------------------------------------------------------- API table */
 
 /*

@@ -27,6 +27,18 @@ const root = ref<HTMLElement | null>(null);
  * the site was the footer. The drawer is the panels' content in one column,
  * opened by the one button there is room for.
  */
+/**
+ * The three panels, as data: a panel has to be rendered immediately after the
+ * button that opened it, or Tab leaves the trigger and walks the rest of the
+ * bar before it ever reaches what was just revealed. A disclosure's content
+ * follows its disclosure.
+ */
+const panels: { key: Panel; label: string; active: () => boolean }[] = [
+    { key: 'components', label: 'Components', active: () => route.value.name === 'component' },
+    { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' },
+    { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' }
+];
+
 const drawer = ref(false);
 const search = defineModel<boolean>('search', { default: false });
 
@@ -116,23 +128,58 @@ onBeforeUnmount(() => {
 <template>
     <div ref="root" class="mega">
         <nav class="top-nav" aria-label="Sections">
-            <button type="button" :class="{ 'is-active': route.name === 'component', on: open === 'components' }" :aria-expanded="open === 'components'" @click="toggle('components', $event)">
-                Components
-                <Icon icon="chevronDown" />
-            </button>
-            <button
-                type="button"
-                :class="{ 'is-active': route.name === 'template' || route.name === 'templates', on: open === 'templates' }"
-                :aria-expanded="open === 'templates'"
-                @click="toggle('templates', $event)"
-            >
-                Templates
-                <Icon icon="chevronDown" />
-            </button>
-            <button type="button" :class="{ 'is-active': route.name === 'doc', on: open === 'docs' }" :aria-expanded="open === 'docs'" @click="toggle('docs', $event)">
-                Documentation
-                <Icon icon="chevronDown" />
-            </button>
+            <template v-for="panel in panels" :key="panel.key">
+                <button type="button" :class="{ 'is-active': panel.active(), on: open === panel.key }" :aria-expanded="open === panel.key" @click="toggle(panel.key, $event)">
+                    {{ panel.label }}
+                    <Icon icon="chevronDown" />
+                </button>
+
+                <!-- Right after its own button, so Tab goes into what it opened. -->
+                <div v-if="open === panel.key" class="mega-panel" :class="{ wide: panel.key === 'templates' }" :style="{ '--mega-offset': `${offset}px` }" @click="open = null">
+                <template v-if="panel.key === 'components'">
+                    <div class="mega-grid">
+                        <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-item">
+                            <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
+                            <span>
+                                <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
+                                <em>{{ categoryNotes[group.category] }}</em>
+                            </span>
+                        </a>
+                    </div>
+                    <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components <Icon icon="arrowRight" /></a>
+                </template>
+
+                <template v-else-if="panel.key === 'templates'">
+                    <div class="mega-columns">
+                        <div v-for="group in templateCategories" :key="group.category" class="mega-group">
+                            <span class="mega-group-title">{{ group.category }}</span>
+                            <a v-for="entry in group.items" :key="entry.id" :href="href(`/templates/${entry.id}`)" class="mega-item">
+                                <span class="mega-icon"><Icon :icon="entry.icon" /></span>
+                                <span>
+                                    <b>{{ entry.name }}</b>
+                                    <em>{{ entry.summary }}</em>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews <Icon icon="arrowRight" /></a>
+                </template>
+
+                <template v-else>
+                    <div class="mega-grid">
+                        <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-item">
+                            <span class="mega-icon"><Icon icon="file" /></span>
+                            <span>
+                                <b>{{ group.section }}</b>
+                                <em>{{ guideNotes[group.section] }}</em>
+                            </span>
+                        </a>
+                    </div>
+                    <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction <Icon icon="arrowRight" /></a>
+                </template>
+                </div>
+            </template>
+
             <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
             <a :href="href('/charts')" :class="{ 'is-active': route.name === 'charts' }" :aria-current="route.name === 'charts' ? 'page' : undefined">Charts</a>
         </nav>
@@ -192,48 +239,5 @@ onBeforeUnmount(() => {
             </nav>
         </Drawer>
 
-        <div v-if="open" class="mega-panel" :class="{ wide: open === 'templates' }" :style="{ '--mega-offset': `${offset}px` }" @click="open = null">
-            <template v-if="open === 'components'">
-                <div class="mega-grid">
-                    <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-item">
-                        <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
-                        <span>
-                            <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
-                            <em>{{ categoryNotes[group.category] }}</em>
-                        </span>
-                    </a>
-                </div>
-                <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components <Icon icon="arrowRight" /></a>
-            </template>
-
-            <template v-else-if="open === 'templates'">
-                <div class="mega-columns">
-                    <div v-for="group in templateCategories" :key="group.category" class="mega-group">
-                        <span class="mega-group-title">{{ group.category }}</span>
-                        <a v-for="entry in group.items" :key="entry.id" :href="href(`/templates/${entry.id}`)" class="mega-item">
-                            <span class="mega-icon"><Icon :icon="entry.icon" /></span>
-                            <span>
-                                <b>{{ entry.name }}</b>
-                                <em>{{ entry.summary }}</em>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-                <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews <Icon icon="arrowRight" /></a>
-            </template>
-
-            <template v-else>
-                <div class="mega-grid">
-                    <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-item">
-                        <span class="mega-icon"><Icon icon="file" /></span>
-                        <span>
-                            <b>{{ group.section }}</b>
-                            <em>{{ guideNotes[group.section] }}</em>
-                        </span>
-                    </a>
-                </div>
-                <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction <Icon icon="arrowRight" /></a>
-            </template>
-        </div>
     </div>
 </template>
