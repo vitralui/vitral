@@ -66,6 +66,51 @@
     outline: none;
 }
 
+/*
+ * Opacity. The chequer is what "transparent" looks like, so it sits under both
+ * the slider's gradient and anything painted with a colour that has an alpha —
+ * without it, half transparent over a white panel is indistinguishable from
+ * pale, and over a dark one from dim.
+ */
+.vt-colorpicker-alpha,
+.vt-colorpicker-preview,
+.vt-colorpicker-swatch {
+    --vt-chequer: 0.5rem;
+    background-image:
+        linear-gradient(45deg, var(--vt-colorpicker-chequer-color) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--vt-colorpicker-chequer-color) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--vt-colorpicker-chequer-color) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--vt-colorpicker-chequer-color) 75%);
+    background-size: var(--vt-chequer) var(--vt-chequer);
+    background-position:
+        0 0,
+        0 calc(var(--vt-chequer) / 2),
+        calc(var(--vt-chequer) / 2) calc(var(--vt-chequer) / -2),
+        calc(var(--vt-chequer) / -2) 0;
+}
+
+.vt-colorpicker-alpha {
+    position: relative;
+    height: var(--vt-colorpicker-hue-height);
+    border-radius: var(--vt-colorpicker-hue-border-radius);
+    cursor: pointer;
+    touch-action: none;
+    outline: none;
+}
+
+/* The gradient rides over the chequer rather than replacing it. */
+.vt-colorpicker-alpha-track {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.vt-colorpicker-alpha:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
 .vt-colorpicker-handle {
     position: absolute;
     box-sizing: border-box;

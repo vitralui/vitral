@@ -108,4 +108,29 @@ describe('ColorPicker', () => {
         expect(document.querySelector('[role="group"]')!.getAttribute('aria-label')).toBe('Brand colour');
         await expectNoA11yViolations();
     });
+
+    it('carries an opacity when asked, and none when not', async () => {
+        const { value, swatch, dialog } = mountPicker({ alpha: true, modelValue: '3366994d' });
+        swatch().click();
+        await nextTick();
+        const slider = dialog()!.querySelector<HTMLElement>('[role="slider"][aria-label="Opacity"]')!;
+        expect(slider).toBeTruthy();
+        expect(slider.getAttribute('aria-valuenow')).toBe('30');
+
+        await press(slider, 'ArrowRight');
+        // Eight hex digits: the colour is untouched, the paint is not.
+        expect(String(value.value).slice(0, 6)).toBe('336699');
+        expect(String(value.value)).toHaveLength(8);
+        expect(Number(slider.getAttribute('aria-valuenow'))).toBe(31);
+
+        // A picker that was never asked for one goes on returning six digits.
+        document.body.innerHTML = '';
+        const plain = mountPicker({ modelValue: '336699' });
+        plain.swatch().click();
+        await nextTick();
+        expect(plain.dialog()!.querySelector('[aria-label="Opacity"]')).toBeNull();
+        const hue = plain.dialog()!.querySelector<HTMLElement>('[role="slider"][aria-label="Hue"]')!;
+        await press(hue, 'ArrowRight');
+        expect(String(plain.value.value)).toHaveLength(6);
+    });
 });

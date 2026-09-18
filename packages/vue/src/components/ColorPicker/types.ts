@@ -9,13 +9,19 @@ export interface ColorPickerProps extends BaseProps {
     defaultColor?: string;
     /** Show a text box for the hex value under the area. Defaults to true. */
     showInput?: boolean;
+    /**
+     * Offer an opacity slider, and carry the opacity in the value: eight hex
+     * digits, or an `a` beside the channels. Off by default, so a picker that
+     * was only ever asked for a colour goes on returning one.
+     */
+    alpha?: boolean;
     disabled?: boolean;
     placement?: OverlayPlacement;
     /** `'body'` (the default), `'self'` to render in place, or a selector. */
     appendTo?: string;
 }
 
-export type ColorPickerValue = string | { r: number; g: number; b: number } | { h: number; s: number; b: number };
+export type ColorPickerValue = string | { r: number; g: number; b: number; a?: number } | { h: number; s: number; b: number; a?: number };
 
 export type ColorPickerEmits = {
     /** The colour was changed by the reader: a key, the end of a drag, or a typed hex value. */

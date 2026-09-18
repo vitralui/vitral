@@ -15,6 +15,8 @@ export const colorpickerStyle = defineStyle({
         panel: (s: ColorPickerState) => ['vt-colorpicker-panel', { 'vt-overlay vt-colorpicker-overlay': !s.inline }],
         area: 'vt-colorpicker-area',
         hue: 'vt-colorpicker-hue',
+        alpha: 'vt-colorpicker-alpha',
+        alphaTrack: 'vt-colorpicker-alpha-track',
         handle: 'vt-colorpicker-handle',
         footer: 'vt-colorpicker-footer',
         preview: 'vt-colorpicker-preview',

@@ -25,6 +25,9 @@ export default {
         height: '0.75rem',
         borderRadius: '{borderRadius.pill}'
     },
+    chequer: {
+        color: '{surface.300}'
+    },
     handle: {
         size: '1rem',
         borderColor: '{surface.0}',

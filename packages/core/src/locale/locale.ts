@@ -352,6 +352,8 @@ export interface Locale {
         /** Spoken value of the area. `{s}`, `{b}` */
         saturationBrightnessValue: string;
         hue: string;
+        /** Names the colour picker's opacity slider. */
+        opacity: string;
         /** A colour picker's text box for the hex value. */
         hex: string;
         /** The button that shows a menubar's items on a small screen. */
@@ -681,6 +683,7 @@ export const en: Locale = {
         saturationBrightness: 'Saturation and brightness',
         saturationBrightnessValue: 'Saturation {s}%, brightness {b}%',
         hue: 'Hue',
+        opacity: 'Opacity',
         hex: 'Hex',
         menu: 'Menu',
         navigation: 'Navigation',
@@ -974,6 +977,7 @@ export const ptBR: Locale = {
         saturationBrightness: 'Saturação e brilho',
         saturationBrightnessValue: 'Saturação {s}%, brilho {b}%',
         hue: 'Matiz',
+        opacity: 'Opacidade',
         hex: 'Hexadecimal',
         menu: 'Menu',
         navigation: 'Navegação',
