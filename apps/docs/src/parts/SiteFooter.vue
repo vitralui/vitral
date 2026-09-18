@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { href } from '../lib/router';
+import { href, base } from '../lib/router';
 import { templates } from '../templates';
 
 const featured = templates.slice(0, 3);
@@ -43,6 +43,8 @@ const year = new Date().getFullYear();
                 <h4>Project</h4>
                 <ul>
                     <li><a :href="href('/docs/contributing')">Contributing</a></li>
+                    <li><a :href="`${base}/llms.txt`">llms.txt</a></li>
+                    <li><a href="https://github.com/vitralui/vitral">GitHub</a></li>
                 </ul>
             </div>
         </div>

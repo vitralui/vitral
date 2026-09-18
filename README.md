@@ -4,7 +4,8 @@ A Vue 3 component library built around a token engine, so the whole look comes
 from one object you can swap. Design tokens, presets, light and dark, per
 instance overrides, pass-through attributes and a fully unstyled mode.
 
-**[Documentation and live examples](https://vitralui.github.io/vitral/)**
+**[Documentation and live examples](https://vitralui.github.io/vitral/)** ·
+**[llms.txt](https://vitralui.github.io/vitral/llms.txt)** for coding agents
 
 The catalog covers the usual set of controls plus the pieces applications
 actually need and most libraries leave out: charts, a scheduler, a task board,
@@ -186,6 +187,20 @@ part. `unstyled` drops every built-in class:
 
 Without JavaScript, `@vitral/themes/css/prism.css` and
 `@vitral/styles/vitral.css` theme a page with two `<link>`s.
+
+## Documentation for LLMs
+
+The site publishes its own documentation in the shape
+[llmstxt.org](https://llmstxt.org) describes, so a coding agent can read it
+without a browser:
+
+- [`/llms.txt`](https://vitralui.github.io/vitral/llms.txt): the index, with a line per guide and per component.
+- [`/llms-full.txt`](https://vitralui.github.io/vitral/llms-full.txt): every page in one file, about 650 kB.
+- Any page as Markdown: add `.md` to its URL, as in
+  [`/components/select.md`](https://vitralui.github.io/vitral/components/select.md).
+
+A component's page carries its props, events and slots read from the source,
+and the full source of the examples the site runs.
 
 ## Accessibility
 

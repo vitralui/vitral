@@ -169,6 +169,19 @@ hydration, auto-imports and the scheme cookie. It reads the packages' `dist`, so
 `pnpm dev:nuxt` builds them first, and `pnpm check:nuxt` runs it and asserts all
 of that without anyone watching.
 
+## The site's build
+
+`pnpm --filter docs build` does two things: Vite builds the application, then
+`scripts/prerender.mjs` opens every route in headless Chrome and writes it as a
+static HTML file, so each page is a real URL rather than a fragment a crawler
+never sees. The same pass writes each page as Markdown, plus `llms.txt`,
+`llms-full.txt`, `sitemap.xml` and `robots.txt`. `DOCS_BASE` is where the site
+will be served from (`/vitral/` on GitHub Pages).
+
+A page that needs a browser to draw itself therefore prerenders correctly: the
+capture happens after the page has drawn. The Markdown leaves the live examples
+out and appends the demo file instead, which is the source they run.
+
 ## Checks
 
 ```sh

@@ -9,7 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
-import { href } from '../lib/router';
+import { href, base } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const usage = `<script setup lang="ts">
@@ -113,6 +113,14 @@ const cities = [
     <p>
         Everything that does not need a framework lives in a package that does not import one. That is what should make a React or Angular adapter cheap later: it writes the
         rendering and reuses the behaviour, the look and the markup contract.
+    </p>
+
+    <h2>For coding agents</h2>
+    <p>
+        This documentation is also published as plain text, in the shape <a href="https://llmstxt.org" target="_blank" rel="noreferrer">llmstxt.org</a> describes, so an
+        assistant can read it without a browser: <a :href="`${base}/llms.txt`">llms.txt</a> is the index, <a :href="`${base}/llms-full.txt`">llms-full.txt</a> is every page in
+        one file, and any page becomes Markdown by adding <code>.md</code> to its URL. A component's text carries its props, events and slots, read from the source, and the
+        full source of the examples on its page.
     </p>
 
     <h2>Where to go next</h2>
