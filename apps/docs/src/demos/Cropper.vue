@@ -10,7 +10,7 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
-import { Button, Cropper, type CropValue } from '@vitral/vue';
+import { Avatar, Button, Cropper, Dialog, type CropValue } from '@vitral/vue';
 import { computed, ref, useTemplateRef } from 'vue';
 import DemoSection from '../DemoSection.vue';
 import CodeBlock from '../parts/CodeBlock.vue';
@@ -44,6 +44,29 @@ async function save() {
     savedSize.value = blob.size;
 }
 
+// ---- the whole flow, which is where a cropper usually lives: a picture is
+// chosen, cropped in a dialog, and only then does the profile change.
+const dialog = ref(false);
+const pending = ref<CropValue>({ x: 0, y: 0, width: 0, height: 0, rotate: 0, flipX: false, flipY: false });
+const profile = ref<string | null>(null);
+const modalCropper = useTemplateRef<InstanceType<typeof Cropper>>('modalCropper');
+
+async function apply() {
+    const blob = await modalCropper.value?.toBlob('image/png', { width: 192 });
+    dialog.value = false;
+    if (!blob) return;
+    if (profile.value) URL.revokeObjectURL(profile.value);
+    profile.value = URL.createObjectURL(blob);
+}
+
+const modalSource = `<Dialog v-model:visible="open" modal header="Crop your photo" :style="{ width: 'min(30rem, 92vw)' }">
+    <Cropper ref="cropper" v-model="crop" :src="file" shape="circle" height="16rem" />
+    <template #footer>
+        <Button label="Cancel" severity="secondary" variant="text" @click="open = false" />
+        <Button label="Use this photo" @click="apply" />
+    </template>
+</Dialog>`;
+
 const usage = `<Cropper v-model="crop" :src="src" shape="circle" :preview-size="96" />
 
 <!-- the file, when you want the file rather than the numbers -->
@@ -75,6 +98,27 @@ const model = computed(() => `const crop = ref<CropValue>(${rounded(free.value)}
     <DemoSection title="Free, with ratios and turns" description="A chooser locks the ratio; the quarter turns and the flips travel with the crop, so it keeps pointing at the same part of the picture.">
         <Cropper v-model="free" :src="photo" :aspects="aspects" rotatable alt="A landscape" height="20rem" />
         <CodeBlock :code="model" label="ts" lang="ts" />
+    </DemoSection>
+
+    <DemoSection
+        title="In a dialog"
+        description="Where a cropper usually lives: a photograph is chosen, cropped over the page, and the profile changes only once it is accepted. The dialog gives the stage its width, so the crop is measured against what it is actually shown at."
+    >
+        <div class="demo-row">
+            <Avatar :image="profile ?? undefined" :label="profile ? undefined : 'AF'" shape="circle" size="large" :alt="profile ? 'Your photo' : undefined" />
+            <Button :label="profile ? 'Change the photo' : 'Upload a photo'" severity="secondary" variant="outlined" size="small" @click="dialog = true" />
+            <span v-if="profile" class="demo-hint">Cropped to a 192px PNG</span>
+        </div>
+
+        <Dialog v-model:visible="dialog" modal header="Crop your photo" :style="{ width: 'min(30rem, 92vw)' }">
+            <Cropper ref="modalCropper" v-model="pending" :src="portrait" shape="circle" alt="The photograph being cropped" height="16rem" />
+            <template #footer>
+                <Button label="Cancel" severity="secondary" variant="text" @click="dialog = false" />
+                <Button label="Use this photo" @click="apply" />
+            </template>
+        </Dialog>
+
+        <CodeBlock :code="modalSource" label="template" lang="vue" />
     </DemoSection>
 
     <DemoSection title="The shape of it">
