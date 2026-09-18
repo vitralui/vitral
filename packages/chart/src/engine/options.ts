@@ -44,6 +44,13 @@ export const chartTypes: readonly ChartType[] = [
     'rangeArea',
     'histogram',
     'boxPlot',
+    'stream',
+    'bullet',
+    'treemap',
+    'calendar',
+    'sunburst',
+    'radialBar',
+    'gauge',
     'funnel'
 ];
 
@@ -261,6 +268,37 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
         }),
         histogram: obj({ bins: num(undefined, 'How many bins; Sturges’ rule decides when this is left out', { min: 1, max: 200, step: 1 }) }),
         boxPlot: obj({ upColor: color(undefined, 'A box whose median sits above the middle of its range'), downColor: color(undefined, 'A box whose median sits below it') }),
+        calendar: obj({
+            from: str(undefined, 'The first day to draw; the first day in the data otherwise'),
+            to: str(undefined, 'The last day to draw'),
+            weekStart: num(0, 'Which weekday is the top row: 0 is Sunday', { min: 0, max: 6, step: 1 }),
+            min: num(0, 'The value drawn at the palest shade'),
+            max: num(undefined, 'The value drawn at the fullest shade; the largest one otherwise'),
+            shadeSteps: num(4, 'How many shades the scale has', { min: 1, max: 12, step: 1 }),
+            gap: num(2, 'The space between two days'),
+            radius: num(2, 'How round a day is')
+        }),
+        sunburst: obj({ hollow: size('25%', 'The hole in the middle, as a share of the radius') }),
+        radialBar: obj({
+            min: num(0, 'The value a ring starts from'),
+            max: num(100, 'The value a full ring stands for'),
+            startAngle: num(undefined, 'Where the rings begin, in degrees clockwise from twelve o’clock'),
+            endAngle: num(undefined, 'Where they end'),
+            hollow: obj({ size: size('45%', 'The hole in the middle, as a share of the outer radius'), background: color() }),
+            trackGap: num(4, 'The space between two rings'),
+            offsetX: num(0),
+            offsetY: num(0)
+        }),
+        treemap: obj({
+            distributed: bool(false, 'Colour every box by rank rather than by the series it belongs to'),
+            radius: num(2, 'How round the corners of a box are', { min: 0, max: 24, step: 1 })
+        }),
+        bullet: obj({
+            ranges: list(obj({ from: num(0), to: num(0), color: color() }), [], 'The bands behind the bars, read as one scale'),
+            targetWidth: num(3, 'How thick the mark to beat is drawn', { min: 1, max: 12, step: 1 }),
+            targetColor: color(undefined, 'The mark to beat')
+        }),
+        stream: obj({ offset: oneOf(['wiggle', 'silhouette', 'zero'] as const, 'wiggle', 'Where the stack floats: cancelling the slopes, centred, or on the axis') }),
         funnel: obj({
             /** A funnel narrowing to a point, rather than to the width of its last stage. */
             neck: size('0%', 'How wide the last stage is drawn, as a share of the first'),
@@ -358,6 +396,13 @@ export function defaultsOf(schema: ChartOptionSchema): unknown {
 
 export const defaultChartOptions = Object.freeze(defaultsOf(chartOptionsSchema) as ChartOptions);
 
+/**
+ * Types drawn as a field of cells rather than as marks on a pair of axes:
+ * they have no scales, their hit testing is by rectangle, and the legend and
+ * the shared tooltip have nothing to say about them.
+ */
+export const cellTypes = new Set<ChartType>(['heatmap', 'treemap', 'calendar']);
+
 /** The defaults each chart type brings over the common ones. */
 export const chartTypeDefaults: Record<ChartType, ChartOptions> = {
     line: { markers: { size: 0 } },
@@ -378,6 +423,69 @@ export const chartTypeDefaults: Record<ChartType, ChartOptions> = {
     // Bins touch: a gap between them would suggest values that fall nowhere.
     histogram: { stroke: { show: true, width: 1 }, legend: { show: false }, plotOptions: { bar: { columnWidth: '100%' } }, xaxis: { crosshairs: { width: 'barWidth' } }, grid: { padding: { left: 0, right: 0 } } },
     boxPlot: { stroke: { show: false, width: 1 }, legend: { show: false }, xaxis: { crosshairs: { width: 'barWidth' } } },
+    // A bullet is one measure against its target: the bands say how it is
+    // doing, so the grid would only repeat them.
+    bullet: {
+        stroke: { show: false, width: 0 },
+        legend: { show: false },
+        grid: { show: false, padding: { left: 0, right: 0 } },
+        plotOptions: { bar: { horizontal: true, barHeight: '40%' } },
+        xaxis: { crosshairs: { show: false } },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    // A treemap is all fill: the axes measure nothing and the legend names the
+    // groups, which the boxes already carry.
+    treemap: {
+        dataLabels: { enabled: true, formatter: '{seriesName}' },
+        stroke: { show: true, width: 2 },
+        tooltip: { shared: false, intersect: true },
+        grid: { show: false },
+        xaxis: { crosshairs: { show: false } },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    // A sunburst names what it can and leaves the rest to the tooltip.
+    sunburst: {
+        // The ring is read for what each part is, not for its number.
+        dataLabels: { enabled: true, formatter: '{seriesName}' },
+        legend: { show: false },
+        stroke: { show: true, width: 1 },
+        tooltip: { shared: false, intersect: true },
+        grid: { show: false },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    // Rings and gauges are read off the track behind them, not off an axis.
+    radialBar: {
+        dataLabels: { enabled: true },
+        legend: { position: 'right' },
+        stroke: { show: false, width: 0 },
+        tooltip: { shared: false, intersect: true },
+        grid: { show: false },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    gauge: {
+        // The reading in the middle is the gauge's data label, and the arc is
+        // a band rather than most of a disc.
+        plotOptions: { radialBar: { hollow: { size: '78%' } } },
+        dataLabels: { enabled: true, formatter: '{percent|percent:0}' },
+        legend: { show: false },
+        stroke: { show: false, width: 0 },
+        tooltip: { shared: false, intersect: true },
+        grid: { show: false },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    // A calendar is a grid of days: nothing about it is a scale.
+    calendar: {
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        stroke: { show: false, width: 0 },
+        tooltip: { shared: false, intersect: true },
+        grid: { show: false },
+        xaxis: { crosshairs: { show: false } },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    },
+    // A stream is read for its shape, and a scale off a floating baseline
+    // measures nothing, so the axis and the grid stay out of the way.
+    stream: { chart: { stacked: true }, fill: { opacity: 0.85 }, stroke: { curve: 'monotoneCubic', width: 0, show: false }, yaxis: { show: false }, grid: { show: false }, tooltip: { shared: true } },
     funnel: {
         dataLabels: { enabled: true },
         legend: { show: false },

@@ -45,8 +45,11 @@ const within = (v: number, a: number, b: number) => v >= a - 0.5 && v <= b + 0.5
 
 /** The grid: bands and lines. */
 export function gridView({ scene, part }: ViewContext): Child {
-    if (!scene.grid.show) return null;
+    // Bands are a background the marks are measured against — a bullet's are
+    // the whole point of it — so they are drawn whether or not there are lines.
+    if (!scene.grid.show && !scene.grid.bands.length) return null;
     const plot = scene.plot;
+    const lines = scene.grid.show;
     const gridStyle = { stroke: scene.grid.color, strokeDasharray: scene.grid.dash ? String(scene.grid.dash) : undefined };
     return s(
         'g',
@@ -54,12 +57,12 @@ export function gridView({ scene, part }: ViewContext): Child {
         scene.grid.bands.map((b, i) =>
             s('rect', mergeAttrs({ key: `b${i}` }, part('gridBand'), { x: round(b.x), y: round(b.y), width: round(b.width), height: round(b.height), style: { fill: b.color, opacity: b.opacity } }))
         ),
-        scene.grid.horizontal.map((y, i) =>
+        !lines ? null : scene.grid.horizontal.map((y, i) =>
             within(y, plot.y, plot.y + plot.height)
                 ? s('line', mergeAttrs({ key: `h${i}` }, part('gridLine'), { x1: round(plot.x), x2: round(plot.x + plot.width), y1: round(y), y2: round(y), style: gridStyle }))
                 : null
         ),
-        scene.grid.vertical.map((x, i) =>
+        !lines ? null : scene.grid.vertical.map((x, i) =>
             within(x, plot.x, plot.x + plot.width)
                 ? s('line', mergeAttrs({ key: `v${i}` }, part('gridLine'), { x1: round(x), x2: round(x), y1: round(plot.y), y2: round(plot.y + plot.height), style: gridStyle }))
                 : null
@@ -225,6 +228,9 @@ export function marksView(c: ViewContext): Child[] {
                                   })
                               )
                             : null,
+                        b.target
+                            ? s('line', mergeAttrs({ key: `t${b.index}` }, part('target'), { x1: round(b.target.x1), y1: round(b.target.y1), x2: round(b.target.x2), y2: round(b.target.y2), style: { stroke: b.target.color, strokeWidth: b.target.width } }))
+                            : null,
                         b.stem
                             ? [
                                   s('line', mergeAttrs({ key: `s${b.index}` }, part('stem'), { x1: round(b.stem.x1), y1: round(b.stem.y1), x2: round(b.stem.x2), y2: round(b.stem.y2), style: { stroke: b.color, strokeWidth: b.stem.width } })),
@@ -341,6 +347,8 @@ export function pieView(c: ViewContext, center: PieCenter | null, customCenter?:
         pie.donut && pie.background && pie.background !== 'transparent'
             ? s('circle', mergeAttrs(part('pieBackground'), { cx: round(pie.cx), cy: round(pie.cy), r: round(pie.inner), style: { fill: pie.background } }))
             : null,
+        // A radial bar's track: the ring it would fill if it were at its maximum.
+        pie.tracks?.map((d, i) => s('path', mergeAttrs({ key: `t${i}` }, part('radialTrack'), { d }))),
         pie.slices.map((sl) =>
             s(
                 'path',

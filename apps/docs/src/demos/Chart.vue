@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Chart',
     category: 'Data',
     description:
-        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut, radar, waterfall, range bar, range area, histogram, box plot and funnel; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
+        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut, radar, waterfall, range bar, range area, histogram, box plot, funnel, stream, bullet, treemap, sunburst, calendar, radial bars and a gauge; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
 };
 </script>
 
@@ -167,6 +167,81 @@ const funnelOptions: ChartOptions = {
     plotOptions: { funnel: { neck: '30%', gap: 4 } },
     dataLabels: { enabled: true, formatter: '{seriesName}: {value|compact} ({percent|percent:0})' }
 };
+
+// ---- the second leaf: shapes that are not marks on a pair of axes
+const traffic2: ChartSeries = ['Search', 'Direct', 'Social', 'Mail', 'Referral'].map((name, row) => ({
+    name,
+    data: months.map((_, i) => Math.round(30 + Math.sin((i + row * 2) / 1.7) * 18 + row * 6 + i * (row % 2 ? 1.5 : 3)))
+}));
+const streamOptions: ChartOptions = { ...quiet, xaxis: { categories: months }, tooltip: { shared: true } };
+
+const against: ChartSeries = [
+    {
+        name: 'Against target',
+        data: [
+            { x: 'Revenue', y: 78, target: 90 },
+            { x: 'Signups', y: 112, target: 100 },
+            { x: 'Retention', y: 64, target: 75 },
+            { x: 'Margin', y: 41, target: 50 }
+        ]
+    }
+];
+const bulletOptions: ChartOptions = {
+    ...quiet,
+    // The bands are the scale a bullet is read against: poor, fair, good.
+    plotOptions: { bullet: { ranges: [{ from: 0, to: 130 }, { from: 0, to: 90 }, { from: 0, to: 55 }] } },
+    tooltip: { y: { formatter: '{value}%' } }
+};
+
+const regionsTree: ChartSeries = [
+    { name: 'Europe', data: [{ x: 'Germany', y: 84 }, { x: 'France', y: 68 }, { x: 'Spain', y: 47 }, { x: 'Portugal', y: 12 }] },
+    { name: 'Americas', data: [{ x: 'United States', y: 132 }, { x: 'Brazil', y: 72 }, { x: 'Mexico', y: 39 }] },
+    { name: 'Asia', data: [{ x: 'Japan', y: 61 }, { x: 'India', y: 55 }, { x: 'Singapore', y: 14 }] }
+];
+const treemapOptions: ChartOptions = { ...quiet, legend: { show: true, position: 'bottom' } };
+const sunburstOptions: ChartOptions = { ...quiet };
+
+// A parent a point names builds a tree of any depth, rather than the two
+// levels a list of series gives.
+const roles: ChartSeries = [
+    {
+        name: 'Headcount',
+        data: [
+            { x: 'Engineering', y: 0 },
+            { x: 'Product', y: 0 },
+            { x: 'Platform', y: 18, parent: 'Engineering' },
+            { x: 'Web', y: 14, parent: 'Engineering' },
+            { x: 'Mobile', y: 9, parent: 'Engineering' },
+            { x: 'Design', y: 7, parent: 'Product' },
+            { x: 'Research', y: 4, parent: 'Product' },
+            { x: 'iOS', y: 5, parent: 'Mobile' },
+            { x: 'Android', y: 4, parent: 'Mobile' }
+        ]
+    }
+];
+
+const usage: ChartSeries = [
+    { name: 'Storage', data: [72] },
+    { name: 'Memory', data: [48] },
+    { name: 'CPU', data: [35] }
+];
+const radialOptions: ChartOptions = { ...quiet, legend: { show: true, position: 'bottom' } };
+const gaugeOptions: ChartOptions = { ...quiet, colors: ['var(--vt-chart-3)'], plotOptions: { radialBar: { min: 90, max: 100 } }, dataLabels: { formatter: '{value}%' } };
+
+// A year of daily activity, from a fixed seed so the page is the same twice.
+const daily = seeded(23);
+const commits: ChartSeries = [
+    {
+        name: 'Commits',
+        data: Array.from({ length: 365 }, (_, i) => {
+            const date = new Date(2026, 0, 1 + i);
+            const weekend = date.getDay() === 0 || date.getDay() === 6;
+            const value = Math.round(daily() * (weekend ? 4 : 14) * (daily() > 0.18 ? 1 : 0));
+            return { x: date.getTime(), y: value };
+        }).filter((d) => d.y > 0)
+    }
+];
+const calendarOptions: ChartOptions = { ...quiet, plotOptions: { calendar: { weekStart: 1 } }, colors: ['var(--vt-chart-3)'], tooltip: { y: { formatter: '{value} commits' } } };
 
 // ---- a candlestick over its volume: one group
 const start = new Date(2026, 5, 1).getTime();
@@ -340,6 +415,36 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
 
     <DemoSection title="Funnel" description="Stages of a process, each as wide as its share of the first, so the fall reads as a slope. `{percent}` is in the label formatter because the share is what a funnel is read for.">
         <Chart type="funnel" :series="signups" :options="funnelOptions" height="320" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Stream" description="A stacked area floating on a baseline of its own: the layers share the movement instead of the bottom one carrying it. `plotOptions.stream.offset` chooses how.">
+        <Chart type="stream" :series="traffic2" :options="streamOptions" height="300" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Bullet" description="A measure, its target and the bands it falls in — a gauge’s job in a strip a table row can hold. The tick is the target the point carries.">
+        <Chart type="bullet" :series="against" :options="bulletOptions" height="260" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Treemap and sunburst" description="Two ways to draw a hierarchy. The treemap packs it into boxes whose areas are the values; the sunburst rings it, a level a ring, so a wedge stays with its family.">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; width: 100%">
+            <Chart type="treemap" :series="regionsTree" :options="treemapOptions" height="300" />
+            <Chart type="sunburst" :series="regionsTree" :options="sunburstOptions" height="300" />
+        </div>
+    </DemoSection>
+
+    <DemoSection title="A tree of any depth" description="A point that names a `parent` builds the tree itself, rather than the two levels a list of series gives.">
+        <Chart type="sunburst" :series="roles" :options="sunburstOptions" height="340" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Radial bars and a gauge" description="Rings read against their own tracks, and one number against its maximum with the reading in the middle. `plotOptions.radialBar.min` and `max` set what a full ring means.">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; width: 100%">
+            <Chart type="radialBar" :series="usage" :options="radialOptions" height="300" />
+            <Chart type="gauge" :series="[{ name: 'Uptime', data: [99.4] }]" :options="gaugeOptions" height="300" />
+        </div>
+    </DemoSection>
+
+    <DemoSection title="Calendar" description="A year of days as a grid of weeks. A line of 365 points shows the trend; this shows the day.">
+        <Chart type="calendar" :series="commits" :options="calendarOptions" height="200" style="width: 100%" />
     </DemoSection>
 
     <DemoSection title="Synced charts" description="A price and its volume in one group: they share the crosshair, the tooltip and the zoom. Drag across either to zoom both; Shift-drag pans.">

@@ -27,6 +27,13 @@ export type ChartKind =
     | 'rangeArea'
     | 'histogram'
     | 'boxPlot'
+    | 'stream'
+    | 'bullet'
+    | 'treemap'
+    | 'calendar'
+    | 'sunburst'
+    | 'radialBar'
+    | 'gauge'
     | 'funnel';
 
 export interface ChartProps extends BaseProps {

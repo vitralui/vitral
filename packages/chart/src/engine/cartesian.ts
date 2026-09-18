@@ -4,7 +4,7 @@ import { chartFormatter, formatNumber } from './format';
 import { areaPath, linePath, rectPath, type Corners, type Pt } from './geometry';
 import { alignInset } from './group';
 import { perSeries } from './options';
-import { rangeSpans, waterfallSpans } from './spans';
+import { rangeSpans, streamBaseline, waterfallSpans } from './spans';
 import { linear, niceScale, timeTicks, type TimeUnit } from './scale';
 import type {
     ChartScene,
@@ -51,7 +51,7 @@ export function buildCartesian(input: SceneInput): ChartScene {
     const font = fonts(input);
     const sparkline = !!o.chart?.sparkline?.enabled;
     // A range bar and a waterfall are bars, so they turn on their side too.
-    const barLike = type === 'bar' || type === 'lollipop' || type === 'rangeBar' || type === 'waterfall' || type === 'histogram';
+    const barLike = type === 'bar' || type === 'lollipop' || type === 'rangeBar' || type === 'waterfall' || type === 'histogram' || type === 'bullet';
     const horizontal = barLike && !!o.plotOptions?.bar?.horizontal;
     const all = input.series;
     const visible = all.filter((s) => !input.hidden.has(s.index));
@@ -63,10 +63,10 @@ export function buildCartesian(input: SceneInput): ChartScene {
      */
     const markOf = (s: NormalizedSeries): Mark => {
         const t = (s.type ?? type) as ChartType;
-        if (t === 'waterfall' || t === 'rangeBar' || t === 'histogram') return 'bar';
-        if (t === 'rangeArea') return 'area';
+        if (t === 'waterfall' || t === 'rangeBar' || t === 'histogram' || t === 'bullet') return 'bar';
+        if (t === 'rangeArea' || t === 'stream') return 'area';
         if (t === 'boxPlot') return 'boxPlot';
-        return t === 'heatmap' || t === 'pie' || t === 'donut' || t === 'radar' || t === 'funnel' ? 'line' : t;
+        return t === 'heatmap' || t === 'treemap' || t === 'calendar' || t === 'pie' || t === 'donut' || t === 'radar' || t === 'sunburst' || t === 'radialBar' || t === 'gauge' || t === 'funnel' ? 'line' : t;
     };
     const anyBar = visible.some((s) => BAR_LIKE.has(markOf(s)));
     const pointMode = type === 'scatter' || type === 'bubble';
@@ -125,7 +125,9 @@ export function buildCartesian(input: SceneInput): ChartScene {
     };
 
     // ---- stacking --------------------------------------------------------------------
-    const stacked = !!o.chart?.stacked;
+    // A stream is a stacked area that floats: the stacking is not a choice.
+    const streaming = type === 'stream';
+    const stacked = !!o.chart?.stacked || streaming;
     const percent = stacked && o.chart?.stackType === '100%';
     const stackKind = (m: Mark) => (m === 'bar' || m === 'lollipop' ? 'bar' : m === 'area' ? 'area' : m === 'line' ? 'line' : null);
     const stacks = new Map<number, { from: number; to: number; value: number | null }[]>();
@@ -151,6 +153,19 @@ export function buildCartesian(input: SceneInput): ChartScene {
             const result = stackValues(rows, { percent, groups: members.map((s) => s.group) });
             members.forEach((s, i) => stacks.set(s.index, result[i]!));
         }
+    }
+
+    if (streaming) {
+        const members = visible.filter((s) => markOf(s) === 'area').map((s) => stacks.get(s.index)).filter((v): v is { from: number; to: number; value: number | null }[] => !!v);
+        const base = streamBaseline(
+            members.map((spans) => spans.map((v) => v.value ?? 0)),
+            o.plotOptions?.stream?.offset ?? 'wiggle'
+        );
+        for (const spans of members)
+            spans.forEach((v, i) => {
+                v.from += base[i] ?? 0;
+                v.to += base[i] ?? 0;
+            });
     }
 
     // ---- y axes ----------------------------------------------------------------------
@@ -430,6 +445,25 @@ export function buildCartesian(input: SceneInput): ChartScene {
     bands(o.grid?.row?.colors, o.grid?.row?.opacity, valueLines, true);
     bands(o.grid?.column?.colors, o.grid?.column?.opacity, catLines, false);
 
+    /*
+     * A bullet's bands: poor, fair and good, drawn behind the bars in one
+     * shade getting lighter outwards, so the bar is read against them without
+     * a legend. They are grid bands because that is what they are — a
+     * background the marks are measured against — and the renderer already
+     * draws those behind everything else.
+     */
+    if (type === 'bullet') {
+        const ranges = o.plotOptions?.bullet?.ranges ?? [];
+        ranges.forEach((r, i) => {
+            const a = val(0, Math.min(r.from, r.to));
+            const b = val(0, Math.max(r.from, r.to));
+            const [lo, hi] = [Math.min(a, b), Math.max(a, b)];
+            const color = r.color ?? 'var(--vt-chart-band-color)';
+            const opacity = r.color ? 1 : 1 - i * (0.6 / Math.max(1, ranges.length));
+            grid.bands.push(horizontal ? { x: lo, y: plot.y, width: hi - lo, height: plot.height, color, opacity } : { x: plot.x, y: lo, width: plot.width, height: hi - lo, color, opacity });
+        });
+    }
+
     // ---- marks -----------------------------------------------------------------------
     const marks: SceneMarks[] = [];
     const data: SceneDatum[] = [];
@@ -617,6 +651,17 @@ export function buildCartesian(input: SceneInput): ChartScene {
                     const markerSize = o.plotOptions?.lollipop?.markerSize ?? 10;
                     entry.stem = { x1: start[0], y1: start[1], x2: end[0], y2: end[1], width: o.plotOptions?.lollipop?.stemWidth ?? 2 };
                     entry.head = { x: end[0], y: end[1], size: markerSize, shape: shapeOf(s.index), fill: barColor, strokeWidth: 0 };
+                }
+                // The mark to beat: a line across the bar, at the value the
+                // point carries rather than at one the options name, since
+                // every measure has its own target.
+                if (p.target !== undefined && (s.type ?? type) === 'bullet') {
+                    const bullet = o.plotOptions?.bullet ?? {};
+                    const t = val(a, p.target);
+                    const reach = each * 0.75;
+                    entry.target = horizontal
+                        ? { x1: t, y1: c - reach / 2, x2: t, y2: c + reach / 2, width: bullet.targetWidth ?? 3, color: bullet.targetColor }
+                        : { x1: c - reach / 2, y1: t, x2: c + reach / 2, y2: t, width: bullet.targetWidth ?? 3, color: bullet.targetColor };
                 }
                 bars.push(entry);
                 data.push({ series: s.index, index: p.index, column: i, x: end[0], y: end[1], value, text: formatY(value, s.index, i), label: formatCategory(i), color: barColor });

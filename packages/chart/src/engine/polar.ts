@@ -96,7 +96,12 @@ export function sliceAt(pie: NonNullable<ChartScene['pie']>, x: number, y: numbe
     const first = pie.slices[0]?.start ?? 0;
     while (angle < first) angle += 360;
     while (angle >= first + 360) angle -= 360;
-    return pie.slices.findIndex((s) => angle >= Math.min(s.start, s.end) && angle < Math.max(s.start, s.end));
+    // Radial bars share their angles and differ by radius, so a ring that
+    // carries its own radii is found by both.
+    return pie.slices.findIndex((s) => {
+        if (s.inner !== undefined && s.outer !== undefined && (r < s.inner || r > s.outer)) return false;
+        return angle >= Math.min(s.start, s.end) && angle < Math.max(s.start, s.end);
+    });
 }
 
 /**
@@ -207,4 +212,129 @@ export function spokeAt(radar: NonNullable<ChartScene['radar']>, count: number, 
     let angle = (Math.atan2(y - radar.cy, x - radar.cx) * 180) / Math.PI + 90;
     if (angle < 0) angle += 360;
     return Math.round(angle / (360 / count)) % count;
+}
+
+/**
+ * What an arc of the unit circle covers, from `start` to `end` degrees: the
+ * two ends, plus whichever of the four quarter points the arc passes through.
+ * A ring open at the bottom is wider than it is tall, and this is what says by
+ * how much.
+ */
+export function arcBox(start: number, end: number): { minX: number; maxX: number; minY: number; maxY: number } {
+    const points: Pt[] = [polar(0, 0, 1, start), polar(0, 0, 1, end)];
+    for (let a = Math.ceil(start / 90) * 90; a <= end; a += 90) points.push(polar(0, 0, 1, a));
+    const xs = points.map((p) => p[0]);
+    const ys = points.map((p) => p[1]);
+    return { minX: Math.min(...xs, 0), maxX: Math.max(...xs, 0), minY: Math.min(...ys, 0), maxY: Math.max(...ys, 0) };
+}
+
+/**
+ * Radial bars: one ring a series, each as long a share of the circle as its
+ * value is of the maximum, drawn over a track that shows what a full ring
+ * would be. A gauge is the same thing with one ring and an arc rather than a
+ * circle, so both are laid out here.
+ *
+ * It is a donut as far as the renderer is concerned — arcs, a hollow middle
+ * and a centre readout — so the scene it produces is a `pie`, with the rings
+ * carrying their own radii for hit testing.
+ */
+export function buildRadialBar(input: SceneInput): ChartScene {
+    const { options: o, locale, type } = input;
+    const r = o.plotOptions?.radialBar ?? {};
+    const visible = input.series.filter((s) => !input.hidden.has(s.index));
+    if (!visible.length) return emptyScene(input);
+    const gauge = type === 'gauge';
+    const t = titles(input);
+    const font = fonts(input);
+    const plot = { x: 0, y: t.height, width: input.width, height: Math.max(10, input.height - t.height) };
+    const startAngle = r.startAngle ?? (gauge ? -135 : 0);
+    const endAngle = r.endAngle ?? (gauge ? 135 : 360);
+    const span = endAngle - startAngle;
+    const max = r.max ?? 100;
+    const min = r.min ?? 0;
+
+    // An arc that does not close covers less than a circle, so the rings are
+    // sized and placed by what they actually draw: a gauge open at the bottom
+    // is wider than it is tall, and fills the box rather than floating in it.
+    const box = arcBox(Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
+    const outer = Math.max(6, Math.min((plot.width - 4) / (box.maxX - box.minX), (plot.height - 4) / (box.maxY - box.minY)));
+    const cx = plot.x + (plot.width - (box.maxX + box.minX) * outer) / 2 + (r.offsetX ?? 0);
+    const cy = plot.y + (plot.height - (box.maxY + box.minY) * outer) / 2 + (r.offsetY ?? 0);
+    const hollow = fraction(typeof r.hollow?.size === 'number' ? `${r.hollow.size}%` : r.hollow?.size, gauge ? 0.8 : 0.45);
+    const inner = outer * hollow;
+    const gap = r.trackGap ?? 4;
+    const band = visible.length > 0 ? Math.max(2, (outer - inner - gap * (visible.length - 1)) / visible.length) : 0;
+
+    const format = chartFormatter(o.dataLabels?.formatter, '{percent|percent:0}', locale);
+    const valueFormat = chartFormatter(o.tooltip?.y?.formatter, '{value}', locale);
+    const labelSize = sizeToPx(o.dataLabels?.style?.fontSize, font.dataLabel);
+    const count = input.series.length;
+    const slices: SceneSlice[] = [];
+    const tracks: string[] = [];
+    const data: SceneDatum[] = [];
+
+    visible.forEach((s, k) => {
+        const value = s.points.reduce((sum, p) => sum + (p.y ?? 0), 0);
+        const share = max > min ? Math.max(0, Math.min(1, (value - min) / (max - min))) : 0;
+        const ringOuter = outer - k * (band + gap);
+        const ringInner = ringOuter - band;
+        const end = startAngle + share * span;
+        const color = seriesColor(o, s, s.index, count);
+        tracks.push(sectorPath(cx, cy, ringInner, ringOuter, startAngle, endAngle));
+        const path = sectorPath(cx, cy, ringInner, ringOuter, startAngle, end);
+        const mid = (startAngle + end) / 2;
+        slices.push({
+            series: s.index,
+            path,
+            hoverPath: sectorPath(cx, cy, ringInner - 1, ringOuter + 1, startAngle, end),
+            selectedPath: path,
+            color,
+            value,
+            percent: share * 100,
+            start: startAngle,
+            end,
+            mid,
+            inner: ringInner,
+            outer: ringOuter,
+            offset: [0, 0],
+            // A ring's name goes beside it rather than on it: the band is thin
+            // and the text would run off both edges.
+            label:
+                o.dataLabels?.enabled && !gauge && band > labelSize
+                    ? {
+                          ...(() => {
+                              const [lx, ly] = polar(cx, cy, (ringInner + ringOuter) / 2, startAngle - 4);
+                              return { x: lx, y: ly };
+                          })(),
+                          text: format(value, { seriesIndex: s.index, dataPointIndex: 0, seriesName: s.name, percent: share * 100 }),
+                          anchor: 'end' as const,
+                          baseline: 'middle' as const,
+                          style: { ...o.dataLabels?.style, fontSize: `${labelSize}px` }
+                      }
+                    : undefined
+        });
+        const [px, py] = polar(cx, cy, (ringInner + ringOuter) / 2, end === startAngle ? startAngle : (startAngle + end) / 2);
+        data.push({
+            series: s.index,
+            index: 0,
+            column: k,
+            x: px,
+            y: py,
+            r: band / 2,
+            value,
+            text: valueFormat(value, { seriesIndex: s.index, dataPointIndex: 0, seriesName: s.name, percent: share * 100 }),
+            label: s.name,
+            color
+        });
+    });
+
+    return {
+        ...emptyScene(input),
+        empty: false,
+        plot,
+        pie: { kind: 'pie', cx, cy, inner, outer, slices, tracks, total: slices.reduce((sum, sl) => sum + sl.value, 0), donut: true, background: r.hollow?.background, strokeWidth: typeof o.stroke?.width === 'number' && o.stroke.show !== false ? o.stroke.width : 0 },
+        columns: visible.map((s, k) => ({ index: k, pos: 0, half: 0, label: s.name, value: data[k]?.value ?? 0, visible: true })),
+        data,
+        visibleSeries: visible.map((s) => s.index)
+    };
 }

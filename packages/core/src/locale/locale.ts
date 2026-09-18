@@ -162,6 +162,13 @@ export interface Locale {
             | 'rangeArea'
             | 'histogram'
             | 'boxPlot'
+            | 'stream'
+            | 'bullet'
+            | 'treemap'
+            | 'calendar'
+            | 'sunburst'
+            | 'radialBar'
+            | 'gauge'
             | 'funnel',
             string
         >;
@@ -579,6 +586,13 @@ export const en: Locale = {
             rangeArea: 'Range area',
             histogram: 'Histogram',
             boxPlot: 'Box plot',
+            stream: 'Stream',
+            bullet: 'Bullet',
+            treemap: 'Treemap',
+            calendar: 'Calendar',
+            sunburst: 'Sunburst',
+            radialBar: 'Radial bar',
+            gauge: 'Gauge',
             funnel: 'Funnel'
         },
         summary: '{type} chart, {count} series: {names}',
@@ -896,6 +910,13 @@ export const ptBR: Locale = {
             rangeArea: 'Área de intervalo',
             histogram: 'Histograma',
             boxPlot: 'Diagrama de caixa',
+            stream: 'Fluxo',
+            bullet: 'Marcador',
+            treemap: 'Mapa de árvore',
+            calendar: 'Calendário',
+            sunburst: 'Explosão solar',
+            radialBar: 'Barras radiais',
+            gauge: 'Medidor',
             funnel: 'Funil'
         },
         summary: 'Gráfico de {type}, {count} séries: {names}',

@@ -17,7 +17,7 @@ import { seriesColor } from './engine/common';
 import { chartFormatter } from './engine/format';
 import { brushChannel, chartBus, groupChannel, releaseInset, type ChartGroupMessage } from './engine/group';
 import { chartKeyTarget, columnAt, datumAt, isFullWindow, normalizeWindow, panWindow, rectAt, zoomWindow } from './engine/interaction';
-import { resolveChartOptions, type ResolvedChartOptions } from './engine/options';
+import { cellTypes, resolveChartOptions, type ResolvedChartOptions } from './engine/options';
 import { sliceAt, spokeAt } from './engine/polar';
 import type { ChartScene, SceneDatum } from './engine/scene';
 import { normalizeSeries, type NormalizedSeries } from './engine/series';
@@ -326,7 +326,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             hidden = new Set(series.filter((x) => x.hidden).map((x) => x.index));
         }
         const pieLike = type === 'pie' || type === 'donut';
-        const cartesian = !pieLike && type !== 'radar' && type !== 'heatmap';
+        const cartesian = !pieLike && type !== 'radar' && !cellTypes.has(type);
         const sparkline = !!chart.sparkline?.enabled;
         const isBrush = !!chart.brush?.enabled && !!chart.brush.target;
         const scene = sceneOf(type, series, hidden, options, size.width || 600, size.height || 260, locale(), isBrush ? null : xWindow, yWindow, autoScaleY, fonts, fontFamily);
@@ -970,7 +970,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     function tooltipOf(d: ReturnType<typeof derive>, focusDatum: SceneDatum | null): Tooltip | null {
         const { options, scene: sc, series } = d;
         if (options.tooltip?.enabled === false || sc.empty) return null;
-        const shared = !!options.tooltip?.shared && !options.tooltip?.intersect && !d.pointMode && !d.pieLike && d.type !== 'heatmap';
+        const shared = !!options.tooltip?.shared && !options.tooltip?.intersect && !d.pointMode && !d.pieLike && !cellTypes.has(d.type);
         const rowTitle = chartFormatter(options.tooltip?.y?.title?.formatter, '{series}', locale());
         const rowOf = (datum: SceneDatum) => {
             const s0 = series[datum.series];
@@ -1111,7 +1111,13 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
 
         // Donut centre.
         let center: PieCenter | null = null;
-        if (sc.pie && options.plotOptions?.pie?.donut?.labels?.show !== false) {
+        if (sc.pie?.tracks) {
+            // A gauge reads its own value in the middle; there is no total to
+            // show, since the rings are shares of their own maximums.
+            const slice = sc.pie.slices.find((x) => x.series === state.hoverSeries) ?? sc.pie.slices[0];
+            if (slice && options.dataLabels?.enabled !== false)
+                center = { name: seriesName(slice.series), value: chartFormatter(options.dataLabels?.formatter, '{percent|percent:0}', loc)(slice.value, { percent: slice.percent, seriesName: seriesName(slice.series) }), total: '' };
+        } else if (sc.pie && options.plotOptions?.pie?.donut?.labels?.show !== false) {
             const labels = options.plotOptions?.pie?.donut?.labels;
             const slice = sc.pie.slices.find((x) => x.series === state.hoverSeries);
             const total = chartFormatter(labels?.total?.formatter, '{value}', loc)(sc.pie.total);

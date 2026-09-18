@@ -258,13 +258,20 @@ describe('Chart', () => {
             ['rangeArea', [{ name: 'Band', data: [{ x: 'a', y: [8, 17] }, { x: 'b', y: [11, 21] }] }]],
             ['histogram', [{ name: 'Latency', data: [1, 2, 2, 3, 3, 3, 4, 4, 9] }]],
             ['boxPlot', [{ name: 'Latency', data: [{ x: 'a', y: [10, 20, 30, 40, 90] }, { x: 'b', y: [5, 8, 9, 11, 14] }] }]],
-            ['funnel', [{ name: 'Signups', data: [1000, 640, 380, 190] }], { labels: ['Visited', 'Trial', 'Paid', 'Renewed'] }]
+            ['funnel', [{ name: 'Signups', data: [1000, 640, 380, 190] }], { labels: ['Visited', 'Trial', 'Paid', 'Renewed'] }],
+            ['stream', [{ name: 'A', data: [3, 5, 4] }, { name: 'B', data: [2, 3, 6] }]],
+            ['bullet', [{ name: 'Against target', data: [{ x: 'Revenue', y: 78, target: 90 }] }], { plotOptions: { bullet: { ranges: [{ from: 0, to: 100 }, { from: 0, to: 60 }] } } }],
+            ['treemap', [{ name: 'Europe', data: [{ x: 'France', y: 40 }, { x: 'Spain', y: 20 }] }]],
+            ['calendar', [{ name: 'Commits', data: [{ x: Date.UTC(2026, 0, 5), y: 3 }, { x: Date.UTC(2026, 1, 9), y: 7 }] }]],
+            ['radialBar', [{ name: 'Storage', data: [72] }, { name: 'Memory', data: [40] }]],
+            ['gauge', [{ name: 'Uptime', data: [96] }]],
+            ['sunburst', [{ name: 'Europe', data: [{ x: 'France', y: 40 }, { x: 'Spain', y: 20 }] }, { name: 'Asia', data: [{ x: 'Japan', y: 30 }] }]]
         ];
         for (const [type, series, options] of cases) {
             const { svg, wrapper } = mountChart({ type, series, options: { ...options, chart: { ...options?.chart, animations: { enabled: false } } } });
             expect(svg().querySelectorAll('path, rect').length, type).toBeGreaterThan(2);
             expect(document.getElementById(svg().getAttribute('aria-labelledby')!)!.textContent, type).not.toContain('No data');
-            if (type === 'heatmap' || type === 'candlestick' || type === 'boxPlot' || type === 'funnel') await expectNoA11yViolations();
+            if (type === 'heatmap' || type === 'candlestick' || type === 'boxPlot' || type === 'funnel' || type === 'treemap' || type === 'calendar' || type === 'radialBar') await expectNoA11yViolations();
             wrapper.unmount();
         }
         expect(kindsMatchTheEngine).toEqual([true, true]);

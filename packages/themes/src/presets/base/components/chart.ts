@@ -35,6 +35,16 @@ export default {
         lineColor: 'color-mix(in srgb, {content.borderColor} 70%, transparent)',
         lineWidth: '1'
     },
+    radial: {
+        trackColor: 'color-mix(in srgb, {text.color} 8%, transparent)'
+    },
+    // A bullet's bands and the mark it is measured against.
+    band: {
+        color: 'color-mix(in srgb, {text.color} 12%, transparent)'
+    },
+    target: {
+        color: '{text.color}'
+    },
     crosshair: {
         color: '{text.mutedColor}',
         width: '1',

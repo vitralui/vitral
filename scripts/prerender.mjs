@@ -277,6 +277,10 @@ try {
     writeText(pages);
 } finally {
     browser.kill();
+    // `close()` stops new connections but waits on the open ones, and a
+    // keep-alive socket the browser left behind would hold the process — and
+    // the port — open for ever.
+    server.closeAllConnections?.();
     server.close();
 }
 

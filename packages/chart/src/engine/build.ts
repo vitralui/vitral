@@ -1,8 +1,11 @@
+import { buildCalendar } from './calendar';
 import { buildCartesian, buildHeatmap } from './cartesian';
 import { buildFunnel } from './funnel';
-import { buildPie, buildRadar } from './polar';
+import { buildPie, buildRadar, buildRadialBar } from './polar';
 import type { ChartScene, SceneInput } from './scene';
 import { histogramBins } from './spans';
+import { buildSunburst } from './sunburst';
+import { buildTreemap } from './treemap';
 
 /**
  * A histogram is given readings, not columns: it counts how many fall in each
@@ -41,10 +44,19 @@ export function buildChartScene(input: SceneInput): ChartScene {
             return buildPie(sized);
         case 'radar':
             return buildRadar(sized);
+        case 'sunburst':
+            return buildSunburst(sized);
+        case 'radialBar':
+        case 'gauge':
+            return buildRadialBar(sized);
         case 'heatmap':
             return buildHeatmap(sized);
         case 'histogram':
             return buildCartesian(binned(sized));
+        case 'calendar':
+            return buildCalendar(sized);
+        case 'treemap':
+            return buildTreemap(sized);
         case 'funnel':
             return buildFunnel(sized);
         default:

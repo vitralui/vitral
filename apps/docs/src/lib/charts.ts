@@ -32,6 +32,24 @@ const latencies = [
     88, 91, 94, 98, 103, 109, 118, 134
 ];
 
+/**
+ * A year of daily activity, written out from a fixed seed: busier on weekdays,
+ * quiet at the weekend, with a fortnight off in August.
+ */
+const calendarYear = (() => {
+    let seed = 20260101;
+    const next = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    const out: { x: number; y: number }[] = [];
+    for (let i = 0; i < 365; i++) {
+        const date = new Date(2026, 0, 1 + i);
+        const weekend = date.getDay() === 0 || date.getDay() === 6;
+        const away = date.getMonth() === 7 && date.getDate() > 8 && date.getDate() < 24;
+        const value = away ? 0 : Math.round(next() * (weekend ? 4 : 14) * (next() > 0.15 ? 1 : 0));
+        if (value > 0) out.push({ x: date.getTime(), y: value });
+    }
+    return out;
+})();
+
 /** Every gallery chart is small, so none of them carries a toolbar or a title. */
 const compact: ChartOptions = { chart: { toolbar: { show: false } }, legend: { position: 'bottom' } };
 
@@ -79,6 +97,18 @@ export const chartEntries: ChartEntry[] = [
         note: 'The band between a low and a high, month by month: a forecast\u2019s spread, or the day\u2019s range. One fill, two edges.',
         series: [{ name: 'Forecast', data: months.map((m, i) => ({ x: m, y: [40 + i * 4, 70 + i * 6] as [number, number] })) }],
         options: { ...compact, stroke: { curve: 'smooth', width: 2 }, legend: { show: false } }
+    },
+    {
+        id: 'stream',
+        name: 'Stream',
+        family: 'Over time',
+        kind: 'stream',
+        note: 'A stacked area floating on a baseline of its own. The bands share the movement instead of the bottom one carrying it, which is what makes the shape readable.',
+        series: ['Search', 'Direct', 'Social', 'Mail', 'Referral'].map((name, row) => ({
+            name,
+            data: months.map((_, i) => Math.round(30 + Math.sin((i + row * 2) / 1.7) * 18 + row * 6 + i * (row % 2 ? 1.5 : 3)))
+        })),
+        options: { ...compact, xaxis: { categories: months } }
     },
     {
         id: 'combined',
@@ -209,6 +239,25 @@ export const chartEntries: ChartEntry[] = [
         options: { ...compact, legend: { show: false }, yaxis: { title: { text: '\u00b0C' } } }
     },
     {
+        id: 'bullet',
+        name: 'Bullet',
+        family: 'Compared',
+        kind: 'bullet',
+        note: 'One measure, its target and the bands it falls in: a gauge\u2019s job in a strip a table row can hold. The tick is the target, the bands are poor, fair and good.',
+        series: [
+            {
+                name: 'Against target',
+                data: [
+                    { x: 'Revenue', y: 78, target: 90 },
+                    { x: 'Signups', y: 112, target: 100 },
+                    { x: 'Retention', y: 64, target: 75 },
+                    { x: 'Margin', y: 41, target: 50 }
+                ]
+            }
+        ],
+        options: { ...compact, plotOptions: { bullet: { ranges: [{ from: 0, to: 130 }, { from: 0, to: 90 }, { from: 0, to: 55 }] } }, legend: { show: false } }
+    },
+    {
         id: 'scatter',
         name: 'Scatter',
         family: 'Spread',
@@ -270,6 +319,63 @@ export const chartEntries: ChartEntry[] = [
             }
         ],
         options: { ...compact, legend: { show: false }, yaxis: { title: { text: 'Milliseconds' } } }
+    },
+    {
+        id: 'treemap',
+        name: 'Treemap',
+        family: 'Parts of a whole',
+        kind: 'treemap',
+        note: 'Shares of a total as areas rather than as angles. It holds many more parts than a pie, and the boxes are laid squarely so none of them is a sliver.',
+        series: [
+            { name: 'Europe', data: [{ x: 'Germany', y: 84 }, { x: 'France', y: 68 }, { x: 'Spain', y: 47 }, { x: 'Portugal', y: 10 }] },
+            { name: 'Americas', data: [{ x: 'United States', y: 132 }, { x: 'Brazil', y: 72 }, { x: 'Mexico', y: 39 }, { x: 'Chile', y: 12 }] },
+            { name: 'Asia', data: [{ x: 'Japan', y: 61 }, { x: 'India', y: 55 }, { x: 'Singapore', y: 14 }] }
+        ],
+        options: { ...compact }
+    },
+    {
+        id: 'calendar',
+        name: 'Calendar',
+        family: 'Over time',
+        kind: 'calendar',
+        note: 'A year of days as a grid of weeks. A line of 365 points shows the trend; this shows the day, which is what a record of daily activity is read for.',
+        series: [{ name: 'Commits', data: calendarYear }],
+        options: { ...compact, plotOptions: { calendar: { weekStart: 1 } }, colors: ['var(--vt-chart-3)'], legend: { show: false } }
+    },
+    {
+        id: 'radial-bar',
+        name: 'Radial bar',
+        family: 'Parts of a whole',
+        kind: 'radialBar',
+        note: 'A ring a measure, as far round as its share of the maximum. Three or four at a time: they are read against their own tracks, not against each other.',
+        series: [
+            { name: 'Storage', data: [72] },
+            { name: 'Memory', data: [48] },
+            { name: 'CPU', data: [35] }
+        ],
+        options: { ...compact, legend: { position: 'bottom' } }
+    },
+    {
+        id: 'gauge',
+        name: 'Gauge',
+        family: 'Parts of a whole',
+        kind: 'gauge',
+        note: 'One number against its maximum, with the reading in the middle. The arc leaves the bottom open, which is what tells it apart from a ring at a glance.',
+        series: [{ name: 'Uptime', data: [96] }],
+        options: { ...compact, colors: ['var(--vt-chart-3)'], dataLabels: { formatter: '{percent|percent:0}' } }
+    },
+    {
+        id: 'sunburst',
+        name: 'Sunburst',
+        family: 'Parts of a whole',
+        kind: 'sunburst',
+        note: 'A pie of several rings, one a level of a tree. It answers what a pie cannot \u2014 what a slice is made of \u2014 without leaving the circle.',
+        series: [
+            { name: 'Europe', data: [{ x: 'Germany', y: 84 }, { x: 'France', y: 68 }, { x: 'Spain', y: 47 }] },
+            { name: 'Americas', data: [{ x: 'United States', y: 132 }, { x: 'Brazil', y: 72 }, { x: 'Mexico', y: 39 }] },
+            { name: 'Asia', data: [{ x: 'Japan', y: 61 }, { x: 'India', y: 55 }] }
+        ],
+        options: { ...compact, legend: { show: false } }
     },
     {
         id: 'pie',

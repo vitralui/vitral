@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ChartPoint } from './series';
-import { boxStats, histogramBins, rangeSpans, waterfallSpans } from './spans';
+import { boxStats, histogramBins, rangeSpans, streamBaseline, waterfallSpans } from './spans';
 
 const pts = (...ys: (number | null)[]): ChartPoint[] => ys.map((y, index) => ({ index, x: index, y }));
 
@@ -92,5 +92,35 @@ describe('box statistics', () => {
 
     it('does not care what order the readings arrived in', () => {
         expect(boxStats([5, 1, 4, 2, 3])).toEqual(boxStats([1, 2, 3, 4, 5]));
+    });
+});
+
+describe('a stream baseline', () => {
+    const rows = [
+        [1, 3, 5, 3],
+        [2, 2, 6, 2]
+    ];
+
+    it('centres the stack when asked for a silhouette', () => {
+        expect(streamBaseline(rows, 'silhouette')).toEqual([-1.5, -2.5, -5.5, -2.5]);
+    });
+
+    it('stands on the axis when asked for zero', () => {
+        expect(streamBaseline(rows, 'zero')).toEqual([0, 0, 0, 0]);
+    });
+
+    it('moves the baseline so the layers share the movement', () => {
+        const base = streamBaseline(rows);
+        expect(base[0]).toBe(0);
+        // The stack grows towards the middle, so its floor drops away.
+        expect(base[2]).toBeLessThan(base[1]!);
+        // And the widest column is the one furthest from where it started.
+        expect(Math.abs(base[2]!)).toBeGreaterThan(Math.abs(base[1]!));
+        expect(base.every((n) => Number.isFinite(n))).toBe(true);
+    });
+
+    it('survives a column of nothing at all', () => {
+        expect(streamBaseline([[0, 0], [0, 0]])).toEqual([0, 0]);
+        expect(streamBaseline([])).toEqual([]);
     });
 });

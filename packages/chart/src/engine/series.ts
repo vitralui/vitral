@@ -13,6 +13,10 @@ export interface ChartPoint {
     range?: [low: number, high: number];
     /** Five numbers, sorted: the box and its whiskers. */
     box?: [min: number, q1: number, median: number, q3: number, max: number];
+    /** A bullet chart's mark to beat. */
+    target?: number;
+    /** A sunburst's parent node, by name. */
+    parent?: string;
     fillColor?: string;
 }
 
@@ -68,7 +72,7 @@ function point(input: ChartPointInput, index: number, type: ChartType): ChartPoi
     }
     const y = input.y;
     if (Array.isArray(y)) return { index, x: toX(input.x, index), ...fromList(y as number[], type), fillColor: input.fillColor };
-    return { index, x: toX(input.x, index), y: isNum(y) ? y : null, z: isNum(input.z) ? input.z : undefined, fillColor: input.fillColor };
+    return { index, x: toX(input.x, index), y: isNum(y) ? y : null, z: isNum(input.z) ? input.z : undefined, target: isNum(input.target) ? input.target : undefined, parent: typeof input.parent === 'string' ? input.parent : undefined, fillColor: input.fillColor };
 }
 
 /**

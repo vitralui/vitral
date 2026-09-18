@@ -102,3 +102,36 @@ export function boxStats(values: number[]): [number, number, number, number, num
     };
     return [clean[0]!, at(0.25), at(0.5), at(0.75), clean[clean.length - 1]!];
 }
+
+/**
+ * Where a streamgraph's stack sits on the page. A stacked area stands on zero;
+ * a stream floats, and the baseline it floats on is what gives it its shape.
+ *
+ * `wiggle` is Byron and Wattenberg's: it moves the baseline so that the slopes
+ * of the layers cancel out as far as they can, which is what stops the bands
+ * at the edges doing all the moving. `silhouette` centres the stack on the
+ * middle of the plot, and `zero` leaves it standing on the axis.
+ */
+export function streamBaseline(rows: number[][], mode: 'wiggle' | 'silhouette' | 'zero' = 'wiggle'): number[] {
+    const columns = Math.max(0, ...rows.map((r) => r.length));
+    const at = (i: number, j: number) => (j < 0 || j >= columns ? 0 : (rows[i]?.[j] ?? 0));
+    const total = (j: number) => rows.reduce((sum, _, i) => sum + at(i, j), 0);
+    if (mode === 'zero') return new Array(columns).fill(0);
+    if (mode === 'silhouette') return Array.from({ length: columns }, (_, j) => -total(j) / 2);
+    const base = new Array<number>(columns).fill(0);
+    for (let j = 1; j < columns; j++) {
+        let weight = 0;
+        let moved = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const value = at(i, j);
+            // How far this layer would move if the ones below it did not: its
+            // own change, plus everything already stacked under it.
+            let shift = (value - at(i, j - 1)) / 2;
+            for (let k = 0; k < i; k++) shift += at(k, j) - at(k, j - 1);
+            weight += value;
+            moved += shift * value;
+        }
+        base[j] = base[j - 1]! - (weight ? moved / weight : 0);
+    }
+    return base;
+}

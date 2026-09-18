@@ -29,6 +29,20 @@ export type ChartType =
     | 'histogram'
     /** Five numbers a category: the box, the median and the whiskers. */
     | 'boxPlot'
+    /** A stacked area floating on a baseline of its own, rather than on zero. */
+    | 'stream'
+    /** One bar against a target and the bands it falls in. */
+    | 'bullet'
+    /** Boxes whose areas are the values, packed into the plot. */
+    | 'treemap'
+    /** A year of days as a grid of weeks, shaded by value. */
+    | 'calendar'
+    /** A pie of several rings, one a level of a tree. */
+    | 'sunburst'
+    /** Rings, each as long a share of the circle as its value is of the maximum. */
+    | 'radialBar'
+    /** One radial bar drawn as an arc, with the value in the middle. */
+    | 'gauge'
     /** Stages of a process, each as wide as its share of the first. */
     | 'funnel';
 
@@ -250,6 +264,46 @@ export interface ChartPlotOptions {
     /** How many bins; Sturges' rule decides when this is left out. */
     histogram?: { bins?: number };
     boxPlot?: { upColor?: string; downColor?: string };
+    radialBar?: {
+        /** The value at the start of the ring and at the end of it. */
+        min?: number;
+        max?: number;
+        /** Where the rings begin and end, in degrees clockwise from twelve o'clock. */
+        startAngle?: number;
+        endAngle?: number;
+        /** The hole in the middle, as a share of the outer radius. */
+        hollow?: { size?: string | number; background?: string };
+        /** The space between two rings. */
+        trackGap?: number;
+        offsetX?: number;
+        offsetY?: number;
+    };
+    /** A sunburst's hole in the middle, as a share of its radius. */
+    sunburst?: { hollow?: string };
+    /** Boxes packed by area. */
+    treemap?: { distributed?: boolean; radius?: number };
+    calendar?: {
+        /** The range to draw; the data's own first and last day otherwise. */
+        from?: string | number;
+        to?: string | number;
+        /** Which weekday is the top row: 0 is Sunday. */
+        weekStart?: number;
+        /** The value at the palest shade and at the fullest. */
+        min?: number;
+        max?: number;
+        shadeSteps?: number;
+        gap?: number;
+        radius?: number;
+    };
+    /** Where a streamgraph's stack floats. */
+    stream?: { offset?: 'wiggle' | 'silhouette' | 'zero' };
+    bullet?: {
+        /** The bands behind the bars: poor, fair, good, read as one scale. */
+        ranges?: { from: number; to: number; color?: string }[];
+        /** How thick the mark to beat is drawn. */
+        targetWidth?: number;
+        targetColor?: string;
+    };
     funnel?: {
         /** How wide the last stage is drawn, as a share of the first: `'0%'` narrows to a point. */
         neck?: string;
@@ -414,7 +468,7 @@ export type ChartPointInput =
     | null
     | [x: number | string, y: number | null]
     | [x: number | string, open: number, high: number, low: number, close: number]
-    | { x: number | string | Date; y: number | null | number[]; z?: number; fillColor?: string; goals?: unknown };
+    | { x: number | string | Date; y: number | null | number[]; z?: number; /** A bullet chart's mark to beat. */ target?: number; /** A sunburst's parent node, by name. */ parent?: string; fillColor?: string; goals?: unknown };
 
 export interface ChartSeriesInput {
     name?: string;

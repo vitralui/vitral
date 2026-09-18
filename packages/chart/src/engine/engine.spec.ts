@@ -6,7 +6,7 @@ import { chartFormatter, formatTemplate } from './format';
 import { curvePath, linePath, rectPath, sectorPath } from './geometry';
 import { chartBus, releaseInset } from './group';
 import { chartKeyTarget, columnAt, datumAt, insidePlot, isFullWindow, normalizeWindow, panWindow, rectAt, zoomWindow } from './interaction';
-import { sliceAt } from './polar';
+import { arcBox, sliceAt } from './polar';
 import { chartOptionsSchema, defaultChartOptions, resolveChartOptions, type ChartOptionSchema } from './options';
 import { niceNumber, niceScale, timeTicks } from './scale';
 import { normalizeSeries, stackValues } from './series';
@@ -109,6 +109,14 @@ describe('geometry', () => {
     it('rounds only the corners asked for, and draws ring segments', () => {
         expect(rectPath(0, 0, 10, 20, { tl: 2, tr: 2 })).toBe('M2,0H8A2,2 0 0 1 10,2V20H0V2A2,2 0 0 1 2,0Z');
         expect(sectorPath(0, 0, 5, 10, 0, 90)).toMatch(/^M0,-10A10,10 0 0 1 10,0L5,0A5,5 0 0 0 0,-5Z$/);
+        // A whole turn is two half turns: an arc whose ends meet draws nothing,
+        // and a ring's hole is a second circle wound the other way round.
+        const ring = sectorPath(0, 0, 5, 10, 0, 360);
+        expect(ring.match(/A/g)).toHaveLength(4);
+        expect(ring.match(/M/g)).toHaveLength(2);
+        expect(ring).toContain('0 1 1');
+        expect(ring).toContain('0 1 0');
+        expect(sectorPath(0, 0, 0, 10, 0, 360).match(/M/g)).toHaveLength(1);
     });
 });
 
@@ -395,6 +403,99 @@ describe('interaction', () => {
         expect(bar.connectors?.match(/M/g)).toHaveLength(2);
         const off = scene('waterfall', [{ name: 'Cash', data: [100, -40, 30] }], { plotOptions: { waterfall: { connectors: false } } });
         expect((off.scene.marks.find((m) => m.kind === 'bar') as { connectors?: string }).connectors).toBeUndefined();
+    });
+
+    it('floats a stream off the axis and keeps its layers touching', () => {
+        const series = [
+            { name: 'A', data: [1, 4, 9, 4] },
+            { name: 'B', data: [2, 3, 8, 3] },
+            { name: 'C', data: [1, 2, 3, 2] }
+        ];
+        const { scene: s } = scene('stream', series);
+        const areas = s.marks.filter((m) => m.kind === 'line');
+        expect(areas).toHaveLength(3);
+        // Every layer is filled and none of them is stroked.
+        expect(areas.every((m) => (m as { area?: string }).area)).toBe(true);
+        // The stack does not stand on zero: its floor moves across the plot.
+        const [lo, hi] = s.yDomains[0]!;
+        expect(lo).toBeLessThan(0);
+        expect(hi).toBeGreaterThan(0);
+        // On the axis, by request, it does.
+        const zeroed = scene('stream', series, { plotOptions: { stream: { offset: 'zero' } } });
+        expect(zeroed.scene.yDomains[0]![0]).toBe(0);
+    });
+
+    it('measures a bullet against its target and the bands behind it', () => {
+        const { scene: s } = scene(
+            'bullet',
+            [{ name: 'Revenue', data: [{ x: 'Q1', y: 78, target: 90 }, { x: 'Q2', y: 64, target: 60 }] }],
+            { plotOptions: { bullet: { ranges: [{ from: 0, to: 100 }, { from: 0, to: 70 }, { from: 0, to: 40 }] } } }
+        );
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(bars).toHaveLength(2);
+        // The mark to beat crosses the bar, so it is drawn along the category axis.
+        expect(bars[0]!.target).toBeDefined();
+        expect(bars[0]!.target!.x1).toBe(bars[0]!.target!.x2);
+        expect(bars[0]!.target!.y1).toBeLessThan(bars[0]!.target!.y2);
+        // Q1 missed its target and Q2 beat it, so one bar ends short of its mark.
+        expect(bars[0]!.x + bars[0]!.width).toBeLessThan(bars[0]!.target!.x1);
+        expect(bars[1]!.x + bars[1]!.width).toBeGreaterThan(bars[1]!.target!.x1);
+        expect(s.grid.bands).toHaveLength(3);
+        // The bands are one shade getting lighter outwards.
+        expect(s.grid.bands[0]!.opacity).toBeGreaterThan(s.grid.bands[2]!.opacity);
+    });
+
+    it('packs a treemap into cells whose areas are the values', () => {
+        const { scene: s } = scene('treemap', [
+            { name: 'Europe', data: [{ x: 'France', y: 40 }, { x: 'Spain', y: 20 }] },
+            { name: 'Asia', data: [{ x: 'Japan', y: 30 }, { x: 'Korea', y: 10 }] }
+        ]);
+        const cells = s.heatmap!.cells;
+        expect(cells).toHaveLength(4);
+        expect(s.empty).toBe(false);
+        // Twice the value is twice the area, whichever series it belongs to.
+        const areaOf = (label: string) => {
+            const at = s.data.findIndex((d) => d.label === label);
+            return cells[at]!.width * cells[at]!.height;
+        };
+        expect(areaOf('France')).toBeCloseTo(areaOf('Spain') * 2, 3);
+        expect(areaOf('Japan')).toBeCloseTo(areaOf('Korea') * 3, 3);
+        // The tooltip names the group a box belongs to.
+        expect(s.data.find((d) => d.label === 'Japan')?.extra?.[0]).toEqual({ name: 'Category', text: 'Asia' });
+    });
+
+    it('measures what an arc covers, so a gauge is sized by its shape', () => {
+        // A whole circle covers the square around it.
+        expect(arcBox(0, 360)).toEqual({ minX: -1, maxX: 1, minY: -1, maxY: 1 });
+        // A gauge open at the bottom is wider than it is tall.
+        const gauge = arcBox(-135, 135);
+        expect(gauge.minY).toBe(-1);
+        expect(gauge.maxY).toBeCloseTo(Math.SQRT1_2, 6);
+        expect(gauge.maxX - gauge.minX).toBeGreaterThan(gauge.maxY - gauge.minY);
+        // A half circle is half as tall.
+        expect(arcBox(-90, 90)).toMatchObject({ minY: -1, maxY: 0 });
+    });
+
+    it('draws radial bars as rings over their tracks, and a gauge as an arc', () => {
+        const { scene: s } = scene('radialBar', [
+            { name: 'Storage', data: [72] },
+            { name: 'Memory', data: [45] }
+        ]);
+        expect(s.pie!.slices).toHaveLength(2);
+        expect(s.pie!.tracks).toHaveLength(2);
+        // Each ring has its own radii, and the second sits inside the first.
+        const [first, second] = s.pie!.slices;
+        expect(first!.outer!).toBeGreaterThan(second!.outer!);
+        // A ring's length is its share of the maximum, which is 100 by default.
+        expect(first!.end - first!.start).toBeCloseTo(360 * 0.72, 6);
+        // A gauge is an arc rather than a circle.
+        const gauge = scene('gauge', [{ name: 'Load', data: [50] }]);
+        const ring = gauge.scene.pie!.slices[0]!;
+        // A gauge is a band, not most of a disc: its hole is the larger part.
+        expect(gauge.scene.pie!.inner / gauge.scene.pie!.outer).toBeGreaterThan(0.7);
+        expect(ring.start).toBe(-135);
+        expect(ring.end).toBe(0);
+        expect(gauge.scene.data[0]!.value).toBe(50);
     });
 
     it('draws a funnel as stages narrowing to the next', () => {

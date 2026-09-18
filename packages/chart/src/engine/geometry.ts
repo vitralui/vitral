@@ -157,6 +157,16 @@ export function polar(cx: number, cy: number, radius: number, angle: number): Pt
 
 /** A ring segment (or a pie wedge when `inner` is 0) from `start` to `end` degrees. */
 export function sectorPath(cx: number, cy: number, inner: number, outer: number, start: number, end: number): string {
+    // A whole turn: an arc whose two ends are the same point draws nothing, so
+    // a full ring is two half turns, and its hole is a second circle wound the
+    // other way round.
+    if (end - start >= 359.99) {
+        const circle = (r: number, clockwise: boolean) => {
+            const flag = clockwise ? 1 : 0;
+            return `M${f(cx)},${f(cy - r)}A${f(r)},${f(r)} 0 1 ${flag} ${f(cx)},${f(cy + r)}A${f(r)},${f(r)} 0 1 ${flag} ${f(cx)},${f(cy - r)}Z`;
+        };
+        return inner > 0 ? `${circle(outer, true)}${circle(inner, false)}` : circle(outer, true);
+    }
     const sweep = Math.min(359.999, Math.max(0, end - start));
     const stop = start + sweep;
     const large = sweep > 180 ? 1 : 0;

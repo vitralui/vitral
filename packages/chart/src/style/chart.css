@@ -277,6 +277,17 @@
     stroke-width: var(--vt-chart-candle-wick-width);
 }
 
+/* The ring behind a radial bar: what a full one would be. */
+.vt-chart-radial-track {
+    fill: var(--vt-chart-radial-track-color);
+}
+
+/* A bullet's mark to beat, drawn across its bar. */
+.vt-chart-target {
+    stroke: var(--vt-chart-target-color);
+    stroke-linecap: round;
+}
+
 /* The hairline carrying a waterfall step to the next one. */
 .vt-chart-connector {
     fill: none;

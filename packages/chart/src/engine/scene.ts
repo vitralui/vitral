@@ -110,6 +110,8 @@ export interface SceneBar {
     color: string;
     /** Lollipop stem and head. */
     stem?: { x1: number; y1: number; x2: number; y2: number; width: number };
+    /** A bullet's mark to beat, across the bar. */
+    target?: { x1: number; y1: number; x2: number; y2: number; width: number; color?: string };
     head?: SceneMarker;
 }
 
@@ -198,6 +200,9 @@ export interface SceneSlice {
     label?: SceneLabel;
     /** Where the wedge moves when selected. */
     offset: Pt;
+    /** A radial bar's own radii; the pie's are used when these are absent. */
+    inner?: number;
+    outer?: number;
 }
 
 export interface ScenePie {
@@ -209,6 +214,8 @@ export interface ScenePie {
     slices: SceneSlice[];
     total: number;
     donut: boolean;
+    /** Radial bars: the full ring behind each one. */
+    tracks?: string[];
     background?: string;
     strokeWidth: number;
 }
