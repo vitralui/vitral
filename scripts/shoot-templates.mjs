@@ -52,15 +52,22 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const chrome = spawn(findChrome(), ['--headless', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--password-store=basic', '--use-mock-keychain', `--remote-debugging-port=${PORT}`, `--user-data-dir=${join(tmpdir(), 'vitral-shots')}`, 'about:blank']);
 
 try {
-    let targets;
-    for (let i = 0; i < 50 && !targets; i++) {
+    // Poll until Chrome has a *page*, not merely until it answers: it serves
+    // `/json` as soon as the port is open, and for the first moments the list
+    // holds no page at all. Taking the first answer is a race, and on a loaded
+    // runner it is the one that loses.
+    let page;
+    for (let i = 0; i < 50 && !page; i++) {
         try {
-            targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
+            const targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
+            page = targets?.find((t) => t.type === 'page');
         } catch {
-            await sleep(200);
+            /* not up yet */
         }
+        if (!page) await sleep(200);
     }
-    const ws = new WebSocket(targets.find((t) => t.type === 'page').webSocketDebuggerUrl);
+    if (!page) throw new Error('Chrome never opened a page.');
+    const ws = new WebSocket(page.webSocketDebuggerUrl);
     await new Promise((resolve) => (ws.onopen = resolve));
     let seq = 0;
     const pending = new Map();

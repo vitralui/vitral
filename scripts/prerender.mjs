@@ -102,15 +102,20 @@ function findChrome() {
 }
 
 async function connect(chrome, debugPort) {
-    let targets;
-    for (let i = 0; i < 80 && !targets; i++) {
+    // Poll until Chrome has a *page*, not merely until it answers: it serves
+    // `/json` as soon as the port is open, and for the first moments the list
+    // holds no page at all. Taking the first answer is a race, and on a loaded
+    // runner it is the one that loses.
+    let page;
+    for (let i = 0; i < 80 && !page; i++) {
         try {
-            targets = await (await fetch(`http://127.0.0.1:${debugPort}/json`)).json();
+            const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json`)).json();
+            page = targets?.find((target) => target.type === 'page');
         } catch {
-            await sleep(200);
+            /* not up yet */
         }
+        if (!page) await sleep(200);
     }
-    const page = targets?.find((target) => target.type === 'page');
     if (!page) throw new Error('Chrome never opened a page.');
 
     const socket = new WebSocket(page.webSocketDebuggerUrl);
