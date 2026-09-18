@@ -38,38 +38,56 @@ export const directionOptions = [
     { label: 'Right to left', value: 'rtl' }
 ];
 
-// `?preset=ink` and `?scheme=dark` open the site in that look without
-// remembering it, which is what a screenshot or a shared link needs.
 const params = new URLSearchParams(location.search);
 
-export const presetId = ref(params.get('preset') ?? themes[0]!.id);
-export const localeId = ref('en');
-export const primary = ref<string | null>(null);
 /**
- * The direction is remembered the way the colour scheme is, in localStorage and
- * under the same shape of key, because it is the same kind of choice: a reader
- * who reads right to left reads right to left on the next visit too. `?dir=`
- * pins it for one load without remembering, which is what a shared link and a
- * screenshot need — and what keeps the prerender, which has no storage, from
- * baking a direction into the published HTML.
+ * The preset, the direction and the colour scheme are all remembered the same
+ * way: localStorage, a key of the same shape, and `?preset=` or `?dir=` to pin
+ * one for a single load without writing it down — which is what a shared link
+ * and a screenshot need, and what keeps the prerender, which has no storage,
+ * from baking a choice into the published HTML.
  *
- * The script in the head of the page has already applied it, before the first
- * paint; this is the same decision, made again where the application can see it.
+ * The scheme and the direction are also applied by the script in the head of
+ * the page, before anything is painted. The preset cannot be: its custom
+ * properties are generated at runtime, and there is nothing to apply until the
+ * bundle is there. It is read here instead, so the theme mounts once with the
+ * right preset rather than mounting the default and replacing it.
  */
-const DIRECTION_KEY = 'vitral-docs-direction';
-const pinnedDirection = params.get('dir') === 'rtl' ? 'rtl' : params.get('dir') === 'ltr' ? 'ltr' : null;
+const PRESET_KEY = 'vitral-docs-preset';
+const known = new Set(themes.map((theme) => theme.id));
+const pinnedPreset = known.has(params.get('preset') ?? '') ? params.get('preset')! : null;
 
-function rememberedDirection(): Direction {
-    if (pinnedDirection) return pinnedDirection;
+function remembered(key: string, valid: (value: string) => boolean, fallback: string): string {
     try {
-        return localStorage.getItem(DIRECTION_KEY) === 'rtl' ? 'rtl' : 'ltr';
+        const value = localStorage.getItem(key);
+        return value && valid(value) ? value : fallback;
     } catch {
         // Private windows and blocked storage: the default, not a crash.
-        return 'ltr';
+        return fallback;
     }
 }
 
-export const direction = ref<Direction>(rememberedDirection());
+function remember(key: string, value: string) {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        /* blocked: the choice lasts as long as the tab does */
+    }
+}
+
+export const presetId = ref(pinnedPreset ?? remembered(PRESET_KEY, (value) => known.has(value), themes[0]!.id));
+export const localeId = ref('en');
+export const primary = ref<string | null>(null);
+
+/** The preset the plugin is installed with, so the theme is not mounted twice. */
+export const initialPreset = (): Preset => builtInPresets[presetId.value] ?? themes[0]!.preset;
+/** The script in the head of the page has already applied this one; here it is where the application can see it. */
+const DIRECTION_KEY = 'vitral-docs-direction';
+const pinnedDirection = params.get('dir') === 'rtl' ? 'rtl' : params.get('dir') === 'ltr' ? 'ltr' : null;
+
+export const direction = ref<Direction>(
+    (pinnedDirection ?? remembered(DIRECTION_KEY, (value) => value === 'ltr' || value === 'rtl', 'ltr')) as Direction
+);
 
 let controls: ReturnType<typeof useTheme> | null = null;
 
@@ -79,14 +97,13 @@ export function installThemeSwitcher() {
     const { setLocale } = useLocale();
     const { config } = useVitral();
 
-    watch(
-        presetId,
-        (id) => {
-            primary.value = null;
-            controls!.setPreset(builtInPresets[id] ?? themes[0]!.preset);
-        },
-        { immediate: true }
-    );
+    // Not immediate: the plugin was installed with `initialPreset()`, so the
+    // theme already wears it. This is for the changes that come after.
+    watch(presetId, (id) => {
+        primary.value = null;
+        controls!.setPreset(builtInPresets[id] ?? themes[0]!.preset);
+        if (!pinnedPreset) remember(PRESET_KEY, id);
+    });
 
     watch(localeId, (id) => setLocale(id === 'pt-BR' ? ptBR : en));
 
@@ -100,12 +117,7 @@ export function installThemeSwitcher() {
             document.documentElement.dir = value;
             setDirection(value);
             // A pinned direction is for this load only, so it is not written back.
-            if (pinnedDirection) return;
-            try {
-                localStorage.setItem(DIRECTION_KEY, value);
-            } catch {
-                /* blocked: the choice lasts as long as the tab does */
-            }
+            if (!pinnedDirection) remember(DIRECTION_KEY, value);
         },
         { immediate: true }
     );

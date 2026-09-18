@@ -1,8 +1,9 @@
 import { listChecks, server } from '@vitral/icons';
-import { Prism, Vitral } from '@vitral/vue';
+import { Vitral } from '@vitral/vue';
 import { createApp } from 'vue';
 import App from './App.vue';
 import { interceptLinks } from './lib/router';
+import { initialPreset } from './lib/theme';
 import './site.css';
 
 // `?scheme=dark` (or light) pins the scheme for this load without remembering
@@ -12,7 +13,9 @@ const pinned = scheme === 'light' || scheme === 'dark' ? scheme : null;
 
 createApp(App)
     .use(Vitral, {
-        theme: { preset: Prism, colorScheme: pinned ?? 'system', storageKey: pinned ? false : 'vitral-docs-scheme' },
+        // The preset the reader last chose, so the theme mounts wearing it
+        // rather than mounting the default and being changed a frame later.
+        theme: { preset: initialPreset(), colorScheme: pinned ?? 'system', storageKey: pinned ? false : 'vitral-docs-scheme' },
         // Two icons the landing page wants that are not in the base set.
         icons: [listChecks, server]
     })
