@@ -4,6 +4,7 @@ import { chartFormatter, formatNumber } from './format';
 import { areaPath, linePath, rectPath, type Corners, type Pt } from './geometry';
 import { alignInset } from './group';
 import { perSeries } from './options';
+import { rangeSpans, waterfallSpans } from './spans';
 import { linear, niceScale, timeTicks, type TimeUnit } from './scale';
 import type {
     ChartScene,
@@ -23,9 +24,9 @@ import type {
 import { categoriesOf, categoryIndex, extent, stackValues, type ChartPoint, type NormalizedSeries } from './series';
 import type { ChartAnnotationLabel, ChartCurve, ChartMarkerShape, ChartType, ChartYAxis } from './types';
 
-type Mark = 'line' | 'area' | 'bar' | 'lollipop' | 'scatter' | 'bubble' | 'candlestick';
+type Mark = 'line' | 'area' | 'bar' | 'lollipop' | 'scatter' | 'bubble' | 'candlestick' | 'boxPlot';
 
-const BAR_LIKE = new Set<Mark>(['bar', 'lollipop', 'candlestick']);
+const BAR_LIKE = new Set<Mark>(['bar', 'lollipop', 'candlestick', 'boxPlot']);
 
 const toNumber = (x: number | string): number => (typeof x === 'number' ? x : Date.parse(x));
 
@@ -49,12 +50,23 @@ export function buildCartesian(input: SceneInput): ChartScene {
     const measure = measurer(input);
     const font = fonts(input);
     const sparkline = !!o.chart?.sparkline?.enabled;
-    const horizontal = (type === 'bar' || type === 'lollipop') && !!o.plotOptions?.bar?.horizontal;
+    // A range bar and a waterfall are bars, so they turn on their side too.
+    const barLike = type === 'bar' || type === 'lollipop' || type === 'rangeBar' || type === 'waterfall' || type === 'histogram';
+    const horizontal = barLike && !!o.plotOptions?.bar?.horizontal;
     const all = input.series;
     const visible = all.filter((s) => !input.hidden.has(s.index));
+    /**
+     * Which mark a series is drawn with. A waterfall, a range bar and a
+     * histogram are bars — they differ only in where each one starts and ends,
+     * which is worked out before the scale is — so they say so here and the
+     * rest of the layout never learns about them.
+     */
     const markOf = (s: NormalizedSeries): Mark => {
         const t = (s.type ?? type) as ChartType;
-        return t === 'heatmap' || t === 'pie' || t === 'donut' || t === 'radar' ? 'line' : t;
+        if (t === 'waterfall' || t === 'rangeBar' || t === 'histogram') return 'bar';
+        if (t === 'rangeArea') return 'area';
+        if (t === 'boxPlot') return 'boxPlot';
+        return t === 'heatmap' || t === 'pie' || t === 'donut' || t === 'radar' || t === 'funnel' ? 'line' : t;
     };
     const anyBar = visible.some((s) => BAR_LIKE.has(markOf(s)));
     const pointMode = type === 'scatter' || type === 'bubble';
@@ -117,6 +129,19 @@ export function buildCartesian(input: SceneInput): ChartScene {
     const percent = stacked && o.chart?.stackType === '100%';
     const stackKind = (m: Mark) => (m === 'bar' || m === 'lollipop' ? 'bar' : m === 'area' ? 'area' : m === 'line' ? 'line' : null);
     const stacks = new Map<number, { from: number; to: number; value: number | null }[]>();
+
+    /*
+     * Bars that do not start at zero. A waterfall's each begins where the one
+     * before it ended; a range bar's two ends are the two numbers its point
+     * carries. Both produce the shape a stack produces, so they are put in the
+     * same map and the layout after this point never learns they are different.
+     */
+    for (const s of visible) {
+        const t = (s.type ?? type) as ChartType;
+        if (t === 'waterfall') stacks.set(s.index, waterfallSpans(pointsAt[s.index]!, new Set(o.plotOptions?.waterfall?.totals ?? [])));
+        else if (t === 'rangeBar' || t === 'rangeArea') stacks.set(s.index, rangeSpans(pointsAt[s.index]!));
+    }
+
     if (stacked) {
         for (const kind of ['bar', 'area', 'line'] as const) {
             const members = visible.filter((s) => stackKind(markOf(s)) === kind);
@@ -145,6 +170,9 @@ export function buildCartesian(input: SceneInput): ChartScene {
                 if (stack) {
                     values.push(stack[i]!.from, stack[i]!.to);
                 } else if (p.ohlc) values.push(p.ohlc[1], p.ohlc[2]);
+                // A box reaches past its median to the whiskers, so the axis
+                // has to hold the smallest and largest readings.
+                else if (p.box) values.push(p.box[0], p.box[4]);
                 else if (p.y !== null) values.push(p.y);
             });
         }
@@ -473,13 +501,17 @@ export function buildCartesian(input: SceneInput): ChartScene {
         const fillType = perSeries(o.fill?.type, s.index, 'solid');
         const isArea = m === 'area';
         const baseline = stack && stack.some((v) => v.from !== 0) ? bases : zeroOf(a);
+        // A range area has two edges and a band between them, so its stroke is
+        // one path of two subpaths: the ends are not joined up.
+        const banded = (s.type ?? type) === 'rangeArea';
+        const stroke = o.stroke?.show === false ? '' : banded ? `${linePath(tops, curve)} ${linePath(bases, curve)}`.trim() : linePath(tops, curve);
         const g = o.fill?.gradient;
         marks.push({
             kind: 'line',
             series: s.index,
             name: s.name,
             color,
-            path: o.stroke?.show === false ? '' : linePath(tops, curve),
+            path: stroke,
             area: isArea ? areaPath(tops, horizontal ? zeroOf(a) : baseline, curve) : undefined,
             fill: isArea
                 ? {
@@ -497,6 +529,31 @@ export function buildCartesian(input: SceneInput): ChartScene {
     }
 
     // Bars and lollipops.
+    const trim = (n: number) => Math.round(n * 100) / 100;
+
+    /**
+     * The hairlines carrying each waterfall step to the next, at the level the
+     * two share. Without them the floating bars read as unrelated columns; it
+     * is one path of subpaths, so it costs a single element.
+     */
+    const connectorPath = (bars: SceneBar[], s: NormalizedSeries): string | undefined => {
+        if ((s.type ?? type) !== 'waterfall' || o.plotOptions?.waterfall?.connectors === false) return undefined;
+        const spans = stacks.get(s.index);
+        if (!spans) return undefined;
+        const parts: string[] = [];
+        for (let i = 0; i < bars.length - 1; i++) {
+            const b = bars[i]!;
+            const next = bars[i + 1]!;
+            // The step lands on its own `to`, except a subtotal, which the next
+            // step carries on from rather than from zero.
+            const level = val(axisOf[s.index]!, spans[b.column]!.to);
+            const [x1, y1] = horizontal ? [level, b.y + b.height] : [b.x + b.width, level];
+            const [x2, y2] = horizontal ? [level, next.y] : [next.x, level];
+            parts.push(`M${trim(x1)} ${trim(y1)}L${trim(x2)} ${trim(y2)}`);
+        }
+        return parts.length ? parts.join(' ') : undefined;
+    };
+
     const barSeries = visible.filter((s) => markOf(s) === 'bar' || markOf(s) === 'lollipop');
     if (barSeries.length) {
         const bar = o.plotOptions?.bar ?? {};
@@ -515,16 +572,34 @@ export function buildCartesian(input: SceneInput): ChartScene {
             const bars: SceneBar[] = [];
             const labels: SceneLabel[] = [];
             pointsAt[s.index]!.forEach((p, i) => {
-                if (!p || p.y === null) return;
-                const from = stack ? stack[i]!.from : 0;
-                const to = stack ? stack[i]!.to : p.y;
+                if (!p) return;
+                // A waterfall's subtotal column is the running sum, so it has a
+                // bar to draw even where the data left the value out.
+                const span = stack?.[i];
+                const value = p.y ?? (span?.value ?? null);
+                if (value === null) return;
+                const from = span ? span.from : 0;
+                const to = span ? span.to : value;
                 const c = cat(i) + offset;
                 const v0 = val(a, Math.max(yScales[a]!.min, Math.min(yScales[a]!.max, from)));
                 const v1 = val(a, to);
                 const positive = to >= from;
-                const barColor = bar.distributed
-                    ? seriesColor(o, undefined, i, columnCount)
-                    : (bar.colors?.ranges?.find((r) => p.y! >= r.from && p.y! <= r.to)?.color ?? p.fillColor ?? color);
+                // A waterfall is read by direction, not by series: a step that
+                // adds and one that takes away have to be told apart at a
+                // glance, and a subtotal is neither.
+                const fall = (s.type ?? type) === 'waterfall' ? o.plotOptions?.waterfall : undefined;
+                const fallColor = fall
+                    ? (o.plotOptions!.waterfall!.totals ?? []).includes(i)
+                        ? (fall.totalColor ?? 'var(--vt-chart-1)')
+                        : to >= from
+                          ? (fall.upColor ?? 'var(--vt-chart-4)')
+                          : (fall.downColor ?? 'var(--vt-chart-8)')
+                    : undefined;
+                const barColor =
+                    fallColor ??
+                    (bar.distributed
+                        ? seriesColor(o, undefined, i, columnCount)
+                        : (bar.colors?.ranges?.find((r) => value >= r.from && value <= r.to)?.color ?? p.fillColor ?? color));
                 const lo = Math.min(v0, v1);
                 const size = Math.abs(v1 - v0);
                 const rect = horizontal ? { x: lo, y: c - each / 2, width: size, height: each } : { x: c - each / 2, y: lo, width: each, height: size };
@@ -544,7 +619,7 @@ export function buildCartesian(input: SceneInput): ChartScene {
                     entry.head = { x: end[0], y: end[1], size: markerSize, shape: shapeOf(s.index), fill: barColor, strokeWidth: 0 };
                 }
                 bars.push(entry);
-                data.push({ series: s.index, index: p.index, column: i, x: end[0], y: end[1], value: p.y, text: formatY(p.y, s.index, i), label: formatCategory(i), color: barColor });
+                data.push({ series: s.index, index: p.index, column: i, x: end[0], y: end[1], value, text: formatY(value, s.index, i), label: formatCategory(i), color: barColor });
                 if (labelsOn(s.index) && inView(i)) {
                     const position = bar.dataLabels?.position ?? 'center';
                     const along = position === 'top' ? (lollipop ? v1 + (horizontal ? 1 : -1) * (positive ? 1 : -1) * 12 : v1 + (horizontal ? -1 : 1) * (positive ? 1 : -1) * 10) : position === 'bottom' ? v0 + (horizontal ? 1 : -1) * (positive ? 1 : -1) * 10 : (v0 + v1) / 2;
@@ -553,18 +628,18 @@ export function buildCartesian(input: SceneInput): ChartScene {
                     const beside = lollipop && position === 'top' && horizontal;
                     const headGap = (o.plotOptions?.lollipop?.markerSize ?? 10) / 2 + 4;
                     const label = beside
-                        ? dataLabel(p.y, s.index, i, v1 + (positive ? headGap : -headGap), c, { anchor: positive ? 'start' : 'end' })
-                        : dataLabel(p.y, s.index, i, lx, ly, { onFill: !lollipop && position !== 'top' });
+                        ? dataLabel(value, s.index, i, v1 + (positive ? headGap : -headGap), c, { anchor: positive ? 'start' : 'end' })
+                        : dataLabel(value, s.index, i, lx, ly, { onFill: !lollipop && position !== 'top' });
                     if (label && (fits || position === 'top' || lollipop)) labels.push(label);
                 }
                 if (stack && bar.dataLabels?.total?.enabled) {
                     const key = `${s.group ?? ''}|${i}|${positive}`;
                     const prev = totals.get(key);
                     const edge = positive ? Math.max(to, prev?.edge ?? -Infinity) : Math.min(to, prev?.edge ?? Infinity);
-                    totals.set(key, { column: i, value: (prev?.value ?? 0) + p.y, edge, offset, a });
+                    totals.set(key, { column: i, value: (prev?.value ?? 0) + value, edge, offset, a });
                 }
             });
-            marks.push({ kind: 'bar', series: s.index, name: s.name, color, opacity: perSeries(o.fill?.opacity, s.index, 1), bars, labels });
+            marks.push({ kind: 'bar', series: s.index, name: s.name, color, opacity: perSeries(o.fill?.opacity, s.index, 1), bars, labels, connectors: connectorPath(bars, s) });
         }
         if (totals.size) {
             const labels: SceneLabel[] = [];
@@ -625,6 +700,66 @@ export function buildCartesian(input: SceneInput): ChartScene {
             });
         });
         marks.push({ kind: 'candle', series: s.index, name: s.name, color: colorOf(s), candles });
+    }
+
+    /*
+     * Boxes. A box plot is a candle with a line across it: the body runs from
+     * the lower quartile to the upper, the whisker from the smallest reading to
+     * the largest, and the median says where the middle of the data sits inside
+     * that. The five numbers arrive sorted, so the only decision left is the
+     * colour, which says whether the median leans high or low.
+     */
+    for (const s of visible) {
+        if (markOf(s) !== 'boxPlot') continue;
+        const a = axisOf[s.index]!;
+        const box = o.plotOptions?.boxPlot ?? {};
+        const width = slot * fraction(o.plotOptions?.bar?.columnWidth, 0.6);
+        const boxes: SceneCandle[] = [];
+        pointsAt[s.index]!.forEach((p, i) => {
+            if (!p?.box) return;
+            const [min, q1, median, q3, max] = p.box;
+            const yq1 = val(a, q1);
+            const yq3 = val(a, q3);
+            // A box is drawn in its series' colour unless the options ask for
+            // the median's lean to be coloured, which is a choice, not a default.
+            const high = median >= (min + max) / 2;
+            const color = (high ? box.upColor : box.downColor) ?? colorOf(s);
+            const c = cat(i);
+            boxes.push({
+                series: s.index,
+                index: p.index,
+                column: i,
+                x: c - width / 2,
+                width,
+                body: { y: Math.min(yq1, yq3), height: Math.max(1, Math.abs(yq1 - yq3)) },
+                wick: { y1: val(a, max), y2: val(a, min) },
+                median: val(a, median),
+                caps: true,
+                rising: high,
+                color,
+                hollow: false
+            });
+            const f = (v: number) => formatY(v, s.index, i);
+            data.push({
+                series: s.index,
+                index: p.index,
+                column: i,
+                x: c,
+                y: val(a, median),
+                value: median,
+                text: f(median),
+                label: formatCategory(i),
+                color,
+                extra: [
+                    { name: locale.chart.minimum, text: f(min) },
+                    { name: locale.chart.lowerQuartile, text: f(q1) },
+                    { name: locale.chart.median, text: f(median) },
+                    { name: locale.chart.upperQuartile, text: f(q3) },
+                    { name: locale.chart.maximum, text: f(max) }
+                ]
+            });
+        });
+        marks.push({ kind: 'candle', series: s.index, name: s.name, color: colorOf(s), candles: boxes });
     }
 
     // Scatter and bubbles.

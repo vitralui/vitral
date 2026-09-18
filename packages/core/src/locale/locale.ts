@@ -123,6 +123,11 @@ export interface Locale {
         high: string;
         low: string;
         close: string;
+        minimum: string;
+        lowerQuartile: string;
+        median: string;
+        upperQuartile: string;
+        maximum: string;
         category: string;
         value: string;
         /** Names the toolbar. */
@@ -140,7 +145,26 @@ export interface Locale {
         /** Names the legend. */
         legend: string;
         /** Chart kinds, for the generated summary. */
-        types: Record<'line' | 'area' | 'bar' | 'lollipop' | 'scatter' | 'bubble' | 'heatmap' | 'candlestick' | 'pie' | 'donut' | 'radar', string>;
+        types: Record<
+            | 'line'
+            | 'area'
+            | 'bar'
+            | 'lollipop'
+            | 'scatter'
+            | 'bubble'
+            | 'heatmap'
+            | 'candlestick'
+            | 'pie'
+            | 'donut'
+            | 'radar'
+            | 'waterfall'
+            | 'rangeBar'
+            | 'rangeArea'
+            | 'histogram'
+            | 'boxPlot'
+            | 'funnel',
+            string
+        >;
         /** The summary that names a chart. `{type}`, `{count}`, `{names}` */
         summary: string;
         /** One series in the summary. `{name}`, `{count}`, `{min}`, `{max}` */
@@ -520,6 +544,11 @@ export const en: Locale = {
         high: 'High',
         low: 'Low',
         close: 'Close',
+        minimum: 'Minimum',
+        lowerQuartile: 'Lower quartile',
+        median: 'Median',
+        upperQuartile: 'Upper quartile',
+        maximum: 'Maximum',
         category: 'Category',
         value: 'Value',
         toolbar: 'Chart tools',
@@ -533,7 +562,25 @@ export const en: Locale = {
         downloadPng: 'Download PNG',
         downloadCsv: 'Download CSV',
         legend: 'Legend',
-        types: { line: 'Line', area: 'Area', bar: 'Bar', lollipop: 'Lollipop', scatter: 'Scatter', bubble: 'Bubble', heatmap: 'Heat map', candlestick: 'Candlestick', pie: 'Pie', donut: 'Donut', radar: 'Radar' },
+        types: {
+            line: 'Line',
+            area: 'Area',
+            bar: 'Bar',
+            lollipop: 'Lollipop',
+            scatter: 'Scatter',
+            bubble: 'Bubble',
+            heatmap: 'Heat map',
+            candlestick: 'Candlestick',
+            pie: 'Pie',
+            donut: 'Donut',
+            radar: 'Radar',
+            waterfall: 'Waterfall',
+            rangeBar: 'Range bar',
+            rangeArea: 'Range area',
+            histogram: 'Histogram',
+            boxPlot: 'Box plot',
+            funnel: 'Funnel'
+        },
         summary: '{type} chart, {count} series: {names}',
         seriesSummary: '{name}, {count} points from {min} to {max}',
         rangeSummary: 'from {from} to {to}',
@@ -814,6 +861,11 @@ export const ptBR: Locale = {
         high: 'Máxima',
         low: 'Mínima',
         close: 'Fechamento',
+        minimum: 'Mínimo',
+        lowerQuartile: 'Primeiro quartil',
+        median: 'Mediana',
+        upperQuartile: 'Terceiro quartil',
+        maximum: 'Máximo',
         category: 'Categoria',
         value: 'Valor',
         toolbar: 'Ferramentas do gráfico',
@@ -827,7 +879,25 @@ export const ptBR: Locale = {
         downloadPng: 'Baixar PNG',
         downloadCsv: 'Baixar CSV',
         legend: 'Legenda',
-        types: { line: 'Linhas', area: 'Área', bar: 'Barras', lollipop: 'Pirulito', scatter: 'Dispersão', bubble: 'Bolhas', heatmap: 'Mapa de calor', candlestick: 'Candlestick', pie: 'Pizza', donut: 'Rosca', radar: 'Radar' },
+        types: {
+            line: 'Linhas',
+            area: 'Área',
+            bar: 'Barras',
+            lollipop: 'Pirulito',
+            scatter: 'Dispersão',
+            bubble: 'Bolhas',
+            heatmap: 'Mapa de calor',
+            candlestick: 'Candlestick',
+            pie: 'Pizza',
+            donut: 'Rosca',
+            radar: 'Radar',
+            waterfall: 'Cascata',
+            rangeBar: 'Barras de intervalo',
+            rangeArea: 'Área de intervalo',
+            histogram: 'Histograma',
+            boxPlot: 'Diagrama de caixa',
+            funnel: 'Funil'
+        },
         summary: 'Gráfico de {type}, {count} séries: {names}',
         seriesSummary: '{name}, {count} pontos de {min} a {max}',
         rangeSummary: 'de {from} a {to}',

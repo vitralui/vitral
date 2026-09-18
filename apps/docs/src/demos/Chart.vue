@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Chart',
     category: 'Data',
     description:
-        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut and radar; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
+        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut, radar, waterfall, range bar, range area, histogram, box plot and funnel; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
 };
 </script>
 
@@ -107,6 +107,66 @@ const hours = ['06', '08', '10', '12', '14', '16', '18', '20', '22'];
 const busy = seeded(3);
 const heat: ChartSeries = days.map((d, di) => ({ name: d, data: hours.map((x, hi) => ({ x, y: Math.round((di > 4 ? 20 : 50) + Math.sin(hi / 2) * 30 + busy() * 20) })) }));
 const heatOptions: ChartOptions = { ...quiet, colors: ['var(--vt-chart-1)'], plotOptions: { heatmap: { shadeSteps: 5, radius: 3 } }, tooltip: { y: { formatter: '{value} commits' } } };
+
+// ---- the six that read a number a different way
+const cash: ChartSeries = [{ name: 'Cash', data: [1200, 420, -180, 310, -260, 140, null] }];
+const cashOptions: ChartOptions = {
+    ...quiet,
+    xaxis: { categories: ['Opening', 'Sales', 'Refunds', 'Services', 'Costs', 'Other', 'Closing'] },
+    // The last column is a total: it is drawn from zero to the running sum
+    // rather than as another step.
+    plotOptions: { waterfall: { totals: [6] } },
+    yaxis: { labels: { formatter: '{value|compact}' } },
+    dataLabels: { enabled: true, formatter: '{value|compact}' }
+};
+
+const shifts: ChartSeries = [{ name: 'On call', data: [{ x: 'Ana', y: [8, 16] }, { x: 'Bruno', y: [12, 20] }, { x: 'Célia', y: [16, 24] }, { x: 'Dan', y: [0, 8] }] }];
+const shiftOptions: ChartOptions = {
+    ...quiet,
+    plotOptions: { bar: { horizontal: true } },
+    // Turned on its side the value axis is the y one, so the title goes there.
+    yaxis: { title: { text: 'Hour of the day' } },
+    tooltip: { y: { formatter: '{value}:00' } }
+};
+
+const forecast: ChartSeries = [
+    { name: 'Likely range', type: 'rangeArea', data: months.map((x, i) => ({ x, y: [40 + i * 4, 78 + i * 7] as [number, number] })) },
+    { name: 'Forecast', type: 'line', data: months.map((_, i) => 59 + i * 5.5) }
+];
+const forecastOptions: ChartOptions = { ...quiet, xaxis: { categories: months }, stroke: { curve: 'smooth', width: [1, 3] }, yaxis: { title: { text: 'Orders' } } };
+
+// Raw readings: the chart counts them into bins itself.
+const noise = seeded(17);
+const latencies = Array.from({ length: 400 }, () => Math.round(40 + Math.abs(noise() + noise() + noise() - 1.5) * 90));
+const latencySeries: ChartSeries = [{ name: 'Response time', data: latencies }];
+const latencyOptions: ChartOptions = {
+    ...quiet,
+    plotOptions: { histogram: { bins: 16 } },
+    xaxis: { title: { text: 'Milliseconds' } },
+    yaxis: { title: { text: 'Requests' } },
+    colors: ['var(--vt-chart-5)']
+};
+
+const spread: ChartSeries = [
+    {
+        name: 'Response time',
+        data: [
+            { x: 'API', y: [12, 28, 41, 63, 140] as [number, number, number, number, number] },
+            { x: 'Web', y: [30, 52, 68, 90, 180] as [number, number, number, number, number] },
+            { x: 'Jobs', y: [8, 15, 22, 34, 70] as [number, number, number, number, number] },
+            { x: 'Search', y: [18, 34, 49, 71, 155] as [number, number, number, number, number] }
+        ]
+    }
+];
+const spreadOptions: ChartOptions = { ...quiet, yaxis: { title: { text: 'Milliseconds' } }, colors: ['var(--vt-chart-2)'] };
+
+const signups: ChartSeries = [{ name: 'Signups', data: [4820, 3100, 1740, 980, 610] }];
+const funnelOptions: ChartOptions = {
+    ...quiet,
+    labels: ['Visited', 'Signed up', 'Activated', 'Subscribed', 'Renewed'],
+    plotOptions: { funnel: { neck: '30%', gap: 4 } },
+    dataLabels: { enabled: true, formatter: '{seriesName}: {value|compact} ({percent|percent:0})' }
+};
 
 // ---- a candlestick over its volume: one group
 const start = new Date(2026, 5, 1).getTime();
@@ -258,6 +318,28 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
 
     <DemoSection title="Heat map" description="One colour in five steps: “more of the same colour” needs no legend.">
         <Chart type="heatmap" :series="heat" :options="heatOptions" height="280" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Waterfall" description="Bars that float: each one starts where the running total left off, so the chart shows how a number got from one total to another. `plotOptions.waterfall.totals` names the columns that return to zero.">
+        <Chart type="waterfall" :series="cash" :options="cashOptions" height="300" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Range bar and range area" description="A point of `[low, high]` instead of one number: the bar spans the two, and the area fills between them. A line beside the band is a second series.">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; width: 100%">
+            <Chart type="rangeBar" :series="shifts" :options="shiftOptions" height="280" />
+            <Chart type="rangeArea" :series="forecast" :options="forecastOptions" height="280" />
+        </div>
+    </DemoSection>
+
+    <DemoSection title="Histogram and box plot" description="Two ways to show a spread. The histogram takes raw readings and bins them itself; the box plot takes the five numbers — minimum, quartiles, median, maximum — a category.">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; width: 100%">
+            <Chart type="histogram" :series="latencySeries" :options="latencyOptions" height="280" />
+            <Chart type="boxPlot" :series="spread" :options="spreadOptions" height="280" />
+        </div>
+    </DemoSection>
+
+    <DemoSection title="Funnel" description="Stages of a process, each as wide as its share of the first, so the fall reads as a slope. `{percent}` is in the label formatter because the share is what a funnel is read for.">
+        <Chart type="funnel" :series="signups" :options="funnelOptions" height="320" style="width: 100%" />
     </DemoSection>
 
     <DemoSection title="Synced charts" description="A price and its volume in one group: they share the crosshair, the tooltip and the zoom. Drag across either to zoom both; Shift-drag pans.">

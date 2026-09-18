@@ -121,6 +121,8 @@ export interface SceneBarSeries {
     opacity: number;
     bars: SceneBar[];
     labels: SceneLabel[];
+    /** A waterfall's hairlines from each step to the next, as one path. */
+    connectors?: string;
 }
 
 export interface SceneCandle {
@@ -134,6 +136,10 @@ export interface SceneCandle {
     rising: boolean;
     color: string;
     hollow: boolean;
+    /** A box plot's median, drawn across the body. */
+    median?: number;
+    /** A box plot's whisker caps: the short bars at the ends. */
+    caps?: boolean;
 }
 
 export interface SceneCandleSeries {

@@ -212,6 +212,7 @@ export function marksView(c: ViewContext): Child[] {
                         style: { opacity: m.opacity !== 1 ? m.opacity : undefined, '--vt-chart-origin': origin },
                         'data-series': m.series
                     }),
+                    m.connectors ? s('path', mergeAttrs({ key: 'connectors' }, part('connector'), { d: m.connectors })) : null,
                     m.bars.map((b) => [
                         b.path
                             ? s(
@@ -242,7 +243,19 @@ export function marksView(c: ViewContext): Child[] {
                             'g',
                             { key: cd.index, ...part('candle', { hover: isHover(cd.series, cd.column), rising: cd.rising, hollow: cd.hollow }) },
                             s('line', mergeAttrs(part('wick'), { x1: round(cd.x + cd.width / 2), x2: round(cd.x + cd.width / 2), y1: round(cd.wick.y1), y2: round(cd.wick.y2), style: { stroke: cd.color } })),
-                            s('rect', { x: round(cd.x), y: round(cd.body.y), width: round(cd.width), height: round(cd.body.height), style: { fill: cd.color, stroke: cd.color } })
+                            // A box plot caps its whiskers and draws the median
+                            // across the body; a candle has neither.
+                            cd.caps
+                                ? [cd.wick.y1, cd.wick.y2].map((y, k) =>
+                                      s('line', mergeAttrs({ key: `c${k}` }, part('wick'), { x1: round(cd.x + cd.width * 0.25), x2: round(cd.x + cd.width * 0.75), y1: round(y), y2: round(y), style: { stroke: cd.color } }))
+                                  )
+                                : null,
+                            // A box is drawn as an outline over a wash, so the
+                            // median reads at full strength across it.
+                            s('rect', { x: round(cd.x), y: round(cd.body.y), width: round(cd.width), height: round(cd.body.height), style: { fill: cd.color, fillOpacity: cd.median !== undefined ? 0.3 : undefined, stroke: cd.color } }),
+                            cd.median !== undefined
+                                ? s('line', mergeAttrs(part('median'), { x1: round(cd.x), x2: round(cd.x + cd.width), y1: round(cd.median), y2: round(cd.median), style: { stroke: cd.color } }))
+                                : null
                         )
                     )
                 );

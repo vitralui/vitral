@@ -10,7 +10,24 @@ type Series = /* @vue-ignore */ ChartSeries;
 /** The option and series types, re-exported so an application needs only this package. */
 export type { ChartOptions, ChartSeries };
 
-export type ChartKind = 'line' | 'area' | 'bar' | 'lollipop' | 'scatter' | 'bubble' | 'heatmap' | 'candlestick' | 'pie' | 'donut' | 'radar';
+export type ChartKind =
+    | 'line'
+    | 'area'
+    | 'bar'
+    | 'lollipop'
+    | 'scatter'
+    | 'bubble'
+    | 'heatmap'
+    | 'candlestick'
+    | 'pie'
+    | 'donut'
+    | 'radar'
+    | 'waterfall'
+    | 'rangeBar'
+    | 'rangeArea'
+    | 'histogram'
+    | 'boxPlot'
+    | 'funnel';
 
 export interface ChartProps extends BaseProps {
     /** The kind of chart; overrides `options.chart.type`. Defaults to `'line'`. */

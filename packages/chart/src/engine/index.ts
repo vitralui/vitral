@@ -2,6 +2,7 @@ export * from './types';
 export * from './format';
 export * from './scale';
 export * from './series';
+export * from './spans';
 export * from './geometry';
 export * from './options';
 export * from './scene';

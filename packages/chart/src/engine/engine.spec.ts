@@ -331,6 +331,106 @@ describe('interaction', () => {
         expect(seen).toEqual([{ kind: 'hover', source: 'a', column: 2 }]);
     });
 
+    it('draws a waterfall as bars that start where the last one ended', () => {
+        const { scene: s } = scene('waterfall', [{ name: 'Cash', data: [100, -30, 20, -10] }], { xaxis: { categories: ['Open', 'Costs', 'Sales', 'Tax'] } });
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(bars).toHaveLength(4);
+        // Down the screen, so a bar that adds has its top above where the last one ended.
+        const tops = bars.map((b) => Math.round(b.y));
+        const bottoms = bars.map((b) => Math.round(b.y + b.height));
+        expect(bottoms[0]).toBeGreaterThan(tops[0]!);
+        // Each step touches the one before: its far edge is the other's near edge.
+        expect(tops[1]).toBe(tops[0]);
+        expect(bottoms[2]).toBe(tops[1]! + (bottoms[1]! - tops[1]!));
+        // The axis has to contain the running total, not just the largest step.
+        const axis = s.axes.find((a) => a.side === 'left')!;
+        expect(Math.max(...axis.ticks.map((t) => Number(t.value)))).toBeGreaterThanOrEqual(100);
+    });
+
+    it('draws a range bar between its two numbers', () => {
+        const { scene: s } = scene('rangeBar', [{ name: 'Shift', data: [{ x: 'Mon', y: [9, 17] }, { x: 'Tue', y: [12, 20] }] }]);
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(bars).toHaveLength(2);
+        // Neither starts at zero, and the taller span is the taller bar.
+        expect(bars.every((b) => b.height > 0)).toBe(true);
+        expect(Math.round(bars[0]!.height)).toBe(Math.round(bars[1]!.height));
+        // The second shift is later in the day, so it sits higher up the screen.
+        expect(bars[1]!.y).toBeLessThan(bars[0]!.y);
+    });
+
+    it('strokes both edges of a range area and fills between them', () => {
+        const { scene: s } = scene('rangeArea', [{ name: 'Band', data: [{ x: 'Mon', y: [9, 17] }, { x: 'Tue', y: [12, 20] }, { x: 'Wed', y: [10, 22] }] }]);
+        const band = s.marks.find((m) => m.kind === 'line');
+        expect(band?.kind).toBe('line');
+        // Two subpaths, one for each edge, so the ends are not joined up.
+        expect((band as { path: string }).path.match(/M/g)).toHaveLength(2);
+        expect((band as { area?: string }).area).toBeTruthy();
+    });
+
+    it('bins readings into a histogram and counts every one of them', () => {
+        const readings = [1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 5];
+        const { scene: s } = scene('histogram', [{ name: 'Readings', data: readings }], { plotOptions: { histogram: { bins: 4 } } });
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(bars).toHaveLength(4);
+        // The chart is given readings and works out the columns itself.
+        expect(s.columns).toHaveLength(4);
+        expect(s.columns[0]!.label).toMatch(/^1/);
+        // Nothing is lost in the binning.
+        const counted = s.data.filter((d) => d.value !== null).reduce((n, d) => n + (d.value ?? 0), 0);
+        expect(counted).toBe(readings.length);
+    });
+
+    it('draws the closing column of a waterfall from the gap the data left', () => {
+        const { scene: s } = scene('waterfall', [{ name: 'Cash', data: [100, -40, 30, null] }], { plotOptions: { waterfall: { totals: [3] } } });
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(bars).toHaveLength(4);
+        // The subtotal is the running sum, drawn from zero.
+        expect(s.data[3]!.value).toBe(90);
+    });
+
+    it('carries each waterfall step to the next with a connector', () => {
+        const { scene: s } = scene('waterfall', [{ name: 'Cash', data: [100, -40, 30] }]);
+        const bar = s.marks.find((m) => m.kind === 'bar') as { connectors?: string };
+        // Two gaps between three steps, one subpath each.
+        expect(bar.connectors?.match(/M/g)).toHaveLength(2);
+        const off = scene('waterfall', [{ name: 'Cash', data: [100, -40, 30] }], { plotOptions: { waterfall: { connectors: false } } });
+        expect((off.scene.marks.find((m) => m.kind === 'bar') as { connectors?: string }).connectors).toBeUndefined();
+    });
+
+    it('draws a funnel as stages narrowing to the next', () => {
+        const { scene: s } = scene('funnel', [{ name: 'Signups', data: [{ x: 'Visited', y: 1000 }, { x: 'Signed up', y: 620 }, { x: 'Paid', y: 310 }] }]);
+        const bars = s.marks.flatMap((m) => (m.kind === 'bar' ? m.bars : []));
+        expect(s.empty).toBe(false);
+        expect(bars).toHaveLength(3);
+        // Each stage is as wide as its share of the first, so they narrow.
+        expect(bars[0]!.width).toBeGreaterThan(bars[1]!.width);
+        expect(bars[1]!.width).toBeGreaterThan(bars[2]!.width);
+        // They are stacked down the plot, in order.
+        expect(bars[0]!.y).toBeLessThan(bars[1]!.y);
+        // Every stage is a trapezoid, not a rectangle: five points and a close.
+        expect(bars[0]!.path.startsWith('M')).toBe(true);
+        expect(bars[0]!.path.endsWith('Z')).toBe(true);
+        // And the tooltip carries the share, which is what a funnel is read for.
+        expect(s.data[2]!.extra?.[0]!.text).toBe('31%');
+        expect(s.columns.map((c) => c.label)).toEqual(['Visited', 'Signed up', 'Paid']);
+    });
+
+    it('draws a box plot as a box, a median and whiskers', () => {
+        const { scene: s } = scene('boxPlot', [{ name: 'Latency', data: [{ x: 'Api', y: [10, 20, 30, 40, 90] }, { x: 'Web', y: [5, 8, 9, 11, 14] }] }]);
+        const boxes = s.marks.flatMap((m) => (m.kind === 'candle' ? m.candles : []));
+        expect(boxes).toHaveLength(2);
+        const [api] = boxes;
+        // The body is the quartiles and the whisker reaches the extremes, so the
+        // whisker is always at least as tall as the box.
+        expect(Math.abs(api!.wick.y1 - api!.wick.y2)).toBeGreaterThan(api!.body.height);
+        // The median sits inside the body.
+        expect(api!.median).toBeGreaterThanOrEqual(api!.body.y);
+        expect(api!.median).toBeLessThanOrEqual(api!.body.y + api!.body.height);
+        expect(api!.caps).toBe(true);
+        // All five numbers reach the tooltip.
+        expect(s.data[0]!.extra?.map((e) => e.text)).toEqual(['10', '20', '30', '40', '90']);
+    });
+
     it('lines the plots of a group up on its widest axis', () => {
         const wideLabels = { yaxis: { labels: { formatter: '{value} million dollars' } }, xaxis: { categories: ['a', 'b', 'c'] } };
         const plain = { xaxis: { categories: ['a', 'b', 'c'] } };

@@ -7,7 +7,30 @@
  * extra for code that needs it.
  */
 
-export type ChartType = 'line' | 'area' | 'bar' | 'lollipop' | 'scatter' | 'bubble' | 'heatmap' | 'candlestick' | 'pie' | 'donut' | 'radar';
+export type ChartType =
+    | 'line'
+    | 'area'
+    | 'bar'
+    | 'lollipop'
+    | 'scatter'
+    | 'bubble'
+    | 'heatmap'
+    | 'candlestick'
+    | 'pie'
+    | 'donut'
+    | 'radar'
+    /** A bar that floats: each one starts where the running total left off. */
+    | 'waterfall'
+    /** A bar between two numbers rather than from zero: `y: [low, high]`. */
+    | 'rangeBar'
+    /** The band between two numbers, across the categories. */
+    | 'rangeArea'
+    /** Counts of values falling in bins the chart works out for itself. */
+    | 'histogram'
+    /** Five numbers a category: the box, the median and the whiskers. */
+    | 'boxPlot'
+    /** Stages of a process, each as wide as its share of the first. */
+    | 'funnel';
 
 /** A template string, or (not serialisable) a function returning the text. */
 export type ChartFormatter = string | ((value: unknown, context: ChartFormatContext) => string);
@@ -215,6 +238,24 @@ export interface ChartBarOptions {
 export interface ChartPlotOptions {
     bar?: ChartBarOptions;
     lollipop?: { stemWidth?: number; markerSize?: number };
+    waterfall?: {
+        /** Indices of the columns drawn from zero to the running total rather than as a step. */
+        totals?: number[];
+        upColor?: string;
+        downColor?: string;
+        totalColor?: string;
+        /** The thin line carrying each step to the next. On by default. */
+        connectors?: boolean;
+    };
+    /** How many bins; Sturges' rule decides when this is left out. */
+    histogram?: { bins?: number };
+    boxPlot?: { upColor?: string; downColor?: string };
+    funnel?: {
+        /** How wide the last stage is drawn, as a share of the first: `'0%'` narrows to a point. */
+        neck?: string;
+        gap?: number;
+        horizontal?: boolean;
+    };
     pie?: {
         startAngle?: number;
         endAngle?: number;

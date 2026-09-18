@@ -1,5 +1,5 @@
 import { ptBR } from '@vitral/core';
-import type { ChartOptions, ChartSeries } from '@vitral/chart';
+import type { ChartOptions, ChartSeries, ChartType } from '@vitral/chart';
 import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, inject, nextTick, provide, reactive, ref } from 'vue';
 import { useVitral } from '../../config/config';
@@ -10,6 +10,12 @@ import Chart from './Chart.vue';
 import type { ChartKind } from './types';
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+// `ChartKind` is the engine's union written out a second time, because the SFC
+// compiler is told not to follow the alias into another package. These two
+// lines stop the copy drifting from the original.
+type Extra<A, B> = Exclude<A, B> extends never ? true : Exclude<A, B>;
+const kindsMatchTheEngine: [Extra<ChartKind, ChartType>, Extra<ChartType, ChartKind>] = [true, true];
 
 const sales: ChartSeries = [
     { name: 'Sales', data: [3, 7, 12] },
@@ -246,15 +252,22 @@ describe('Chart', () => {
             ['heatmap', [{ name: 'Mon', data: [{ x: 'a', y: 1 }, { x: 'b', y: 5 }] }, { name: 'Tue', data: [{ x: 'a', y: 3 }, { x: 'b', y: 2 }] }]],
             ['candlestick', [{ name: 'Price', data: [{ x: 'a', y: [10, 14, 8, 12] }, { x: 'b', y: [12, 13, 7, 9] }] }]],
             ['pie', [1, 2, 3], { labels: ['a', 'b', 'c'] }],
-            ['radar', [{ name: 'Skill', data: [3, 4, 2, 5] }], { xaxis: { categories: ['w', 'x', 'y', 'z'] } }]
+            ['radar', [{ name: 'Skill', data: [3, 4, 2, 5] }], { xaxis: { categories: ['w', 'x', 'y', 'z'] } }],
+            ['waterfall', [{ name: 'Cash', data: [120, -30, 45, -20] }], { plotOptions: { waterfall: { totals: [3] } } }],
+            ['rangeBar', [{ name: 'Temp', data: [{ x: 'a', y: [8, 17] }, { x: 'b', y: [11, 21] }] }]],
+            ['rangeArea', [{ name: 'Band', data: [{ x: 'a', y: [8, 17] }, { x: 'b', y: [11, 21] }] }]],
+            ['histogram', [{ name: 'Latency', data: [1, 2, 2, 3, 3, 3, 4, 4, 9] }]],
+            ['boxPlot', [{ name: 'Latency', data: [{ x: 'a', y: [10, 20, 30, 40, 90] }, { x: 'b', y: [5, 8, 9, 11, 14] }] }]],
+            ['funnel', [{ name: 'Signups', data: [1000, 640, 380, 190] }], { labels: ['Visited', 'Trial', 'Paid', 'Renewed'] }]
         ];
         for (const [type, series, options] of cases) {
             const { svg, wrapper } = mountChart({ type, series, options: { ...options, chart: { ...options?.chart, animations: { enabled: false } } } });
             expect(svg().querySelectorAll('path, rect').length, type).toBeGreaterThan(2);
             expect(document.getElementById(svg().getAttribute('aria-labelledby')!)!.textContent, type).not.toContain('No data');
-            if (type === 'heatmap' || type === 'candlestick') await expectNoA11yViolations();
+            if (type === 'heatmap' || type === 'candlestick' || type === 'boxPlot' || type === 'funnel') await expectNoA11yViolations();
             wrapper.unmount();
         }
+        expect(kindsMatchTheEngine).toEqual([true, true]);
         const spark = mountChart({ series: [{ name: 'A', data: [1, 3, 2] }], options: { chart: { sparkline: { enabled: true } } } });
         expect(document.querySelector('.vt-chart-axis-label')).toBeNull();
         expect(document.querySelector('.vt-chart-legend')).toBeNull();

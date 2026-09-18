@@ -9,6 +9,10 @@ export interface ChartPoint {
     y: number | null;
     z?: number;
     ohlc?: [open: number, high: number, low: number, close: number];
+    /** A span: `y: [low, high]`, for a range bar or a range area. */
+    range?: [low: number, high: number];
+    /** Five numbers, sorted: the box and its whiskers. */
+    box?: [min: number, q1: number, median: number, q3: number, max: number];
     fillColor?: string;
 }
 
@@ -30,23 +34,40 @@ function toX(value: unknown, fallback: number): number | string {
     return fallback;
 }
 
-function point(input: ChartPointInput, index: number): ChartPoint {
+/**
+ * A list of numbers beside an x: two are a span, four are a candle's open,
+ * high, low and close, five are a box and its whiskers. The type the chart is
+ * drawing decides between the last two, since both are four or five numbers
+ * and only the chart knows which it asked for.
+ */
+function fromList(values: number[], type: ChartType): Pick<ChartPoint, 'y' | 'ohlc' | 'range' | 'box'> {
+    if (type === 'boxPlot' && values.length >= 5) {
+        const sorted = [...values.slice(0, 5)].sort((a, b) => a - b) as [number, number, number, number, number];
+        return { y: sorted[2], box: sorted };
+    }
+    if (values.length >= 4) {
+        const [o, h, l, c] = values as number[];
+        return { y: c!, ohlc: [o!, Math.max(h!, l!), Math.min(h!, l!), c!] };
+    }
+    if (values.length >= 2 && isNum(values[0]) && isNum(values[1])) {
+        const [a, b] = values as [number, number];
+        return { y: b, range: [Math.min(a, b), Math.max(a, b)] };
+    }
+    return { y: isNum(values[0]) ? values[0]! : null };
+}
+
+function point(input: ChartPointInput, index: number, type: ChartType): ChartPoint {
     if (input === null || typeof input === 'number') return { index, x: index, y: isNum(input) ? input : null };
     if (Array.isArray(input)) {
-        if (input.length >= 5) {
-            const [x, o, h, l, c] = input as [number | string, number, number, number, number];
-            return { index, x: toX(x, index), y: c, ohlc: [o, Math.max(h, l), Math.min(h, l), c] };
+        // `[x, …]`: the first entry names the column, the rest are the numbers.
+        if (input.length >= 3) {
+            const [x, ...rest] = input as [number | string, ...number[]];
+            return { index, x: toX(x, index), ...fromList(rest, type) };
         }
         return { index, x: toX(input[0], index), y: isNum(input[1]) ? input[1] : null };
     }
     const y = input.y;
-    if (Array.isArray(y)) {
-        if (y.length >= 4) {
-            const [o, h, l, c] = y as number[];
-            return { index, x: toX(input.x, index), y: c!, ohlc: [o!, Math.max(h!, l!), Math.min(h!, l!), c!], fillColor: input.fillColor };
-        }
-        return { index, x: toX(input.x, index), y: isNum(y[1]) ? y[1] : null, fillColor: input.fillColor };
-    }
+    if (Array.isArray(y)) return { index, x: toX(input.x, index), ...fromList(y as number[], type), fillColor: input.fillColor };
     return { index, x: toX(input.x, index), y: isNum(y) ? y : null, z: isNum(input.z) ? input.z : undefined, fillColor: input.fillColor };
 }
 
@@ -62,7 +83,7 @@ export function normalizeSeries(series: ChartSeries | null | undefined, type: Ch
         if (type === 'pie' || type === 'donut') {
             return values.map((v, i) => ({ index: i, name: labels[i] ?? String(i + 1), hidden: false, points: [{ index: 0, x: 0, y: isNum(v) ? v : null }] }));
         }
-        return [{ index: 0, name: '', hidden: false, points: values.map((v, i) => point(v, i)) }];
+        return [{ index: 0, name: '', hidden: false, points: values.map((v, i) => point(v, i, type)) }];
     }
     return (series as ChartSeriesInput[]).map((s, i) => ({
         index: i,
@@ -71,7 +92,7 @@ export function normalizeSeries(series: ChartSeries | null | undefined, type: Ch
         color: s.color,
         group: s.group,
         hidden: !!s.hidden,
-        points: (s.data ?? []).map((p, j) => point(p, j))
+        points: (s.data ?? []).map((p, j) => point(p, j, s.type ?? type))
     }));
 }
 

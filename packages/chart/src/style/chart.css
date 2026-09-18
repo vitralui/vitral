@@ -277,6 +277,19 @@
     stroke-width: var(--vt-chart-candle-wick-width);
 }
 
+/* The hairline carrying a waterfall step to the next one. */
+.vt-chart-connector {
+    fill: none;
+    stroke: var(--vt-chart-axis-line-color);
+    stroke-dasharray: 2 2;
+}
+
+/* A box plot's median sits across the body, a touch heavier than a whisker. */
+.vt-chart-median {
+    stroke-width: calc(var(--vt-chart-candle-wick-width) * 2);
+    stroke-linecap: butt;
+}
+
 .vt-chart-candle-hollow {
     fill: var(--vt-chart-marker-stroke-color) !important;
 }

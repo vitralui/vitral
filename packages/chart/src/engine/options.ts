@@ -27,7 +27,25 @@ const obj = (properties: Record<string, ChartOptionSchema>, description?: string
 const list = (items: ChartOptionSchema, d?: unknown[], description?: string): ChartOptionSchema => ({ type: 'array', items, default: d, description });
 const either = (anyOf: ChartOptionSchema[], d?: unknown, description?: string): ChartOptionSchema => ({ type: 'union', anyOf, default: d, description });
 
-export const chartTypes: readonly ChartType[] = ['line', 'area', 'bar', 'lollipop', 'scatter', 'bubble', 'heatmap', 'candlestick', 'pie', 'donut', 'radar'];
+export const chartTypes: readonly ChartType[] = [
+    'line',
+    'area',
+    'bar',
+    'lollipop',
+    'scatter',
+    'bubble',
+    'heatmap',
+    'candlestick',
+    'pie',
+    'donut',
+    'radar',
+    'waterfall',
+    'rangeBar',
+    'rangeArea',
+    'histogram',
+    'boxPlot',
+    'funnel'
+];
 
 const textStyle = obj({ fontSize: size(undefined, 'CSS font size; the theme’s by default'), fontWeight: either([str(), num()]), fontFamily: str(), color: color() });
 const titleSchema = obj({
@@ -233,6 +251,22 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
             colors: obj({ ranges: rangeList() })
         }),
         lollipop: obj({ stemWidth: num(2), markerSize: num(10) }),
+        waterfall: obj({
+            /** Columns drawn from zero to the running total rather than as a step. */
+            totals: list(num(), [], 'Indices of the columns that are subtotals'),
+            upColor: color(undefined, 'A step that adds'),
+            downColor: color(undefined, 'A step that takes away'),
+            totalColor: color(undefined, 'A subtotal column'),
+            connectors: bool(true, 'The thin line carrying each step to the next')
+        }),
+        histogram: obj({ bins: num(undefined, 'How many bins; Sturges’ rule decides when this is left out', { min: 1, max: 200, step: 1 }) }),
+        boxPlot: obj({ upColor: color(undefined, 'A box whose median sits above the middle of its range'), downColor: color(undefined, 'A box whose median sits below it') }),
+        funnel: obj({
+            /** A funnel narrowing to a point, rather than to the width of its last stage. */
+            neck: size('0%', 'How wide the last stage is drawn, as a share of the first'),
+            gap: num(4, 'Pixels between the stages', { min: 0, max: 40, step: 1 }),
+            horizontal: bool(false, 'Stages across rather than down')
+        }),
         pie: obj({
             startAngle: num(0, undefined, { min: -360, max: 360 }),
             endAngle: num(360, undefined, { min: -360, max: 360 }),
@@ -336,7 +370,22 @@ export const chartTypeDefaults: Record<ChartType, ChartOptions> = {
     candlestick: { stroke: { show: false, width: 1 }, xaxis: { crosshairs: { width: 'barWidth' } } },
     pie: { dataLabels: { enabled: true, formatter: '{percent|percent}' }, stroke: { show: true, width: 2 }, legend: { position: 'right' }, tooltip: { shared: false, intersect: true }, chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } } },
     donut: { dataLabels: { enabled: true, formatter: '{percent|percent}' }, stroke: { show: true, width: 2 }, legend: { position: 'right' }, tooltip: { shared: false, intersect: true }, chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } } },
-    radar: { markers: { size: 6, strokeWidth: 1 }, fill: { opacity: 0.2 }, stroke: { width: 2, curve: 'straight' }, tooltip: { shared: true }, chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } } }
+    radar: { markers: { size: 6, strokeWidth: 1 }, fill: { opacity: 0.2 }, stroke: { width: 2, curve: 'straight' }, tooltip: { shared: true }, chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } } },
+    // A waterfall is one series read across, so a legend of one name says nothing.
+    waterfall: { stroke: { show: false, width: 0 }, legend: { show: false }, dataLabels: { enabled: true }, xaxis: { crosshairs: { width: 'barWidth' } }, grid: { padding: { left: 0, right: 0 } } },
+    rangeBar: { stroke: { show: false, width: 0 }, xaxis: { crosshairs: { width: 'barWidth' } }, grid: { padding: { left: 0, right: 0 } } },
+    rangeArea: { fill: { opacity: 0.25 }, stroke: { width: 2 } },
+    // Bins touch: a gap between them would suggest values that fall nowhere.
+    histogram: { stroke: { show: true, width: 1 }, legend: { show: false }, plotOptions: { bar: { columnWidth: '100%' } }, xaxis: { crosshairs: { width: 'barWidth' } }, grid: { padding: { left: 0, right: 0 } } },
+    boxPlot: { stroke: { show: false, width: 1 }, legend: { show: false }, xaxis: { crosshairs: { width: 'barWidth' } } },
+    funnel: {
+        dataLabels: { enabled: true },
+        legend: { show: false },
+        grid: { show: false },
+        tooltip: { shared: false, intersect: true },
+        xaxis: { crosshairs: { show: false } },
+        chart: { zoom: { enabled: false }, toolbar: { tools: { zoomin: false, zoomout: false, pan: false, reset: false, zoom: false } } }
+    }
 };
 
 const sparkline: ChartOptions = {

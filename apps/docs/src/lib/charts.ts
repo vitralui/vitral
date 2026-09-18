@@ -23,6 +23,15 @@ export const families: Family[] = ['Over time', 'Compared', 'Spread', 'Parts of 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
 
+/**
+ * Response times to bin. Written out rather than generated, so the gallery
+ * draws the same histogram on every visit and in every screenshot.
+ */
+const latencies = [
+    38, 41, 44, 45, 47, 48, 49, 51, 52, 52, 53, 54, 55, 55, 56, 57, 58, 58, 59, 60, 61, 61, 62, 63, 64, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 76, 78, 80, 82, 84, 86,
+    88, 91, 94, 98, 103, 109, 118, 134
+];
+
 /** Every gallery chart is small, so none of them carries a toolbar or a title. */
 const compact: ChartOptions = { chart: { toolbar: { show: false } }, legend: { position: 'bottom' } };
 
@@ -61,6 +70,15 @@ export const chartEntries: ChartEntry[] = [
             { name: 'Jobs', data: [30, 28, 35, 40, 38, 42, 46, 50, 48, 53, 56, 60] }
         ],
         options: { ...compact, chart: { stacked: true, toolbar: { show: false } }, xaxis: { categories: months }, stroke: { curve: 'monotoneCubic', width: 2 } }
+    },
+    {
+        id: 'range-area',
+        name: 'Range area',
+        family: 'Over time',
+        kind: 'rangeArea',
+        note: 'The band between a low and a high, month by month: a forecast\u2019s spread, or the day\u2019s range. One fill, two edges.',
+        series: [{ name: 'Forecast', data: months.map((m, i) => ({ x: m, y: [40 + i * 4, 70 + i * 6] as [number, number] })) }],
+        options: { ...compact, stroke: { curve: 'smooth', width: 2 }, legend: { show: false } }
     },
     {
         id: 'combined',
@@ -168,6 +186,29 @@ export const chartEntries: ChartEntry[] = [
         }
     },
     {
+        id: 'waterfall',
+        name: 'Waterfall',
+        family: 'Compared',
+        kind: 'waterfall',
+        note: 'How a number got from one total to another. Each bar starts where the last one stopped; a total bar returns to zero.',
+        series: [{ name: 'Cash', data: [1200, 420, -180, 310, -260, null] }],
+        options: {
+            ...compact,
+            xaxis: { categories: ['Opening', 'Sales', 'Refunds', 'Services', 'Costs', 'Closing'] },
+            plotOptions: { waterfall: { totals: [5] } },
+            legend: { show: false }
+        }
+    },
+    {
+        id: 'range-bar',
+        name: 'Range bar',
+        family: 'Compared',
+        kind: 'rangeBar',
+        note: 'A bar between two numbers instead of up from zero. Each point is `[low, high]`, so it reads as a span rather than an amount.',
+        series: [{ name: 'Temperature', data: quarters.map((q, i) => ({ x: q, y: [8 + i * 3, 17 + i * 4] as [number, number] })) }],
+        options: { ...compact, legend: { show: false }, yaxis: { title: { text: '\u00b0C' } } }
+    },
+    {
         id: 'scatter',
         name: 'Scatter',
         family: 'Spread',
@@ -204,6 +245,33 @@ export const chartEntries: ChartEntry[] = [
         options: { ...compact, legend: { show: false } }
     },
     {
+        id: 'histogram',
+        name: 'Histogram',
+        family: 'Spread',
+        kind: 'histogram',
+        note: 'Raw readings in, counts out: the chart works out the bins itself. Pass a plain list of numbers, not categories.',
+        series: [{ name: 'Response time', data: latencies }],
+        options: { ...compact, legend: { show: false }, xaxis: { title: { text: 'Milliseconds' } }, yaxis: { title: { text: 'Requests' } } }
+    },
+    {
+        id: 'box-plot',
+        name: 'Box plot',
+        family: 'Spread',
+        kind: 'boxPlot',
+        note: 'Five numbers a category \u2014 minimum, quartiles, median, maximum \u2014 so two distributions compare without either being averaged away.',
+        series: [
+            {
+                name: 'Response time',
+                data: [
+                    { x: 'API', y: [12, 28, 41, 63, 140] as [number, number, number, number, number] },
+                    { x: 'Web', y: [30, 52, 68, 90, 180] as [number, number, number, number, number] },
+                    { x: 'Jobs', y: [8, 15, 22, 34, 70] as [number, number, number, number, number] }
+                ]
+            }
+        ],
+        options: { ...compact, legend: { show: false }, yaxis: { title: { text: 'Milliseconds' } } }
+    },
+    {
         id: 'pie',
         name: 'Pie',
         family: 'Parts of a whole',
@@ -232,6 +300,20 @@ export const chartEntries: ChartEntry[] = [
             { name: 'Last release', data: [65, 70, 72, 60, 75, 55] }
         ],
         options: { ...compact, labels: ['Speed', 'Size', 'A11y', 'API', 'Docs', 'Tests'] }
+    },
+    {
+        id: 'funnel',
+        name: 'Funnel',
+        family: 'Parts of a whole',
+        kind: 'funnel',
+        note: 'Stages of a process, each as wide as its share of the first. What it is read for is where the drop is, so the labels carry the percentages.',
+        series: [{ name: 'Signups', data: [4820, 3100, 1740, 980, 610] }],
+        options: {
+            ...compact,
+            labels: ['Visited', 'Signed up', 'Activated', 'Subscribed', 'Renewed'],
+            dataLabels: { enabled: true, formatter: '{value|compact} \u00b7 {percent|percent:0}' },
+            legend: { show: false }
+        }
     }
 ];
 
