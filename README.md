@@ -1,5 +1,9 @@
 # Vitral
 
+[![CI](https://github.com/vitralui/vitral/actions/workflows/ci.yml/badge.svg)](https://github.com/vitralui/vitral/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@vitral/vue?color=%232563eb&label=%40vitral%2Fvue)](https://www.npmjs.com/package/@vitral/vue)
+[![licence](https://img.shields.io/badge/licence-LGPL--3.0--or--later-blue)](LICENSE)
+
 A Vue 3 component library built around a token engine, so the whole look comes
 from one object you can swap. Design tokens, presets, light and dark, per
 instance overrides, pass-through attributes and a fully unstyled mode.
