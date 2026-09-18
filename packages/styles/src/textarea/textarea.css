@@ -2,6 +2,13 @@
 .vt-textarea {
     align-items: stretch;
     cursor: text;
+    /*
+     * The browser draws the resize grip at the textarea's own bottom-right
+     * corner, so the textarea has to reach the field's corner or the grip
+     * floats a padding's width inside it. The side padding moves in with the
+     * text instead of sitting on the wrapper.
+     */
+    padding-inline: 0;
 }
 
 .vt-textarea.vt-field-disabled {
@@ -13,6 +20,7 @@
     box-sizing: border-box;
     min-height: 0;
     line-height: inherit;
+    padding-inline: var(--vt-form-field-padding-x);
     resize: var(--vt-textarea-resize);
 }
 
