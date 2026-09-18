@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { highlight, langOf } from '../lib/highlight';
 
-const props = defineProps<{ code: string; label?: string; lang?: 'vue' | 'ts' | 'bash' | 'css'; bare?: boolean }>();
+const props = defineProps<{ code: string; label?: string; lang?: 'vue' | 'ts' | 'bash' | 'css' | 'md' | 'text'; bare?: boolean }>();
 
 const html = computed(() => highlight(props.code.trim(), props.lang ?? langOf(props.label ?? '')));
 const copied = ref(false);

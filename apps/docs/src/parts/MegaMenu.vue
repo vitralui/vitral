@@ -50,7 +50,8 @@ const guideNotes: Record<string, string> = {
     'Get started': 'Install it and read the first page',
     Theming: 'Tokens, presets and colour schemes',
     Customisation: 'Pass-through, unstyled mode, locales',
-    Reference: 'Accessibility, layout, contributing'
+    Reference: 'Accessibility, layout, contributing',
+    AI: 'Documentation a coding agent can read'
 };
 
 const componentCount = computed(() => sections.reduce((total, section) => total + section.items.length, 0));
@@ -101,6 +102,7 @@ onBeforeUnmount(() => {
                 <Icon icon="chevronDown" />
             </button>
             <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
+            <a :href="href('/charts')" :class="{ 'is-active': route.name === 'charts' }" :aria-current="route.name === 'charts' ? 'page' : undefined">Charts</a>
         </nav>
 
         <div v-if="open" class="mega-panel" :class="{ wide: open === 'templates' }" :style="{ '--mega-offset': `${offset}px` }" @click="open = null">

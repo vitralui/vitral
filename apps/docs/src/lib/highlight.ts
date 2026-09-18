@@ -2,9 +2,11 @@
  * A small highlighter. Shiki and friends would each cost more than the whole
  * site bundle, and what the code blocks here hold is narrow: Vue templates,
  * TypeScript and shell lines. So this tokenises those three by hand and hands
- * back HTML with the token classes `site.css` colours.
+ * back HTML with the token classes `site.css` colours. `text` is the way out
+ * for a block that is not code at all — a prompt, a list of files — which any
+ * highlighting would only misread.
  */
-type Lang = 'vue' | 'ts' | 'bash' | 'css';
+type Lang = 'vue' | 'ts' | 'bash' | 'css' | 'md' | 'text';
 
 const KEYWORDS =
     /\b(import|from|export|default|const|let|var|function|return|await|async|new|type|interface|extends|implements|class|if|else|for|of|in|while|switch|case|break|continue|try|catch|finally|throw|typeof|as|satisfies|true|false|null|undefined|this)\b/g;
@@ -58,6 +60,8 @@ const rules: Record<Lang, { re: RegExp; cls: string }[]> = {
     ts: [...commonPatterns, { re: KEYWORDS, cls: 'tok-keyword' }, { re: /\b\d+(\.\d+)?\b/g, cls: 'tok-number' }],
     css: [...commonPatterns, { re: /--[\w-]+/g, cls: 'tok-attr' }, { re: /[.#][\w-]+/g, cls: 'tok-tag' }],
     bash: [{ re: /#[^\n]*/g, cls: 'tok-comment' }, { re: /^\s*(pnpm|npm|yarn|bun|npx)\b/gm, cls: 'tok-keyword' }],
+    md: [{ re: /^#{1,6} [^\n]*/gm, cls: 'tok-keyword' }, { re: /`[^`\n]*`/g, cls: 'tok-string' }, { re: /^\s*[-*] /gm, cls: 'tok-tag' }],
+    text: [],
     vue: [
         { re: /&lt;!--[\s\S]*?--&gt;/g, cls: 'tok-comment' },
         { re: /\/\*[\s\S]*?\*\//g, cls: 'tok-comment' },
@@ -78,5 +82,6 @@ export function langOf(label: string): Lang {
     if (/\.ts$|typescript|^ts$/i.test(label)) return 'ts';
     if (/terminal|bash|sh$/i.test(label)) return 'bash';
     if (/\.css$|^css$/i.test(label)) return 'css';
+    if (/\.md$|^md$|markdown/i.test(label)) return 'md';
     return 'vue';
 }
