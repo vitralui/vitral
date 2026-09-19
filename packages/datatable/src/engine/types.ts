@@ -70,6 +70,12 @@ export interface PageContext {
     total: number;
 }
 
+/** The page size control's own context: the sizes offered, and how to choose one. */
+export interface RowsPerPageContext extends PageContext {
+    options: readonly number[];
+    setRows: (rows: number) => void;
+}
+
 /**
  * The parts a host draws itself, beside the ones a column draws. A framework
  * component passes its slots through here; a page with no framework hands in
@@ -87,6 +93,13 @@ export interface TableContent {
     paginator?: (context: PageContext) => Content;
     paginatorStart?: (context: PageContext) => Content;
     paginatorEnd?: (context: PageContext) => Content;
+    /**
+     * The page size control, instead of the native `<select>` the paginator
+     * draws. A framework component puts its own select here; a page with no
+     * framework gets the reader's own, which on a phone is the picker they
+     * already know.
+     */
+    rowsPerPage?: (context: RowsPerPageContext) => Content;
 }
 
 export interface TableEvents<T = Row> {

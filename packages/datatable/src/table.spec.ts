@@ -1,7 +1,7 @@
 import { ptBR } from '@vitral/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
-import type { PageContext } from './engine/types';
+import type { PageContext, RowsPerPageContext } from './engine/types';
 import { createDataTable, type TableHandle } from './table';
 
 interface Person {
@@ -283,6 +283,33 @@ describe('what the host draws itself', () => {
         // Written as `viewBox`, which outside the namespace becomes `viewbox` and is ignored.
         expect(icon.getAttribute('viewBox')).toBe('0 0 24 24');
         expect(icon.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('takes a page size control of its own', () => {
+        const chosen: number[] = [];
+        const { element } = mount({
+            paginator: true,
+            rows: 2,
+            rowsPerPageOptions: [2, 4],
+            content: {
+                rowsPerPage: (state: RowsPerPageContext) => {
+                    const own = document.createElement('button');
+                    own.className = 'mine';
+                    own.textContent = `${state.rows} of ${state.options.join('/')}`;
+                    own.addEventListener('click', () => {
+                        chosen.push(4);
+                        state.setRows(4);
+                    });
+                    return own;
+                }
+            }
+        });
+        expect(element.querySelector('select.vt-paginator-rows-per-page')).toBeNull();
+        const own = element.querySelector<HTMLButtonElement>('.mine')!;
+        expect(own.textContent).toBe('2 of 2/4');
+        own.click();
+        expect(chosen).toEqual([4]);
+        expect(handle!.state().rows).toBe(4);
     });
 
     it('says it is waiting, where a reader who cannot see it hears it', () => {

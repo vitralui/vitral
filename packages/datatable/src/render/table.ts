@@ -507,6 +507,8 @@ function paginatorView<T>(context: ViewContext<T>): Child {
             case 'RowsPerPageDropdown': {
                 const options = config.rowsPerPageOptions ?? [];
                 if (!options.length) return null;
+                const own = content(config.content?.rowsPerPage?.({ ...state, options, setRows: context.on.pageSize }));
+                if (own !== null) return own;
                 // A native select: the reader's own platform draws it, which on a
                 // phone is the picker they already know.
                 return h(

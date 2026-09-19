@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createDataTable, type CellContext, type PageContext, type TableColumn, type TableConfig, type TableHandle, type TableModels } from '@vitral/datatable';
+import { createDataTable, type CellContext, type PageContext, type RowsPerPageContext, type TableColumn, type TableConfig, type TableHandle, type TableModels } from '@vitral/datatable';
 import { mergeAttrs, type PassThrough, type PassThroughContext as DomPassThroughContext } from '@vitral/dom';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
 import {
@@ -25,6 +25,7 @@ import {
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
+import Select from '../Select/Select.vue';
 import Column from './Column.vue';
 import type { ColumnLayoutLike, DataTableEmits, DataTableFilterEvent, DataTableFilterMeta, DataTableProps, DataTableSlots, DataTableSortEvent, SortMetaLike } from './types';
 
@@ -209,13 +210,29 @@ function sweep() {
 const CONTENT_SLOTS = ['header', 'footer', 'empty', 'loadingicon', 'paginatorstart', 'paginatorend'] as const;
 const CONTENT_NAMES: Record<string, string> = { loadingicon: 'loadingIcon', paginatorstart: 'paginatorStart', paginatorend: 'paginatorEnd' };
 
-const slotContent = (): TableConfig['content'] =>
-    Object.fromEntries(
+const slotContent = (): TableConfig['content'] => ({
+    ...Object.fromEntries(
         CONTENT_SLOTS.filter((name) => slots[name]).map((name) => [
             CONTENT_NAMES[name] ?? name,
             (state: PageContext) => node(name, () => (slots[name] as (data?: unknown) => unknown)(state))
         ])
-    );
+    ),
+    // The page size is Vitral's own select here: the table draws a native one
+    // for a page with no framework, and this is the framework.
+    rowsPerPage: (state: RowsPerPageContext) =>
+        node('rows-per-page', () =>
+            h(Select, {
+                modelValue: state.rows,
+                options: state.options.map((rows) => ({ label: String(rows), value: rows })),
+                optionLabel: 'label',
+                optionValue: 'value',
+                size: 'small',
+                'aria-label': config.locale.rowsPerPage,
+                class: 'vt-paginator-rows-per-page',
+                'onUpdate:modelValue': (value: unknown) => state.setRows(Number(value))
+            })
+        )
+});
 
 // ---- pass-through: the root takes class, style and design tokens; the table its naming attributes
 
