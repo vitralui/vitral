@@ -20,6 +20,7 @@ export const aliases = {
     '@vitral/schedule': pkg('schedule'),
     '@vitral/taskboard/engine': pkg('taskboard', 'engine/index'),
     '@vitral/taskboard': pkg('taskboard'),
+    '@vitral/spreadsheet/buttons': pkg('spreadsheet', 'buttons'),
     '@vitral/spreadsheet/engine': pkg('spreadsheet', 'engine/index'),
     '@vitral/spreadsheet': pkg('spreadsheet'),
     '@vitral/forms': pkg('forms'),

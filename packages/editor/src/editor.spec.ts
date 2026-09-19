@@ -37,6 +37,16 @@ describe('an editor with no framework in it', () => {
         expect(buttons().length).toBeGreaterThan(10);
     });
 
+    it('draws its buttons with the icons it ships with, registered or not', () => {
+        const { toolbar } = mount();
+        const buttons = [...toolbar()!.querySelectorAll('button')].filter((button) => button.getAttribute('aria-label') !== en.editor.blockType);
+        expect(buttons.length).toBeGreaterThan(15);
+        // Every one of them draws: the names are looked up in the registry, so
+        // an application that registered nothing would otherwise get a bar of
+        // empty squares.
+        expect(buttons.filter((button) => !button.querySelector('svg'))).toEqual([]);
+    });
+
     it('reads the document it was given, and gives it back', () => {
         mount({ content: '<p>Hello <strong>world</strong></p>' });
         expect(handle!.getHTML()).toContain('<strong>world</strong>');

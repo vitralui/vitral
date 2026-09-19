@@ -301,6 +301,24 @@ export interface Locale {
         resizeRow: string;
         /** The handle at the corner of the selection, dragged to fill. */
         fill: string;
+        /** Names the bar of tools over the grid. */
+        toolbar: string;
+        undo: string;
+        redo: string;
+        /** Names the select that says how a value is written out. */
+        numberFormat: string;
+        /** What that select offers, by format name. */
+        formats: Record<string, string>;
+        currency: string;
+        percent: string;
+        decimalDecrease: string;
+        decimalIncrease: string;
+        bold: string;
+        italic: string;
+        alignLeft: string;
+        alignCenter: string;
+        alignRight: string;
+        clearFormatting: string;
     };
 
     /**
@@ -756,7 +774,29 @@ export const en: Locale = {
         selectAll: 'Select every cell',
         resizeColumn: 'Resize column {column}',
         resizeRow: 'Resize row {row}',
-        fill: 'Fill from the selection'
+        fill: 'Fill from the selection',
+        toolbar: 'Spreadsheet tools',
+        undo: 'Undo',
+        redo: 'Redo',
+        numberFormat: 'Number format',
+        formats: {
+            general: 'Automatic',
+            number: 'Number',
+            percent: 'Percent',
+            currency: 'Currency',
+            date: 'Date',
+            text: 'Plain text'
+        },
+        currency: 'Format as currency',
+        percent: 'Format as percent',
+        decimalDecrease: 'Fewer decimal places',
+        decimalIncrease: 'More decimal places',
+        bold: 'Bold',
+        italic: 'Italic',
+        alignLeft: 'Align left',
+        alignCenter: 'Align centre',
+        alignRight: 'Align right',
+        clearFormatting: 'Clear formatting'
     },
     form: {
         required: 'This field is required.',
@@ -1134,7 +1174,29 @@ export const ptBR: Locale = {
         selectAll: 'Selecionar todas as células',
         resizeColumn: 'Redimensionar a coluna {column}',
         resizeRow: 'Redimensionar a linha {row}',
-        fill: 'Preencher a partir da seleção'
+        fill: 'Preencher a partir da seleção',
+        toolbar: 'Ferramentas da planilha',
+        undo: 'Desfazer',
+        redo: 'Refazer',
+        numberFormat: 'Formato do número',
+        formats: {
+            general: 'Automático',
+            number: 'Número',
+            percent: 'Porcentagem',
+            currency: 'Moeda',
+            date: 'Data',
+            text: 'Texto puro'
+        },
+        currency: 'Formatar como moeda',
+        percent: 'Formatar como porcentagem',
+        decimalDecrease: 'Menos casas decimais',
+        decimalIncrease: 'Mais casas decimais',
+        bold: 'Negrito',
+        italic: 'Itálico',
+        alignLeft: 'Alinhar à esquerda',
+        alignCenter: 'Centralizar',
+        alignRight: 'Alinhar à direita',
+        clearFormatting: 'Limpar formatação'
     },
     form: {
         required: 'Preencha este campo.',

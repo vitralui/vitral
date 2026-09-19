@@ -26,6 +26,78 @@
     -webkit-touch-callout: none;
 }
 
+/* ---- the tools over it ---- */
+
+.vt-spreadsheet-toolbar {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vt-spreadsheet-toolbar-group-gap);
+    padding: var(--vt-spreadsheet-toolbar-padding);
+    border-bottom: 1px solid var(--vt-spreadsheet-bar-border-color);
+    background: var(--vt-spreadsheet-toolbar-background);
+}
+
+.vt-spreadsheet-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-spreadsheet-toolbar-gap);
+}
+
+.vt-spreadsheet-toolbar-group + .vt-spreadsheet-toolbar-group {
+    padding-inline-start: var(--vt-spreadsheet-toolbar-group-gap);
+    border-inline-start: 1px solid var(--vt-spreadsheet-toolbar-separator-color);
+}
+
+.vt-spreadsheet-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--vt-spreadsheet-button-size);
+    height: var(--vt-spreadsheet-button-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--vt-spreadsheet-button-border-radius);
+    outline: none;
+    background: transparent;
+    color: var(--vt-spreadsheet-button-color);
+    cursor: pointer;
+    transition: background var(--vt-spreadsheet-transition-duration), color var(--vt-spreadsheet-transition-duration);
+}
+
+.vt-spreadsheet-button:not(:disabled):hover {
+    background: var(--vt-spreadsheet-button-hover-background);
+    color: var(--vt-spreadsheet-button-hover-color);
+}
+
+.vt-spreadsheet-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+.vt-spreadsheet-button-active {
+    background: var(--vt-spreadsheet-button-active-background);
+    color: var(--vt-spreadsheet-button-active-color);
+}
+
+.vt-spreadsheet-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.vt-spreadsheet-button-icon {
+    width: var(--vt-spreadsheet-button-icon-size);
+    height: var(--vt-spreadsheet-button-icon-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-spreadsheet-button {
+        transition: none;
+    }
+}
+
 /* ---- the bar over it ---- */
 
 .vt-spreadsheet-bar {

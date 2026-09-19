@@ -2,10 +2,26 @@
 import { mergeAttrs, type PassThrough, type PassThroughContext as DomPassThroughContext } from '@vitral/dom';
 import { createSpreadsheet, type SpreadsheetHandle, type SpreadsheetOptions } from '@vitral/spreadsheet';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
-import { normalizeClass, normalizeStyle, onBeforeUnmount, onMounted, onUpdated, shallowRef, toRaw, useAttrs, useId, watch } from 'vue';
+import {
+    defineComponent,
+    getCurrentInstance,
+    h,
+    normalizeClass,
+    normalizeStyle,
+    onBeforeUnmount,
+    onMounted,
+    onUpdated,
+    render,
+    shallowRef,
+    toRaw,
+    useAttrs,
+    useId,
+    watch,
+    type ComponentInternalInstance
+} from 'vue';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
 import { useVitral } from '../../config/config';
-import type { SpreadsheetEmits, SpreadsheetProps } from './types';
+import type { SpreadsheetEmits, SpreadsheetProps, SpreadsheetSlots } from './types';
 
 // The grid is `@vitral/spreadsheet`'s framework-free renderer; this component
 // only hands it the props and the Vitral configuration (locale, unstyled,
@@ -21,16 +37,41 @@ const props = withDefaults(defineProps<SpreadsheetProps>(), {
     unstyled: undefined,
     rows: 100,
     columns: 26,
+    toolbar: undefined,
     formulaBar: true
 });
 const cells = defineModel<Record<string, string | number | boolean | null>>();
 const emit = defineEmits<SpreadsheetEmits>();
+const slots = defineSlots<SpreadsheetSlots>();
 
 const { config, theme } = useVitral();
 const attrs = useAttrs();
 const id = useId();
 const host = shallowRef<HTMLElement | null>(null);
+const instance = getCurrentInstance()!;
 let sheet: SpreadsheetHandle | null = null;
+
+// ---- the toolbar slot: rendered by Vue into a container the sheet places
+
+/** Slot content keeps what it would inject where the sheet is (a theme scope, an overlay host). */
+const SlotHost = defineComponent({
+    name: 'VtSpreadsheetSlot',
+    props: { draw: { type: Function, required: true } },
+    setup: (p) => () => (p.draw as () => unknown)()
+});
+
+let toolbarHost: HTMLElement | null = null;
+function toolbarNode(): Node {
+    if (!toolbarHost) {
+        toolbarHost = document.createElement('div');
+        toolbarHost.style.display = 'contents';
+    }
+    const self = instance as ComponentInternalInstance & { provides: object };
+    const vnode = h(defineComponent({ ...SlotHost, provides: self.provides } as never), { draw: () => slots.toolbar?.() });
+    vnode.appContext = instance.appContext;
+    render(vnode, toolbarHost);
+    return toolbarHost;
+}
 
 const unstyled = () => props.unstyled ?? config.unstyled;
 
@@ -71,7 +112,10 @@ const inputs = (): SpreadsheetOptions => ({
     formats: toRaw(props.formats),
     columnWidths: toRaw(props.columnWidths),
     rowHeights: toRaw(props.rowHeights),
+    toolbar: props.toolbar,
+    currency: props.currency,
     formulaBar: props.formulaBar,
+    hooks: slots.toolbar ? { toolbar: toolbarNode } : undefined,
     readonly: props.readonly,
     ariaLabel: props.ariaLabel,
     locale: config.locale,
@@ -110,7 +154,7 @@ watch(
 );
 
 watch(
-    () => [props.rows, props.columns, props.formats, props.columnWidths, props.rowHeights, props.formulaBar, props.readonly, props.ariaLabel],
+    () => [props.rows, props.columns, props.formats, props.columnWidths, props.rowHeights, props.toolbar, props.currency, props.formulaBar, props.readonly, props.ariaLabel],
     () => sheet?.update(inputs()),
     { deep: true }
 );
@@ -123,7 +167,7 @@ watch(
 
 // The attributes the wrapper wears are read through a function: draw again
 // when the component that holds them re-rendered.
-onUpdated(() => sheet?.update({ pt: passThroughMap() }));
+onUpdated(() => sheet?.update({ pt: passThroughMap(), hooks: slots.toolbar ? { toolbar: toolbarNode } : undefined }));
 
 const stopTheme = theme?.subscribe(() => sheet?.refresh());
 
@@ -131,6 +175,8 @@ onBeforeUnmount(() => {
     stopTheme?.();
     sheet?.destroy();
     sheet = null;
+    if (toolbarHost) render(null, toolbarHost);
+    toolbarHost = null;
 });
 
 defineExpose({

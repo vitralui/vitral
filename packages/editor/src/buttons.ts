@@ -1,13 +1,19 @@
 import type { Locale } from '@vitral/core';
 import {
+    arrowDown,
+    arrowUp,
     bold,
     clearFormatting,
     code,
     codeBlock,
+    copy,
+    grip,
     heading1,
     heading2,
     heading3,
+    highlighter,
     horizontalRule,
+    image,
     indent,
     italic,
     link,
@@ -19,6 +25,9 @@ import {
     quote,
     redo,
     strikethrough,
+    table,
+    textColor,
+    trash,
     underline,
     undo,
     type IconDef
@@ -83,3 +92,23 @@ export const defaultToolbar: EditorToolbarItem[][] = [
 
 /** The floating toolbar's buttons. */
 export const defaultBubbleMenu: EditorToolbarItem[] = ['bold', 'italic', 'underline', 'strike', 'code', 'link', 'color'];
+
+/**
+ * The icons the editor ships with, by name. The toolbar holds its own
+ * definitions, but the slash menu, the block handle and anything an
+ * application names in a command of its own are looked up by name — so the
+ * editor puts its own set in the registry rather than going blank in an
+ * application that never registered them.
+ */
+export const editorIcons: IconDef[] = [
+    ...Object.values(editorButtons).map((spec) => spec.icon),
+    arrowDown,
+    arrowUp,
+    copy,
+    grip,
+    highlighter,
+    image,
+    table,
+    textColor,
+    trash
+];

@@ -39,3 +39,15 @@ export const letterSpacing: IconDef = { name: 'letterSpacing', category, tags: [
 export const codeBlock: IconDef = { name: 'codeBlock', category, tags: ['code block', 'snippet', 'pre', 'source'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M10 9l-3 3 3 3M14 9l3 3-3 3"/>' };
 export const horizontalRule: IconDef = { name: 'horizontalRule', category, tags: ['divider', 'separator', 'line', 'hr'], body: '<path d="M3 12h18M5 6h9M5 18h6"/>' };
 export const textColor: IconDef = { name: 'textColor', category, tags: ['font color', 'colour', 'letter a', 'foreground'], body: '<path d="M6.5 15.5L12 4l5.5 11.5M8.4 11.5h7.2M4 20h16"/>' };
+export const decimalIncrease: IconDef = {
+    name: 'decimalIncrease',
+    category,
+    tags: ['decimal places', 'precision', 'spreadsheet', 'number format'],
+    body: '<path d="M3 17h2M8 7v10M8 7h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8M17 12h5M19.5 9.5L22 12l-2.5 2.5"/>'
+};
+export const decimalDecrease: IconDef = {
+    name: 'decimalDecrease',
+    category,
+    tags: ['decimal places', 'precision', 'spreadsheet', 'number format'],
+    body: '<path d="M3 17h2M8 7v10M8 7h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8M22 12h-5M19.5 9.5L17 12l2.5 2.5"/>'
+};

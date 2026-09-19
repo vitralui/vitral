@@ -27,6 +27,22 @@ export interface CellFormatLike {
     italic?: boolean;
 }
 
+/** What a toolbar can hold, by name. */
+export type SpreadsheetToolbarItemLike =
+    | 'undo'
+    | 'redo'
+    | 'numberFormat'
+    | 'currency'
+    | 'percent'
+    | 'decimalDecrease'
+    | 'decimalIncrease'
+    | 'bold'
+    | 'italic'
+    | 'alignLeft'
+    | 'alignCenter'
+    | 'alignRight'
+    | 'clear';
+
 export interface SpreadsheetProps extends BaseProps {
     /**
      * The cells, keyed by A1: `{ A1: 'Sales', B2: 42, B3: '=B2*2' }`. What is
@@ -42,12 +58,24 @@ export interface SpreadsheetProps extends BaseProps {
     columnWidths?: Record<string, number>;
     /** Heights in pixels by row number, as a person counts them. */
     rowHeights?: Record<number, number>;
+    /**
+     * The bar of tools over the grid: `false` for none, or groups of item
+     * names. The `toolbar` slot replaces the bar with parts of your own.
+     */
+    toolbar?: boolean | SpreadsheetToolbarItemLike[][];
     /** The bar over the grid that shows the address and the formula. On by default. */
     formulaBar?: boolean;
+    /** The currency a cell formatted as money is written in. Defaults to the locale's. */
+    currency?: string;
     /** Nothing can be typed into it. */
     readonly?: boolean;
     /** Names the grid, where no label points at it. */
     ariaLabel?: string;
+}
+
+export interface SpreadsheetSlots {
+    /** Replaces the bar of tools over the grid. */
+    toolbar?: () => unknown;
 }
 
 export interface SpreadsheetEmits {

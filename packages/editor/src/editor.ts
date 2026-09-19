@@ -23,8 +23,9 @@ import {
 } from '@vitral/core';
 import { createOverlay, createSelect, type Overlay, type SelectHandle } from '@vitral/controls';
 import { createRoot, h, mergeAttrs, partResolver, type Child, type Props } from '@vitral/dom';
+import { registerIcons } from '@vitral/icons';
 import { baseStyle, buttonStyle, editorStyle } from '@vitral/styles';
-import { defaultBubbleMenu, defaultToolbar } from './buttons';
+import { defaultBubbleMenu, defaultToolbar, editorIcons } from './buttons';
 import { createBlockHandle, defaultBlockActions } from './block';
 import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
 import { createSlashMenu, defaultSlashCommands } from './slash';
@@ -70,6 +71,11 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         loadStyle(buttonStyle.name, buttonStyle.css, options);
         loadStyle(editorStyle.name, editorStyle.css, options);
     }
+    // The toolbar holds its own definitions, but the slash menu, the block
+    // handle and any command an application names its own icon for are looked
+    // up by name: the editor puts its set in the registry rather than drawing
+    // a bar of empty buttons in an application that never registered them.
+    registerIcons(editorIcons);
 
     const editor: EditorInstance = createEditorInstance({
         content: current.content ?? '',

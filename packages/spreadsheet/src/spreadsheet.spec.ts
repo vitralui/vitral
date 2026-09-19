@@ -1,4 +1,4 @@
-import { ptBR } from '@vitral/core';
+import { en, ptBR } from '@vitral/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../vue/test/a11y';
 import { createSpreadsheet, type SpreadsheetHandle, type SpreadsheetOptions } from './spreadsheet';
@@ -45,7 +45,12 @@ function mount(config: SpreadsheetOptions = {}) {
         formula: () => element.querySelector<HTMLInputElement>('.vt-spreadsheet-formula')!,
         editor: () => element.querySelector<HTMLInputElement>('.vt-spreadsheet-editor'),
         active: () => element.querySelector<HTMLElement>('.vt-spreadsheet-active')!,
-        handleDot: () => element.querySelector<HTMLElement>('.vt-spreadsheet-handle')
+        handleDot: () => element.querySelector<HTMLElement>('.vt-spreadsheet-handle'),
+        toolbar: () => element.querySelector<HTMLElement>('[role="toolbar"]'),
+        tools: () => Array.from(element.querySelectorAll<HTMLButtonElement>('[role="toolbar"] button')),
+        tool: (label: string) => Array.from(element.querySelectorAll<HTMLButtonElement>('[role="toolbar"] button')).find((button) => button.getAttribute('aria-label') === label)!,
+        /** The select the control kit draws is a button on the bar too; these are the plain tools. */
+        buttons: () => Array.from(element.querySelectorAll<HTMLButtonElement>('[role="toolbar"] .vt-spreadsheet-button'))
     };
 }
 
@@ -317,6 +322,139 @@ describe('a spreadsheet with no framework in it', () => {
         const { element, handle } = mount();
         handle.destroy();
         expect(element.innerHTML).toBe('');
+    });
+
+    it('has nothing axe objects to', async () => {
+        mount({ ariaLabel: 'Invoice' });
+        await expectNoA11yViolations(document.body);
+    });
+});
+
+describe('its toolbar', () => {
+    const words = en.spreadsheet;
+
+    it('draws the tools in groups, each one named and drawn', () => {
+        const { toolbar, tools, buttons, element } = mount();
+        expect(toolbar()!.getAttribute('aria-label')).toBe(words.toolbar);
+        expect(toolbar()!.getAttribute('aria-orientation')).toBe('horizontal');
+        expect(element.querySelectorAll('[role="toolbar"] [role="group"]').length).toBe(6);
+        expect(tools().map((button) => button.getAttribute('aria-label'))).toEqual([
+            words.undo,
+            words.redo,
+            // The number format is the control kit's select, which draws its own button.
+            words.numberFormat,
+            words.currency,
+            words.percent,
+            words.decimalDecrease,
+            words.decimalIncrease,
+            words.bold,
+            words.italic,
+            words.alignLeft,
+            words.alignCenter,
+            words.alignRight,
+            words.clearFormatting
+        ]);
+        // The icons are the definitions the specs hold, so nothing has to be
+        // registered for the bar to draw.
+        expect(buttons().filter((button) => !button.querySelector('svg'))).toEqual([]);
+    });
+
+    it('puts a format on the selection, and shows which one is on', () => {
+        const { tool, handle, cell } = mount();
+        handle.select('B2:B3');
+        tool(words.bold).click();
+        expect(handle.sheet.format({ row: 1, col: 1 })?.bold).toBe(true);
+        expect(handle.sheet.format({ row: 2, col: 1 })?.bold).toBe(true);
+        expect(cell('B2')!.className).toContain('vt-spreadsheet-cell-bold');
+        expect(tool(words.bold).getAttribute('aria-pressed')).toBe('true');
+        // Pressed again, it comes off.
+        tool(words.bold).click();
+        expect(handle.sheet.format({ row: 1, col: 1 })?.bold).toBe(false);
+        expect(tool(words.bold).getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('writes a number as money, as a percentage, and with the digits asked of it', () => {
+        const { tool, handle, cell } = mount({ locale: { ...en, code: 'en-US' } });
+        handle.select('B2');
+        tool(words.currency).click();
+        expect(cell('B2')!.textContent).toBe('$320.00');
+        expect(tool(words.currency).getAttribute('aria-pressed')).toBe('true');
+        tool(words.decimalDecrease).click();
+        tool(words.decimalDecrease).click();
+        expect(cell('B2')!.textContent).toBe('$320');
+        tool(words.decimalIncrease).click();
+        expect(cell('B2')!.textContent).toBe('$320.0');
+        tool(words.percent).click();
+        // The digits asked for stay asked for: only the kind changed.
+        expect(cell('B2')!.textContent).toBe('32,000.0%');
+        // What it works out to never moved: only how it is written.
+        expect(handle.sheet.value({ row: 1, col: 1 })).toBe(320);
+    });
+
+    it('lines a cell up, and takes the formatting off again', () => {
+        const { tool, handle, cell } = mount();
+        handle.select('A2');
+        tool(words.alignRight).click();
+        expect(handle.sheet.format({ row: 1, col: 0 })?.align).toBe('right');
+        expect(cell('A2')!.className).toContain('vt-spreadsheet-cell-number');
+        tool(words.italic).click();
+        tool(words.clearFormatting).click();
+        expect(handle.sheet.format({ row: 1, col: 0 })).toBeUndefined();
+        expect(tool(words.alignRight).getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('undoes and redoes, and says when there is nothing to undo', () => {
+        const { tool, handle, cell } = mount();
+        expect(tool(words.undo).disabled).toBe(true);
+        expect(tool(words.redo).disabled).toBe(true);
+        handle.select('C2');
+        handle.sheet.setInput({ row: 1, col: 2 }, '5');
+        expect(cell('D2')!.textContent).toBe('1600');
+        expect(tool(words.undo).disabled).toBe(false);
+        tool(words.undo).click();
+        expect(cell('D2')!.textContent).toBe('640');
+        expect(tool(words.redo).disabled).toBe(false);
+        tool(words.redo).click();
+        expect(cell('D2')!.textContent).toBe('1600');
+    });
+
+    it('is one tab stop, with the arrows inside it', () => {
+        const { buttons, toolbar, tool, handle } = mount();
+        expect(buttons().filter((button) => button.tabIndex === 0).map((button) => button.getAttribute('aria-label'))).toEqual([words.undo]);
+        tool(words.currency).focus();
+        toolbar()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+        expect(document.activeElement?.getAttribute('aria-label')).toBe(words.percent);
+        // Home goes to the first tool there is to press: with nothing done
+        // yet, undo and redo are not ones.
+        toolbar()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }));
+        expect(document.activeElement?.getAttribute('aria-label')).toBe(words.numberFormat);
+        handle.sheet.setInput({ row: 8, col: 0 }, 'something');
+        toolbar()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }));
+        expect(document.activeElement?.getAttribute('aria-label')).toBe(words.undo);
+    });
+
+    it('takes the groups it is given, and leaves the bar out for false', () => {
+        const { tools } = mount({ toolbar: [['bold', 'italic'], ['clear']] });
+        expect(tools().map((button) => button.getAttribute('aria-label'))).toEqual([words.bold, words.italic, words.clearFormatting]);
+        const none = mount({ toolbar: false });
+        expect(none.toolbar()).toBeNull();
+        // And a host that draws its own bar gets that instead.
+        const own = mount({ hooks: { toolbar: () => 'mine' } });
+        expect(own.toolbar()).toBeNull();
+        expect(own.element.textContent).toContain('mine');
+    });
+
+    it('offers nothing but the history when nothing can be typed', () => {
+        const { tool } = mount({ readonly: true });
+        expect(tool(words.bold).disabled).toBe(true);
+        expect(tool(words.clearFormatting).disabled).toBe(true);
+        expect(tool(words.undo).disabled).toBe(true);
+    });
+
+    it('says how a value is written, in the locale it was given', () => {
+        const { element } = mount({ locale: ptBR });
+        expect(element.querySelector('[role="toolbar"] button')!.getAttribute('aria-label')).toBe(ptBR.spreadsheet.undo);
+        expect(element.querySelector('[aria-label="' + ptBR.spreadsheet.numberFormat + '"]')).not.toBeNull();
     });
 
     it('has nothing axe objects to', async () => {

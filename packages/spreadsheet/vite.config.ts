@@ -1,3 +1,3 @@
 import { libConfig } from '../../scripts/vite.lib.ts';
 
-export default libConfig(import.meta.dirname, { entries: ['engine/index'] });
+export default libConfig(import.meta.dirname, { entries: ['engine/index', 'buttons'] });

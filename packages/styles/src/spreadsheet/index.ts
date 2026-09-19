@@ -17,6 +17,13 @@ export const spreadsheetStyle = defineStyle({
             'vt-spreadsheet',
             { 'vt-spreadsheet-readonly': s.readonly, 'vt-spreadsheet-editing': s.editing }
         ],
+        toolbar: 'vt-spreadsheet-toolbar',
+        toolbarGroup: 'vt-spreadsheet-toolbar-group',
+        button: (s: { active?: boolean; disabled?: boolean }) => [
+            'vt-spreadsheet-button',
+            { 'vt-spreadsheet-button-active': s.active, 'vt-spreadsheet-button-disabled': s.disabled }
+        ],
+        buttonIcon: 'vt-spreadsheet-button-icon',
         bar: 'vt-spreadsheet-bar',
         address: 'vt-spreadsheet-address',
         formula: 'vt-spreadsheet-formula',

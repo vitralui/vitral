@@ -6,4 +6,6 @@
  */
 export * from './engine/index';
 export { createSpreadsheet, type SpreadsheetEvents, type SpreadsheetHandle, type SpreadsheetOptions } from './spreadsheet';
+export { defaultToolbar, numberFormats, spreadsheetButtons, toolbarIcons, type SpreadsheetButtonSpec, type SpreadsheetCommand } from './buttons';
 export { sheetView, rangeBox, cellId, type GridActions, type ViewContext } from './render/sheet';
+export { toolbarView, buttonView, type ToolbarActions, type ToolbarContext } from './render/toolbar';

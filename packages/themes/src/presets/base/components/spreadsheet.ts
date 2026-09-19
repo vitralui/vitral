@@ -41,6 +41,19 @@ export default {
         borderColor: '{primary.color}',
         shadow: '{overlay.popover.shadow}'
     },
+    toolbar: {
+        padding: '0.25rem 0.375rem',
+        gap: '0.125rem',
+        groupGap: '0.375rem'
+    },
+    button: {
+        size: '1.75rem',
+        iconSize: '1rem',
+        borderRadius: '{borderRadius.sm}',
+        color: '{text.mutedColor}',
+        hoverColor: '{text.color}',
+        activeColor: '{primary.color}'
+    },
     bar: {
         gap: '0.5rem',
         padding: '0.25rem 0.375rem',
@@ -54,12 +67,16 @@ export default {
         light: {
             root: { background: '{content.background}', borderColor: '{content.borderColor}' },
             header: { background: '{surface.100}', borderColor: '{surface.300}', activeBackground: '{surface.200}' },
+            toolbar: { background: '{surface.50}', separatorColor: '{surface.300}' },
+            button: { hoverBackground: '{surface.200}', activeBackground: '{primary.50}' },
             cell: { borderColor: '{surface.200}', background: '{surface.0}' },
             bar: { background: '{surface.50}', borderColor: '{content.borderColor}' }
         },
         dark: {
             root: { background: '{content.background}', borderColor: '{content.borderColor}' },
             header: { background: '{surface.900}', borderColor: '{surface.700}', activeBackground: '{surface.800}' },
+            toolbar: { background: '{surface.900}', separatorColor: '{surface.700}' },
+            button: { hoverBackground: '{surface.800}', activeBackground: 'color-mix(in srgb, {primary.400} 18%, {surface.900})' },
             cell: { borderColor: '{surface.800}', background: '{surface.950}' },
             bar: { background: '{surface.900}', borderColor: '{content.borderColor}' }
         }

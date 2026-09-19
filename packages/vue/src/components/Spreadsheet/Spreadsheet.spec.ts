@@ -109,9 +109,30 @@ describe('Spreadsheet', () => {
         expect(root.querySelector('[role="grid"]')!.getAttribute('aria-label')).toBe('Planilha');
     });
 
-    it('leaves the bar out when it is not wanted', () => {
-        const { root } = mountSheet({ formulaBar: false });
+    it('draws the toolbar, and takes the groups it is given', async () => {
+        const { root, cells, grid } = mountSheet({ toolbar: [['bold', 'italic']] });
+        const tools = () => [...root.querySelectorAll<HTMLButtonElement>('[role="toolbar"] .vt-spreadsheet-button')];
+        expect(tools().map((button) => button.getAttribute('aria-label'))).toEqual(['Bold', 'Italic']);
+        tools()[0]!.click();
+        await nextTick();
+        expect(root.querySelector('[role="gridcell"]')!.className).toContain('vt-spreadsheet-cell-bold');
+        expect(grid()).not.toBeNull();
+        expect(cells).toBeTruthy();
+    });
+
+    it('takes a bar of its own from the slot', () => {
+        const wrapper = mountVt(
+            defineComponent(() => () => h(Spreadsheet, { rows: 6, columns: 3 }, { toolbar: () => h('button', { class: 'mine' }, 'My tool') }))
+        );
+        const root = wrapper.element as HTMLElement;
+        expect(root.querySelector('.mine')).not.toBeNull();
+        expect(root.querySelector('[role="toolbar"]')).toBeNull();
+    });
+
+    it('leaves the bars out when they are not wanted', () => {
+        const { root } = mountSheet({ formulaBar: false, toolbar: false });
         expect(root.querySelector('.vt-spreadsheet-bar')).toBeNull();
+        expect(root.querySelector('[role="toolbar"]')).toBeNull();
     });
 
     it('has nothing axe objects to', async () => {

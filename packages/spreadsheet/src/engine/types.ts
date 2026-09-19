@@ -76,6 +76,22 @@ export interface CellPatch {
     after: Cell | undefined;
 }
 
+/** What a toolbar can hold, by name. */
+export type SpreadsheetToolbarItem =
+    | 'undo'
+    | 'redo'
+    | 'numberFormat'
+    | 'currency'
+    | 'percent'
+    | 'decimalDecrease'
+    | 'decimalIncrease'
+    | 'bold'
+    | 'italic'
+    | 'alignLeft'
+    | 'alignCenter'
+    | 'alignRight'
+    | 'clear';
+
 export interface SheetOptions {
     /** The cells, keyed by A1: `{ A1: 'Sales', B2: 42, B3: '=B2*2' }`. */
     cells?: Record<string, string | number | boolean | null>;
@@ -96,6 +112,15 @@ export interface SheetEvents {
 }
 
 /** What the renderer is told, over and above the sheet itself. */
+/** Content a host draws itself: a string, a node it made, or nothing. */
+export type Content = string | number | Node | null | undefined;
+
+/** The parts a host draws itself, instead of what the sheet would draw. */
+export interface SpreadsheetHooks {
+    /** The whole toolbar. */
+    toolbar?: () => Content;
+}
+
 export interface SpreadsheetConfig extends SheetOptions {
     /** Column widths in pixels, by column letter: `{ A: 180 }`. */
     columnWidths?: Record<string, number>;
@@ -103,8 +128,16 @@ export interface SpreadsheetConfig extends SheetOptions {
     rowHeights?: Record<number, number>;
     /** Rows and columns held still while the rest scrolls. */
     frozen?: { rows?: number; columns?: number };
+    /** The bar of tools over the grid: `false` for none, or groups of item names. */
+    toolbar?: boolean | SpreadsheetToolbarItem[][];
     /** The bar over the grid that shows the address and the formula. */
     formulaBar?: boolean;
+    /** The currency a cell formatted as money is written in. */
+    currency?: string;
+    /** What the host draws itself, instead of what the sheet would draw. */
+    hooks?: SpreadsheetHooks;
+    overlayTarget?: import('@vitral/controls').OverlayTarget;
+    zIndex?: number;
     /** Nothing can be typed into it. */
     readonly?: boolean;
     unstyled?: boolean;

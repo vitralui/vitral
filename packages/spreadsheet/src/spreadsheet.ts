@@ -1,6 +1,9 @@
-import { en, loadStyle, type Locale } from '@vitral/core';
-import { createRoot, partResolver, pointerDrag } from '@vitral/dom';
+import { en, loadStyle, rovingIndex, rovingMove, type Locale } from '@vitral/core';
+import { createSelect, type SelectHandle } from '@vitral/controls';
+import { createRoot, partResolver, pointerDrag, type Child } from '@vitral/dom';
+import { registerIcons } from '@vitral/icons';
 import { baseStyle, spreadsheetStyle } from '@vitral/styles';
+import { defaultToolbar, numberFormats, spreadsheetButtons, toolbarIcons } from './buttons';
 import { columnLabel, formatRange, formatRef, keyOf, normalizeRange, parseRange, parseRef, rangeCells } from './engine/a1';
 import {
     createMetrics,
@@ -17,8 +20,9 @@ import {
     type Selection
 } from './engine/state';
 import { createSheet, type Sheet } from './engine/sheet';
-import type { CellAddress, CellRange, SpreadsheetConfig } from './engine/types';
+import type { CellAddress, CellFormat, CellRange, SpreadsheetConfig, SpreadsheetToolbarItem } from './engine/types';
 import { sheetView, type GridActions, type ViewContext } from './render/sheet';
+import { toolbarView, type ToolbarContext } from './render/toolbar';
 
 /**
  * A spreadsheet with no framework in it: it is handed a configuration, it
@@ -88,6 +92,10 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
     let columnWidths = { ...(config.columnWidths ?? {}) };
     let rowHeights = { ...(config.rowHeights ?? {}) };
     let gridEl: HTMLElement | null = null;
+    let formatHost: HTMLElement | null = null;
+    let formatSelect: SelectHandle | null = null;
+    /** Which toolbar button keeps the tab stop, so the bar is one stop with arrows inside it. */
+    let tabStop: SpreadsheetToolbarItem | undefined;
     let viewportEl: HTMLElement | null = null;
     let editorEl: HTMLInputElement | null = null;
     let focusEditor = false;
@@ -118,6 +126,9 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(spreadsheetStyle.name, spreadsheetStyle.css, options);
     }
+    // The toolbar draws its own icon definitions, but an application that
+    // names one of them in its own markup should find it too.
+    registerIcons(toolbarIcons);
 
     function bounds() {
         return { rows: current?.rows ?? 100, columns: current?.columns ?? 26 };
@@ -128,6 +139,100 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
     }
 
     const filled = (address: CellAddress) => sheet.input(address) !== '';
+
+    // ---- the toolbar --------------------------------------------------------------
+
+    const toolbarGroups = (): SpreadsheetToolbarItem[][] => (Array.isArray(current.toolbar) ? current.toolbar : defaultToolbar);
+    /** Every button on the bar, in order: what the arrows walk. */
+    const toolbarItems = (): SpreadsheetToolbarItem[] => toolbarGroups().flat();
+
+    /** The format of the cell the caret is in: what the pressed states read. */
+    const activeFormat = (): CellFormat | undefined => sheet.format(selection.active);
+
+    /** More or fewer digits, from what the cell shows now. */
+    function decimals(by: number) {
+        const format = activeFormat();
+        const kind = format?.kind ?? 'general';
+        const current = format?.decimals ?? (kind === 'currency' ? 2 : kind === 'number' ? 2 : 0);
+        const next = Math.max(0, Math.min(10, current + by));
+        // A number with digits asked of it is a number, not whatever it was.
+        sheet.setFormat(selectionRange(selection), { kind: kind === 'general' || kind === 'text' ? 'number' : kind, decimals: next });
+    }
+
+    function press(item: SpreadsheetToolbarItem) {
+        const spec = spreadsheetButtons[item as Exclude<SpreadsheetToolbarItem, 'numberFormat'>];
+        if (!spec) return;
+        const command = spec.command;
+        const range = selectionRange(selection);
+        if (command.kind === 'history') command.step === 'undo' ? sheet.undo() : sheet.redo();
+        else if (current.readonly) return;
+        else if (command.kind === 'clear') sheet.setFormat(range, null);
+        else if (command.kind === 'decimals') decimals(command.by);
+        else sheet.setFormat(range, spec.active?.(activeFormat()) && command.off ? command.off : command.format);
+        tabStop = item;
+        gridEl?.focus();
+        schedule();
+    }
+
+    /** The bar is one tab stop: the arrows walk the buttons inside it. */
+    function toolbarKeydown(event: KeyboardEvent) {
+        const move = rovingMove(event.key, { orientation: 'horizontal' });
+        if (!move) return;
+        const bar = (event.currentTarget as HTMLElement) ?? null;
+        const buttons = bar ? [...bar.querySelectorAll<HTMLButtonElement>('button')].filter((button) => !button.disabled) : [];
+        if (!buttons.length) return;
+        event.preventDefault();
+        const from = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        const next = buttons[rovingIndex(move, buttons.length, from)];
+        if (!next) return;
+        tabStop = toolbarItems().find((item) => spreadsheetButtons[item as Exclude<SpreadsheetToolbarItem, 'numberFormat'>]?.label(locale().spreadsheet) === next.getAttribute('aria-label'));
+        schedule();
+        next.focus();
+    }
+
+    function toolbarContext(): ToolbarContext {
+        return {
+            locale: locale(),
+            part,
+            readonly: !!current.readonly,
+            canUndo: sheet.canUndo(),
+            canRedo: sheet.canRedo(),
+            format: activeFormat(),
+            formatRef: (element) => {
+                formatHost = element as HTMLElement | null;
+            },
+            on: { press: (item) => press(item), keydown: toolbarKeydown }
+        };
+    }
+
+    /** The number format, drawn by the control kit's select. */
+    function syncFormatSelect() {
+        if (!formatHost) return;
+        const words = locale().spreadsheet;
+        const settings = {
+            options: numberFormats.map((kind) => ({ label: words.formats[kind] ?? kind, value: kind })),
+            optionValue: 'value',
+            value: activeFormat()?.kind ?? 'general',
+            size: 'small' as const,
+            ariaLabel: words.numberFormat,
+            disabled: !!current.readonly,
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer
+        };
+        if (formatSelect) formatSelect.update(settings);
+        else
+            formatSelect = createSelect(formatHost, {
+                ...settings,
+                onChange: (value) => {
+                    sheet.setFormat(selectionRange(selection), { kind: value as CellFormat['kind'] });
+                    gridEl?.focus();
+                }
+            });
+    }
 
     // ---- drawing ------------------------------------------------------------------
 
@@ -151,8 +256,14 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             on: actions
         };
         const view = sheetView(context);
+        const bar: Child = current.hooks?.toolbar
+            ? (current.hooks.toolbar() as Child)
+            : current.toolbar === false
+              ? null
+              : toolbarView(toolbarContext(), toolbarGroups(), tabStop ?? toolbarItems().find((item) => item !== 'numberFormat'));
         root.attrs(view.attrs);
-        root.render(...view.children);
+        root.render(bar, ...view.children);
+        syncFormatSelect();
         if (focusEditor && editorEl) {
             focusEditor = false;
             editorEl.focus();
@@ -534,6 +645,8 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
         destroy() {
             drag.cancel();
             resizeDrag.cancel();
+            formatSelect?.destroy();
+            formatSelect = null;
             root.clear();
         }
     };

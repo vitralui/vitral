@@ -20,6 +20,7 @@
       "@vitral/taskboard/engine": ["packages/taskboard/src/engine/index.ts"],
       "@vitral/spreadsheet": ["packages/spreadsheet/src/index.ts"],
       "@vitral/spreadsheet/engine": ["packages/spreadsheet/src/engine/index.ts"],
+      "@vitral/spreadsheet/buttons": ["packages/spreadsheet/src/buttons.ts"],
       "@vitral/forms": ["packages/forms/src/index.ts"],
       "@vitral/chart": ["packages/chart/src/index.ts"],
       "@vitral/chart/engine": ["packages/chart/src/engine/index.ts"],

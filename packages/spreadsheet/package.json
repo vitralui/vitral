@@ -33,6 +33,10 @@
     "./engine": {
       "types": "./dist/engine/index.d.ts",
       "import": "./dist/engine/index.js"
+    },
+    "./buttons": {
+      "types": "./dist/buttons.d.ts",
+      "import": "./dist/buttons.js"
     }
   },
   "files": [
