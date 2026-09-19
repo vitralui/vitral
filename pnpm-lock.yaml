@@ -200,6 +200,24 @@ importers:
         specifier: workspace:*
         version: link:../styles
 
+  packages/spreadsheet:
+    dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/styles:
     dependencies:
       '@vitral/core':
