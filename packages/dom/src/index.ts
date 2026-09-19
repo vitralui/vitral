@@ -13,9 +13,10 @@
  * - `iconNode`: an icon in the SVG namespace, from a definition the caller
  *   looked up.
  *
- * The addons (`@vitral/chart`, `@vitral/datatable`, `@vitral/schedule`)
- * render with it; the framework components wrap those. Nothing here knows
- * about any framework.
+ * The addons (`@vitral/chart`, `@vitral/datatable`, `@vitral/schedule`,
+ * `@vitral/taskboard`, `@vitral/editor`) and the controls they share
+ * (`@vitral/controls`) render with it; the framework components wrap those.
+ * Nothing here knows about any framework.
  */
 export * from './h';
 export * from './attrs';

@@ -6,7 +6,9 @@ of one part in one state with pass-through over them (`partResolver`,
 `mergeAttrs`), and a pointer drag that works the same for a mouse, a pen and a
 finger (`pointerDrag`).
 
-`@vitral/chart` and `@vitral/datatable` are built on it, and the Vue, React and
-Angular components wrap those.
+The addons are built on it — `@vitral/chart`, `@vitral/datatable`,
+`@vitral/schedule`, `@vitral/taskboard` and `@vitral/editor`, and
+`@vitral/controls`, the select, menu and anchored panel they share — and the
+Vue, React and Angular components wrap those.
 
 Licensed LGPL-3.0-or-later.

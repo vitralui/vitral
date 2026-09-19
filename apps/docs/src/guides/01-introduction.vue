@@ -90,8 +90,38 @@ const cities = [
                     <td class="doc">None</td>
                 </tr>
                 <tr>
+                    <td>@vitral/dom</td>
+                    <td class="doc">What the framework-free packages render with: a keyed patcher, part classes with pass-through, a pointer drag, an auto-scroll and an icon</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/controls</td>
+                    <td class="doc">The select, the menu and the anchored panel those packages need, over the same core arithmetic and wearing the same styles</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
                     <td>@vitral/chart</td>
                     <td class="doc">SVG charts: the engine and <code>createChart()</code>, a renderer with legend, tooltip, toolbar, zoom, brush and keyboard. The <code>&lt;Chart&gt;</code> component wraps it</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/datatable</td>
+                    <td class="doc">The data table: the engine (query, sort, filter, pages, selection, the column layout) and <code>createDataTable()</code>, which draws a real <code>&lt;table&gt;</code></td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/schedule</td>
+                    <td class="doc">The calendar and scheduler: the engine (views, periods, recurrence, layout) and <code>createSchedule()</code>, with the keyboard and the pointer gestures</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/taskboard</td>
+                    <td class="doc">The task board: the engine (columns, lanes, moves, work-in-progress limits) and <code>createTaskboard()</code>, with drag and drop a keyboard can do too</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/editor</td>
+                    <td class="doc">The rich text editor's interface over the engine in core: <code>createTextEditor()</code>, the toolbar, the panels, the floating toolbar, the slash menu and the block handle</td>
                     <td class="doc">None</td>
                 </tr>
                 <tr>
@@ -114,7 +144,9 @@ const cities = [
     </div>
     <p>
         Everything that does not need a framework lives in a package that does not import one. That is what should make a React or Angular adapter cheap later: it writes the
-        rendering and reuses the behaviour, the look and the markup contract.
+        rendering and reuses the behaviour, the look and the markup contract. Six of them go further: the chart, the table, the scheduler, the board and the editor draw
+        themselves, and the form's rules draw nothing at all — so <code>&lt;Chart&gt;</code> and its like are wrappers, and a page with no framework calls the same function
+        they do. <a :href="href('/addons')">The addons</a> is the page for that.
     </p>
 
     <h2>For coding agents</h2>

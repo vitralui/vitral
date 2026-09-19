@@ -2,31 +2,53 @@
 
 ## How the repository is laid out
 
-| Package                | Holds                                                                                          | Framework |
-| ---------------------- | ---------------------------------------------------------------------------------------------- | --------- |
-| `@vitral/core`         | Utilities, accessibility helpers, overlays, the data layer, dates, numbers, locales             | none      |
-| `@vitral/themes`       | The token engine and the presets (Ink, Prism, Avalonia, Simple, Astra)                          | none      |
-| `@vitral/styles`       | Every component's CSS and class map, written against tokens                                     | none      |
-| `@vitral/icons`        | SVG icon data                                                                                   | none      |
-| `@vitral/forms`        | Form state, validation rules, async checks, field arrays and schema resolvers                    | none      |
-| `@vitral/chart`        | The chart: engine, DOM renderer (`createChart`), class map and CSS                              | none      |
-| `@vitral/vue`          | Components, composables, directives, the plugin                                                 | Vue       |
-| `@vitral/nuxt`         | The Nuxt module: configuration, auto-imports, server-rendered styles, the scheme cookie         | Nuxt      |
-| `apps/docs`            | The documentation site                                                                          | Vue       |
-| `apps/playground`      | The bare control catalog, over the same demo pages                                              | Vue       |
-| `apps/nuxt-playground` | A Nuxt app over the module, for trying server rendering and hydration for real                  | Nuxt      |
+| Package                | Holds                                                                                        | Framework |
+| ---------------------- | -------------------------------------------------------------------------------------------- | --------- |
+| `@vitral/core`         | Utilities, accessibility helpers, overlays, the data layer, dates, numbers, locales          | none      |
+| `@vitral/themes`       | The token engine and the presets (Ink, Prism, Avalonia, Simple, Astra)                       | none      |
+| `@vitral/styles`       | Every component's CSS and class map, written against tokens                                  | none      |
+| `@vitral/icons`        | SVG icon data                                                                                | none      |
+| `@vitral/dom`          | The rendering layer the addons share: a keyed patcher, parts and pass-through, pointer drags | none      |
+| `@vitral/controls`     | The select, the menu and the anchored panel an addon needs, over core and dom                | none      |
+| `@vitral/forms`        | Form state, validation rules, async checks, field arrays and schema resolvers                | none      |
+| `@vitral/chart`        | The chart: engine, DOM renderer (`createChart`), class map and CSS                           | none      |
+| `@vitral/datatable`    | The data table: engine (query, sort, pages, selection, columns) and `createDataTable`        | none      |
+| `@vitral/schedule`     | The calendar and scheduler: engine (views, periods, recurrence, layout) and `createSchedule` | none      |
+| `@vitral/taskboard`    | The task board: engine (lanes, moves, limits) and `createTaskboard`                          | none      |
+| `@vitral/editor`       | The rich text editor's interface over core's editor engine: `createTextEditor`               | none      |
+| `@vitral/vue`          | Components, composables, directives, the plugin                                              | Vue       |
+| `@vitral/nuxt`         | The Nuxt module: configuration, auto-imports, server-rendered styles, the scheme cookie      | Nuxt      |
+| `apps/docs`            | The documentation site                                                                       | Vue       |
+| `apps/playground`      | The bare control catalog, over the same demo pages                                           | Vue       |
+| `apps/nuxt-playground` | A Nuxt app over the module, for trying server rendering and hydration for real               | Nuxt      |
 
 Anything that can be written without a framework is. A React or Angular adapter
 later reuses the behaviour (core), the look (themes, styles) and the markup
 contract (the class maps in styles), and only writes the rendering.
 
-The chart goes further and draws its own DOM in `@vitral/chart`
-(`createChart(element, …)` returns a handle with `update`, `on` and `destroy`).
-Each framework's `<Chart>` passes props and configuration in, maps its slots
-onto the renderer's hooks (`tooltip.render`, `legend.item`, `noData.render`,
-`center.render`) and turns the renderer's events into its own. The engine
-specs, the renderer specs (jsdom, against `createChart` directly) and the
-stylesheet live in that package; the Vue spec only tests the wrapping.
+### The addons
+
+Six packages go further. Five of them draw their own DOM — the chart, the data
+table, the scheduler, the task board and the editor — and the sixth,
+`@vitral/forms`, is all engine and draws nothing at all. Each has its engine
+(the arithmetic, with no DOM and no timers in it) and, where something is
+drawn, a renderer, behind one function that takes an element and its
+configuration: `createChart`, `createDataTable`, `createSchedule`,
+`createTaskboard`, `createTextEditor`. They return a handle with `update`, `on`
+where there are events, and `destroy`.
+
+They are built on `@vitral/dom` (the keyed patcher, part classes with
+pass-through, pointer drags) and, where they need a control rather than plain
+markup, `@vitral/controls` — so an addon never writes a select or a menu again,
+and looks like Vitral without importing any of it.
+
+Each framework's component is the wrapper: it passes props and the Vitral
+configuration (locale, unstyled, pass-through, the overlay host, the theme) in,
+maps its slots onto the renderer's hooks — `<Chart>` onto `tooltip.render`,
+`legend.item`, `noData.render`, `center.render`; the others onto the node each
+one places — and turns the renderer's events into emits. The engine specs, the
+renderer specs (jsdom, against `createChart` and its like directly) and any
+stylesheet live in the addon; the Vue spec only tests the wrapping.
 
 ## Adding a component
 
