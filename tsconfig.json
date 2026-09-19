@@ -10,6 +10,8 @@
       "@vitral/styles": ["packages/styles/src/index.ts"],
       "@vitral/dom": ["packages/dom/src/index.ts"],
       "@vitral/controls": ["packages/controls/src/index.ts"],
+      "@vitral/editor": ["packages/editor/src/index.ts"],
+      "@vitral/editor/buttons": ["packages/editor/src/buttons.ts"],
       "@vitral/datatable": ["packages/datatable/src/index.ts"],
       "@vitral/datatable/engine": ["packages/datatable/src/engine/index.ts"],
       "@vitral/schedule": ["packages/schedule/src/index.ts"],

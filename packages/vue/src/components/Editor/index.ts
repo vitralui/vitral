@@ -57,5 +57,5 @@ export {
     EditorCount
 };
 export { EditorKey, type EditorContext } from './context';
-export { editorButtons, defaultToolbar as defaultEditorToolbar, defaultBubbleMenu as defaultEditorBubbleMenu } from './buttons';
+export { editorButtons, defaultToolbar as defaultEditorToolbar, defaultBubbleMenu as defaultEditorBubbleMenu } from '@vitral/editor/buttons';
 export type * from './types';

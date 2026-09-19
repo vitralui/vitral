@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EditorContent } from '@vitral/core';
 import { computed, getCurrentInstance, ref, useAttrs } from 'vue';
-import { defaultBubbleMenu, defaultToolbar } from './buttons';
+import { defaultBubbleMenu, defaultToolbar } from '@vitral/editor/buttons';
 import EditorBubbleMenu from './EditorBubbleMenu.vue';
 import EditorContentPart from './EditorContent.vue';
 import EditorCount from './EditorCount.vue';

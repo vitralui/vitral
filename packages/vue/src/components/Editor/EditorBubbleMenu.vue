@@ -5,7 +5,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
-import { defaultBubbleMenu } from './buttons';
+import { defaultBubbleMenu } from '@vitral/editor/buttons';
 import { inheritRoot, useEditorContext } from './context';
 import EditorItem from './EditorItem.vue';
 import { useRoving } from './roving';

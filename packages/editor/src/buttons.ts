@@ -25,6 +25,12 @@ import {
 } from '@vitral/icons';
 import type { EditorButtonCommand, EditorToolbarItem } from './types';
 
+/**
+ * What every toolbar button is — icon, name, command, pressed state — as plain
+ * data, so the Vue toolbar, the framework-free one and anything else draw the
+ * same buttons from the same list.
+ */
+
 export interface EditorButtonSpec {
     icon: IconDef;
     label: (text: Locale['editor']) => string;

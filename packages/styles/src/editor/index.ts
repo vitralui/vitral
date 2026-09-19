@@ -44,6 +44,21 @@ export const editorStyle = defineStyle({
         check: 'vt-editor-check',
         actions: 'vt-editor-actions',
         swatches: 'vt-editor-swatches',
+        /** The menu a slash opens, and what is in it. */
+        slashMenu: 'vt-overlay vt-editor-slash',
+        slashList: 'vt-option-list vt-editor-slash-list',
+        slashItem: (s: { focused?: boolean }) => ['vt-editor-slash-item', { 'vt-editor-slash-item-focused': s.focused }],
+        slashIcon: 'vt-editor-slash-icon',
+        slashText: 'vt-editor-slash-text',
+        slashLabel: 'vt-editor-slash-label',
+        slashDescription: 'vt-editor-slash-description',
+        slashEmpty: 'vt-option-empty vt-editor-slash-empty',
+        /** The handle beside a block, and the menu it opens. */
+        blockHandle: 'vt-editor-block-handle',
+        blockHandleIcon: 'vt-editor-block-handle-icon',
+        blockMenu: 'vt-overlay vt-editor-block-menu',
+        blockItem: 'vt-editor-block-item',
+        blockIcon: 'vt-editor-block-icon',
         swatch: (s: { selected?: boolean; none?: boolean; kind?: 'color' | 'highlight' }) => [
             'vt-editor-swatch',
             { 'vt-editor-swatch-selected': s.selected, 'vt-editor-swatch-none': s.none, 'vt-editor-swatch-highlight': s.kind === 'highlight' }

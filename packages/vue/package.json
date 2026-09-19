@@ -54,6 +54,7 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
+    "@vitral/editor": "workspace:*",
     "@vitral/chart": "workspace:*",
     "@vitral/core": "workspace:*",
     "@vitral/datatable": "workspace:*",

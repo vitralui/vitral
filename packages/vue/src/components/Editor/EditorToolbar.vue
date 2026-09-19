@@ -7,7 +7,7 @@ import { useRoving } from './roving';
 import EditorToolbarGroup from './EditorToolbarGroup.vue';
 import EditorItem from './EditorItem.vue';
 import type { EditorToolbarProps } from './types';
-import { defaultToolbar } from './buttons';
+import { defaultToolbar } from '@vitral/editor/buttons';
 import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA toolbar: one tab stop, Left/Right/Home/End between the

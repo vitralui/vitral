@@ -5,7 +5,7 @@ import { computed } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { Tooltip as vTooltip } from '../../directives/tooltip';
 import Icon from '../Icon/Icon.vue';
-import { editorButtons, shortcutCommands } from './buttons';
+import { editorButtons, shortcutCommands } from '@vitral/editor/buttons';
 import { inheritRoot, useEditorContext } from './context';
 import type { EditorButtonProps } from './types';
 

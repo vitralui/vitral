@@ -932,6 +932,48 @@ export function insertContent(state: EditorState, fragment: readonly EditorNode[
     return finish(state, replaceAt(cut.doc, path, placed), cursor);
 }
 
+// ---- whole blocks ------------------------------------------------------------------------
+
+/** The top-level block the selection is in: what a block handle acts on. */
+function topBlock(state: EditorState): { index: number; node: EditorNode } | null {
+    const { from } = selectionRange(state.selection);
+    const index = from.path[0];
+    const node = index === undefined ? undefined : state.doc.content?.[index];
+    return node && typeof node !== 'string' ? { index, node: node as EditorNode } : null;
+}
+
+/** Puts a copy of the block the caret is in straight after it. */
+export function duplicateBlock(state: EditorState): EditorState | null {
+    const block = topBlock(state);
+    if (!block) return null;
+    const copy = structuredClone(block.node);
+    const content = [...(state.doc.content as EditorNode[])];
+    content.splice(block.index + 1, 0, copy);
+    return finish(state, { ...state.doc, content }, { node: copy, offset: 0 });
+}
+
+/** Moves the block the caret is in past the one before or after it. */
+export function moveBlock(state: EditorState, delta: number): EditorState | null {
+    const block = topBlock(state);
+    if (!block) return null;
+    const content = [...(state.doc.content as EditorNode[])];
+    const to = block.index + (delta < 0 ? -1 : 1);
+    if (to < 0 || to >= content.length) return null;
+    const [moved] = content.splice(block.index, 1);
+    content.splice(to, 0, moved!);
+    return finish(state, { ...state.doc, content }, { node: moved!, offset: 0 });
+}
+
+/** Takes the block the caret is in out; a document is never left with nothing in it. */
+export function deleteBlock(state: EditorState): EditorState | null {
+    const block = topBlock(state);
+    if (!block) return null;
+    const content = (state.doc.content as EditorNode[]).filter((_, index) => index !== block.index);
+    const doc = { ...state.doc, content: content.length ? content : [emptyParagraph()] };
+    const after = textblocks(doc)[Math.min(block.index, textblocks(doc).length - 1)];
+    return finish(state, doc, after ? { node: after.node, offset: 0 } : { node: doc.content![0] as EditorNode, offset: 0 });
+}
+
 export function selectAll(state: EditorState): EditorState {
     return { ...state, selection: { anchor: startOfDoc(state.doc), head: endOfDoc(state.doc) }, storedMarks: null };
 }

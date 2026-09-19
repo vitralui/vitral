@@ -247,6 +247,9 @@ export interface Locale {
         altRequired: string;
         /** The table menu. */
         insertTable: string;
+        /** How many rows and columns a new table has. */
+        tableRows: string;
+        tableColumns: string;
         addRowBefore: string;
         addRowAfter: string;
         addColumnBefore: string;
@@ -268,6 +271,18 @@ export interface Locale {
         charactersLimit: string;
         /** Describes the keys of the text area. */
         keyboardHelp: string;
+        /** Names the list a slash opens. */
+        slashMenu: string;
+        /** Nothing matched what was typed after the slash. `{query}` */
+        slashEmpty: string;
+        /** Names the handle beside a block, and the menu it opens. */
+        blockMenu: string;
+        /** The commands the slash menu offers, by name. */
+        slashCommands: Record<string, string>;
+        /** What each slash command does, a line each. */
+        slashHints: Record<string, string>;
+        /** What the block menu offers. */
+        blockActions: Record<string, string>;
     };
 
     /**
@@ -661,6 +676,8 @@ export const en: Locale = {
         invalidImageUrl: 'Enter an http or https address.',
         altRequired: 'Alternative text is required.',
         insertTable: 'Insert table',
+        tableRows: 'Rows',
+        tableColumns: 'Columns',
         addRowBefore: 'Add row above',
         addRowAfter: 'Add row below',
         addColumnBefore: 'Add column before',
@@ -674,7 +691,45 @@ export const en: Locale = {
         character: '{count} character',
         characters: '{count} characters',
         charactersLimit: '{count} of {limit} characters',
-        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Markdown shortcuts such as # and - work at the start of a line.'
+        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Markdown shortcuts such as # and - work at the start of a line.',
+        slashMenu: 'Insert a block',
+        slashEmpty: 'Nothing matches “{query}”',
+        blockMenu: 'Block actions',
+        slashCommands: {
+            paragraph: 'Text',
+            heading1: 'Heading 1',
+            heading2: 'Heading 2',
+            heading3: 'Heading 3',
+            bulletList: 'Bulleted list',
+            orderedList: 'Numbered list',
+            taskList: 'Task list',
+            blockquote: 'Quote',
+            codeBlock: 'Code block',
+            horizontalRule: 'Divider',
+            table: 'Table',
+            image: 'Image'
+        },
+        slashHints: {
+            paragraph: 'Plain paragraph',
+            heading1: 'Big section heading',
+            heading2: 'Medium section heading',
+            heading3: 'Small section heading',
+            bulletList: 'A list with bullets',
+            orderedList: 'A list with numbers',
+            taskList: 'A list with checkboxes',
+            blockquote: 'Quote someone',
+            codeBlock: 'Code, kept as written',
+            horizontalRule: 'A line across the page',
+            table: 'Rows and columns',
+            image: 'A picture from a link'
+        },
+        blockActions: {
+            duplicate: 'Duplicate',
+            delete: 'Delete',
+            moveUp: 'Move up',
+            moveDown: 'Move down',
+            turnIntoParagraph: 'Turn into text'
+        }
     },
     form: {
         required: 'This field is required.',
@@ -990,6 +1045,8 @@ export const ptBR: Locale = {
         invalidImageUrl: 'Informe um endereço http ou https.',
         altRequired: 'O texto alternativo é obrigatório.',
         insertTable: 'Inserir tabela',
+        tableRows: 'Linhas',
+        tableColumns: 'Colunas',
         addRowBefore: 'Adicionar linha acima',
         addRowAfter: 'Adicionar linha abaixo',
         addColumnBefore: 'Adicionar coluna antes',
@@ -1003,7 +1060,45 @@ export const ptBR: Locale = {
         character: '{count} caractere',
         characters: '{count} caracteres',
         charactersLimit: '{count} de {limit} caracteres',
-        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Atalhos Markdown como # e - funcionam no início da linha.'
+        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Atalhos Markdown como # e - funcionam no início da linha.',
+        slashMenu: 'Inserir um bloco',
+        slashEmpty: 'Nada corresponde a “{query}”',
+        blockMenu: 'Ações do bloco',
+        slashCommands: {
+            paragraph: 'Texto',
+            heading1: 'Título 1',
+            heading2: 'Título 2',
+            heading3: 'Título 3',
+            bulletList: 'Lista com marcadores',
+            orderedList: 'Lista numerada',
+            taskList: 'Lista de tarefas',
+            blockquote: 'Citação',
+            codeBlock: 'Bloco de código',
+            horizontalRule: 'Divisória',
+            table: 'Tabela',
+            image: 'Imagem'
+        },
+        slashHints: {
+            paragraph: 'Parágrafo simples',
+            heading1: 'Título de seção grande',
+            heading2: 'Título de seção médio',
+            heading3: 'Título de seção pequeno',
+            bulletList: 'Uma lista com marcadores',
+            orderedList: 'Uma lista com números',
+            taskList: 'Uma lista com caixas de seleção',
+            blockquote: 'Cite alguém',
+            codeBlock: 'Código, como foi escrito',
+            horizontalRule: 'Uma linha atravessando a página',
+            table: 'Linhas e colunas',
+            image: 'Uma imagem de um link'
+        },
+        blockActions: {
+            duplicate: 'Duplicar',
+            delete: 'Excluir',
+            moveUp: 'Mover para cima',
+            moveDown: 'Mover para baixo',
+            turnIntoParagraph: 'Transformar em texto'
+        }
     },
     form: {
         required: 'Preencha este campo.',
