@@ -5,6 +5,8 @@
  * no DOM in it) and a renderer, and the Vue component is a wrapper over it.
  */
 export interface AddonEntry {
+    /** Some of them draw nothing: they are the state and the arithmetic a component runs on. */
+    headless?: boolean;
     /** The package, without the scope. */
     id: string;
     name: string;
@@ -108,11 +110,37 @@ const board = createTaskboard(document.querySelector('#sprint'), {
     items: tasks,
     on: { 'card-move': ({ item, to }) => save(item, to) }
 });`
+    },
+    {
+        id: 'forms',
+        name: '@vitral/forms',
+        title: 'Form',
+        note: 'Values, validation and submit state',
+        to: '/components/form',
+        headless: true,
+        summary: 'Form state and validation: nested and array paths, dirty and touched per field, async rules, field arrays, and resolvers for Zod, Yup, Valibot and the rest.',
+        icon: 'pencil',
+        component: 'form',
+        engine: 'the whole package is the engine: it draws nothing at all',
+        example: `import { createForm, rules } from '@vitral/forms';
+
+const form = createForm({
+    initialValues: { email: '' },
+    fields: { email: { rules: [rules.required(), rules.email()] } }
+});
+
+await form.submit(async (values) => save(values));`
     }
 ];
 
 /** The layer the addons render with, which is not one of them. */
 export const domPackage = {
     name: '@vitral/dom',
-    summary: 'What the addons share: a keyed patcher, the part-and-pass-through resolver, a pointer drag and an auto-scroll. No framework in any of it.'
+    summary: 'a keyed patcher, the part-and-pass-through resolver, a pointer drag, an auto-scroll and an icon. The little it takes to put a component on a page.'
+};
+
+/** The controls an addon needs but should not be writing again. */
+export const controlsPackage = {
+    name: '@vitral/controls',
+    summary: 'the select, the menu and the anchored panel, over the same core arithmetic and wearing the same styles — so a page with no framework gets the control the framework would have drawn.'
 };

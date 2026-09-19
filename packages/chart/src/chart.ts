@@ -22,6 +22,7 @@ import { sliceAt, spokeAt } from './engine/polar';
 import type { ChartScene, SceneDatum } from './engine/scene';
 import { normalizeSeries, type NormalizedSeries } from './engine/series';
 import type { ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
+import { createOverlay } from '@vitral/controls';
 import { mergeAttrs, partResolver, pointerDrag, type PassThrough as ChartPassThrough } from '@vitral/dom';
 import { downloadChart, serializeSvg, svgToPng } from './dom/export';
 import { createPortal, createRoot, h, s, type Child, type Props, type VElement } from '@vitral/dom';
@@ -246,7 +247,6 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     const menuId = `${id}-download`;
     const original = { class: element.getAttribute('class'), style: element.getAttribute('style') };
     const root = createRoot(element);
-    const portal = createPortal();
     const listeners = new Map<ChartEventName, Set<(payload: never) => void>>();
     let destroyed = false;
 
@@ -288,7 +288,6 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     let selectionRect: { x: number; y: number; width: number; height: number } | null = null;
     let brushWindow: [number, number] | null = null;
     let menuOpen = false;
-    let menuCleanup: (() => void) | null = null;
     let tooltipSize = { width: 160, height: 60 };
     let lastHeightCss: string | undefined;
     const reducedMotion = cfg.reducedMotion ?? (isClient && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -862,15 +861,10 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
 
     const menuItems = () => [...(menuEl?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
 
-    function overlayTarget(): HTMLElement {
-        let target = typeof cfg.overlayTarget === 'function' ? cfg.overlayTarget() : cfg.overlayTarget;
-        if (typeof target === 'string') target = target === 'body' || target === 'self' ? undefined : (document.querySelector<HTMLElement>(target) ?? undefined);
-        return target ?? overlayContainerOf(element) ?? document.body;
-    }
-
     function openMenu(focusLast = false) {
         menuOpen = true;
         render();
+        menu.open();
         const items = menuItems();
         items[focusLast ? items.length - 1 : 0]?.focus();
     }
@@ -878,6 +872,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     function closeMenu(refocus: boolean) {
         if (!menuOpen) return;
         menuOpen = false;
+        menu.close(refocus ? 'escape' : 'request');
         render();
         if (refocus) triggerEl?.focus();
     }
@@ -904,46 +899,33 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         }
     }
 
-    function renderMenu() {
-        const wanted = menuOpen && !!triggerEl && triggerEl.isConnected;
-        const before = portal.element();
-        const el = portal.render(
-            wanted ? overlayTarget() : null,
-            wanted
-                ? (menuView(part, {
-                      id: menuId,
-                      locale: locale(),
-                      ref: (e) => (menuEl = e as HTMLElement),
-                      onKeydown: onMenuKeydown,
-                      onChoose: (kind) => {
-                          closeMenu(true);
-                          void download(kind);
-                      }
-                  }) as VElement)
-                : null
-        );
-        if (!wanted) {
+    /**
+     * The download menu hangs from the toolbar's button. What it holds is the
+     * chart's own; where it goes, what closes it and what it sits over is
+     * `@vitral/controls`' overlay, which every addon shares.
+     */
+    const menu = createOverlay({
+        anchor: () => triggerEl,
+        render: () =>
+            menuView(part, {
+                id: menuId,
+                locale: locale(),
+                ref: (e) => (menuEl = e as HTMLElement),
+                onKeydown: onMenuKeydown,
+                onChoose: (kind) => {
+                    closeMenu(true);
+                    void download(kind);
+                }
+            }) as VElement,
+        placement: 'bottom-end',
+        target: () => cfg.overlayTarget,
+        zIndex: cfg.zIndex,
+        onClose: () => {
             menuOpen = false;
             menuEl = null;
+            render();
         }
-        if (el && el !== before) {
-            menuCleanup?.();
-            const menu = el as HTMLElement;
-            const trigger = triggerEl!;
-            const cleanups = [
-                anchorTo(trigger, menu, { placement: 'bottom-end' }),
-                pushLayer({ elements: () => [trigger, menu], onEscape: () => closeMenu(true), onPointerDownOutside: () => closeMenu(false) })
-            ];
-            ZIndex.set('overlay', menu, cfg.zIndex ?? 1000);
-            menuCleanup = () => {
-                cleanups.forEach((c) => c());
-                ZIndex.clear(menu);
-            };
-        } else if (!el && menuCleanup) {
-            menuCleanup();
-            menuCleanup = null;
-        }
-    }
+    });
 
     // ---- downloads
 
@@ -1293,7 +1275,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             h('span', mergeAttrs({ key: 'status', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }, part('status'), { style: { ...visuallyHidden } }), readout),
             table ? tableView(part, table, formatMessage(loc.chart.dataTable, { title: title || loc.chart.untitled })) : null
         );
-        renderMenu();
+        menu.update();
 
         // After the patch: the tooltip's size (it flips before leaving the chart),
         // and the plot's size when the chart's height changed.
@@ -1407,7 +1389,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             if (destroyed) return;
             drag.cancel();
             menuOpen = false;
-            renderMenu();
+            menu.destroy();
             destroyed = true;
             queued = false;
             observer?.disconnect();

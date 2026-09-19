@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { addons } from '../lib/addons';
 import { chartEntries } from '../lib/charts';
 import { sections } from '../lib/catalog';
 import { guideSections } from '../lib/guides';
@@ -21,7 +20,6 @@ const year = new Date().getFullYear();
 const explore = computed(() => [
     { label: 'Components', to: '/components/button', count: componentCount.value },
     { label: 'Templates', to: '/templates', count: templates.length },
-    { label: 'Addons', to: '/addons', count: addons.length },
     { label: 'Charts', to: '/charts', count: chartEntries.length },
     { label: 'Icons', to: '/icons', count: null }
 ]);

@@ -1,7 +1,6 @@
 import {
     addDays,
     addMinutes,
-    anchorTo,
     calendarKeyTarget,
     dayDiff,
     en,
@@ -12,18 +11,16 @@ import {
     isSameDay,
     loadStyle,
     minutesOfDay,
-    overlayContainerOf,
     parseTime,
-    pushLayer,
     shiftDays,
     snapMinutes,
     startOfDay,
     stepViewDate,
     timeGridKeyTarget,
-    ZIndex,
     type Locale
 } from '@vitral/core';
-import { createPortal, createRoot, partResolver, pointerDrag, type Props } from '@vitral/dom';
+import { createOverlay } from '@vitral/controls';
+import { createRoot, partResolver, pointerDrag, type Props } from '@vitral/dom';
 import { baseStyle, buttonStyle, scheduleStyle } from '@vitral/styles';
 import {
     cellLabel,
@@ -107,12 +104,12 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     let scrolled = '';
     let moreDay: Date | null = null;
     let moreAnchor: HTMLElement | null = null;
-    let stopMore: (() => void) | null = null;
+    /** The context the last draw produced, which the day's list draws from. */
+    let drawn: ViewContext | null = null;
 
     const id = config.id ?? `vt-schedule-${++counter}`;
     const ids = { title: `${id}-title`, gridHelp: `${id}-help`, eventHelp: `${id}-event-help`, more: `${id}-more` };
     const root = createRoot(element);
-    const portal = createPortal();
     const locale = (): Locale => current.locale ?? en;
     const part = partResolver({
         style: scheduleStyle,
@@ -482,47 +479,22 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         moreDay = day;
         moreAnchor = (event.currentTarget ?? event.target) as HTMLElement;
         render();
-    }
-
-    function closeMore(restoreFocus: boolean) {
-        if (!moreDay) return;
-        const anchor = moreAnchor;
-        moreDay = null;
-        moreAnchor = null;
-        render();
-        if (restoreFocus) anchor?.focus();
+        more.open();
     }
 
     /** The day's full list, in an overlay hanging from the button that asked for it. */
-    function renderMore(context: ViewContext) {
-        const wanted = !!moreDay && !!moreAnchor && moreAnchor.isConnected;
-        const before = portal.element();
-        const panel = portal.render(wanted ? overlayTarget() : null, wanted ? moreView(context, moreDay!) : null);
-        if (!panel) {
-            stopMore?.();
-            stopMore = null;
-            return;
+    const more = createOverlay({
+        anchor: () => moreAnchor,
+        render: () => (moreDay && drawn ? moreView(drawn, moreDay) : null),
+        placement: 'bottom-start',
+        target: () => current.overlayTarget,
+        zIndex: current.zIndex,
+        onClose: () => {
+            moreDay = null;
+            moreAnchor = null;
+            render();
         }
-        if (panel === before) return;
-        stopMore?.();
-        const anchor = moreAnchor!;
-        const floating = panel as HTMLElement;
-        const stops = [
-            anchorTo(anchor, floating, { placement: 'bottom-start' }),
-            pushLayer({ elements: () => [anchor, floating], onEscape: () => closeMore(true), onPointerDownOutside: () => closeMore(false) })
-        ];
-        ZIndex.set('overlay', floating, current.zIndex ?? 1000);
-        stopMore = () => {
-            stops.forEach((stop) => stop());
-            ZIndex.clear(floating);
-        };
-    }
-
-    function overlayTarget(): HTMLElement {
-        let target = typeof current.overlayTarget === 'function' ? current.overlayTarget() : current.overlayTarget;
-        if (typeof target === 'string') target = target === 'body' || target === 'self' ? undefined : (document.querySelector<HTMLElement>(target) ?? undefined);
-        return target ?? overlayContainerOf(element) ?? document.body;
-    }
+    });
 
     // ---- scrolling to the working day ----------------------------------------------------
 
@@ -635,10 +607,10 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         drawing = true;
         try {
             settleFocus();
-            const drawn = context();
+            drawn = context();
             root.attrs(part('root', { view: models.view, dragging: !!drag || cellDrag.active() }));
             root.render(scheduleView(drawn));
-            renderMore(drawn);
+            more.update();
             scrollToWork();
             const key = `${drawn.range.start.getTime()}:${drawn.range.end.getTime()}:${models.view}`;
             if (key !== lastRange) {
@@ -675,8 +647,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             clearInterval(clock);
             cellDrag.cancel();
             eventDrag.cancel();
-            stopMore?.();
-            portal.render(null, null);
+            more.destroy();
             root.clear();
         }
     };

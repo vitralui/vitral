@@ -211,9 +211,12 @@ describe('its paginator', () => {
     it('changes the page size and keeps the row being read on the page', () => {
         const paged = vi.fn();
         const { element, column } = mount({ paginator: true, rows: 2, first: 4, rowsPerPageOptions: [2, 4], on: { page: paged } });
-        const select = element.querySelector<HTMLSelectElement>('select.vt-paginator-rows-per-page')!;
-        select.value = '4';
-        select.dispatchEvent(new Event('change', { bubbles: true }));
+        // The page size is the control kit's select, drawn by the table itself.
+        const trigger = element.querySelector<HTMLButtonElement>('.vt-paginator-rows-per-page [role="combobox"]')!;
+        expect(trigger.textContent).toBe('2');
+        trigger.click();
+        const option = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find((item) => item.textContent === '4')!;
+        option.click();
         expect(handle!.state()).toMatchObject({ rows: 4, first: 4 });
         expect(column(0)).toEqual(['Élise Martin']);
         expect(paged).toHaveBeenCalledWith({ first: 4, rows: 4, page: 1, pageCount: 2 });
@@ -304,7 +307,7 @@ describe('what the host draws itself', () => {
                 }
             }
         });
-        expect(element.querySelector('select.vt-paginator-rows-per-page')).toBeNull();
+        expect(element.querySelector('.vt-paginator-rows-per-page [role="combobox"]')).toBeNull();
         const own = element.querySelector<HTMLButtonElement>('.mine')!;
         expect(own.textContent).toBe('2 of 2/4');
         own.click();

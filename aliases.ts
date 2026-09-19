@@ -11,6 +11,7 @@ export const aliases = {
     '@vitral/themes': pkg('themes'),
     '@vitral/styles': pkg('styles'),
     '@vitral/dom': pkg('dom'),
+    '@vitral/controls': pkg('controls'),
     '@vitral/datatable/engine': pkg('datatable', 'engine/index'),
     '@vitral/datatable': pkg('datatable'),
     '@vitral/schedule/engine': pkg('schedule', 'engine/index'),

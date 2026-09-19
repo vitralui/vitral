@@ -38,11 +38,11 @@ const addonRoutes = new Set(addons.map((addon) => addon.component));
 
 const panels: { key: Panel; label: string; active: () => boolean }[] = [
     { key: 'components', label: 'Components', active: () => route.value.name === 'component' && !addonRoutes.has(route.value.id) },
+    { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' },
+    { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' },
     // The four packages that draw themselves, the charts gallery among them:
     // a reader looking for the chart page should not have to know it is one.
-    { key: 'addons', label: 'Addons', active: () => route.value.name === 'addons' || route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) },
-    { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' },
-    { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' }
+    { key: 'addons', label: 'Addons', active: () => route.value.name === 'addons' || route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) }
 ];
 
 const drawer = ref(false);
@@ -234,22 +234,6 @@ onBeforeUnmount(() => {
                     </span>
                 </a>
 
-                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
-                <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
-                    <span class="mega-icon"><Icon :icon="addon.icon" /></span>
-                    <span>
-                        <b>{{ addon.title }}</b>
-                        <em>{{ addon.note }}</em>
-                    </span>
-                </a>
-                <a :href="href('/addons')" class="mega-drawer-link" :aria-current="route.name === 'addons' ? 'page' : undefined" @click="leave">
-                    <span class="mega-icon"><Icon icon="blocks" /></span>
-                    <span>
-                        <b>What an addon is</b>
-                        <em>The four packages, and how to call one without a framework</em>
-                    </span>
-                </a>
-
                 <h2>Components <small>{{ componentCount }}</small></h2>
                 <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
                     <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
@@ -274,6 +258,22 @@ onBeforeUnmount(() => {
                     <span>
                         <b>{{ entry.name }}</b>
                         <em>{{ entry.summary }}</em>
+                    </span>
+                </a>
+
+                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
+                <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon :icon="addon.icon" /></span>
+                    <span>
+                        <b>{{ addon.title }}</b>
+                        <em>{{ addon.note }}</em>
+                    </span>
+                </a>
+                <a :href="href('/addons')" class="mega-drawer-link" :aria-current="route.name === 'addons' ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon icon="blocks" /></span>
+                    <span>
+                        <b>What an addon is</b>
+                        <em>The four packages, and how to call one without a framework</em>
                     </span>
                 </a>
             </nav>

@@ -83,6 +83,9 @@ importers:
 
   packages/chart:
     dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
       '@vitral/core':
         specifier: workspace:*
         version: link:../core
@@ -93,6 +96,21 @@ importers:
         specifier: workspace:*
         version: link:../icons
 
+  packages/controls:
+    dependencies:
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/core:
     dependencies:
       '@floating-ui/dom':
@@ -101,6 +119,9 @@ importers:
 
   packages/datatable:
     dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
       '@vitral/core':
         specifier: workspace:*
         version: link:../core
@@ -145,6 +166,9 @@ importers:
 
   packages/schedule:
     dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
       '@vitral/core':
         specifier: workspace:*
         version: link:../core

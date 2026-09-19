@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@vitral/vue';
-import { addons, domPackage } from '../lib/addons';
+import { addons, controlsPackage, domPackage } from '../lib/addons';
 import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
@@ -18,10 +18,10 @@ const install = (id: string) => `npm install @vitral/${id}`;
             <span class="eyebrow">Addons</span>
             <h1>The big ones are not Vue</h1>
             <p>
-                A chart, a data table, a scheduler and a task board are months of work each, and none of it is about a framework. In Vitral they are written as plain
-                TypeScript: an engine that answers a question — which marks, which rows, which period, which cell — and a renderer that draws the answer into an element you
-                hand it. <code>@vitral/vue</code> wraps them; a React or an Angular component would wrap the same thing, and a page with no framework at all can call them
-                directly.
+                A chart, a data table, a scheduler, a task board, a form's state and rules: months of work each, and none of it is about a framework. In Vitral they are
+                written as plain TypeScript — an engine that answers a question (which marks, which rows, which period, which cell, which field is invalid) and, where
+                something is drawn, a renderer that draws the answer into an element you hand it. <code>@vitral/vue</code> wraps them; a React or an Angular component would
+                wrap the same thing, and a page with no framework at all can call them directly.
             </p>
             <p class="addons-head-links">
                 <a :href="href('/docs/introduction')">What Vitral is <Icon icon="arrowRight" /></a>
@@ -39,7 +39,8 @@ const install = (id: string) => `npm install @vitral/${id}`;
                 </div>
                 <dl class="addon-facts">
                     <dt>Engine</dt>
-                    <dd><code>@vitral/{{ addon.id }}/engine</code> — {{ addon.engine }}. No DOM, no timers.</dd>
+                    <dd v-if="addon.headless">{{ addon.engine }}.</dd>
+                    <dd v-else><code>@vitral/{{ addon.id }}/engine</code> — {{ addon.engine }}. No DOM, no timers.</dd>
                     <dt>Component</dt>
                     <dd>
                         <a :href="href(`/components/${addon.component}`)">The Vue component, in full <Icon icon="arrowRight" /></a>
@@ -51,8 +52,9 @@ const install = (id: string) => `npm install @vitral/${id}`;
         </ul>
 
         <section class="addons-shared" aria-labelledby="addons-shared-title">
-            <h2 id="addons-shared-title">{{ domPackage.name }}</h2>
-            <p>{{ domPackage.summary }}</p>
+            <h2 id="addons-shared-title">What they are built on</h2>
+            <p><code>{{ domPackage.name }}</code> — {{ domPackage.summary }}</p>
+            <p><code>{{ controlsPackage.name }}</code> — {{ controlsPackage.summary }}</p>
             <p>
                 An addon describes its markup as plain objects on every change, and only what differs reaches the document — so an element that is kept keeps its focus and
                 its animation. The classes come from the same style definitions the components use, which is why an addon looks like Vitral without importing any of it.

@@ -1,28 +1,25 @@
 import {
-    anchorTo,
     clampFirst,
     dropTarget,
     en,
     layoutFor,
     loadStyle,
     moveColumn,
-    overlayContainerOf,
     pageCount,
     pageOf,
     pinColumn,
     resizeColumn,
     selectRows,
-    pushLayer,
     tableBus,
     toggleColumn,
     toggleSelection,
     toggleSort,
-    ZIndex,
     type ColumnLayout,
     type FilterMeta,
     type Locale
 } from '@vitral/core';
-import { createPortal, createRoot, partResolver } from '@vitral/dom';
+import { createOverlay, createSelect, type SelectHandle } from '@vitral/controls';
+import { createRoot, partResolver } from '@vitral/dom';
 import { baseStyle, datatableStyle, paginatorStyle } from '@vitral/styles';
 import {
     allSelectedState,
@@ -40,7 +37,7 @@ import {
     tableLayout,
     type ResolvedColumn
 } from './engine/state';
-import type { Row, TableConfig, TableModels } from './engine/types';
+import type { Content, Row, RowsPerPageContext, TableConfig, TableModels } from './engine/types';
 import { chooserView, tableView, type TableActions, type ViewContext } from './render/table';
 
 /**
@@ -78,7 +75,10 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     let remote: { items: T[]; total: number } | undefined;
     let chooserOpen = false;
     let chooserEl: HTMLElement | null = null;
-    let stopChooserLayer: (() => void) | null = null;
+    /** The context the last draw produced, which the column list draws from. */
+    let drawn: ViewContext<T> | null = null;
+    let pageSizeHost: HTMLElement | null = null;
+    let pageSize: SelectHandle | null = null;
     let dragging: string | null = null;
     let dropOn: string | null = null;
     let activeRow = 0;
@@ -92,12 +92,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     const id = config.id ?? `vt-table-${++counter}`;
     const ids = { table: `${id}-table`, list: `${id}-columns`, caption: `${id}-caption` };
     const root = createRoot(element);
-    const portal = createPortal();
-    function overlayTarget(): HTMLElement {
-        let target = typeof current.overlayTarget === 'function' ? current.overlayTarget() : current.overlayTarget;
-        if (typeof target === 'string') target = target === 'body' || target === 'self' ? undefined : (document.querySelector<HTMLElement>(target) ?? undefined);
-        return target ?? overlayContainerOf(element) ?? document.body;
-    }
+
     const locale = (): Locale => current.locale ?? en;
     const part = partResolver({
         style: datatableStyle,
@@ -401,39 +396,53 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
 
     /**
      * The column list hangs from its button in an overlay, so it is not cut off
-     * by the table it covers, and it closes the way any panel does: Escape,
-     * which puts the keyboard back on the button, or a press outside it.
+     * by the table it covers, and it closes the way any panel does — which is
+     * `@vitral/controls`' business, not the table's.
      */
-    function setChooser(open: boolean, restoreFocus = false) {
+    const chooser = createOverlay({
+        anchor: () => chooserEl,
+        render: () => chooserView(drawn!),
+        placement: 'bottom-end',
+        target: () => current.overlayTarget,
+        zIndex: current.zIndex,
+        onClose: () => {
+            chooserOpen = false;
+            render();
+        }
+    });
+
+    function setChooser(open: boolean) {
         if (open === chooserOpen) return;
         chooserOpen = open;
         render();
-        if (!open && restoreFocus) chooserEl?.focus();
     }
 
-    /** Draws the panel where it belongs, and keeps it there while anything moves. */
-    function renderChooser(context: ViewContext<T>) {
-        const wanted = chooserOpen && !!chooserEl && chooserEl.isConnected;
-        const before = portal.element();
-        const panel = portal.render(wanted ? overlayTarget() : null, wanted ? chooserView(context) : null);
-        if (!panel) {
-            stopChooserLayer?.();
-            stopChooserLayer = null;
-            return;
-        }
-        if (panel === before) return;
-        stopChooserLayer?.();
-        const button = chooserEl!;
-        const floating = panel as HTMLElement;
-        const stops = [
-            anchorTo(button, floating, { placement: 'bottom-end' }),
-            pushLayer({ elements: () => [button, floating], onEscape: () => setChooser(false, true), onPointerDownOutside: () => setChooser(false) })
-        ];
-        ZIndex.set('overlay', floating, current.zIndex ?? 1000);
-        stopChooserLayer = () => {
-            stops.forEach((stop) => stop());
-            ZIndex.clear(floating);
+    /**
+     * The page size, where the host has not handed one in: the kit's select,
+     * so a page with no framework gets the control a framework would draw
+     * rather than the browser's own.
+     */
+    function pageSizeControl(context: RowsPerPageContext): Content {
+        const options = context.options.map((rows) => ({ label: String(rows), value: rows }));
+        if (!pageSizeHost) pageSizeHost = document.createElement('span');
+        const settings = {
+            options,
+            optionValue: 'value',
+            value: context.rows,
+            size: 'small' as const,
+            ariaLabel: locale().rowsPerPage,
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer,
+            // The paginator lays this place out; the control keeps its own look.
+            pt: { root: { class: 'vt-paginator-rows-per-page' } }
         };
+        if (pageSize) pageSize.update(settings);
+        else pageSize = createSelect(pageSizeHost, { ...settings, onChange: (value) => actions.pageSize(Number(value)) });
+        return pageSizeHost;
     }
 
     // ---- the column layout ----------------------------------------------------------
@@ -563,10 +572,20 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
                 loading: context.busy
             })
         );
-        const drawn: ViewContext<T> = { ...context, config: { ...current, emptyMessage } };
+        drawn = {
+            ...context,
+            config: {
+                ...current,
+                emptyMessage,
+                // The host's own controls win; the table draws these when it has none.
+                content: { ...current.content, rowsPerPage: current.content?.rowsPerPage ?? pageSizeControl }
+            }
+        };
         root.render(tableView(drawn));
         // After the table, so the button the panel hangs from is the one just drawn.
-        renderChooser(drawn);
+        if (chooserOpen) chooser.open();
+        else chooser.close();
+        chooser.update();
     }
 
     joinGroup();
@@ -595,8 +614,8 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         destroy() {
             clearTimeout(filterTimer);
             stopGroup?.();
-            stopChooserLayer?.();
-            portal.render(null, null);
+            chooser.destroy();
+            pageSize?.destroy();
             root.clear();
         }
     };
