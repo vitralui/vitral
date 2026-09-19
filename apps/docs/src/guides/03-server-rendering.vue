@@ -120,55 +120,57 @@ const toast = useToast();   // auto-imported, like every composable
     </p>
 
     <h3>Options</h3>
-    <table class="api-table">
-        <thead>
-            <tr>
-                <th>Option</th>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>preset</td>
-                <td class="type">'Prism' | 'Ink' | 'Avalonia' | 'Simple' | 'Astra' | string | false</td>
-                <td class="doc">A shipped preset by name, a module that default-exports one, or <code>false</code> for no theme.</td>
-            </tr>
-            <tr>
-                <td>colorScheme</td>
-                <td class="type">'light' | 'dark' | 'system'</td>
-                <td class="doc">The scheme to start in, when the cookie says nothing.</td>
-            </tr>
-            <tr>
-                <td>cookie</td>
-                <td class="type">string | false</td>
-                <td class="doc">Where the reader's choice is kept, so the server can read it. <code>false</code> forgets it between visits.</td>
-            </tr>
-            <tr>
-                <td>darkModeSelector</td>
-                <td class="type">string | false</td>
-                <td class="doc">Where the dark scheme applies: a class, an attribute, <code>'system'</code>, or <code>false</code>.</td>
-            </tr>
-            <tr>
-                <td>locale</td>
-                <td class="type">'en' | 'ptBR' | string | false</td>
-                <td class="doc">A shipped locale by name, or a module that default-exports one.</td>
-            </tr>
-            <tr>
-                <td>prefix</td>
-                <td class="type">string</td>
-                <td class="doc">The prefix on every registered component: <code>'Vt'</code> by default, <code>''</code> for <code>&lt;Button&gt;</code>.</td>
-            </tr>
-            <tr>
-                <td>components / composables</td>
-                <td class="type">boolean</td>
-                <td class="doc">Register them globally. Off means importing from <code>@vitral/vue</code> by hand.</td>
-            </tr>
-            <tr>
-                <td>cssLayer, inputVariant, unstyled</td>
-                <td class="type">string | false, 'outlined' | 'filled', boolean</td>
-                <td class="doc">The same options the plugin takes; see <a :href="href('/docs/installation')">installation</a>.</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="api-scroll">
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>preset</td>
+                    <td class="type">'Prism' | 'Ink' | 'Avalonia' | 'Simple' | 'Astra' | string | false</td>
+                    <td class="doc">A shipped preset by name, a module that default-exports one, or <code>false</code> for no theme.</td>
+                </tr>
+                <tr>
+                    <td>colorScheme</td>
+                    <td class="type">'light' | 'dark' | 'system'</td>
+                    <td class="doc">The scheme to start in, when the cookie says nothing.</td>
+                </tr>
+                <tr>
+                    <td>cookie</td>
+                    <td class="type">string | false</td>
+                    <td class="doc">Where the reader's choice is kept, so the server can read it. <code>false</code> forgets it between visits.</td>
+                </tr>
+                <tr>
+                    <td>darkModeSelector</td>
+                    <td class="type">string | false</td>
+                    <td class="doc">Where the dark scheme applies: a class, an attribute, <code>'system'</code>, or <code>false</code>.</td>
+                </tr>
+                <tr>
+                    <td>locale</td>
+                    <td class="type">'en' | 'ptBR' | string | false</td>
+                    <td class="doc">A shipped locale by name, or a module that default-exports one.</td>
+                </tr>
+                <tr>
+                    <td>prefix</td>
+                    <td class="type">string</td>
+                    <td class="doc">The prefix on every registered component: <code>'Vt'</code> by default, <code>''</code> for <code>&lt;Button&gt;</code>.</td>
+                </tr>
+                <tr>
+                    <td>components / composables</td>
+                    <td class="type">boolean</td>
+                    <td class="doc">Register them globally. Off means importing from <code>@vitral/vue</code> by hand.</td>
+                </tr>
+                <tr>
+                    <td>cssLayer, inputVariant, unstyled</td>
+                    <td class="type">string | false, 'outlined' | 'filled', boolean</td>
+                    <td class="doc">The same options the plugin takes; see <a :href="href('/docs/installation')">installation</a>.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </template>

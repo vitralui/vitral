@@ -45,22 +45,24 @@ const shell = `<DockPanel>
     </p>
 
     <h2>The seven</h2>
-    <table class="api-table">
-        <thead>
-            <tr>
-                <th>Component</th>
-                <th>For</th>
-                <th>What it gives you</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="row in rows" :key="row[0]">
-                <td><a :href="href(`/components/${row[0].toLowerCase()}`)">{{ row[0] }}</a></td>
-                <td class="doc">{{ row[1] }}</td>
-                <td class="doc">{{ row[2] }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="api-scroll">
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>For</th>
+                    <th>What it gives you</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="row in rows" :key="row[0]">
+                    <td><a :href="href(`/components/${row[0].toLowerCase()}`)">{{ row[0] }}</a></td>
+                    <td class="doc">{{ row[1] }}</td>
+                    <td class="doc">{{ row[2] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <h2>An application shell, in one template</h2>
     <CodeBlock :code="shell" label="AppShell.vue" lang="vue" />

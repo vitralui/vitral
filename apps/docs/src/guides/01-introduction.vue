@@ -59,57 +59,59 @@ const cities = [
     <CodeBlock :code="usage" label="Form.vue" lang="vue" />
 
     <h2>The packages</h2>
-    <table class="api-table">
-        <thead>
-            <tr>
-                <th>Package</th>
-                <th>What it holds</th>
-                <th>Framework</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@vitral/core</td>
-                <td class="doc">Focus trap, dismissable layer stack, positioning, z-index, list navigation and typeahead, the data layer (<code>FilterService</code>, <code>queryData</code>, <code>createDataSource</code>), trees, calendar maths, number formatting and parsing, locales</td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/themes</td>
-                <td class="doc">The token engine (<code>definePreset</code>, <code>palette</code>, <code>compileTheme</code>, <code>createThemeManager</code>) and the presets Prism, Ink, Avalonia and Simple</td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/styles</td>
-                <td class="doc">Every component's CSS and class map, written against tokens, also shipped as one <code>vitral.css</code></td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/icons</td>
-                <td class="doc">SVG icons as data</td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/chart</td>
-                <td class="doc">SVG charts: the engine and <code>createChart()</code>, a renderer with legend, tooltip, toolbar, zoom, brush and keyboard. The <code>&lt;Chart&gt;</code> component wraps it</td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/forms</td>
-                <td class="doc">Form state and validation: nested paths, field arrays, built-in rules, async checks, and resolvers for schema libraries</td>
-                <td class="doc">None</td>
-            </tr>
-            <tr>
-                <td>@vitral/vue</td>
-                <td class="doc">Components, composables, directives and the plugin</td>
-                <td class="doc">Vue 3</td>
-            </tr>
-            <tr>
-                <td>@vitral/nuxt</td>
-                <td class="doc">The Nuxt module: configuration from <code>nuxt.config</code>, auto-imports, styles rendered on the server, the scheme in a cookie</td>
-                <td class="doc">Nuxt 4</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="api-scroll">
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>What it holds</th>
+                    <th>Framework</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@vitral/core</td>
+                    <td class="doc">Focus trap, dismissable layer stack, positioning, z-index, list navigation and typeahead, the data layer (<code>FilterService</code>, <code>queryData</code>, <code>createDataSource</code>), trees, calendar maths, number formatting and parsing, locales</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/themes</td>
+                    <td class="doc">The token engine (<code>definePreset</code>, <code>palette</code>, <code>compileTheme</code>, <code>createThemeManager</code>) and the presets Prism, Ink, Avalonia and Simple</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/styles</td>
+                    <td class="doc">Every component's CSS and class map, written against tokens, also shipped as one <code>vitral.css</code></td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/icons</td>
+                    <td class="doc">SVG icons as data</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/chart</td>
+                    <td class="doc">SVG charts: the engine and <code>createChart()</code>, a renderer with legend, tooltip, toolbar, zoom, brush and keyboard. The <code>&lt;Chart&gt;</code> component wraps it</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/forms</td>
+                    <td class="doc">Form state and validation: nested paths, field arrays, built-in rules, async checks, and resolvers for schema libraries</td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
+                    <td>@vitral/vue</td>
+                    <td class="doc">Components, composables, directives and the plugin</td>
+                    <td class="doc">Vue 3</td>
+                </tr>
+                <tr>
+                    <td>@vitral/nuxt</td>
+                    <td class="doc">The Nuxt module: configuration from <code>nuxt.config</code>, auto-imports, styles rendered on the server, the scheme in a cookie</td>
+                    <td class="doc">Nuxt 4</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <p>
         Everything that does not need a framework lives in a package that does not import one. That is what should make a React or Angular adapter cheap later: it writes the
         rendering and reuses the behaviour, the look and the markup contract.

@@ -78,57 +78,59 @@ pnpm build`;
     </p>
 
     <h3>Options</h3>
-    <table class="api-table">
-        <thead>
-            <tr>
-                <th>Option</th>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>theme</td>
-                <td class="type">{ preset, colorScheme, storageKey, options } | 'none'</td>
-                <td class="doc">The preset and the scheme. <code>'none'</code> injects nothing: bring your own variables, or go unstyled.</td>
-            </tr>
-            <tr>
-                <td>locale</td>
-                <td class="type">Locale</td>
-                <td class="doc"><code>en</code> and <code>ptBR</code> ship; a locale is a plain object, so a third is a literal.</td>
-            </tr>
-            <tr>
-                <td>inputVariant</td>
-                <td class="type">'outlined' | 'filled'</td>
-                <td class="doc">The default look of every field. Reactive: change it at runtime and the page follows.</td>
-            </tr>
-            <tr>
-                <td>unstyled</td>
-                <td class="type">boolean</td>
-                <td class="doc">Drop every built-in class, everywhere. See <a :href="href('/docs/unstyled')">unstyled mode</a>.</td>
-            </tr>
-            <tr>
-                <td>pt</td>
-                <td class="type">GlobalPassThrough</td>
-                <td class="doc">Pass-through for every instance of a component, keyed by name. See <a :href="href('/docs/pass-through')">pass-through</a>.</td>
-            </tr>
-            <tr>
-                <td>cssLayer</td>
-                <td class="type">string | false</td>
-                <td class="doc">Wrap component CSS in <code>@layer</code>, so application CSS wins without <code>!important</code>.</td>
-            </tr>
-            <tr>
-                <td>zIndex</td>
-                <td class="type">Partial&lt;ZIndexConfig&gt;</td>
-                <td class="doc">The stacking floors for modals, overlays, menus and tooltips.</td>
-            </tr>
-            <tr>
-                <td>csp</td>
-                <td class="type">{ nonce?: string }</td>
-                <td class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="api-scroll">
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>theme</td>
+                    <td class="type">{ preset, colorScheme, storageKey, options } | 'none'</td>
+                    <td class="doc">The preset and the scheme. <code>'none'</code> injects nothing: bring your own variables, or go unstyled.</td>
+                </tr>
+                <tr>
+                    <td>locale</td>
+                    <td class="type">Locale</td>
+                    <td class="doc"><code>en</code> and <code>ptBR</code> ship; a locale is a plain object, so a third is a literal.</td>
+                </tr>
+                <tr>
+                    <td>inputVariant</td>
+                    <td class="type">'outlined' | 'filled'</td>
+                    <td class="doc">The default look of every field. Reactive: change it at runtime and the page follows.</td>
+                </tr>
+                <tr>
+                    <td>unstyled</td>
+                    <td class="type">boolean</td>
+                    <td class="doc">Drop every built-in class, everywhere. See <a :href="href('/docs/unstyled')">unstyled mode</a>.</td>
+                </tr>
+                <tr>
+                    <td>pt</td>
+                    <td class="type">GlobalPassThrough</td>
+                    <td class="doc">Pass-through for every instance of a component, keyed by name. See <a :href="href('/docs/pass-through')">pass-through</a>.</td>
+                </tr>
+                <tr>
+                    <td>cssLayer</td>
+                    <td class="type">string | false</td>
+                    <td class="doc">Wrap component CSS in <code>@layer</code>, so application CSS wins without <code>!important</code>.</td>
+                </tr>
+                <tr>
+                    <td>zIndex</td>
+                    <td class="type">Partial&lt;ZIndexConfig&gt;</td>
+                    <td class="doc">The stacking floors for modals, overlays, menus and tooltips.</td>
+                </tr>
+                <tr>
+                    <td>csp</td>
+                    <td class="type">{ nonce?: string }</td>
+                    <td class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <h2>Without import lines</h2>
     <p>
