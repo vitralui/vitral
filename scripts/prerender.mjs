@@ -50,6 +50,7 @@ const routes = [
     '/',
     '/icons',
     '/charts',
+    '/addons',
     '/templates',
     // Not a page anyone links to: rendered so the host has a 404 to serve.
     '/404',
@@ -348,7 +349,7 @@ function writeText(pages) {
         '',
         '> A Vue 3 component library built around a token engine: design tokens, presets, light and dark, pass-through attributes and a fully unstyled mode. Nuxt is supported by a module of its own.',
         '',
-        'Vitral ships the usual control set plus the pieces applications need and most libraries leave out: charts, a scheduler, a task board, a rich text editor, a command palette and layout panels. Everything that does not need a framework lives in framework-free packages (`@vitral/core`, `@vitral/themes`, `@vitral/styles`, `@vitral/icons`, `@vitral/chart`, `@vitral/forms`), which `@vitral/vue` and `@vitral/nuxt` build on.',
+        'Vitral ships the usual control set plus the pieces applications need and most libraries leave out: charts, a scheduler, a task board, a rich text editor, a command palette and layout panels. Everything that does not need a framework lives in framework-free packages (`@vitral/core`, `@vitral/themes`, `@vitral/styles`, `@vitral/icons`, `@vitral/dom`, `@vitral/forms`) — and the big components are among them: `@vitral/chart`, `@vitral/datatable`, `@vitral/schedule` and `@vitral/taskboard` each draw themselves, with `@vitral/vue` and `@vitral/nuxt` wrapping them.',
         '',
         'Every page below is also available as Markdown: add `.md` to its URL, without the trailing slash.',
         '',
@@ -359,6 +360,7 @@ function writeText(pages) {
         `- [Everything in one file](${origin}${base}llms-full.txt): every page above, concatenated.`,
         `- [Icons](${origin}${base}icons/): the icon set, searchable on the site.`,
         `- [Charts](${origin}${base}charts/): every kind of chart, drawn live with the options behind each one.`,
+        `- [Addons](${origin}${base}addons/): the packages that draw themselves, and how to use them without a framework.`,
         ''
     ].join('\n');
     writeFileSync(join(dist, 'llms.txt'), index);

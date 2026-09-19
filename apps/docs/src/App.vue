@@ -10,6 +10,7 @@ import { installThemeSwitcher } from './lib/theme';
 import ComponentPage from './pages/ComponentPage.vue';
 import DocPage from './pages/DocPage.vue';
 import Home from './pages/Home.vue';
+import AddonsPage from './pages/AddonsPage.vue';
 import ChartsPage from './pages/ChartsPage.vue';
 import IconsPage from './pages/IconsPage.vue';
 import NotFound from './pages/NotFound.vue';
@@ -99,6 +100,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <TemplatePage v-else-if="route.name === 'template'" />
         <IconsPage v-else-if="route.name === 'icons'" />
         <ChartsPage v-else-if="route.name === 'charts'" />
+        <AddonsPage v-else-if="route.name === 'addons'" />
 
         <div v-else class="docs">
             <nav ref="pane" class="pane" :aria-label="isDocs ? 'Documentation' : 'Components'">

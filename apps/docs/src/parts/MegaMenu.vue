@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { sections } from '../lib/catalog';
 import { guideSections } from '../lib/guides';
 import { route, href } from '../lib/router';
+import { addons } from '../lib/addons';
 import { chartEntries } from '../lib/charts';
 import { templateCategories, templates } from '../templates';
 
@@ -44,7 +45,8 @@ const search = defineModel<boolean>('search', { default: false });
 
 const shortcuts = computed(() => [
     { label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' },
-    { label: 'Charts', to: '/charts', note: `${chartEntries.length} kinds, drawn live`, icon: 'grip', active: route.value.name === 'charts' }
+    { label: 'Charts', to: '/charts', note: `${chartEntries.length} kinds, drawn live`, icon: 'areaChart', active: route.value.name === 'charts' },
+    { label: 'Addons', to: '/addons', note: `${addons.length} packages with no framework in them`, icon: 'blocks', active: route.value.name === 'addons' }
 ]);
 
 // A link inside the drawer has done its job; the drawer should not stay open
@@ -182,6 +184,7 @@ onBeforeUnmount(() => {
 
             <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
             <a :href="href('/charts')" :class="{ 'is-active': route.name === 'charts' }" :aria-current="route.name === 'charts' ? 'page' : undefined">Charts</a>
+            <a :href="href('/addons')" :class="{ 'is-active': route.name === 'addons' }" :aria-current="route.name === 'addons' ? 'page' : undefined">Addons</a>
         </nav>
 
         <Button
