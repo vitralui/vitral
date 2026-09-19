@@ -4,6 +4,7 @@ import { computed, mergeProps, ref } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import Icon from '../Icon/Icon.vue';
 import type { InputTextProps, InputTextSlots } from './types';
+import { keepFocus } from '../../base/press';
 
 defineOptions({ name: 'VtInputText', inheritAttrs: false });
 
@@ -39,10 +40,12 @@ function clear() {
 
 // A press on the field's padding or on an adornment focuses the text, as a
 // press anywhere on a native text box does.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     const target = event.target as Element;
     if (target === inputRef.value || target.closest('button')) return;
-    event.preventDefault();
+    // Not prevented for a finger: the tap has to survive. The focus it was
+    // taking is moved here either way.
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -50,7 +53,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <span v-if="$slots.prefix" v-bind="part('prefix')"><slot name="prefix" /></span>
         <input
             ref="inputRef"

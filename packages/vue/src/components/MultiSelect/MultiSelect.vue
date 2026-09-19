@@ -25,6 +25,7 @@ import Chip from '../Chip/Chip.vue';
 import Icon from '../Icon/Icon.vue';
 import type { MultiSelectEmits, MultiSelectProps, MultiSelectSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // Select's select-only combobox over a multi-selectable listbox. Focus stays
 // on the combobox (or on the search box, when there is one) and the active
@@ -330,9 +331,8 @@ function onRootClick(event: MouseEvent) {
 }
 
 // Pressing inside the panel keeps focus where it is: on the combobox or in the search box.
-function onOverlayMousedown(event: MouseEvent) {
-    const target = event.target as Element;
-    if (target !== filterRef.value && !target.matches('input[type="checkbox"]')) event.preventDefault();
+function onOverlayPointerdown(event: PointerEvent) {
+    keepFocus(event, (target) => target === filterRef.value || target.matches('input[type="checkbox"]'));
 }
 
 function optionState(item: OptionItem) {
@@ -379,7 +379,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
     </div>
     <Teleport :to="overlayTarget" :disabled="appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @mousedown="onOverlayMousedown">
+            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="onOverlayPointerdown">
                 <div v-if="(showToggleAll && selectionLimit === undefined) || filter" v-bind="part('header')">
                     <label v-if="showToggleAll && selectionLimit === undefined" v-bind="part('toggleAll')">
                         <input

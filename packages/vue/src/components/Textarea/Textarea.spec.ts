@@ -66,8 +66,20 @@ describe('Textarea', () => {
         const wrapper = mountVt(Textarea);
         const textarea = wrapper.get('textarea').element;
         expect(textarea.tabIndex).toBe(0);
-        await wrapper.trigger('mousedown');
+        await wrapper.trigger('pointerdown', { pointerType: 'mouse' });
         expect(document.activeElement).toBe(textarea);
+    });
+
+    it('lets a tap on the padding through, since preventing it would cancel the tap', async () => {
+        const wrapper = mountVt(Textarea);
+        const mouse = new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true, cancelable: true });
+        wrapper.element.dispatchEvent(mouse);
+        expect(mouse.defaultPrevented).toBe(true);
+        const finger = new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true, cancelable: true });
+        wrapper.element.dispatchEvent(finger);
+        expect(finger.defaultPrevented).toBe(false);
+        // Either way the text takes the keyboard.
+        expect(document.activeElement).toBe(wrapper.get('textarea').element);
     });
 
     it('has no accessibility violations when labelled', async () => {

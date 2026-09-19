@@ -34,6 +34,10 @@
     justify-content: center;
     background: var(--vt-splitter-gutter-background);
     cursor: col-resize;
+    /* Dragged with a finger as well as a pointer: the page must not scroll
+       under it, and a long press must not offer to select or copy it. */
+    touch-action: none;
+    -webkit-touch-callout: none;
     user-select: none;
     transition: background-color var(--vt-splitter-transition-duration);
 }

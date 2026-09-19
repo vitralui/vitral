@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { colorMixFallbacks, containerFallbacks } from './css-fallbacks';
+import { colorMixFallbacks, containerFallbacks, webkitPrefixes } from './css-fallbacks';
 
 describe('container query fallbacks', () => {
     it('repeats a container block as a media query of the same condition', () => {
@@ -47,5 +47,24 @@ describe('colour mix fallbacks', () => {
         expect(out).toContain('color: red');
         // A mix whose first colour is itself a function keeps its parentheses.
         expect(colorMixFallbacks('.b { background: color-mix(in srgb, rgb(1 2 3 / 50%) 20%, transparent); }')).toContain('background: rgb(1 2 3 / 50%); background: color-mix(');
+    });
+});
+
+describe('webkit prefixes', () => {
+    it('gives the properties Safari wanted by another name their twin', () => {
+        expect(webkitPrefixes('.a { user-select: none; }')).toBe('.a { -webkit-user-select: none; user-select: none; }');
+        expect(webkitPrefixes('.b { appearance: none; color: red; }')).toContain('-webkit-appearance: none; appearance: none;');
+    });
+
+    it('leaves alone what was written out by hand, and what needs nothing', () => {
+        const byHand = '.a { -webkit-user-select: none; user-select: none; }';
+        expect(webkitPrefixes(byHand)).toBe(byHand);
+        const plain = '.a { color: red; display: flex; }';
+        expect(webkitPrefixes(plain)).toBe(plain);
+    });
+
+    it('prefixes the same property in two rules', () => {
+        const out = webkitPrefixes('.a { user-select: none; }\n.b { user-select: text; }');
+        expect(out.match(/-webkit-user-select/g)).toHaveLength(2);
     });
 });

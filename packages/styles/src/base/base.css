@@ -12,6 +12,9 @@
     color: var(--vt-text-color);
     background: var(--vt-app-background);
     -webkit-font-smoothing: antialiased;
+    /* A tap is answered by the component's own hover and active states, not by
+       the grey rectangle the browser paints over whatever was touched. */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .vt-sr-only {
@@ -304,6 +307,9 @@
 
 .vt-option {
     position: relative;
+    /* A long press on an option is a press, not an invitation to select its
+       text: iOS offers the callout otherwise, and the option never opens. */
+    -webkit-touch-callout: none;
     display: flex;
     align-items: center;
     gap: 0.5rem;

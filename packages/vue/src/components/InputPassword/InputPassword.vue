@@ -7,6 +7,7 @@ import { useOverlay } from '../../composables/useOverlay';
 import Icon from '../Icon/Icon.vue';
 import type { InputPasswordEmits, InputPasswordProps, InputPasswordSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // A native password box. The reveal button is a real button in the tab order
 // whose name says what pressing it will do. The strength meter opens beside the
@@ -88,10 +89,10 @@ function clear() {
 
 // A press on the field's padding focuses the text, as on a native text box;
 // a press on a button inside keeps its own focus.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     const target = event.target as Element;
     if (target === inputRef.value || target.closest('button')) return;
-    event.preventDefault();
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -99,7 +100,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
 </script>
 
 <template>
-    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <input
             ref="inputRef"
             v-bind="mergeProps(controlAttrs, part('input'))"
@@ -130,7 +131,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
     </div>
     <Teleport :to="overlayTarget" :disabled="appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @mousedown.prevent>
+            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="keepFocus">
                 <slot name="header" />
                 <slot name="content" :strength="strength" :label="strengthLabel">
                     <div v-bind="part('meter')" aria-hidden="true">

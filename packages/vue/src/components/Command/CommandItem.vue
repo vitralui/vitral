@@ -4,6 +4,7 @@ import { computed, inject, onBeforeUnmount, ref, useId } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import { CommandGroupKey, CommandKey, inheritUnstyled, type CommandItemEntry } from './context';
 import type { CommandItemEmits, CommandItemProps, CommandSlots } from './types';
+import { keepFocus } from '../../base/press';
 
 defineOptions({ name: 'VtCommandItem' });
 
@@ -54,7 +55,7 @@ function onPointermove() {
         v-bind="part('item', { focused: active, disabled })"
         @click="onClick"
         @pointermove="onPointermove"
-        @mousedown.prevent
+        @pointerdown="keepFocus"
     >
         <slot />
         <kbd v-if="shortcut" v-bind="part('shortcut')">{{ shortcut }}</kbd>

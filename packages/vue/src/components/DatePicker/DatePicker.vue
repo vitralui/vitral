@@ -23,6 +23,7 @@ import Button from '../Button/Button.vue';
 import Icon from '../Icon/Icon.vue';
 import type { DatePickerEmits, DatePickerProps, DatePickerSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA "date picker dialog": a text box that takes typed dates, and a
 // button that opens a modal calendar dialog. The calendar is a grid with one
@@ -117,10 +118,12 @@ function onInputBlur(event: FocusEvent) {
 }
 
 // A press on the field's padding focuses the text, as on a native text box.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     const target = event.target as Element;
     if (target === inputRef.value || target.closest('button')) return;
-    event.preventDefault();
+    // Not prevented for a finger: the tap has to survive. The focus it was
+    // taking is moved here either way.
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -281,7 +284,7 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : input
 </script>
 
 <template>
-    <div v-if="!inline" ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div v-if="!inline" ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <input
             ref="inputRef"
             type="text"

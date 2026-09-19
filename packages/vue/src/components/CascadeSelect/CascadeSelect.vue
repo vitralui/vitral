@@ -8,6 +8,7 @@ import { useOverlay } from '../../composables/useOverlay';
 import Icon from '../Icon/Icon.vue';
 import type { CascadeSelectEmits, CascadeSelectProps, CascadeSelectSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // A select-only combobox whose popup is a WAI-ARIA tree drawn as columns: each
 // group opens the next level beside it. Focus stays on the combobox and the
@@ -315,7 +316,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
     </div>
     <Teleport :to="overlayTarget" :disabled="appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @mousedown.prevent>
+            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="keepFocus">
                 <Levels v-if="options.length" />
                 <div v-else role="status" v-bind="part('empty')">
                     <slot name="empty">{{ emptyMessage ?? locale.emptyMessage }}</slot>

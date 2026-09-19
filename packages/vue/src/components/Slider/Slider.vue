@@ -4,6 +4,7 @@ import { sliderStyle } from '@vitral/styles';
 import { computed, mergeProps, ref, useId, type ComponentPublicInstance } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { SliderEmits, SliderProps, SliderValue } from './types';
+import { useDrag } from '../../base/useDrag';
 
 // The WAI-ARIA slider (and multi-thumb slider): each thumb is a focusable
 // role="slider" carrying its value and the range it may move in, which for a
@@ -126,6 +127,8 @@ function onKeydown(index: 0 | 1, event: KeyboardEvent) {
 
 // ---- pointer --------------------------------------------------------------
 
+const drag = useDrag();
+
 function valueAt(event: PointerEvent): number {
     const rect = trackRef.value!.getBoundingClientRect();
     const offset = vertical.value ? event.clientY - rect.top : event.clientX - rect.left;
@@ -148,11 +151,9 @@ function onPointerdown(event: PointerEvent) {
     activeThumb.value = index;
     dragging.value = true;
     thumbEls[index]?.focus({ preventScroll: true });
-    try {
-        rootRef.value?.setPointerCapture?.(event.pointerId);
-    } catch {
-        // No active pointer with that id (a synthetic event); moves still arrive while over the slider.
-    }
+    // Followed from the document: a capture on the root is dropped by WebKit
+    // when the thumb it holds is re-rendered, which is every step of a drag.
+    drag.track(event.pointerId, { move: onPointermove, end: onPointerup });
 }
 
 function onPointermove(event: PointerEvent) {
@@ -164,11 +165,7 @@ function onPointerup(event: PointerEvent) {
     if (!dragging.value) return;
     dragging.value = false;
     activeThumb.value = null;
-    try {
-        if (rootRef.value?.hasPointerCapture?.(event.pointerId)) rootRef.value.releasePointerCapture(event.pointerId);
-    } catch {
-        // Already released.
-    }
+    drag.release();
     const value = model.value as SliderValue;
     if (!sameValue(value, valueAtStart)) emit('change', value);
     emit('slideend', { originalEvent: event, value });
@@ -182,10 +179,6 @@ defineExpose({ focus: (index: 0 | 1 = 0) => thumbEls[index]?.focus() });
         ref="rootRef"
         v-bind="mergeProps(rootAttrs, rootId, part('root', state))"
         @pointerdown="onPointerdown"
-        @pointermove="onPointermove"
-        @pointerup="onPointerup"
-        @pointercancel="onPointerup"
-        @lostpointercapture="onPointerup"
     >
         <div ref="trackRef" v-bind="part('track')">
             <div v-bind="part('range')" :style="rangeStyle" />

@@ -16,6 +16,7 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
+    -webkit-touch-callout: none;
 }
 
 .vt-slider-vertical {

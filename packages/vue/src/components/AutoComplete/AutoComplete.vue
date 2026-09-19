@@ -8,6 +8,7 @@ import Chip from '../Chip/Chip.vue';
 import Icon from '../Icon/Icon.vue';
 import type { AutoCompleteEmits, AutoCompleteProps, AutoCompleteSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA editable combobox with list autocomplete. Focus stays in the
 // text box; typing asks the app for suggestions (`complete`), Down and Up move
@@ -299,10 +300,12 @@ function onDropdown(event: Event) {
 }
 
 // A press on the field's padding focuses the text; one inside the list keeps it there.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     const target = event.target as Element;
     if (target === inputRef.value || target.closest('button')) return;
-    event.preventDefault();
+    // Not prevented for a finger: the tap has to survive. The focus it was
+    // taking is moved here either way.
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -316,7 +319,7 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
 </script>
 
 <template>
-    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <ul v-if="multiple && selectedValues.length" :aria-label="locale.aria.selectedItems" v-bind="part('chips')">
             <li v-for="(value, i) in selectedValues" :key="i" v-bind="part('chipItem')">
                 <slot name="chip" :value="value" :label="displayOf(value)" :remove="(e: Event) => removeAt(i, e)">
@@ -366,7 +369,7 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
     </div>
     <Teleport :to="overlayTarget" :disabled="appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @mousedown.prevent>
+            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="keepFocus">
                 <slot name="header" />
                 <ul v-if="items.length" :id="listId" role="listbox" v-bind="part('list')" :aria-labelledby="listLabelledBy" :aria-label="listLabelledBy ? undefined : listLabel" :aria-multiselectable="multiple ? 'true' : undefined">
                     <template v-for="(group, g) in groups" :key="g">

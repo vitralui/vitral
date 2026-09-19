@@ -4,6 +4,7 @@ import { scrollpanelStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, onMounted, reactive, ref, useAttrs } from 'vue';
 import { useComponent } from '../../base/useComponent';
 import type { ScrollPanelProps, ScrollPanelSlots } from './types';
+import { useDrag } from '../../base/useDrag';
 
 // A scroll container with the theme's own bars. The content keeps native
 // scrolling (wheel, touch, and the keyboard, since the content area is a
@@ -63,6 +64,7 @@ onBeforeUnmount(() => {
     mutations?.disconnect();
 });
 
+const drag = useDrag();
 let grab = 0;
 function onThumbPointerdown(axis: 'x' | 'y', event: PointerEvent) {
     if (event.button > 0) return;
@@ -70,11 +72,9 @@ function onThumbPointerdown(axis: 'x' | 'y', event: PointerEvent) {
     dragging.value = axis;
     const thumb = axis === 'y' ? y.value : x.value;
     grab = (axis === 'y' ? event.clientY : event.clientX) - thumb.position;
-    try {
-        (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
-    } catch {
-        // A synthetic event has no pointer to capture.
-    }
+    // From the document: the thumb moves under the finger as the panel
+    // scrolls, and a capture on it is not kept everywhere.
+    drag.track(event.pointerId, { move: onThumbPointermove, end: onThumbPointerup });
 }
 
 function onThumbPointermove(event: PointerEvent) {
@@ -87,6 +87,7 @@ function onThumbPointermove(event: PointerEvent) {
 
 function onThumbPointerup() {
     dragging.value = null;
+    drag.release();
 }
 
 // A press on the track pages towards it, as a native bar does.
@@ -123,9 +124,6 @@ defineExpose({ scrollTop, refresh: measure, content: contentRef });
                 v-bind="part('thumb')"
                 :style="{ height: `${y.size}px`, transform: `translateY(${y.position}px)` }"
                 @pointerdown="onThumbPointerdown('y', $event)"
-                @pointermove="onThumbPointermove"
-                @pointerup="onThumbPointerup"
-                @pointercancel="onThumbPointerup"
             />
         </div>
         <div v-if="x.visible" aria-hidden="true" v-bind="part('bar', { axis: 'x', active: dragging === 'x' })" @pointerdown="onTrackPointerdown('x', $event)">
@@ -133,9 +131,6 @@ defineExpose({ scrollTop, refresh: measure, content: contentRef });
                 v-bind="part('thumb')"
                 :style="{ width: `${x.size}px`, transform: `translateX(${x.position}px)` }"
                 @pointerdown="onThumbPointerdown('x', $event)"
-                @pointermove="onThumbPointermove"
-                @pointerup="onThumbPointerup"
-                @pointercancel="onThumbPointerup"
             />
         </div>
     </div>

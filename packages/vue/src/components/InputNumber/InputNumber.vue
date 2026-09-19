@@ -5,6 +5,7 @@ import { computed, mergeProps, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import Icon from '../Icon/Icon.vue';
 import type { InputNumberEmits, InputNumberProps } from './types';
+import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA spinbutton on a text box. The text is free while it is being
 // edited: it is read back as a number on every keystroke, so the value the
@@ -205,10 +206,10 @@ function onButtonClick(event: MouseEvent, direction: 1 | -1) {
 onBeforeUnmount(stopRepeat);
 
 // A press on the field's padding focuses the text, as it does on a native text box.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     const target = event.target as Element;
     if (target === inputRef.value) return;
-    event.preventDefault();
+    keepFocus(event);
     if (!target.closest('button')) inputRef.value?.focus();
 }
 
@@ -216,7 +217,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <button
             v-if="showButtons && buttonLayout === 'horizontal'"
             type="button"

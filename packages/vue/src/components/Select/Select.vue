@@ -7,6 +7,7 @@ import { useOverlay } from '../../composables/useOverlay';
 import Icon from '../Icon/Icon.vue';
 import type { SelectEmits, SelectProps, SelectSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA "select-only combobox", with an optional search box. The
 // combobox is a <button> so a <label for> reaches it; focus stays on it while
@@ -302,8 +303,8 @@ function onRootClick(event: MouseEvent) {
 }
 
 // Pressing inside the panel must not move focus off the combobox (or out of the search box).
-function onOverlayMousedown(event: MouseEvent) {
-    if (event.target !== filterRef.value) event.preventDefault();
+function onOverlayPointerdown(event: PointerEvent) {
+    keepFocus(event, (target) => target === filterRef.value);
 }
 
 function optionState(item: Item) {
@@ -345,7 +346,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
     </div>
     <Teleport :to="overlayTarget" :disabled="appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @mousedown="onOverlayMousedown">
+            <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="onOverlayPointerdown">
                 <div v-if="filter || $slots.header" v-bind="part('header')">
                     <slot name="header" />
                     <div v-if="filter" v-bind="part('filter')">

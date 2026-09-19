@@ -89,22 +89,21 @@ describe('Splitter', () => {
         expect(gutter.getAttribute('aria-valuenow')).toBe('30');
     });
 
-    it('follows a pointer drag, capturing the pointer and honouring the minimums', async () => {
+    it('follows a pointer drag wherever it goes, and honours the minimums', async () => {
         vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 250, height: 250, top: 0, left: 0, right: 250, bottom: 250, x: 0, y: 0, toJSON: () => ({}) });
-        const capture = vi.fn();
         const { gutters, sizes } = mountSplitter({}, [{ size: 50 }, { size: 50, minSize: 25 }]);
         const gutter = gutters()[0]!;
-        gutter.setPointerCapture = capture;
         gutter.dispatchEvent(pointer('pointerdown', { clientX: 100 }));
         await nextTick();
-        expect(capture).toHaveBeenCalledWith(1);
         expect(document.activeElement).toBe(gutter);
         expect(gutter.classList).toContain('vt-splitter-gutter-active');
 
         gutter.dispatchEvent(pointer('pointermove', { clientX: 150 }));
         await nextTick();
         expect(gutter.getAttribute('aria-valuenow')).toBe('60');
-        gutter.dispatchEvent(pointer('pointermove', { clientX: 900 }));
+        // Off the gutter entirely: the drag is followed from the document, so a
+        // finger that leaves the handle still moves the panels.
+        document.body.dispatchEvent(pointer('pointermove', { clientX: 900 }));
         await nextTick();
         expect(gutter.getAttribute('aria-valuenow')).toBe('75');
         gutter.dispatchEvent(pointer('pointerup', { clientX: 900 }));

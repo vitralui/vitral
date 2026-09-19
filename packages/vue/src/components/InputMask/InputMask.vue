@@ -18,6 +18,7 @@ import { inputmaskStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, shallowRef, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { InputMaskEmits, InputMaskProps } from './types';
+import { keepFocus } from '../../base/press';
 
 // A native text box that types into a pattern. Keystrokes, deletions and pastes
 // are taken over and handed to core's mask arithmetic, which says what the
@@ -134,9 +135,9 @@ function onBlur(event: FocusEvent) {
     emit('blur', event);
 }
 
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     if (event.target === inputRef.value) return;
-    event.preventDefault();
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -144,7 +145,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <input
             ref="inputRef"
             v-bind="mergeProps(controlAttrs, part('input'))"

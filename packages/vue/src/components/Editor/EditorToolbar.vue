@@ -8,6 +8,7 @@ import EditorToolbarGroup from './EditorToolbarGroup.vue';
 import EditorItem from './EditorItem.vue';
 import type { EditorToolbarProps } from './types';
 import { defaultToolbar } from './buttons';
+import { keepFocus } from '../../base/press';
 
 // The WAI-ARIA toolbar: one tab stop, Left/Right/Home/End between the
 // controls, Escape back to the text. Alt+F10 in the text lands here.
@@ -31,10 +32,8 @@ onBeforeUnmount(() => {
 });
 
 // Presses on the bar keep focus (and the selection) in the text.
-function onMousedown(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (target.closest('input, textarea, select')) return;
-    event.preventDefault();
+function onPointerdown(event: PointerEvent) {
+    keepFocus(event, (target) => !!target.closest('input, textarea, select'));
 }
 
 </script>
@@ -48,7 +47,7 @@ function onMousedown(event: MouseEvent) {
         v-bind="part('toolbar')"
         @keydown="roving.onKeydown"
         @focusin="roving.onFocusin"
-        @mousedown="onMousedown"
+        @pointerdown="onPointerdown"
     >
         <slot>
             <EditorToolbarGroup v-for="(group, i) in items" :key="i">

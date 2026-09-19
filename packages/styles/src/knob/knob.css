@@ -2,6 +2,7 @@
     display: inline-block;
     line-height: 0;
     touch-action: none;
+    -webkit-touch-callout: none;
 }
 
 .vt-knob-svg {

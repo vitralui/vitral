@@ -30,6 +30,7 @@ import InputText from '../InputText/InputText.vue';
 import Paginator from '../Paginator/Paginator.vue';
 import Popover from '../Popover/Popover.vue';
 import Column from './Column.vue';
+import { useDrag } from '../../base/useDrag';
 import type {
     ColumnLayoutLike,
     CompositeFilterLike,
@@ -447,6 +448,7 @@ const widthOf = (col: ColumnDef) => layout.value.widths?.[col.key];
 // ---- resizing
 
 let drag: { key: string; next?: string; from: number; start: Record<string, number> } | null = null;
+const resizeDrag = useDrag();
 
 function onResizeStart(col: ColumnDef, event: PointerEvent) {
     const index = columns.value.indexOf(col);
@@ -455,21 +457,23 @@ function onResizeStart(col: ColumnDef, event: PointerEvent) {
     // The widths every column measures become the layout's, so the ones that
     // were laid out by the table do not jump when one of them is given a size.
     write({ ...layout.value, widths: { ...start, ...layout.value.widths } });
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    // Followed from the document: the header is redrawn on every step, and a
+    // capture on it does not survive that in every engine.
+    const rtl = getComputedStyle(event.currentTarget as Element).direction === 'rtl';
+    resizeDrag.track(event.pointerId, { move: (move) => onResizeMove(move, rtl), end: onResizeEnd });
     event.preventDefault();
 }
 
-function onResizeMove(event: PointerEvent) {
+function onResizeMove(event: PointerEvent, rtl: boolean) {
     if (!drag) return;
-    const rtl = getComputedStyle(event.currentTarget as Element).direction === 'rtl';
     const delta = (event.clientX - drag.from) * (rtl ? -1 : 1);
     applyResize(drag.key, delta, drag.next, drag.start, event);
     drag = { ...drag, from: event.clientX };
 }
 
-function onResizeEnd(event: PointerEvent) {
+function onResizeEnd() {
     if (!drag) return;
-    (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+    resizeDrag.release();
     drag = null;
 }
 
@@ -733,9 +737,6 @@ defineExpose({ reload: () => source.reload() });
                                 :aria-label="formatMessage(locale.aria.resizeColumn, { column: headerText(col) })"
                                 v-bind="part('resizer')"
                                 @pointerdown="onResizeStart(col, $event)"
-                                @pointermove="onResizeMove"
-                                @pointerup="onResizeEnd"
-                                @pointercancel="onResizeEnd"
                                 @keydown="onResizeKeydown(col, $event)"
                                 @dblclick="setPinned(col, sticky[col.key] ? null : 'left', $event)"
                             />

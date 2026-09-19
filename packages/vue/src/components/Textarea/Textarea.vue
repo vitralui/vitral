@@ -3,6 +3,7 @@ import { textareaStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { TextareaProps } from './types';
+import { keepFocus } from '../../base/press';
 
 defineOptions({ name: 'VtTextarea', inheritAttrs: false });
 
@@ -63,9 +64,9 @@ onMounted(() => {
 onBeforeUnmount(() => observer?.disconnect());
 
 // A press on the field's padding focuses the text, as it does on a native text box.
-function onRootMousedown(event: MouseEvent) {
+function onRootPointerdown(event: PointerEvent) {
     if (event.target === inputRef.value) return;
-    event.preventDefault();
+    keepFocus(event);
     inputRef.value?.focus();
 }
 
@@ -73,7 +74,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('root', state))" @mousedown="onRootMousedown">
+    <div v-bind="mergeProps(rootAttrs, part('root', state))" @pointerdown="onRootPointerdown">
         <textarea
             ref="inputRef"
             v-bind="mergeProps(controlAttrs, part('input'))"

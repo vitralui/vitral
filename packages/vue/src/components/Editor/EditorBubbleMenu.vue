@@ -10,6 +10,7 @@ import { inheritRoot, useEditorContext } from './context';
 import EditorItem from './EditorItem.vue';
 import { useRoving } from './roving';
 import type { EditorBubbleMenuProps } from './types';
+import { keepFocus } from '../../base/press';
 
 // A floating toolbar over selected text. It appears once a selection is made
 // (not while the pointer is still dragging it), follows the selection, and
@@ -82,7 +83,7 @@ onBeforeUnmount(() => {
                 :aria-label="ctx.locale.value.editor.bubble"
                 :aria-controls="ctx.ids.content"
                 v-bind="part('bubble')"
-                @mousedown.prevent
+                @pointerdown="keepFocus"
                 @focusin="inside = true; roving.onFocusin($event)"
                 @focusout="onFocusout"
                 @keydown="roving.onKeydown"

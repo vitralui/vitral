@@ -22,6 +22,7 @@ import { useComponent } from '../../base/useComponent';
 import { useOverlay } from '../../composables/useOverlay';
 import type { ColorPickerEmits, ColorPickerProps, ColorPickerValue } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
+import { useDrag } from '../../base/useDrag';
 
 // A swatch button that opens a non-modal dialog (or, inline, a group) holding
 // two WAI-ARIA sliders (the saturation/brightness area, which Left/Right and
@@ -224,6 +225,8 @@ function track(event: PointerEvent) {
     }
 }
 
+const drag_ = useDrag();
+
 function onPointerdown(kind: 'area' | 'hue' | 'alpha', event: PointerEvent) {
     if (!interactive.value || event.button > 0) return;
     event.preventDefault();
@@ -231,17 +234,16 @@ function onPointerdown(kind: 'area' | 'hue' | 'alpha', event: PointerEvent) {
     startHex = hex.value;
     const el = event.currentTarget as HTMLElement;
     el.focus();
-    try {
-        el.setPointerCapture?.(event.pointerId);
-    } catch {
-        // A synthetic event has no pointer to capture.
-    }
+    // From the document: a capture is dropped when the handle it holds moves,
+    // and the handle moves with every step of the drag.
+    drag_.track(event.pointerId, { move: track, end: onPointerup });
     track(event);
 }
 
 function onPointerup(event: PointerEvent) {
     if (!dragging) return;
     dragging = null;
+    drag_.release();
     if (hex.value !== startHex) emit('change', { originalEvent: event, value: formatColor(hsb.value, props.format) as ColorPickerValue });
 }
 
@@ -287,9 +289,6 @@ defineExpose({ show, hide });
                         v-bind="part('area')"
                         @keydown="onAreaKeydown"
                         @pointerdown="onPointerdown('area', $event)"
-                        @pointermove="track"
-                        @pointerup="onPointerup"
-                        @pointercancel="onPointerup"
                     >
                         <span v-bind="part('handle')" :style="areaHandle" />
                     </div>
@@ -306,9 +305,6 @@ defineExpose({ show, hide });
                         v-bind="part('hue')"
                         @keydown="onHueKeydown"
                         @pointerdown="onPointerdown('hue', $event)"
-                        @pointermove="track"
-                        @pointerup="onPointerup"
-                        @pointercancel="onPointerup"
                     >
                         <span v-bind="part('handle')" :style="hueHandle" />
                     </div>
@@ -326,9 +322,6 @@ defineExpose({ show, hide });
                         v-bind="part('alpha')"
                         @keydown="onAlphaKeydown"
                         @pointerdown="onPointerdown('alpha', $event)"
-                        @pointermove="track"
-                        @pointerup="onPointerup"
-                        @pointercancel="onPointerup"
                     >
                         <!-- The colour from nothing to itself, over the chequer that shows through. -->
                         <span v-bind="part('alphaTrack')" :style="{ background: `linear-gradient(to right, transparent, #${hex})` }" />

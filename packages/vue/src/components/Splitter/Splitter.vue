@@ -6,6 +6,7 @@ import { useComponent } from '../../base/useComponent';
 import { flattenChildren } from '../UniformGrid/children';
 import SplitterPanel from './SplitterPanel.vue';
 import type { SplitterEmits, SplitterProps, SplitterSlots } from './types';
+import { useDrag } from '../../base/useDrag';
 
 // The WAI-ARIA window splitter. Each gutter is a focusable separator whose
 // value is the size of the panel before it; arrows move it by `step`, Home and
@@ -133,11 +134,15 @@ function onPointerDown(event: PointerEvent, index: number) {
         start: [...currentSizes()],
         reversed: horizontal.value && getComputedStyle(root).direction === 'rtl'
     };
-    gutter.setPointerCapture?.(event.pointerId);
+    // From the document: the panels either side of the gutter are resized on
+    // every move, and a capture does not survive that everywhere.
+    tracking.track(event.pointerId, { move: onPointerMove, end: onPointerUp });
     activeGutter.value = index;
     dragging.value = true;
     emit('resizestart', { originalEvent: event, sizes: [...drag.start] });
 }
+
+const tracking = useDrag();
 
 function onPointerMove(event: PointerEvent) {
     if (!drag || event.pointerId !== drag.pointerId) return;
@@ -148,11 +153,10 @@ function onPointerMove(event: PointerEvent) {
 
 function onPointerUp(event: PointerEvent) {
     if (!drag || event.pointerId !== drag.pointerId) return;
-    const gutter = event.currentTarget as HTMLElement;
     drag = null;
     dragging.value = false;
     activeGutter.value = -1;
-    if (gutter.hasPointerCapture?.(event.pointerId)) gutter.releasePointerCapture(event.pointerId);
+    tracking.release();
     emit('resizeend', { originalEvent: event, sizes: [...currentSizes()] });
 }
 
@@ -217,10 +221,6 @@ function onKeyup(event: KeyboardEvent) {
                 :aria-label="locale.aria.resize"
                 v-bind="mergeProps({ style: gutterStyle }, part('gutter', { active: activeGutter === index }))"
                 @pointerdown="onPointerDown($event, index)"
-                @pointermove="onPointerMove"
-                @pointerup="onPointerUp"
-                @pointercancel="onPointerUp"
-                @lostpointercapture="onPointerUp"
                 @keydown="onKeydown($event, index)"
                 @keyup="onKeyup"
             >

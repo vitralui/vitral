@@ -140,6 +140,21 @@ describe('Slider', () => {
         expect(value.value).toBe(100);
     });
 
+    it('follows the finger off the slider, and lets go where it is lifted', async () => {
+        const { value, slider } = mountSlider({ modelValue: 0, ariaLabel: 'Volume' });
+        const track = stubTrack();
+        await pointer(track, 'pointerdown', { clientX: 50 });
+        // Away from the control entirely: a capture on the root would have been
+        // dropped by now, and the drag would have stopped following.
+        await pointer(document.body, 'pointermove', { clientX: 160 });
+        expect(value.value).toBe(80);
+        await pointer(document.body, 'pointerup', { clientX: 160 });
+        expect(slider().emitted('change')).toEqual([[80]]);
+        // And nothing follows once it is lifted.
+        await pointer(document.body, 'pointermove', { clientX: 20 });
+        expect(value.value).toBe(80);
+    });
+
     it('does not jump when a thumb is grabbed off-centre', async () => {
         const { wrapper, thumbs, value } = mountSlider({ modelValue: 50, ariaLabel: 'Volume' });
         stubTrack();

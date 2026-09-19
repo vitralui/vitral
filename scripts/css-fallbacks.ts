@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import type { Plugin } from 'vite';
 
 /**
- * Two fallbacks the stylesheets cannot write for themselves, added at build
+ * Three fallbacks the stylesheets cannot write for themselves, added at build
  * time so the source keeps one copy of every rule.
  *
  * A phone that is three years old is still a phone people read on: an iPhone 7
@@ -18,7 +18,12 @@ import type { Plugin } from 'vite';
  *   the window, which is what makes the substitution honest;
  * - each declaration whose value contains `color-mix(in srgb, X …)` gets a
  *   plain `X` in front of it. A browser that knows `color-mix` overwrites it;
- *   one that does not keeps a solid colour instead of dropping the rule.
+ *   one that does not keeps a solid colour instead of dropping the rule;
+ * - a handful of properties get their `-webkit-` twin. Safari wanted the prefix
+ *   for `user-select` until 16.4, and a component's stylesheet is shipped as
+ *   the text it was written as — the bundler never sees it, so nothing else
+ *   would add them. Without `-webkit-user-select`, dragging a slider on a phone
+ *   selects the text around it instead of moving the thumb.
  */
 export function cssFallbacks(): Plugin {
     return {
@@ -37,8 +42,8 @@ export function cssFallbacks(): Plugin {
             } catch {
                 return null;
             }
-            if (!css.includes('@container') && !css.includes('color-mix(')) return null;
-            const out = colorMixFallbacks(containerFallbacks(css));
+            if (!css.includes('@container') && !css.includes('color-mix(') && !PREFIXED.some((name) => css.includes(`${name}:`))) return null;
+            const out = webkitPrefixes(colorMixFallbacks(containerFallbacks(css)));
             return query?.split('&').includes('raw') ? `export default ${JSON.stringify(out)};` : out;
         }
     };
@@ -127,4 +132,21 @@ function firstColour(inside: string): string | null {
         .replace(/\s+[\d.]+%$/, '')
         .trim();
     return colour && !/^[\d.]+%$/.test(colour) ? colour : null;
+}
+
+/**
+ * Properties Safari asked for by another name for longer than the phones
+ * people still read on have been supported: `user-select` until 16.4,
+ * `backdrop-filter` until 18, `mask` until 15.4, `appearance` until 15.4.
+ */
+export const PREFIXED = ['user-select', 'backdrop-filter', 'appearance', 'mask-image', 'mask-size', 'mask-repeat', 'mask-position', 'hyphens', 'text-size-adjust'];
+
+export function webkitPrefixes(css: string): string {
+    return css.replace(/(^|[;{]\s*)([-\w]+)\s*:\s*([^;{}]+)/g, (whole: string, lead: string, property: string, value: string, offset: number) => {
+        if (!PREFIXED.includes(property)) return whole;
+        // Already written out by hand, in this same rule.
+        const ruleStart = Math.max(css.lastIndexOf('{', offset), 0);
+        if (css.slice(ruleStart, offset).includes(`-webkit-${property}:`)) return whole;
+        return `${lead}-webkit-${property}: ${value.trim()}; ${property}: ${value}`;
+    });
 }

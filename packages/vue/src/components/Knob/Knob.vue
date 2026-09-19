@@ -4,6 +4,7 @@ import { knobStyle } from '@vitral/styles';
 import { computed, mergeProps, ref } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import type { KnobEmits, KnobProps } from './types';
+import { useDrag } from '../../base/useDrag';
 
 // A WAI-ARIA slider drawn as a dial. The drawing is the focusable slider: it
 // carries the value, its bounds and its text, and takes the slider keys:
@@ -69,6 +70,8 @@ function valueAt(event: PointerEvent): number {
     return knobValueAt(event.clientX - (rect.left + rect.width / 2), event.clientY - (rect.top + rect.height / 2), scale.value);
 }
 
+const drag = useDrag();
+
 function onPointerdown(event: PointerEvent) {
     if (!interactive.value || event.button > 0) return;
     event.preventDefault();
@@ -76,11 +79,9 @@ function onPointerdown(event: PointerEvent) {
     startValue = value.value;
     dragging.value = true;
     set(valueAt(event));
-    try {
-        svgRef.value?.setPointerCapture?.(event.pointerId);
-    } catch {
-        // A synthetic event has no pointer to capture.
-    }
+    // From the document: a capture is dropped when the dial it holds is
+    // redrawn, which is every step of the turn.
+    drag.track(event.pointerId, { move: onPointermove, end: onPointerup });
 }
 
 function onPointermove(event: PointerEvent) {
@@ -90,6 +91,7 @@ function onPointermove(event: PointerEvent) {
 function onPointerup() {
     if (!dragging.value) return;
     dragging.value = false;
+    drag.release();
     if (value.value !== startValue) emit('change', value.value);
 }
 </script>
@@ -112,9 +114,6 @@ function onPointerup() {
             v-bind="mergeProps(controlAttrs, part('svg'))"
             @keydown="onKeydown"
             @pointerdown="onPointerdown"
-            @pointermove="onPointermove"
-            @pointerup="onPointerup"
-            @pointercancel="onPointerup"
         >
             <path :d="rangePath" :stroke-width="strokeWidth" :style="rangeColor ? { stroke: rangeColor } : undefined" v-bind="part('range')" />
             <path v-if="valuePath" :d="valuePath" :stroke-width="strokeWidth" :style="valueColor ? { stroke: valueColor } : undefined" v-bind="part('value')" />
