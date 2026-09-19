@@ -17,8 +17,10 @@ import {
     useAttrs,
     useId,
     watch,
-    type ComponentInternalInstance
+    type ComponentInternalInstance,
+    type Slots
 } from 'vue';
+import { collectParts, contentOf } from '../../base/parts';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
@@ -101,18 +103,44 @@ function sweep() {
 
 const cardKey = (context: CardContext) => `card:${context.column.key}:${context.index}:${context.dragging ? 'drag' : ''}`;
 
-const slotContent = (): TaskboardConfig['content'] => ({
-    card: slots.card && ((context: CardContext) => node(cardKey(context), () => slots.card!(context as never))),
-    columnHeader: slots['column-header'] && ((context: ColumnContext) => node(`column-header:${context.column.key}`, () => slots['column-header']!(context as never))),
-    columnFooter: slots['column-footer'] && ((context: ColumnContext) => node(`column-footer:${context.column.key}`, () => slots['column-footer']!(context as never))),
-    addCard:
-        slots['add-card'] &&
-        ((context: { column: TaskboardColumn; lane?: TaskboardLane }) => node(`add-card:${context.column.key}:${context.lane?.key ?? ''}`, () => slots['add-card']!(context as never))),
-    laneHeader:
-        slots['lane-header'] &&
-        ((context: { lane: TaskboardLane; count: number; collapsed: boolean; toggle: () => void }) => node(`lane-header:${context.lane.key}`, () => slots['lane-header']!(context as never))),
-    empty: slots.empty && ((context: { column: TaskboardColumn; lane?: TaskboardLane }) => node(`empty:${context.column.key}:${context.lane?.key ?? ''}`, () => slots.empty!(context as never)))
-});
+/**
+ * The parts a template wrote as children — `<Taskboard.Card>` and the rest —
+ * read while a component that draws nothing renders, so what they read is
+ * tracked like any other dependency.
+ */
+const parts = shallowRef<Map<string, Slots>>(new Map());
+/**
+ * Read while this component renders — as an attribute that is never written —
+ * so what the parts read is tracked the way anything else in a template is.
+ */
+function readParts(): undefined {
+    const found = new Map<string, Slots>();
+    collectParts(slots.default?.(), found);
+    parts.value = found;
+    return undefined;
+}
+
+const contentFor = (slot: string, part: string) => contentOf(slots as Slots, slot, parts.value, part);
+
+const slotContent = (): TaskboardConfig['content'] => {
+    const card = contentFor('card', 'Card');
+    const columnHeader = contentFor('column-header', 'ColumnHeader');
+    const columnFooter = contentFor('column-footer', 'ColumnFooter');
+    const addCard = contentFor('add-card', 'AddCard');
+    const laneHeader = contentFor('lane-header', 'LaneHeader');
+    const empty = contentFor('empty', 'Empty');
+    return {
+        card: card && ((context: CardContext) => node(cardKey(context), () => card(context))),
+        columnHeader: columnHeader && ((context: ColumnContext) => node(`column-header:${context.column.key}`, () => columnHeader(context))),
+        columnFooter: columnFooter && ((context: ColumnContext) => node(`column-footer:${context.column.key}`, () => columnFooter(context))),
+        addCard:
+            addCard && ((context: { column: TaskboardColumn; lane?: TaskboardLane }) => node(`add-card:${context.column.key}:${context.lane?.key ?? ''}`, () => addCard(context))),
+        laneHeader:
+            laneHeader &&
+            ((context: { lane: TaskboardLane; count: number; collapsed: boolean; toggle: () => void }) => node(`lane-header:${context.lane.key}`, () => laneHeader(context))),
+        empty: empty && ((context: { column: TaskboardColumn; lane?: TaskboardLane }) => node(`empty:${context.column.key}:${context.lane?.key ?? ''}`, () => empty(context)))
+    };
+};
 
 // ---- pass-through: the root takes class, style, design tokens and the rest of the attributes
 
@@ -138,8 +166,8 @@ function passThrough(part: string, context: DomPassThroughContext): PassThroughA
 }
 
 function passThroughMap(): PassThrough {
-    const parts = new Set(['root', ...Object.keys(config.pt.taskboard ?? {}), ...Object.keys(props.pt ?? {})]);
-    return Object.fromEntries([...parts].map((part) => [part, (context: DomPassThroughContext) => passThrough(part, context)]));
+    const names = new Set(['root', ...Object.keys(config.pt.taskboard ?? {}), ...Object.keys(props.pt ?? {})]);
+    return Object.fromEntries([...names].map((part) => [part, (context: DomPassThroughContext) => passThrough(part, context)]));
 }
 
 // ---- the board ----------------------------------------------------------------------
@@ -281,5 +309,5 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="host" />
+    <div ref="host" :data-vt-parts="readParts()" />
 </template>

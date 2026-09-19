@@ -17,8 +17,10 @@ import {
     useAttrs,
     useId,
     watch,
-    type ComponentInternalInstance
+    type ComponentInternalInstance,
+    type Slots
 } from 'vue';
+import { collectParts, contentOf } from '../../base/parts';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
@@ -107,12 +109,37 @@ function sweep() {
     }
 }
 
-const slotContent = (): ScheduleConfig['content'] => ({
-    toolbar: slots.toolbar && ((context: ToolbarContext) => node('toolbar', () => slots.toolbar!({ ...context, setView: context.setView }))),
-    event: slots.event && ((context: EventContext) => node(`event:${context.occurrence.key}`, () => slots.event!(context))),
-    resource: slots.resource && ((context: { resource: ScheduleResource }) => node(`resource:${context.resource.id}`, () => slots.resource!(context))),
-    empty: slots.empty && (() => node('empty', () => slots.empty!()))
-});
+/**
+ * The parts a template wrote as children — `<Schedule.Toolbar>` and the
+ * rest — read while a component that draws nothing renders, so what they read
+ * is tracked like any other dependency.
+ */
+const parts = shallowRef<Map<string, Slots>>(new Map());
+/**
+ * Read while this component renders — as an attribute that is never written —
+ * so what the parts read is tracked the way anything else in a template is.
+ */
+function readParts(): undefined {
+    const found = new Map<string, Slots>();
+    collectParts(slots.default?.(), found);
+    parts.value = found;
+    return undefined;
+}
+
+const contentFor = (slot: string, part: string) => contentOf(slots as Slots, slot, parts.value, part);
+
+const slotContent = (): ScheduleConfig['content'] => {
+    const toolbar = contentFor('toolbar', 'Toolbar');
+    const event = contentFor('event', 'Event');
+    const resource = contentFor('resource', 'Resource');
+    const empty = contentFor('empty', 'Empty');
+    return {
+        toolbar: toolbar && ((context: ToolbarContext) => node('toolbar', () => toolbar(context))),
+        event: event && ((context: EventContext) => node(`event:${context.occurrence.key}`, () => event(context))),
+        resource: resource && ((context: { resource: ScheduleResource }) => node(`resource:${context.resource.id}`, () => resource(context))),
+        empty: empty && (() => node('empty', () => empty()))
+    };
+};
 
 // ---- pass-through: the root takes class, style and design tokens; the grid its naming attributes
 
@@ -143,8 +170,8 @@ function passThrough(part: string, context: DomPassThroughContext): PassThroughA
 }
 
 function passThroughMap(): PassThrough {
-    const parts = new Set(['root', 'grid', ...Object.keys(config.pt.schedule ?? {}), ...Object.keys(props.pt ?? {})]);
-    return Object.fromEntries([...parts].map((part) => [part, (context: DomPassThroughContext) => passThrough(part, context)]));
+    const names = new Set(['root', 'grid', ...Object.keys(config.pt.schedule ?? {}), ...Object.keys(props.pt ?? {})]);
+    return Object.fromEntries([...names].map((part) => [part, (context: DomPassThroughContext) => passThrough(part, context)]));
 }
 
 // ---- the schedule ------------------------------------------------------------------
@@ -295,5 +322,5 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="host" />
+    <div ref="host" :data-vt-parts="readParts()" />
 </template>

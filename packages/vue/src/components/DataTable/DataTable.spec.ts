@@ -4,6 +4,7 @@ import { defineComponent, h, nextTick, ref, type VNode } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
 import Column from './Column.vue';
+import { DataTable as DataTableParts } from './index';
 import type { ColumnLayoutLike } from './types';
 import DataTable from './DataTable.vue';
 
@@ -245,6 +246,26 @@ describe('DataTable', () => {
         const columns = () => [h(RawColumn, { 'column-key': 'who', field: 'name', header: 'Who', sortable: '', 'sort-field': 'id' })];
         const { header } = mountTable({}, columns);
         expect(header('Who').querySelector('button')).not.toBeNull();
+    });
+
+    it('takes its content as parts written as children, as well as as slots', () => {
+        const columns = () => [
+            h(DataTableParts.Column, { field: 'name', header: 'Name' }),
+            h(DataTableParts.Header, null, { default: () => h('strong', 'Everyone') }),
+            h(DataTableParts.Footer, null, { default: () => '12 people' }),
+            h(DataTableParts.Empty, null, { default: () => 'Nobody here' })
+        ];
+        const { table, wrapper } = mountTable({ value: [] }, columns);
+        expect(document.querySelector('.vt-datatable-header')?.textContent).toBe('Everyone');
+        expect(document.querySelector('.vt-datatable-footer')?.textContent).toBe('12 people');
+        expect(table().querySelector('.vt-datatable-empty-cell')?.textContent).toBe('Nobody here');
+        // A part draws nothing of its own.
+        expect(wrapper.html()).not.toContain('VtDataTable');
+    });
+
+    it('is the table itself under Root, with the same parts', () => {
+        expect(DataTableParts.Root).toBe(DataTable);
+        expect(DataTableParts.Column).toBe(Column);
     });
 
     it('renders body, header and footer slots', () => {

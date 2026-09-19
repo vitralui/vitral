@@ -3,7 +3,26 @@ import { createChart, mergeAttrs, type ChartEventName, type ChartHandle, type Ch
 import { loadStyle } from '@vitral/core';
 import { baseStyle } from '@vitral/styles';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
-import { defineComponent, getCurrentInstance, h, normalizeClass, normalizeStyle, onBeforeUnmount, onMounted, onUpdated, ref, render, toRaw, useAttrs, useId, watch, type ComponentInternalInstance } from 'vue';
+import {
+    defineComponent,
+    getCurrentInstance,
+    h,
+    normalizeClass,
+    normalizeStyle,
+    onBeforeUnmount,
+    onMounted,
+    onUpdated,
+    ref,
+    render,
+    shallowRef,
+    toRaw,
+    useAttrs,
+    useId,
+    watch,
+    type ComponentInternalInstance,
+    type Slots
+} from 'vue';
+import { collectParts, contentOf } from '../../base/parts';
 import { useVitral } from '../../config/config';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
@@ -68,41 +87,64 @@ function passThroughMap(): ChartPassThrough {
 // Slot content keeps what it would inject where the chart is (a theme scope, an overlay host).
 const SlotHost = defineComponent({
     name: 'VtChartSlot',
-    props: { name: { type: String, required: true }, data: { type: Object, default: undefined } },
+    props: { draw: { type: Function, required: true }, data: { type: Object, default: undefined } },
     setup(p) {
         const self = getCurrentInstance() as ComponentInternalInstance & { provides: object };
         self.provides = (instance as ComponentInternalInstance & { provides: object }).provides;
-        return () => (slots as Record<string, ((data: unknown) => unknown) | undefined>)[p.name]?.(p.data);
+        return () => (p.draw as (data?: unknown) => unknown)(p.data);
     }
 });
 
 const containers = new Map<string, HTMLElement>();
-function slotNode(key: string, name: string, data?: object): Node {
+function slotNode(key: string, draw: (data?: unknown) => unknown, data?: object): Node {
     let el = containers.get(key);
     if (!el) {
         el = document.createElement('div');
         el.style.display = 'contents';
         containers.set(key, el);
     }
-    const vnode = h(SlotHost, { name, data });
+    const vnode = h(SlotHost, { draw, data });
     vnode.appContext = instance.appContext;
     render(vnode, el);
     return el;
 }
 
-// Read on every draw, so a slot added or removed later is noticed.
+/**
+ * The parts a template wrote as children — `<Chart.Tooltip>` and the rest —
+ * read while a component that draws nothing renders, so what they read is
+ * tracked like any other dependency.
+ */
+const parts = shallowRef<Map<string, Slots>>(new Map());
+/**
+ * Read while this component renders — as an attribute that is never written —
+ * so what the parts read is tracked the way anything else in a template is.
+ */
+function readParts(): undefined {
+    const found = new Map<string, Slots>();
+    collectParts(slots.default?.(), found);
+    parts.value = found;
+    return undefined;
+}
+
+const contentFor = (slot: string, part: string) => contentOf(slots as Slots, slot, parts.value, part);
+
+// Read on every draw, so a slot (or a part) added or removed later is noticed.
 const hooks: ChartHooks = {
     get tooltip() {
-        return slots.tooltip ? { render: (context: ChartTooltipRenderContext) => slotNode('tooltip', 'tooltip', context) } : undefined;
+        const draw = contentFor('tooltip', 'Tooltip');
+        return draw ? { render: (context: ChartTooltipRenderContext) => slotNode('tooltip', draw, context) } : undefined;
     },
     get legend() {
-        return slots.legend ? { item: (context: LegendItemContext) => slotNode(`legend-${context.seriesIndex}`, 'legend', context) } : undefined;
+        const draw = contentFor('legend', 'Legend');
+        return draw ? { item: (context: LegendItemContext) => slotNode(`legend-${context.seriesIndex}`, draw, context) } : undefined;
     },
     get noData() {
-        return slots.noData ? { render: () => slotNode('noData', 'noData') } : undefined;
+        const draw = contentFor('noData', 'NoData');
+        return draw ? { render: () => slotNode('noData', draw) } : undefined;
     },
     get center() {
-        return slots.center ? { render: (context: PieCenter) => slotNode('center', 'center', context) } : undefined;
+        const draw = contentFor('center', 'Center');
+        return draw ? { render: (context: PieCenter) => slotNode('center', draw, context) } : undefined;
     }
 };
 
@@ -184,5 +226,5 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="host" />
+    <div ref="host" :data-vt-parts="readParts()" />
 </template>

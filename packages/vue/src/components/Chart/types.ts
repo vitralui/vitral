@@ -82,6 +82,8 @@ export interface ChartTooltipSlotProps {
 }
 
 export interface ChartSlots {
+    /** The parts, written as children: `<Chart.Tooltip>`, `<Chart.Legend>`… */
+    default?: () => unknown;
     /** Replaces the tooltip's content. */
     tooltip?: (props: ChartTooltipSlotProps) => unknown;
     /** Shown instead of the chart when there is no data. */

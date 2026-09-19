@@ -127,6 +127,8 @@ export interface TaskboardColumnSlotProps {
 }
 
 export interface TaskboardSlots {
+    /** The parts, written as children: `<Taskboard.Card>`, `<Taskboard.ColumnHeader>`… */
+    default?: () => unknown;
     /** A card's content. */
     card?: (props: TaskboardCardSlotProps) => unknown;
     /** A column header's title area. */

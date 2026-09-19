@@ -66,6 +66,11 @@ for (const dir of componentDirs) {
     for (const [, name] of source.matchAll(/export \{ default as (\w+) \} from '\.\/[\w.]+\.vue'/g)) componentNames.add(name);
     // An SFC imported under a name and re-exported under it (the compound parts).
     const locals = new Set(Array.from(source.matchAll(/^import (\w+) from '\.\/[\w.]+\.vue';$/gm), (m) => m[1]));
+    // The parts that draw nothing and stand for a piece of content, from the
+    // folder's own `parts.ts`: components like any other to whatever registers them.
+    for (const [, list] of source.matchAll(/^import \{([^}]*)\} from '\.\/parts';$/gm)) {
+        for (const name of list.split(',').map((n) => n.trim())) if (name) locals.add(name);
+    }
     // One part under a second name: `const FormErrors = FormSummary;`
     for (const [, alias, of] of source.matchAll(/^const (\w+) = (\w+);$/gm)) if (locals.has(of)) locals.add(alias);
     for (const [, list] of source.matchAll(/^export \{([^}]*)\};$/gm)) {

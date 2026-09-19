@@ -160,6 +160,8 @@ export interface ScheduleEventSlotProps {
 }
 
 export interface ScheduleSlots {
+    /** The parts, written as children: `<Schedule.Toolbar>`, `<Schedule.Event>`… */
+    default?: () => unknown;
     /** Replaces the whole toolbar. */
     toolbar?: (props: ScheduleToolbarSlotProps) => unknown;
     /** An event's content. */

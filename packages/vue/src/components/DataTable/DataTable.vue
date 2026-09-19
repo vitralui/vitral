@@ -20,8 +20,10 @@ import {
     useId,
     watch,
     type ComponentInternalInstance,
+    type Slots,
     type VNode
 } from 'vue';
+import { collectParts, contentOf } from '../../base/parts';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
@@ -100,16 +102,13 @@ function toColumn(vnode: VNode, index: number): ColumnDef {
 
 const isColumn = (vnode: VNode) => vnode.type === Column || (vnode.type as { name?: string } | null)?.name === 'VtColumn';
 
-function collect(nodes: unknown, out: ColumnDef[]) {
-    if (!Array.isArray(nodes)) return;
-    for (const node of nodes) {
-        if (Array.isArray(node)) collect(node, out);
-        else if (node && typeof node === 'object') {
-            const vnode = node as VNode;
-            if (isColumn(vnode)) out.push(toColumn(vnode, out.length));
-            else if (vnode.type === Fragment) collect(vnode.children, out);
-        }
-    }
+/** The parts the template wrote as children, by name, from the last read. */
+const parts = shallowRef<Map<string, Slots>>(new Map());
+
+function collect(nodes: unknown, out: ColumnDef[], found: Map<string, Slots>) {
+    collectParts(nodes, found, (vnode) => {
+        if (isColumn(vnode)) out.push(toColumn(vnode, out.length));
+    });
 }
 
 /** What one `<Column>` declared, as the table reads a column. */
@@ -152,20 +151,21 @@ function toTableColumn(def: ColumnDef): TableColumn {
 }
 
 /**
- * The columns the slot declared. Read while the reader component renders, so
- * what the slot reads — a v-if, a bound header — is tracked like any other
+ * The columns the slot declared, and the parts it wrote as children. Read
+ * while this component renders — as an attribute that is never written — so
+ * what the slot reads, a v-if or a bound header, is tracked like any other
  * dependency, and the table is told when it changes.
  */
 const columns = shallowRef<TableColumn[]>([]);
-const ColumnReader = defineComponent({
-    name: 'VtDataTableColumns',
-    setup: () => () => {
-        const out: ColumnDef[] = [];
-        collect(slots.default?.(), out);
-        columns.value = out.map(toTableColumn);
-        return null;
-    }
-});
+
+function readSlot(): undefined {
+    const found: ColumnDef[] = [];
+    const written = new Map<string, Slots>();
+    collect(slots.default?.(), found, written);
+    columns.value = found.map(toTableColumn);
+    parts.value = written;
+    return undefined;
+}
 
 /** For a custom filter slot that changed `filterModel.value` on an object Vue does not track. */
 const filterCallback = () => (filters.value = { ...(filters.value ?? {}) });
@@ -207,15 +207,21 @@ function sweep() {
 }
 
 /** The slots the table draws, under the names the table knows them by. */
-const CONTENT_SLOTS = ['header', 'footer', 'empty', 'loadingicon', 'paginatorstart', 'paginatorend'] as const;
-const CONTENT_NAMES: Record<string, string> = { loadingicon: 'loadingIcon', paginatorstart: 'paginatorStart', paginatorend: 'paginatorEnd' };
+/** Each piece of content, by the slot that gives it and the part that stands for it. */
+const CONTENT_SLOTS: { slot: string; part: string; key: string }[] = [
+    { slot: 'header', part: 'Header', key: 'header' },
+    { slot: 'footer', part: 'Footer', key: 'footer' },
+    { slot: 'empty', part: 'Empty', key: 'empty' },
+    { slot: 'loadingicon', part: 'LoadingIcon', key: 'loadingIcon' },
+    { slot: 'paginatorstart', part: 'PaginatorStart', key: 'paginatorStart' },
+    { slot: 'paginatorend', part: 'PaginatorEnd', key: 'paginatorEnd' }
+];
 
 const slotContent = (): TableConfig['content'] => ({
     ...Object.fromEntries(
-        CONTENT_SLOTS.filter((name) => slots[name]).map((name) => [
-            CONTENT_NAMES[name] ?? name,
-            (state: PageContext) => node(name, () => (slots[name] as (data?: unknown) => unknown)(state))
-        ])
+        CONTENT_SLOTS.map((entry) => [entry.key, contentOf(slots as Slots, entry.slot, parts.value, entry.part)])
+            .filter(([, draw]) => !!draw)
+            .map(([key, draw]) => [key, (state: PageContext) => node(String(key), () => (draw as (data?: unknown) => unknown)(state))])
     ),
     // The page size is Vitral's own select here: the table draws a native one
     // for a page with no framework, and this is the framework.
@@ -468,6 +474,5 @@ defineExpose({
 </script>
 
 <template>
-    <div ref="host" />
-    <ColumnReader />
+    <div ref="host" :data-vt-parts="readSlot()" />
 </template>
