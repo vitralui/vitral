@@ -28,6 +28,17 @@
     gap: 0;
 }
 
+/* A finger on the plot must not start selecting it. Holding still is how a
+   window is opened on a phone, and without this the hold selects the label
+   under the finger and raises the callout instead. The legend and the title,
+   which are outside the canvas, stay selectable. */
+.vt-chart-canvas,
+.vt-chart-canvas * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 .vt-chart-dragging,
 .vt-chart-dragging * {
     user-select: none;

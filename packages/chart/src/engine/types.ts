@@ -404,6 +404,12 @@ export interface ChartSettings {
         allowMouseWheelZoom?: boolean;
         /** With the wheel on, it still wants this key down. */
         wheelModifier?: 'ctrl' | 'none';
+        /**
+         * Milliseconds a finger rests before its drag zooms, so a swipe over
+         * the chart still reads it rather than selecting a window. 300 by
+         * default; `0` makes a finger drag like a mouse.
+         */
+        touchDelay?: number;
     };
     /** A drag with Shift pans instead of zooming. */
     pan?: { enabled?: boolean; modifier?: 'shift' | 'none' };

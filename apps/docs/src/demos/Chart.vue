@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Chart',
     category: 'Data',
     description:
-        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut, radar, waterfall, range bar, range area, histogram, box plot, funnel, stream, bullet, treemap, sunburst, calendar, radial bars and a gauge; nice scales, shared tooltips, a legend that toggles series, zoom by dragging, a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
+        'SVG charts with no dependency, driven by one options object in the shape ApexCharts made familiar, and plain data throughout, so it survives JSON. Line, area, bar, lollipop, scatter, bubble, heat map, candlestick, pie, donut, radar, waterfall, range bar, range area, histogram, box plot, funnel, stream, bullet, treemap, sunburst, calendar, radial bars and a gauge; nice scales, shared tooltips, a legend that toggles series, zoom by dragging — a finger holds still first, so a swipe over a chart reads it rather than zooming it — a toolbar, brushes and synced groups. Each chart is named by a generated summary, and its plot takes focus: the arrow keys read it point by point.'
 };
 </script>
 
@@ -384,7 +384,7 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
         <Chart type="lollipop" :series="lollipop" :options="lollipopOptions" style="width: 100%" />
     </DemoSection>
 
-    <DemoSection title="Scatter and bubbles" description="A numeric x axis, drag to zoom on both axes, and a y annotation. Bubbles map their value to area, not radius.">
+    <DemoSection title="Scatter and bubbles" description="A numeric x axis, drag to zoom on both axes (on a touch screen, hold still and then drag), and a y annotation. Bubbles map their value to area, not radius.">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; width: 100%">
             <Chart type="scatter" :series="scatter" :options="scatterOptions" />
             <Chart type="bubble" :series="bubbles" :options="bubbleOptions" />

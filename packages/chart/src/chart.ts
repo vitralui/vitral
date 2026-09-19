@@ -205,6 +205,8 @@ function sameValue(a: unknown, b: unknown): boolean {
 
 const cssLength = (v: number | string | undefined, fallback: string) => (v === undefined ? fallback : typeof v === 'number' || /^\d+(\.\d+)?$/.test(v) ? `${v}px` : v);
 const sorted = (a: number, b: number): [number, number] => (a <= b ? [a, b] : [b, a]);
+/** How long a finger rests before its drag zooms, where nothing says otherwise. */
+const TOUCH_HOLD = 300;
 const withKey = (node: Child, key: string): Child => {
     if (node && typeof node === 'object' && !Array.isArray(node) && (node as VElement).kind === 'element') (node as VElement).key = key;
     return node;
@@ -655,6 +657,11 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
 
     const drag = pointerDrag<DragStart>({
         threshold: 4,
+        // A finger has no hover: a swipe over the chart reads it, and only a
+        // finger that stays still starts a window. A mouse is unaffected.
+        get touchDelay() {
+            return derive().chart.zoom?.touchDelay ?? TOUCH_HOLD;
+        },
         onActive: () => schedule(),
         onStart: (start) => {
             setHover(null);
@@ -738,6 +745,10 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     function onPointerdown(event: PointerEvent) {
         const d = derive();
         const sc = d.scene;
+        // Nothing hovers before a finger touches down, so the touch itself is
+        // what shows the tooltip and lights the point up — on a pie and a
+        // radar too, which have no window to drag.
+        if (event.pointerType !== 'mouse') onPointermove(event);
         if (sc.empty || !d.cartesian) return;
         const { x, y } = local(event);
         const { plot } = sc;

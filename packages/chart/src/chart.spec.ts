@@ -164,6 +164,54 @@ describe('createChart', () => {
         expect(button('Costs').getAttribute('aria-pressed')).toBe('false');
     });
 
+    it('reads under a finger, and leaves a swipe to the page', async () => {
+        const { chart, svg } = mount({ series: [{ name: 'A', data: [1, 2, 3, 4, 5, 6, 7, 8] }], options: { chart: { animations: { enabled: false } } } });
+        const zoomed = vi.fn();
+        chart.on('zoomed', zoomed);
+        const scene = chart.scene();
+        const y = scene.plot.y + 10;
+        const finger = (type: string, x: number) => pointer(type, x, y, { pointerType: 'touch' });
+
+        // A finger has no hover, so the touch itself is what reads the chart.
+        svg().dispatchEvent(finger('pointerdown', scene.columns[2]!.pos));
+        await tick();
+        expect(document.querySelector('.vt-chart-tooltip')).not.toBeNull();
+        expect(svg().querySelector('.vt-chart-crosshair')).not.toBeNull();
+
+        // Moving before it has rested is a swipe: it reads on, opens no
+        // window, and the page is left to scroll under it.
+        document.dispatchEvent(finger('pointermove', scene.columns[5]!.pos));
+        await tick();
+        expect(svg().querySelector('.vt-chart-selection')).toBeNull();
+        document.dispatchEvent(finger('pointerup', scene.columns[5]!.pos));
+        await settle();
+        expect(zoomed).not.toHaveBeenCalled();
+    });
+
+    it('opens a window from a finger that has rested, and stops reading while it does', async () => {
+        const { chart, svg } = mount({
+            series: [{ name: 'A', data: [1, 2, 3, 4, 5, 6, 7, 8] }],
+            options: { chart: { animations: { enabled: false }, zoom: { touchDelay: 10 } } }
+        });
+        const zoomed = vi.fn();
+        chart.on('zoomed', zoomed);
+        const scene = chart.scene();
+        const y = scene.plot.y + 10;
+        const finger = (type: string, x: number) => pointer(type, x, y, { pointerType: 'touch' });
+
+        svg().dispatchEvent(finger('pointerdown', scene.columns[2]!.pos));
+        await new Promise((resolve) => setTimeout(resolve, 25));
+        document.dispatchEvent(finger('pointermove', scene.columns[5]!.pos));
+        await tick();
+        expect(svg().querySelector('.vt-chart-selection')).not.toBeNull();
+        // The window is being drawn: the tooltip is out of the way.
+        expect(document.querySelector('.vt-chart-tooltip')).toBeNull();
+        document.dispatchEvent(finger('pointerup', scene.columns[5]!.pos));
+        await settle();
+        expect(zoomed.mock.calls[0]![0].min).toBeCloseTo(2, 5);
+        expect(zoomed.mock.calls[0]![0].max).toBeCloseTo(5, 5);
+    });
+
     it('zooms to a dragged range, pans only once zoomed, and resets', async () => {
         const { chart, svg, button } = mount({ series: [{ name: 'A', data: [1, 2, 3, 4, 5, 6, 7, 8] }], options: { chart: { animations: { enabled: false } } } });
         const zoomed = vi.fn();
