@@ -135,9 +135,11 @@ a {
 .top-actions {
     margin-inline-start: auto;
     display: flex;
+    flex: 0 0 auto;
     align-items: center;
     gap: 0.5rem;
 }
+
 
 .search-btn {
     display: flex;
@@ -152,6 +154,29 @@ a {
     font: inherit;
     font-size: 0.8125rem;
     cursor: pointer;
+}
+
+/*
+ * Between the width where the drawer takes over and the width where
+ * everything fits, the bar is tight: the brand, four panels, a 13rem search
+ * box and three buttons came to more than the window, and the actions hung
+ * off the end with a horizontal scrollbar under them. The search box gives up
+ * its shortcut, then its label, before anything is pushed off the edge.
+ */
+@media (max-width: 1180px) {
+    .search-btn kbd {
+        display: none;
+    }
+}
+
+@media (max-width: 1080px) {
+    .search-btn {
+        min-width: 0;
+    }
+
+    .search-btn .search-label {
+        display: none;
+    }
 }
 
 .search-btn:hover {
@@ -1122,7 +1147,10 @@ a {
 .mega-panel {
     position: absolute;
     top: calc(100% + 0.5rem);
-    inset-inline-start: clamp(0px, var(--mega-offset, 0px), 100%);
+    /* Set by the bar, which measures the panel against the window: it may be
+       negative, so the panel can start before the bar does rather than hang
+       off the far edge. */
+    inset-inline-start: var(--mega-offset, 0px);
     z-index: 890;
     width: max-content;
     max-width: min(40rem, calc(100vw - 2rem));

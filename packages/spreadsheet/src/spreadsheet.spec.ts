@@ -418,6 +418,21 @@ describe('its toolbar', () => {
         expect(cell('D2')!.textContent).toBe('1600');
     });
 
+    it('says what a tool is on hover and on focus, rather than leaving it to the browser', async () => {
+        const { tool } = mount();
+        const button = tool(words.bold);
+        // Not the browser's own `title`: that waits a second, wears the
+        // system's colours and never appears for a keyboard.
+        expect(button.getAttribute('title')).toBeNull();
+        button.dispatchEvent(new MouseEvent('mouseenter'));
+        // It waits before it shows, so a pointer passing through says nothing.
+        expect(document.querySelector('[role="tooltip"]')).toBeNull();
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        const tip = document.querySelector('[role="tooltip"]');
+        expect(tip?.textContent).toBe(words.bold);
+        expect(button.getAttribute('aria-describedby')).toBe(tip!.id);
+    });
+
     it('is one tab stop, with the arrows inside it', () => {
         const { buttons, toolbar, tool, handle } = mount();
         expect(buttons().filter((button) => button.tabIndex === 0).map((button) => button.getAttribute('aria-label'))).toEqual([words.undo]);

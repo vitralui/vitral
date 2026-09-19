@@ -27,7 +27,7 @@ const theme = useTheme();
                         <circle cx="7" cy="7" r="4.25" />
                         <path d="M10.2 10.2l3.3 3.3" />
                     </svg>
-                    Search
+                    <span class="search-label">Search</span>
                     <kbd>Ctrl K</kbd>
                 </button>
                 <ThemeMenu />

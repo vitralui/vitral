@@ -27,6 +27,8 @@ export interface ToolbarContext {
 }
 
 export interface ToolbarActions {
+    /** Gives a button the tooltip that says what it is. */
+    tip: (element: Element | null, text: string) => void;
     command: (name: string, args: readonly unknown[], event: MouseEvent) => void;
     openLink: (event: MouseEvent) => void;
     openImage: (event: MouseEvent) => void;
@@ -58,12 +60,14 @@ export function buttonView(context: ToolbarContext, item: EditorButtonCommand): 
         'button',
         mergeAttrs({ key: item, type: 'button' }, part('button', { active: pressed, disabled }), {
             'aria-label': name,
-            title: shortcut ? `${name} (${shortcut.label})` : name,
             'aria-pressed': isLink || pressed === undefined ? undefined : pressed ? 'true' : 'false',
             'aria-haspopup': isLink ? 'dialog' : undefined,
             'aria-keyshortcuts': shortcut?.aria,
             disabled,
-            ref: isLink ? context.ref('link') : undefined,
+            ref: (element: Element | null) => {
+                if (isLink) context.ref('link')(element);
+                context.on.tip(element, shortcut ? `${name} (${shortcut.label})` : name);
+            },
             onClick: (event: MouseEvent) => (isLink ? context.on.openLink(event) : context.on.command(command, args, event))
         }),
         iconView(spec.icon.name, part('buttonIcon'))
@@ -78,10 +82,12 @@ function openerView(context: ToolbarContext, item: 'image' | 'table'): Child {
         'button',
         mergeAttrs({ key: item, type: 'button' }, context.part('button', { disabled: !context.editable }), {
             'aria-label': name,
-            title: name,
             'aria-haspopup': 'dialog',
             disabled: !context.editable,
-            ref: context.ref(item),
+            ref: (element: Element | null) => {
+                context.ref(item)(element);
+                context.on.tip(element, name);
+            },
             onClick: (event: MouseEvent) => (spec.action === 'openImage' ? context.on.openImage(event) : context.on.openTable(event))
         }),
         iconView(spec.icon, context.part('buttonIcon'))
@@ -97,10 +103,12 @@ function colorView(context: ToolbarContext, kind: 'color' | 'highlight'): Child 
         'button',
         mergeAttrs({ key: kind, type: 'button' }, part('button', { disabled: !context.editable }), {
             'aria-label': name,
-            title: name,
             'aria-haspopup': 'dialog',
             disabled: !context.editable,
-            ref: context.ref(kind),
+            ref: (element: Element | null) => {
+                context.ref(kind)(element);
+                context.on.tip(element, name);
+            },
             onClick: (event: MouseEvent) => context.on.openColor(kind, event)
         }),
         iconView(kind === 'color' ? 'textColor' : 'highlighter', part('buttonIcon')),

@@ -21,7 +21,7 @@ import {
     type EditorView,
     type Locale
 } from '@vitral/core';
-import { createOverlay, createSelect, type Overlay, type SelectHandle } from '@vitral/controls';
+import { createOverlay, createSelect, createTooltips, type Overlay, type SelectHandle } from '@vitral/controls';
 import { createRoot, h, mergeAttrs, partResolver, type Child, type Props } from '@vitral/dom';
 import { registerIcons } from '@vitral/icons';
 import { baseStyle, buttonStyle, editorStyle } from '@vitral/styles';
@@ -75,6 +75,16 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
     // handle and any command an application names its own icon for are looked
     // up by name: the editor puts its set in the registry rather than drawing
     // a bar of empty buttons in an application that never registered them.
+    // What each button is, shown the way every other Vitral control shows it.
+    const tooltips = createTooltips(() => ({
+        placement: 'bottom',
+        unstyled: current.unstyled,
+        nonce: current.nonce,
+        cssLayer: current.cssLayer,
+        zIndex: current.zIndex,
+        pt: current.pt
+    }));
+
     registerIcons(editorIcons);
 
     const editor: EditorInstance = createEditorInstance({
@@ -282,6 +292,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                 else anchors.delete(name);
             },
             on: {
+                tip: (element, text) => tooltips.attach(element, text),
                 command: (name, args, event) => {
                     run(name, ...args);
                     if (event.detail > 0) focus();
@@ -459,6 +470,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             blockHandle.destroy();
             [...panels(), bubble].forEach((overlay) => overlay.destroy());
             blockSelect?.destroy();
+            tooltips.destroy();
             view?.destroy();
             root.clear();
         }

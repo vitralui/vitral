@@ -30,6 +30,8 @@ export interface ToolbarContext {
 export interface ToolbarActions {
     press: (item: SpreadsheetToolbarItem, event: MouseEvent) => void;
     keydown: (event: KeyboardEvent) => void;
+    /** Gives a button the tooltip that says what it is. */
+    tip: (element: Element | null, text: string) => void;
 }
 
 export function buttonView(context: ToolbarContext, item: Exclude<SpreadsheetToolbarItem, 'numberFormat'>, tabbable: boolean): Child {
@@ -44,10 +46,10 @@ export function buttonView(context: ToolbarContext, item: Exclude<SpreadsheetToo
         'button',
         mergeAttrs({ key: item, type: 'button' }, part('button', { active: pressed, disabled }), {
             'aria-label': name,
-            title: name,
             'aria-pressed': pressed === undefined ? undefined : pressed ? 'true' : 'false',
             tabindex: tabbable ? 0 : -1,
             disabled,
+            ref: (element: Element | null) => context.on.tip(element, name),
             onClick: (event: MouseEvent) => context.on.press(item, event)
         }),
         iconNode(spec.icon, part('buttonIcon'))

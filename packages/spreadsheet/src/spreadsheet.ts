@@ -1,5 +1,5 @@
 import { en, loadStyle, rovingIndex, rovingMove, type Locale } from '@vitral/core';
-import { createSelect, type SelectHandle } from '@vitral/controls';
+import { createSelect, createTooltips, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, pointerDrag, type Child } from '@vitral/dom';
 import { registerIcons } from '@vitral/icons';
 import { baseStyle, spreadsheetStyle } from '@vitral/styles';
@@ -96,6 +96,17 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
     let formatSelect: SelectHandle | null = null;
     /** Which toolbar button keeps the tab stop, so the bar is one stop with arrows inside it. */
     let tabStop: SpreadsheetToolbarItem | undefined;
+    // What each tool is, shown the way every other Vitral control shows it —
+    // rather than the browser's own `title`, which waits a second, wears the
+    // system's colours and never appears for a keyboard.
+    const tooltips = createTooltips(() => ({
+        placement: 'bottom',
+        unstyled: current.unstyled,
+        nonce: current.nonce,
+        cssLayer: current.cssLayer,
+        zIndex: current.zIndex,
+        pt: current.pt
+    }));
     let viewportEl: HTMLElement | null = null;
     let editorEl: HTMLInputElement | null = null;
     let focusEditor = false;
@@ -201,7 +212,7 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             formatRef: (element) => {
                 formatHost = element as HTMLElement | null;
             },
-            on: { press: (item) => press(item), keydown: toolbarKeydown }
+            on: { press: (item) => press(item), keydown: toolbarKeydown, tip: (element, text) => tooltips.attach(element, text) }
         };
     }
 
@@ -647,6 +658,7 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             resizeDrag.cancel();
             formatSelect?.destroy();
             formatSelect = null;
+            tooltips.destroy();
             root.clear();
         }
     };

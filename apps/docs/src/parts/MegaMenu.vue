@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button, Drawer, Icon } from '@vitral/vue';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { sections } from '../lib/catalog';
 import { guideSections } from '../lib/guides';
 import { route, href } from '../lib/router';
@@ -110,16 +110,41 @@ const guideNotes: Record<string, string> = {
 
 const componentCount = computed(() => sections.reduce((total, section) => total + section.items.length, 0));
 
-function toggle(panel: Panel, event: MouseEvent) {
-    const button = event.currentTarget as HTMLElement;
-    // How far the button starts from where the bar starts, which reading right
-    // to left is measured from the right. `offsetLeft` would anchor the panel's
-    // left edge to the button's left in both, and in right-to-left that sends a
-    // 40rem panel off the side of the window.
-    const host = root.value!.getBoundingClientRect();
+/** How far from the edge of the window a panel is allowed to sit. */
+const MARGIN = 12;
+
+/**
+ * Where the open panel starts, measured from the bar's leading edge — which
+ * reading right to left is its right edge. It starts under the item that
+ * opened it and slides back along the bar when that would take it off the
+ * side of the window: the templates panel is 50rem wide and its item is the
+ * last but one, so anchored to the item alone it hung 341px past the edge and
+ * gave the whole page a horizontal scrollbar.
+ */
+function place() {
+    const host = root.value;
+    const panel = host?.querySelector<HTMLElement>('.mega-panel');
+    const button = host?.querySelector<HTMLElement>('.top-nav button.on');
+    if (!host || !panel || !button) return;
+    const bar = host.getBoundingClientRect();
     const box = button.getBoundingClientRect();
-    offset.value = getComputedStyle(root.value!).direction === 'rtl' ? host.right - box.right : box.left - host.left;
+    const rtl = getComputedStyle(host).direction === 'rtl';
+    const width = panel.offsetWidth;
+    const viewport = document.documentElement.clientWidth;
+    const wanted = rtl ? bar.right - box.right : box.left - bar.left;
+    // The furthest it can start and still end inside the window, and the
+    // nearest it can start and still begin inside it.
+    const furthest = rtl ? bar.right - MARGIN - width : viewport - MARGIN - width - bar.left;
+    const nearest = rtl ? bar.right - viewport + MARGIN : MARGIN - bar.left;
+    offset.value = Math.max(nearest, Math.min(wanted, furthest));
+}
+
+async function toggle(panel: Panel) {
     open.value = open.value === panel ? null : panel;
+    if (!open.value) return;
+    // The panel has to be in the document before it can be measured.
+    await nextTick();
+    place();
 }
 
 function onPointerDown(event: Event) {
@@ -130,14 +155,21 @@ function onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') open.value = null;
 }
 
+/** A window that changed size while a panel is open is placed again. */
+function onResize() {
+    if (open.value) place();
+}
+
 onMounted(() => {
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeydown);
+    window.addEventListener('resize', onResize);
 });
 
 onBeforeUnmount(() => {
     document.removeEventListener('pointerdown', onPointerDown);
     document.removeEventListener('keydown', onKeydown);
+    window.removeEventListener('resize', onResize);
 });
 </script>
 
@@ -145,7 +177,7 @@ onBeforeUnmount(() => {
     <div ref="root" class="mega">
         <nav class="top-nav" aria-label="Sections">
             <template v-for="panel in panels" :key="panel.key">
-                <button type="button" :class="{ 'is-active': panel.active(), on: open === panel.key }" :aria-expanded="open === panel.key" @click="toggle(panel.key, $event)">
+                <button type="button" :class="{ 'is-active': panel.active(), on: open === panel.key }" :aria-expanded="open === panel.key" @click="toggle(panel.key)">
                     {{ panel.label }}
                     <Icon icon="chevronDown" />
                 </button>
