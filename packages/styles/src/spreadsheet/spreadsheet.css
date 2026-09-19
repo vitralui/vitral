@@ -1,0 +1,259 @@
+/* A spreadsheet. The grid is four boxes: the corner, the column headers, the
+   row headers and the cells. Only the cells scroll; the headers are moved by
+   the same amount along their one axis, which pins them without asking
+   `position: sticky` to work inside a layer of absolutely placed cells.
+
+   Every cell is placed by its offset rather than laid out in flow, so only
+   what is on screen is ever in the document — a sheet of ten thousand rows
+   draws the same thirty. */
+
+.vt-spreadsheet {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: var(--vt-spreadsheet-border-width) solid var(--vt-spreadsheet-border-color);
+    border-radius: var(--vt-spreadsheet-border-radius);
+    background: var(--vt-spreadsheet-background);
+    color: var(--vt-spreadsheet-cell-color);
+    font-size: var(--vt-spreadsheet-font-size);
+    /* A spreadsheet selects cells, not the text in them: without this a drag
+       across it selects the labels, and a press on a phone raises the callout
+       over the cell it was meant to pick. */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* ---- the bar over it ---- */
+
+.vt-spreadsheet-bar {
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--vt-spreadsheet-bar-gap);
+    align-items: center;
+    padding: var(--vt-spreadsheet-bar-padding);
+    border-bottom: 1px solid var(--vt-spreadsheet-bar-border-color);
+    background: var(--vt-spreadsheet-bar-background);
+}
+
+.vt-spreadsheet-address {
+    flex: 0 0 auto;
+    width: var(--vt-spreadsheet-bar-address-width);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-spreadsheet-formula {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--vt-font-family-mono, ui-monospace, monospace);
+}
+
+/* ---- the grid ---- */
+
+.vt-spreadsheet-grid {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    grid-template-columns: var(--vt-spreadsheet-header-row-width) minmax(0, 1fr);
+    grid-template-rows: var(--vt-spreadsheet-header-column-height) minmax(0, 1fr);
+}
+
+.vt-spreadsheet-corner,
+.vt-spreadsheet-columns,
+.vt-spreadsheet-rows {
+    position: relative;
+    overflow: hidden;
+    background: var(--vt-spreadsheet-header-background);
+}
+
+.vt-spreadsheet-corner {
+    border-right: 1px solid var(--vt-spreadsheet-header-border-color);
+    border-bottom: 1px solid var(--vt-spreadsheet-header-border-color);
+}
+
+.vt-spreadsheet-columns {
+    border-bottom: 1px solid var(--vt-spreadsheet-header-border-color);
+}
+
+.vt-spreadsheet-rows {
+    border-right: 1px solid var(--vt-spreadsheet-header-border-color);
+}
+
+/* The one element each header box moves: the browser is asked to shift a
+   layer, not to lay the headers out again. */
+.vt-spreadsheet-track {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    will-change: transform;
+}
+
+.vt-spreadsheet-viewport {
+    position: relative;
+    overflow: auto;
+    outline: none;
+    background: var(--vt-spreadsheet-cell-background);
+    /* A finger scrolls the sheet; a rectangle is dragged out with the handle. */
+    touch-action: pan-x pan-y;
+    overscroll-behavior: contain;
+}
+
+.vt-spreadsheet-grid:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-offset) * -1);
+}
+
+.vt-spreadsheet-sizer {
+    position: relative;
+}
+
+/* ---- headers ---- */
+
+.vt-spreadsheet-column,
+.vt-spreadsheet-row {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--vt-spreadsheet-header-color);
+    font-size: var(--vt-spreadsheet-header-font-size);
+    font-weight: var(--vt-spreadsheet-header-font-weight);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.vt-spreadsheet-column {
+    inset-block: 0;
+    border-right: 1px solid var(--vt-spreadsheet-header-border-color);
+}
+
+.vt-spreadsheet-row {
+    inset-inline: 0;
+    border-bottom: 1px solid var(--vt-spreadsheet-header-border-color);
+}
+
+.vt-spreadsheet-header-active {
+    background: var(--vt-spreadsheet-header-active-background);
+    color: var(--vt-spreadsheet-header-active-color);
+    font-weight: var(--vt-spreadsheet-header-active-font-weight);
+}
+
+/* The strip on a header's trailing edge that resizes it. */
+.vt-spreadsheet-resizer {
+    position: absolute;
+    z-index: 1;
+    touch-action: none;
+}
+
+.vt-spreadsheet-resizer-column {
+    inset-block: 0;
+    inset-inline-end: calc(var(--vt-spreadsheet-resizer-size) / -2);
+    width: var(--vt-spreadsheet-resizer-size);
+    cursor: col-resize;
+}
+
+.vt-spreadsheet-resizer-row {
+    inset-inline: 0;
+    inset-block-end: calc(var(--vt-spreadsheet-resizer-size) / -2);
+    height: var(--vt-spreadsheet-resizer-size);
+    cursor: row-resize;
+}
+
+.vt-spreadsheet-resizer:hover,
+.vt-spreadsheet-resizer-dragging {
+    background: var(--vt-spreadsheet-resizer-color);
+}
+
+/* ---- cells ---- */
+
+/* One row of the grid: placed by its offset, as wide as the sheet. */
+.vt-spreadsheet-line {
+    position: absolute;
+    inset-inline-start: 0;
+}
+
+.vt-spreadsheet-cell {
+    position: absolute;
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    padding: var(--vt-spreadsheet-cell-padding);
+    overflow: hidden;
+    border-right: 1px solid var(--vt-spreadsheet-cell-border-color);
+    border-bottom: 1px solid var(--vt-spreadsheet-cell-border-color);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* A number reads down its column, so it goes to the trailing edge. */
+.vt-spreadsheet-cell-number {
+    justify-content: flex-end;
+}
+
+.vt-spreadsheet-cell-center {
+    justify-content: center;
+}
+
+.vt-spreadsheet-cell-error {
+    color: var(--vt-spreadsheet-cell-error-color);
+}
+
+.vt-spreadsheet-cell-bold {
+    font-weight: 600;
+}
+
+.vt-spreadsheet-cell-italic {
+    font-style: italic;
+}
+
+/* ---- the selection ---- */
+
+.vt-spreadsheet-range {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--vt-spreadsheet-selection-border-color) calc(var(--vt-spreadsheet-selection-range-opacity) * 100%), transparent);
+}
+
+.vt-spreadsheet-active {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    border: var(--vt-spreadsheet-selection-border-width) solid var(--vt-spreadsheet-selection-border-color);
+}
+
+.vt-spreadsheet-handle {
+    position: absolute;
+    z-index: 3;
+    box-sizing: content-box;
+    width: var(--vt-spreadsheet-handle-size);
+    height: var(--vt-spreadsheet-handle-size);
+    border: var(--vt-spreadsheet-handle-border-width) solid var(--vt-spreadsheet-cell-background);
+    background: var(--vt-spreadsheet-handle-background);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* ---- the cell being typed into ---- */
+
+.vt-spreadsheet-editor {
+    position: absolute;
+    z-index: 4;
+    box-sizing: border-box;
+    padding: var(--vt-spreadsheet-editor-padding);
+    border: var(--vt-spreadsheet-editor-border-width) solid var(--vt-spreadsheet-editor-border-color);
+    outline: none;
+    background: var(--vt-spreadsheet-cell-background);
+    box-shadow: var(--vt-spreadsheet-editor-shadow);
+    color: inherit;
+    font: inherit;
+}
+
+.vt-spreadsheet-readonly .vt-spreadsheet-handle {
+    display: none;
+}

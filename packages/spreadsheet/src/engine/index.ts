@@ -11,3 +11,20 @@ export { evaluate, type EvalContext } from './evaluate';
 export { functions, type FunctionContext, type SheetFunction, type Thunk } from './functions';
 export { formulaBody, offsetNode, parseFormula, printNode, tokenize, FormulaSyntaxError, type BinaryOperator, type Node } from './parse';
 export { createSheet, type Sheet } from './sheet';
+export {
+    createMetrics,
+    isSelected,
+    jumpTarget,
+    moveSelection,
+    scrollIntoView,
+    selectAt,
+    selectTo,
+    selectionRange,
+    singleCell,
+    visibleWindow,
+    walkSelection,
+    type Metrics,
+    type MetricsOptions,
+    type Selection,
+    type Window
+} from './state';

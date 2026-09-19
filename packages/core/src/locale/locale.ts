@@ -285,6 +285,24 @@ export interface Locale {
         blockActions: Record<string, string>;
     };
 
+    /** The spreadsheet (`@vitral/spreadsheet` and the Spreadsheet component). */
+    spreadsheet: {
+        /** Names the grid itself. */
+        grid: string;
+        /** Names the box that says which cell the keyboard is in. */
+        address: string;
+        /** Names the bar that shows what was typed into that cell. */
+        formula: string;
+        /** The corner above the row numbers, which selects everything. */
+        selectAll: string;
+        /** A column's resize handle. `{column}` */
+        resizeColumn: string;
+        /** A row's resize handle. `{row}` */
+        resizeRow: string;
+        /** The handle at the corner of the selection, dragged to fill. */
+        fill: string;
+    };
+
     /**
      * Form validation (`@vitral/forms` and the Form parts). The rule texts
      * share their keys with the forms package's `FormMessages`.
@@ -731,6 +749,15 @@ export const en: Locale = {
             turnIntoParagraph: 'Turn into text'
         }
     },
+    spreadsheet: {
+        grid: 'Spreadsheet',
+        address: 'Selected cell',
+        formula: 'Formula',
+        selectAll: 'Select every cell',
+        resizeColumn: 'Resize column {column}',
+        resizeRow: 'Resize row {row}',
+        fill: 'Fill from the selection'
+    },
     form: {
         required: 'This field is required.',
         minLength: 'Enter at least {min} characters.',
@@ -1099,6 +1126,15 @@ export const ptBR: Locale = {
             moveDown: 'Mover para baixo',
             turnIntoParagraph: 'Transformar em texto'
         }
+    },
+    spreadsheet: {
+        grid: 'Planilha',
+        address: 'Célula selecionada',
+        formula: 'Fórmula',
+        selectAll: 'Selecionar todas as células',
+        resizeColumn: 'Redimensionar a coluna {column}',
+        resizeRow: 'Redimensionar a linha {row}',
+        fill: 'Preencher a partir da seleção'
     },
     form: {
         required: 'Preencha este campo.',

@@ -111,6 +111,9 @@ function setListener(el: Element, name: string, handler: Listener | undefined) {
     }
 }
 
+/** `value` on a field is what it holds; on anything else it is an attribute. */
+const isFormValue = (el: Element, key: string) => key === 'value' && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT');
+
 const isListener = (key: string, value: unknown) => key.length > 2 && key.startsWith('on') && key[2] === key[2]!.toUpperCase() && (typeof value === 'function' || value === undefined);
 
 /** Brings an element's attributes, style and listeners from `prev` to `next`. */
@@ -142,6 +145,20 @@ export function patchProps(el: Element, prev: Props, next: Props): void {
         }
         if (isListener(key, value) || (typeof value === 'function' && key.startsWith('on'))) {
             setListener(el, key, value as Listener | undefined);
+            continue;
+        }
+        // What a control holds is a property, not an attribute: once a person
+        // has typed into a field the attribute no longer reaches it, so a
+        // component that draws its own value has to put it there. Compared
+        // with what the control holds rather than with what was drawn last,
+        // so a value that was typed over is put back.
+        if (isFormValue(el, key)) {
+            const text = value === undefined || value === null || value === false ? '' : String(value);
+            if ((el as HTMLInputElement).value !== text) (el as HTMLInputElement).value = text;
+            continue;
+        }
+        if (key === 'checked' && (el as HTMLInputElement).type !== undefined && el.tagName === 'INPUT') {
+            (el as HTMLInputElement).checked = !!value && value !== 'false';
             continue;
         }
         if (value === old) continue;

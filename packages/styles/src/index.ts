@@ -86,6 +86,7 @@ export * from './speeddial';
 export * from './splitbutton';
 export * from './splitter';
 export * from './splitview';
+export * from './spreadsheet';
 export * from './stackpanel';
 export * from './stepper';
 export * from './tabs';

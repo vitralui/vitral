@@ -85,6 +85,7 @@ import speeddial from './speeddial';
 import splitbutton from './splitbutton';
 import splitter from './splitter';
 import splitview from './splitview';
+import spreadsheet from './spreadsheet';
 import stackpanel from './stackpanel';
 import stepper from './stepper';
 import tabs from './tabs';
@@ -193,6 +194,7 @@ export const components = {
     splitbutton,
     splitter,
     splitview,
+    spreadsheet,
     stackpanel,
     stepper,
     tabs,
