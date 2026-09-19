@@ -13,9 +13,11 @@ import {
     type EditorNode,
     type EditorView
 } from '@vitral/core';
+import { createBlockHandle, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type SlashMenu } from '@vitral/editor';
 import { editorStyle } from '@vitral/styles';
 import { computed, getCurrentInstance, mergeProps, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { EditorKey, type EditorContext } from './context';
 import EditorLinkPanel from './EditorLinkPanel.vue';
 import type { EditorJSON, EditorRootEmits, EditorRootProps, EditorSelectionChangeEvent } from './types';
@@ -32,13 +34,18 @@ const props = withDefaults(defineProps<EditorRootProps>(), {
     readonly: false,
     disabled: false,
     invalid: false,
-    autofocus: false
+    autofocus: false,
+    // A boolean prop that is not given arrives as `false`, and both of these
+    // are on unless they are turned off.
+    slashMenu: true,
+    blockMenu: true
 });
 const model = defineModel<string | null>();
 const json = defineModel<EditorJSON | null>('json');
 const emit = defineEmits<EditorRootEmits>();
 
 const { part, config, locale } = useComponent(editorStyle, props);
+const overlayTarget = useOverlayTarget();
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 const instance = getCurrentInstance();
 const uid = useId();
@@ -273,7 +280,46 @@ function onDocumentPointerUp() {
     selecting.value = false;
 }
 
+/**
+ * The menu a `/` opens and the handle beside a block are `@vitral/editor`'s,
+ * attached to this editor: the same two pieces the framework-free editor uses,
+ * so neither is written twice.
+ */
+let slash: SlashMenu | null = null;
+let blockHandle: BlockHandle | null = null;
+
+function attachMenus() {
+    slash?.destroy();
+    blockHandle?.destroy();
+    slash = createSlashMenu({
+        editor,
+        content: () => contentEl.value,
+        anchor: caretAnchor,
+        commands: () => (Array.isArray(props.slashMenu) ? props.slashMenu : defaultSlashCommands(locale.value)),
+        part,
+        locale: () => locale.value,
+        enabled: () => props.slashMenu !== false && editable.value,
+        place: () => void caretAnchor(),
+        overlayTarget: overlayTarget.value,
+        zIndex: config.zIndex.overlay
+    });
+    blockHandle = createBlockHandle({
+        editor,
+        host: () => rootRef.value,
+        caretRect: () => view.value?.selectionRect() ?? null,
+        actions: () => (Array.isArray(props.blockMenu) ? props.blockMenu : defaultBlockActions(locale.value)),
+        part,
+        locale: () => locale.value,
+        enabled: () => props.blockMenu !== false && editable.value,
+        overlayTarget: overlayTarget.value,
+        zIndex: config.zIndex.overlay
+    });
+}
+
+watch([() => props.slashMenu, () => props.blockMenu, contentEl], attachMenus, { flush: 'post' });
+
 onMounted(() => {
+    attachMenus();
     document.addEventListener('pointerup', onDocumentPointerUp);
     document.addEventListener('mouseup', onDocumentPointerUp);
     emit('load', { instance: editor });
@@ -287,6 +333,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    slash?.destroy();
+    blockHandle?.destroy();
     document.removeEventListener('pointerup', onDocumentPointerUp);
     document.removeEventListener('mouseup', onDocumentPointerUp);
 });

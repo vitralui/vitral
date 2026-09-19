@@ -1,3 +1,4 @@
+import type { BlockAction, SlashCommand } from '@vitral/editor';
 import type { BaseProps, IconProp, InputVariant, OverlayPlacement } from '../../base/types';
 
 /** A mark in the JSON document. */
@@ -78,6 +79,17 @@ export interface EditorProps extends BaseProps {
     /** Milliseconds within which consecutive typing is one undo step. Defaults to 500. */
     historyDelay?: number;
     /**
+     * The menu a `/` opens where a word starts: `true` for the blocks the
+     * editor knows, the commands to offer, or `false` for none. Defaults to
+     * true.
+     */
+    slashMenu?: boolean | SlashCommand[];
+    /**
+     * The handle beside the block the caret is in: `true` for the usual
+     * actions, the actions to offer, or `false` for none. Defaults to true.
+     */
+    blockMenu?: boolean | BlockAction[];
+    /**
      * The toolbar: `false` for none, or groups of item names, as in
      * `[['bold', 'italic'], ['link']]`. The `toolbar` slot replaces it entirely.
      */
@@ -92,6 +104,8 @@ export interface EditorProps extends BaseProps {
 
 /** Props of `<EditorRoot>` (`Editor.Root`), the part that owns the editor and its model. */
 export type EditorRootProps = Omit<EditorProps, 'toolbar' | 'bubbleMenu' | 'showCount' | 'showWordCount'>;
+
+export type { BlockAction, SlashCommand };
 
 export type EditorEmits = {
     'update:modelValue': [value: string];

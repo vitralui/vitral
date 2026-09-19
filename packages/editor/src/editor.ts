@@ -25,9 +25,11 @@ import { createOverlay, createSelect, type Overlay, type SelectHandle } from '@v
 import { createRoot, h, mergeAttrs, partResolver, type Child, type Props } from '@vitral/dom';
 import { baseStyle, buttonStyle, editorStyle } from '@vitral/styles';
 import { defaultBubbleMenu, defaultToolbar } from './buttons';
-import { blockHandleView, blockMenuView, colorPanelView, imagePanelView, linkPanelView, slashMenuView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
+import { createBlockHandle, defaultBlockActions } from './block';
+import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
+import { createSlashMenu, defaultSlashCommands } from './slash';
 import { bubbleView, toolbarView, type ToolbarContext } from './render/toolbar';
-import type { BlockAction, SlashCommand, TextEditorConfig, TextEditorHandle, EditorToolbarItem } from './types';
+import type { TextEditorConfig, TextEditorHandle, EditorToolbarItem } from './types';
 
 /**
  * A rich text editor with no framework in it: the document, the commands and
@@ -47,8 +49,6 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
     let blockSelect: SelectHandle | null = null;
     let blockSelectHost: HTMLElement | null = null;
     let link: LinkPanelState = { href: '', text: '', newTab: false, existing: false };
-    let slash: { from: number; query: string; active: number } | null = null;
-    let blockAt = -1;
     const anchors = new Map<string, HTMLElement>();
 
     const id = config.id ?? `vt-texteditor-${++counter}`;
@@ -91,9 +91,6 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         if (update.selectionChanged) {
             current.on?.['selection-change']?.({ empty: collapsed(), source: update.origin === 'user' ? 'user' : update.origin === 'history' ? 'history' : 'api' });
         }
-        // A `/` typed at the start of an empty block opens the menu; anything
-        // that moves the caret away closes it.
-        syncSlash();
         render();
     });
 
@@ -201,140 +198,39 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         } else bubble.close();
     }
 
-    // ---- the menu a slash opens ----------------------------------------------------------------
+    // ---- the menu a slash opens, and the handle beside a block ---------------------------------
 
-    const slashCommands = (): SlashCommand[] => {
-        if (Array.isArray(current.slashMenu)) return current.slashMenu;
-        const words = locale().editor;
-        const entry = (id: string, icon: string, command: readonly [string, ...unknown[]]): SlashCommand => ({
-            id,
-            icon,
-            label: words.slashCommands[id] ?? id,
-            description: words.slashHints[id],
-            command
-        });
-        return [
-            entry('paragraph', 'pilcrow', ['setParagraph']),
-            entry('heading1', 'heading1', ['toggleHeading', 1]),
-            entry('heading2', 'heading2', ['toggleHeading', 2]),
-            entry('heading3', 'heading3', ['toggleHeading', 3]),
-            entry('bulletList', 'list', ['toggleBulletList']),
-            entry('orderedList', 'listOrdered', ['toggleOrderedList']),
-            entry('taskList', 'listChecks', ['toggleTaskList']),
-            entry('blockquote', 'quote', ['toggleBlockquote']),
-            entry('codeBlock', 'codeBlock', ['toggleCodeBlock']),
-            entry('horizontalRule', 'horizontalRule', ['insertHorizontalRule']),
-            { ...entry('table', 'table', ['insertTable']), run: () => openPanel(tablePanel, 'table') },
-            { ...entry('image', 'image', ['insertImage']), run: () => openPanel(imagePanel, 'image') }
-        ];
-    };
-
-    /** What the query after the slash matches, by label and by keyword. */
-    function slashMatches(query: string): SlashCommand[] {
-        const needle = query.trim().toLocaleLowerCase(locale().code);
-        const all = slashCommands();
-        if (!needle) return all;
-        return all.filter((item) => [item.label, item.id, ...(item.keywords ?? [])].some((word) => word.toLocaleLowerCase(locale().code).includes(needle)));
-    }
-
-    const slashMenu = createOverlay({
+    const slashMenu = createSlashMenu({
+        editor,
+        content: () => contentEl,
         anchor: () => caretEl,
-        render: () => (slash ? (slashMenuView(panelContext(), { query: slash.query, items: slashMatches(slash.query), active: slash.active }, { choose: runSlash }) as never) : null),
-        placement: 'bottom-start',
-        target: () => current.overlayTarget,
+        commands: () => (Array.isArray(current.slashMenu) ? current.slashMenu : defaultSlashCommands(locale())),
+        part,
+        locale,
+        enabled: () => current.slashMenu !== false && editable(),
+        place: placeCaret,
+        ids,
+        overlayTarget: current.overlayTarget,
         zIndex: current.zIndex,
-        restoreFocus: false,
-        onClose: () => {
-            slash = null;
-            render();
+        onRun: (command) => {
+            if (command.run) command.run(handle);
+            else if (command.command) run(command.command[0], ...command.command.slice(1));
+            focus();
         }
     });
 
-    /** The text of the block the caret is in, up to the caret. */
-    function caretBlock(): { node: EditorNode; index: number; text: string; offset: number } | null {
-        const blocks = editorTextblocks(editor.state.doc);
-        const path = editor.state.selection.head.path;
-        const index = path[0] ?? -1;
-        const node = blocks[index]?.node ?? editor.state.doc.content?.[index];
-        if (!node) return null;
-        const text = typeof node.content === 'string' ? node.content : (node.content ?? []).map((child) => (typeof child === 'string' ? child : (child.text ?? ''))).join('');
-        return { node, index, text, offset: editor.state.selection.head.offset };
-    }
-
-    /** Opens the menu on a `/`, follows what is typed after it, and closes when it stops making sense. */
-    function syncSlash() {
-        if (current.slashMenu === false || !editable()) {
-            if (slash) slashMenu.close();
-            return;
-        }
-        const block = caretBlock();
-        if (!block || !collapsed()) {
-            if (slash) slashMenu.close();
-            return;
-        }
-        const before = block.text.slice(0, block.offset);
-        const at = before.lastIndexOf('/');
-        const opens = at === 0 || (at > 0 && /\s/.test(before[at - 1] ?? ''));
-        if (at < 0 || !opens) {
-            if (slash) slashMenu.close();
-            return;
-        }
-        const query = before.slice(at + 1);
-        if (/\s/.test(query)) {
-            if (slash) slashMenu.close();
-            return;
-        }
-        slash = { from: at, query, active: 0 };
-        placeCaret();
-        slashMenu.open();
-        slashMenu.update();
-    }
-
-    /** Runs what the menu was pointing at, after taking the `/` and its query out. */
-    function runSlash(index: number) {
-        const items = slashMatches(slash?.query ?? '');
-        const item = items[index];
-        if (!item || !slash) return;
-        const remove = slash.query.length + 1;
-        slashMenu.close();
-        for (let n = 0; n < remove; n++) editor.backspace('char');
-        if (item.run) item.run(handle);
-        else if (item.command) run(item.command[0], ...item.command.slice(1));
-        focus();
-    }
-
-    // ---- the handle beside a block ----------------------------------------------------------
-
-    const blockActions = (): BlockAction[] => {
-        if (Array.isArray(current.blockMenu)) return current.blockMenu;
-        const words = locale().editor.blockActions;
-        return [
-            { id: 'duplicate', label: words.duplicate ?? 'Duplicate', icon: 'copy', run: () => run('duplicateBlock') },
-            { id: 'moveUp', label: words.moveUp ?? 'Move up', icon: 'arrowUp', run: () => run('moveBlockUp') },
-            { id: 'moveDown', label: words.moveDown ?? 'Move down', icon: 'arrowDown', run: () => run('moveBlockDown') },
-            { id: 'turnIntoParagraph', label: words.turnIntoParagraph ?? 'Turn into text', icon: 'pilcrow', run: () => run('setParagraph') },
-            { id: 'delete', label: words.delete ?? 'Delete', icon: 'trash', run: () => run('deleteBlock') }
-        ];
-    };
-
-    const blockMenu = createOverlay({
-        anchor: () => anchors.get('block') ?? null,
-        render: () => {
-            const block = caretBlock();
-            return block ? (blockMenuView(panelContext(), block.node, blockActions(), { choose: runBlockAction }) as never) : null;
-        },
-        placement: 'bottom-start',
-        target: () => current.overlayTarget,
+    const blockHandle = createBlockHandle({
+        editor,
+        host: () => element,
+        caretRect: () => view?.selectionRect() ?? null,
+        actions: () => (Array.isArray(current.blockMenu) ? current.blockMenu : defaultBlockActions(locale())),
+        part,
+        locale,
+        enabled: () => current.blockMenu !== false && editable(),
+        ids,
+        overlayTarget: current.overlayTarget,
         zIndex: current.zIndex
     });
-
-    function runBlockAction(actionId: string) {
-        const block = caretBlock();
-        const action = blockActions().find((entry) => entry.id === actionId);
-        blockMenu.close();
-        if (block && action) action.run(handle, block.node, block.index);
-        focus();
-    }
 
     // ---- where a popup hangs from ---------------------------------------------------------------
 
@@ -357,7 +253,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         overlay.update();
     }
 
-    const panels = () => [linkPanel, imagePanel, tablePanel, colorPanel, blockMenu];
+    const panels = () => [linkPanel, imagePanel, tablePanel, colorPanel];
     const closePanels = (except?: Overlay) => panels().forEach((overlay) => overlay !== except && overlay.close());
     const renderPanels = () => panels().forEach((overlay) => overlay.update());
 
@@ -385,8 +281,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                     if (event.detail > 0) focus();
                 },
                 openLink: (event) => {
-                    const block = caretBlock();
-                    link = { href: '', text: block ? '' : '', newTab: false, existing: editor.isActive('link') };
+                    link = { href: '', text: '', newTab: false, existing: editor.isActive('link') };
                     openPanel(linkPanel, 'link', event);
                 },
                 openImage: (event) => openPanel(imagePanel, 'image', event),
@@ -479,8 +374,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                     attachView();
                 },
                 onFocus: (event: FocusEvent) => current.on?.focus?.(event),
-                onBlur: (event: FocusEvent) => current.on?.blur?.(event),
-                onKeydown: onContentKeydown
+                onBlur: (event: FocusEvent) => current.on?.blur?.(event)
             })
         );
     }
@@ -497,66 +391,12 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                 ? (current.hooks.footer() as Child)
                 : current.showCount
                   ? h('div', mergeAttrs({ key: 'footer' }, part('footer')), h('span', part('count', { limit: !!current.maxLength }), countText()))
-                  : null,
-            blockHandle()
+                  : null
         ]);
         syncBlockSelect();
         syncBubble();
         renderPanels();
-    }
-
-    /** The handle beside the block the caret is in, where the text is in view. */
-    function blockHandle(): Child {
-        if (current.blockMenu === false || !editable() || !contentEl) return null;
-        const block = caretBlock();
-        if (!block || block.index === blockAt) {
-            // Same block: keep what is drawn where it is.
-        }
-        blockAt = block?.index ?? -1;
-        const rect = view?.selectionRect();
-        if (!rect) return null;
-        const host = element.getBoundingClientRect();
-        return blockHandleView(
-            panelContext(),
-            {
-                open: (event) => {
-                    anchors.set('block', event.currentTarget as HTMLElement);
-                    openPanel(blockMenu, 'block');
-                }
-            },
-            { top: rect.top - host.top, left: -28 }
-        );
-    }
-
-    /**
-     * While the menu is open those keys are the menu's: the view is listening
-     * on the same element, and an Enter it hears would split the block the
-     * command is about to change.
-     */
-    function onContentKeydown(event: KeyboardEvent) {
-        if (!slash) return;
-        const items = slashMatches(slash.query);
-        const take = () => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-        };
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-            take();
-            const step = event.key === 'ArrowDown' ? 1 : -1;
-            slash = { ...slash, active: (slash.active + step + items.length) % Math.max(1, items.length) };
-            slashMenu.update();
-            return;
-        }
-        if (event.key === 'Enter' || event.key === 'Tab') {
-            if (!items.length) return;
-            take();
-            runSlash(slash.active);
-            return;
-        }
-        if (event.key === 'Escape') {
-            take();
-            slashMenu.close();
-        }
+        blockHandle.sync();
     }
 
     function attachView() {
@@ -609,7 +449,9 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         refresh: render,
         destroy() {
             stop();
-            [...panels(), bubble, slashMenu].forEach((overlay) => overlay.destroy());
+            slashMenu.destroy();
+            blockHandle.destroy();
+            [...panels(), bubble].forEach((overlay) => overlay.destroy());
             blockSelect?.destroy();
             view?.destroy();
             root.clear();

@@ -520,6 +520,50 @@ describe('Editor parts', () => {
         await expectNoA11yViolations();
     });
 
+    it('opens the slash menu in the text, and runs what it lands on', async () => {
+        const { wrapper, content, value } = mountEditor({ modelValue: '<p></p>' });
+        const editor = (wrapper.findComponent({ name: 'VtEditorRoot' }).vm as unknown as { editor: { typeText: (text: string) => boolean } }).editor;
+        for (const char of '/quote') editor.typeText(char);
+        await flush();
+        const options = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
+        expect(options.length).toBe(1);
+        expect(options[0]!.textContent).toContain('Quote');
+        content().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        await flush();
+        editor.typeText('Quoted');
+        await flush();
+        expect(value.value).toContain('<blockquote>');
+        expect(document.querySelector('[role="option"]')).toBeNull();
+    });
+
+    it('offers the block actions from the handle beside the text', async () => {
+        const { root, value } = mountEditor({ modelValue: '<p>One</p><p>Two</p>' });
+        await flush();
+        const handle = root.querySelector<HTMLButtonElement>('.vt-editor-block-handle')!;
+        expect(handle.getAttribute('aria-label')).toBe('Block actions');
+        handle.click();
+        await flush();
+        const menu = document.querySelector('[role="menu"]')!;
+        expect(Array.from(menu.querySelectorAll('[role="menuitem"]')).map((item) => item.textContent)).toEqual([
+            'Duplicate',
+            'Move up',
+            'Move down',
+            'Turn into text',
+            'Delete'
+        ]);
+        Array.from(menu.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'))
+            .find((item) => item.textContent === 'Duplicate')!
+            .click();
+        await flush();
+        expect(value.value).toBe('<p>One</p><p>One</p><p>Two</p>');
+    });
+
+    it('leaves both menus out when they are turned off', async () => {
+        const { root } = mountEditor({ modelValue: '<p></p>', slashMenu: false, blockMenu: false });
+        await flush();
+        expect(root.querySelector('.vt-editor-block-handle')).toBeNull();
+    });
+
     it('refuse to render outside a root, and useEditor() says so', () => {
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
         expect(() => mountVt(EditorContent)).toThrow(/inside <EditorRoot>/);

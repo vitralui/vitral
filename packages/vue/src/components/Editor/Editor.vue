@@ -24,6 +24,8 @@ const props = withDefaults(defineProps<EditorProps>(), {
     autofocus: false,
     toolbar: true,
     bubbleMenu: false,
+    slashMenu: true,
+    blockMenu: true,
     showCount: undefined,
     showWordCount: true
 });
@@ -45,6 +47,8 @@ const rootProps = computed(() => ({
     autofocus: props.autofocus,
     colors: props.colors,
     historyDelay: props.historyDelay,
+    slashMenu: props.slashMenu,
+    blockMenu: props.blockMenu,
     unstyled: props.unstyled,
     pt: props.pt,
     dt: props.dt

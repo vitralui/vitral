@@ -5,6 +5,8 @@
  * selection, the menu a `/` opens and the handle beside a block.
  */
 export { createTextEditor } from './editor';
+export { createSlashMenu, defaultSlashCommands, type SlashMenu, type SlashMenuOptions } from './slash';
+export { createBlockHandle, defaultBlockActions, type BlockHandle, type BlockHandleOptions } from './block';
 export { editorButtons, shortcutCommands, defaultToolbar, defaultBubbleMenu, type EditorButtonSpec } from './buttons';
 export * from './types';
 export { toolbarView, bubbleView, buttonView, iconView, type ToolbarActions, type ToolbarContext } from './render/toolbar';

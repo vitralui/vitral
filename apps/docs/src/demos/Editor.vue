@@ -29,6 +29,23 @@ const output = ref('<p>Type here and watch <strong>both</strong> formats change.
 const outputJson = ref<EditorJSON | null>(null);
 const composed = ref('<p>This one is built from parts, with a toolbar of its own and a word count.</p>');
 const words = ref(0);
+const blocks = ref('<p>Type a slash on the empty line under this one.</p><p></p>');
+const custom = ref('<p>This one offers three commands of its own.</p><p></p>');
+
+// A slash command is data: a name, a line about it, and either a command the
+// editor knows or a `run` of your own.
+const slashCommands = [
+    { id: 'heading2', label: 'Section', description: 'A heading for a section', icon: 'heading2', command: ['toggleHeading', 2] as const },
+    { id: 'taskList', label: 'Checklist', description: 'Things to tick off', icon: 'listChecks', command: ['toggleTaskList'] as const },
+    {
+        id: 'today',
+        label: "Today's date",
+        description: 'Puts the date in, as text',
+        icon: 'calendar',
+        keywords: ['date', 'now'],
+        run: (editor: { run: (name: string, ...args: unknown[]) => boolean }) => editor.run('insertText', new Date().toLocaleDateString())
+    }
+];
 </script>
 
 <template>
@@ -56,6 +73,22 @@ const words = ref(0);
                     </EditorToolbar>
                 </template>
             </Editor>
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="Slash menu and block actions"
+        description="Type `/` where a word starts and the blocks are offered, filtered as you type; Enter or a press puts one in. Beside the block the caret is in there is a handle, and it opens duplicate, move, turn into text and delete. `slash-menu` and `block-menu` take your own entries, or `false` for none."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <Editor v-model="blocks" aria-label="Slash menu example" :toolbar="[['blockType'], ['bold', 'italic']]" />
+            <Editor
+                v-model="custom"
+                aria-label="Own slash commands"
+                :toolbar="false"
+                :slash-menu="slashCommands"
+                :block-menu="[{ id: 'delete', label: 'Delete', icon: 'trash', run: (editor) => editor.run('deleteBlock') }]"
+            />
         </div>
     </DemoSection>
 

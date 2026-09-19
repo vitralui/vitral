@@ -53,9 +53,14 @@ export interface SlashCommand {
     /** A heading the entry sits under. */
     group?: string;
     /** What it does. Without it, `command` is run. */
-    run?: (editor: TextEditorHandle) => void;
+    run?: (editor: CommandRunner) => void;
     /** A command name and its arguments, run against the editor. */
     command?: readonly [string, ...unknown[]];
+}
+
+/** Enough of an editor for an action to act on: the handle, or the engine itself. */
+export interface CommandRunner {
+    run(name: string, ...args: unknown[]): boolean;
 }
 
 /** What the handle around a block offers. */
@@ -65,7 +70,7 @@ export interface BlockAction {
     icon?: string;
     /** Hidden where it does not apply to the block in hand. */
     when?: (block: EditorNode) => boolean;
-    run: (editor: TextEditorHandle, block: EditorNode, index: number) => void;
+    run: (editor: CommandRunner, block: EditorNode, index: number) => void;
 }
 
 /** Content a host draws itself: a string, a node it made, or nothing. */
