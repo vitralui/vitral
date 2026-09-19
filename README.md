@@ -72,8 +72,7 @@ a framework, so each is an engine in plain TypeScript and, where something is
 drawn, a renderer that draws it into an element you hand it. `<Chart>`,
 `<DataTable>`, `<Schedule>`, `<Taskboard>`, `<Editor>` and `<Spreadsheet>` are
 wrappers over them, and a page with no framework at all calls
-`createChart(element, …)` itself —
-[the addons](https://vitralui.github.io/vitral/addons/) shows how.
+`createChart(element, …)` itself.
 
 ## Reading
 

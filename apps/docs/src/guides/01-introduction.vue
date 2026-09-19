@@ -153,8 +153,8 @@ const cities = [
     <p>
         Everything that does not need a framework lives in a package that does not import one. That is what should make a React or Angular adapter cheap later: it writes the
         rendering and reuses the behaviour, the look and the markup contract. Seven of them go further: the chart, the table, the scheduler, the board, the editor and the
-        spreadsheet draw themselves, and the form's rules draw nothing at all — so <code>&lt;Chart&gt;</code> and its like are wrappers, and a page with no framework calls the same function
-        they do. <a :href="href('/addons')">The addons</a> is the page for that.
+        spreadsheet draw themselves, and the form's rules draw nothing at all — so <code>&lt;Chart&gt;</code> and its like are wrappers, and a page with no framework calls the
+        same function they do.
     </p>
 
     <h2>For coding agents</h2>

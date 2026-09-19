@@ -42,7 +42,7 @@ const panels: { key: Panel; label: string; active: () => boolean }[] = [
     { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' },
     // The four packages that draw themselves, the charts gallery among them:
     // a reader looking for the chart page should not have to know it is one.
-    { key: 'addons', label: 'Addons', active: () => route.value.name === 'addons' || route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) }
+    { key: 'addons', label: 'Addons', active: () => route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) }
 ];
 
 const drawer = ref(false);
@@ -50,7 +50,7 @@ const search = defineModel<boolean>('search', { default: false });
 
 const shortcuts = computed(() => [{ label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' }]);
 
-/** What the addons panel lists: the four of them, and where each is shown off. */
+/** What the addons panel lists: the packages, and where each is shown off. */
 const addonLinks = computed(() =>
     addons.map((addon) => ({
         ...addon,
@@ -171,7 +171,6 @@ onBeforeUnmount(() => {
                             </span>
                         </a>
                     </div>
-                    <a :href="href('/addons')" class="mega-foot">What an addon is, and how to call one without a framework <Icon icon="arrowRight" /></a>
                 </template>
 
                 <template v-else-if="panel.key === 'templates'">
@@ -267,13 +266,6 @@ onBeforeUnmount(() => {
                     <span>
                         <b>{{ addon.title }}</b>
                         <em>{{ addon.note }}</em>
-                    </span>
-                </a>
-                <a :href="href('/addons')" class="mega-drawer-link" :aria-current="route.name === 'addons' ? 'page' : undefined" @click="leave">
-                    <span class="mega-icon"><Icon icon="blocks" /></span>
-                    <span>
-                        <b>What an addon is</b>
-                        <em>The four packages, and how to call one without a framework</em>
                     </span>
                 </a>
             </nav>
