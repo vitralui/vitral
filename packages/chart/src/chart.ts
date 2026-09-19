@@ -22,7 +22,7 @@ import { sliceAt, spokeAt } from './engine/polar';
 import type { ChartScene, SceneDatum } from './engine/scene';
 import { normalizeSeries, type NormalizedSeries } from './engine/series';
 import type { ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
-import { createOverlay } from '@vitral/controls';
+import { createOverlay, createTooltips } from '@vitral/controls';
 import { mergeAttrs, partResolver, pointerDrag, type PassThrough as ChartPassThrough } from '@vitral/dom';
 import { downloadChart, serializeSvg, svgToPng } from './dom/export';
 import { createPortal, createRoot, h, s, type Child, type Props, type VElement } from '@vitral/dom';
@@ -356,6 +356,17 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         pt: () => cfg.pt,
         props: () => ({ type: cfg.type, series: cfg.series, options: cfg.options })
     });
+
+    // What each tool and each legend entry does, shown the way every other
+    // Vitral control shows it rather than in the browser's own `title`.
+    const tooltips = createTooltips(() => ({
+        placement: 'bottom',
+        unstyled: cfg.unstyled,
+        nonce: cfg.nonce,
+        cssLayer: cfg.cssLayer,
+        pt: cfg.pt as never
+    }));
+    const tipFor = (element: Element | null, text: string | undefined) => tooltips.attach(element, text);
 
     // ---- measuring
 
@@ -1041,6 +1052,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             legendView(
                 part,
                 {
+                    tip: tipFor,
                     entries,
                     position: legendPosition,
                     align: legend?.horizontalAlign,
@@ -1259,6 +1271,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         root.render(
             showToolbar
                 ? toolbarView(part, {
+                      tip: tipFor,
                       tools: chart.toolbar?.tools ?? {},
                       mode,
                       zoomed: d.zoomed,
@@ -1412,6 +1425,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             // A chart that has gone should not go on holding the group open at
             // its own axis width.
             if (chart.group && chart.id) releaseInset(chart.group, chart.id);
+            tooltips.destroy();
             root.clear();
             if (original.class !== null) element.setAttribute('class', original.class);
             if (original.style !== null) element.setAttribute('style', original.style);

@@ -19,7 +19,7 @@ import {
     timeGridKeyTarget,
     type Locale
 } from '@vitral/core';
-import { createOverlay } from '@vitral/controls';
+import { createOverlay, createTooltips } from '@vitral/controls';
 import { createRoot, partResolver, pointerDrag, type Props } from '@vitral/dom';
 import { baseStyle, buttonStyle, scheduleStyle } from '@vitral/styles';
 import {
@@ -118,6 +118,17 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         pt: () => current.pt,
         props: () => current as Record<string, unknown>
     });
+
+    // What a toolbar button does, shown the way every other Vitral control
+    // shows it rather than in the browser's own `title`.
+    const tooltips = createTooltips(() => ({
+        placement: 'bottom',
+        unstyled: current.unstyled,
+        nonce: current.nonce,
+        cssLayer: current.cssLayer,
+        zIndex: current.zIndex,
+        pt: current.pt
+    }));
     // The toolbar's buttons wear the button's own classes, as they do when a
     // framework component draws them.
     const buttonPart = partResolver({ style: buttonStyle, unstyled: () => !!current.unstyled, props: () => current as Record<string, unknown> });
@@ -568,6 +579,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             ids,
             part,
             buttonPart,
+            tip: (element, text) => tooltips.attach(element, text),
             gridAttrs,
             format: (date, pattern) => formatDate(date, pattern, locale()),
             formatTime: (date) => formatTime(date, locale().code, current.hour12),
@@ -648,6 +660,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             cellDrag.cancel();
             eventDrag.cancel();
             more.destroy();
+            tooltips.destroy();
             root.clear();
         }
     };

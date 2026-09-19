@@ -41,6 +41,8 @@ export interface LegendProps {
     item?: (context: LegendItemContext) => HookResult;
     onToggle: (series: number) => void;
     onHighlight: (series: number) => void;
+    /** Gives a control the tooltip that says what it does. */
+    tip?: (element: Element | null, text: string | undefined) => void;
 }
 
 /**
@@ -66,7 +68,8 @@ export function legendView(part: Part, p: LegendProps, key: string): Child {
                         },
                         part('legendItem', { hidden: e.hidden, dim: p.focus >= 0 && p.focus !== e.series, interactive: p.interactive }),
                         {
-                            title: p.interactive ? formatMessage(e.hidden ? p.locale.chart.seriesHidden : p.locale.chart.seriesShown, { series: e.name }) : undefined,
+                            ref: (el: Element | null) =>
+                                p.tip?.(el, p.interactive ? formatMessage(e.hidden ? p.locale.chart.seriesHidden : p.locale.chart.seriesShown, { series: e.name }) : undefined),
                             onClick: () => p.interactive && p.onToggle(e.series),
                             onMouseenter: () => p.onHighlight(e.series),
                             onMouseleave: () => p.onHighlight(-1),
@@ -188,6 +191,8 @@ export interface ToolbarProps {
     onMode: (mode: DragMode) => void;
     onTrigger: () => void;
     onTriggerKeydown: (event: KeyboardEvent) => void;
+    /** Gives a control the tooltip that says what it does. */
+    tip?: (element: Element | null, text: string | undefined) => void;
 }
 
 /**
@@ -197,7 +202,11 @@ export interface ToolbarProps {
 export function toolbarView(part: Part, p: ToolbarProps): Child {
     const { locale, tools } = p;
     const tool = (name: string, label: string, icon: string, extra: Props = {}, state?: unknown) =>
-        h('button', mergeAttrs({ key: name, type: 'button' }, part('tool', state), { 'aria-label': label, title: label }, extra), iconView(icon));
+        h(
+            'button',
+            mergeAttrs({ key: name, type: 'button' }, part('tool', state), { 'aria-label': label, ref: (el: Element | null) => p.tip?.(el, label) }, extra),
+            iconView(icon)
+        );
     return h(
         'div',
         mergeAttrs({ key: 'toolbar', role: 'toolbar', 'aria-label': locale.chart.toolbar }, part('toolbar')),

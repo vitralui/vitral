@@ -33,6 +33,9 @@ export function toolbarView(context: ViewContext): Child {
             mergeAttrs({ key: options.key, type: 'button' }, context.buttonPart('root', options.state), {
                 'aria-label': options.text ? undefined : options.label,
                 'aria-pressed': options.pressed === undefined ? undefined : options.pressed ? 'true' : 'false',
+                // A button with words on it says what it is already; one with
+                // only an icon needs telling.
+                ref: (element: Element | null) => context.tip(element, options.text ? undefined : options.label),
                 onClick: options.onClick
             }),
             options.icon ? iconView(options.icon, context.buttonPart('icon')) : null,

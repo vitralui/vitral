@@ -226,6 +226,9 @@ importers:
 
   packages/taskboard:
     dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
       '@vitral/core':
         specifier: workspace:*
         version: link:../core

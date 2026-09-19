@@ -32,6 +32,8 @@ export interface ViewContext {
     part: (name: string, state?: unknown) => Props;
     /** The button's classes, for the toolbar the schedule draws itself. */
     buttonPart: (name: string, state?: unknown) => Props;
+    /** Gives a control the tooltip that says what it does. */
+    tip: (element: Element | null, text: string | undefined) => void;
     /** The attributes the grid itself wears, naming and keyboard included. */
     gridAttrs: () => Props;
     format: (date: Date, pattern: string) => string;

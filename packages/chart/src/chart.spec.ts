@@ -149,7 +149,11 @@ describe('createChart', () => {
         expect(button('Sales')).toBe(salesButton);
         expect(document.activeElement).toBe(salesButton);
         expect(salesButton.getAttribute('aria-pressed')).toBe('false');
-        expect(salesButton.getAttribute('title')).toBe('Sales hidden');
+        // The words are the tooltip's now, not the browser's `title`.
+        salesButton.dispatchEvent(new MouseEvent('mouseenter'));
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Sales hidden');
+        expect(salesButton.getAttribute('title')).toBeNull();
         expect(svg().querySelectorAll('.vt-chart-line')).toHaveLength(1);
         expect(legendClick).toHaveBeenCalledWith({ seriesIndex: 0, seriesName: 'Sales', hidden: true });
         expect(status()).toBe('Sales hidden');

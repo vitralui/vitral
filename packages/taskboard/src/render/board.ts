@@ -34,6 +34,8 @@ export interface ViewContext {
     /** The cards as they are drawn, with a card being carried already moved. */
     entries: BoardEntry[];
     ids: { help: string; columnHelp: string; title: (key: unknown) => string; count: (key: unknown) => string; list: (column: unknown, lane?: unknown) => string; card: (key: string) => string; handle: (key: unknown) => string };
+    /** Gives a control the tooltip that says what it does. */
+    tip: (element: Element | null, text: string | undefined) => void;
     announcement: string;
     /** The classes and pass-through of one part in one state. */
     part: (name: string, state?: unknown) => Props;
@@ -130,6 +132,7 @@ function columnHeader(context: ViewContext, column: TaskboardColumn): Child {
                       'aria-label': formatMessage(locale.aria.taskboardToggle, { name }),
                       'aria-expanded': collapsed ? 'false' : 'true',
                       'aria-controls': collapsed ? undefined : lists || undefined,
+                      ref: (element: Element | null) => context.tip(element, formatMessage(locale.aria.taskboardToggle, { name })),
                       onClick: () => context.on.toggleColumn(column)
                   }),
                   iconView(collapsed ? 'chevronRight' : 'chevronDown')
@@ -151,6 +154,7 @@ function columnHeader(context: ViewContext, column: TaskboardColumn): Child {
                       'aria-label': formatMessage(locale.aria.taskboardMoveColumn, { column: name }),
                       'aria-describedby': context.ids.columnHelp,
                       disabled: settings.disabled || column.locked,
+                      ref: (element: Element | null) => context.tip(element, formatMessage(locale.aria.taskboardMoveColumn, { column: name })),
                       onPointerdown: (event: PointerEvent) => context.on.handlePointerdown(event, column),
                       onKeydown: (event: KeyboardEvent) => context.on.handleKeydown(event, column)
                   }),
@@ -179,6 +183,7 @@ function laneHeader(context: ViewContext, lane: TaskboardLane): Child {
                       'aria-label': formatMessage(locale.aria.taskboardToggle, { name }),
                       'aria-expanded': collapsed ? 'false' : 'true',
                       'aria-controls': collapsed ? undefined : lists || undefined,
+                      ref: (element: Element | null) => context.tip(element, formatMessage(locale.aria.taskboardToggle, { name })),
                       onClick: () => context.on.toggleLane(lane)
                   }),
                   iconView(collapsed ? 'chevronRight' : 'chevronDown')

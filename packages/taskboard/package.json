@@ -47,6 +47,7 @@
     "build": "vite build && tsc -p tsconfig.build.json"
   },
   "dependencies": {
+    "@vitral/controls": "workspace:*",
     "@vitral/core": "workspace:*",
     "@vitral/dom": "workspace:*",
     "@vitral/icons": "workspace:*",

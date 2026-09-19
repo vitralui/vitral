@@ -71,6 +71,20 @@ describe('a schedule with no framework in it', () => {
         expect(standup.getAttribute('aria-label')).toMatch(/9(:|h)/);
     });
 
+    it('says what a toolbar button does, rather than leaving it to the browser', async () => {
+        const { element } = mount();
+        const button = element.querySelector<HTMLButtonElement>('.vt-schedule-toolbar button')!;
+        // Not the browser's own `title`: that waits a second, wears the
+        // system's colours and never appears for a keyboard.
+        expect(button.getAttribute('title')).toBeNull();
+        button.dispatchEvent(new MouseEvent('mouseenter'));
+        vi.useRealTimers();
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        const tip = document.querySelector('[role="tooltip"]');
+        expect(tip?.textContent).toBe(button.getAttribute('aria-label'));
+        expect(button.getAttribute('aria-describedby')).toBe(tip!.id);
+    });
+
     it('moves a period at a time, and back to today', () => {
         const changed = vi.fn();
         const { title } = mount({ on: { change: changed, 'range-change': vi.fn() } });

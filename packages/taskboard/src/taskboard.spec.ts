@@ -55,6 +55,18 @@ afterEach(() => {
 });
 
 describe('a board with no framework in it', () => {
+    it('says what a toggle and a move handle do, rather than leaving it to the browser', async () => {
+        const { element } = mount();
+        for (const selector of ['.vt-taskboard-toggle', '.vt-taskboard-handle']) {
+            document.querySelector('[role="tooltip"]')?.remove();
+            const button = element.querySelector<HTMLButtonElement>(selector)!;
+            expect(button.getAttribute('title')).toBeNull();
+            button.dispatchEvent(new MouseEvent('mouseenter'));
+            await new Promise((resolve) => setTimeout(resolve, 450));
+            expect(document.querySelector('[role="tooltip"]')?.textContent).toBe(button.getAttribute('aria-label'));
+        }
+    });
+
     it('draws a list a column, named by the column and its count', () => {
         const { lists, titlesIn } = mount();
         expect(lists()).toHaveLength(3);

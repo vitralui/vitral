@@ -18,6 +18,7 @@ import {
     type BoardPosition,
     type Locale
 } from '@vitral/core';
+import { createTooltips } from '@vitral/controls';
 import { autoScroll, createPortal, createRoot, partResolver, pointerDrag } from '@vitral/dom';
 import { baseStyle, taskboardStyle } from '@vitral/styles';
 import {
@@ -113,6 +114,17 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         pt: () => current.pt,
         props: () => current as Record<string, unknown>
     });
+
+    // What a toggle or a move handle does, shown the way every other Vitral
+    // control shows it rather than in the browser's own `title`.
+    const tooltips = createTooltips(() => ({
+        placement: 'bottom',
+        unstyled: current.unstyled,
+        nonce: current.nonce,
+        cssLayer: current.cssLayer,
+        zIndex: current.zIndex,
+        pt: current.pt
+    }));
 
     if (!config.unstyled) {
         const options = { nonce: config.nonce, cssLayer: config.cssLayer };
@@ -608,6 +620,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             ids,
             announcement,
             part,
+            tip: (element, text) => tooltips.attach(element, text),
             keyOf,
             isCollapsed,
             isLaneCollapsed,
@@ -701,6 +714,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             handleDrag.cancel();
             scroller.stop();
             stopPreview?.();
+            tooltips.destroy();
             portal.render(null, null);
             root.clear();
         }
