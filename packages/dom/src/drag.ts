@@ -2,8 +2,11 @@ import { isClient } from '@vitral/core';
 
 // A pointer drag that works the same for a mouse, a pen and a finger. A press
 // becomes a drag only after it travels `threshold` pixels, so a click stays a
-// click. While a drag lasts the page does not scroll under the finger, Escape
-// cancels it, and the click that ends it is swallowed.
+// click; on touch, with a `touchDelay`, it becomes one only after the finger
+// rests that long, so a swipe still scrolls the page. While a drag lasts the
+// page does not scroll under the finger, Escape cancels it, and the click that
+// ends it is swallowed. Movement is reported against the press, in client
+// pixels.
 
 export interface DragInfo {
     x: number;
@@ -15,12 +18,16 @@ export interface DragInfo {
 
 export interface DragOptions<T> {
     threshold?: number;
+    /** Milliseconds a touch has to rest before it drags. Without it, a touch drags like a mouse. */
+    touchDelay?: number;
     /** Called once the press has become a drag; return false to refuse it. */
     onStart: (payload: T, info: DragInfo) => boolean | void;
     onMove?: (payload: T, info: DragInfo) => void;
     onEnd?: (payload: T, info: DragInfo) => void;
     /** Escape, a cancelled pointer, or the component going away. */
     onCancel?: (payload: T) => void;
+    /** A press that never became a drag. */
+    onClick?: (payload: T, event: PointerEvent) => void;
     /** The drag started or stopped. */
     onActive?: (active: boolean) => void;
 }
@@ -30,6 +37,8 @@ export function pointerDrag<T>(options: DragOptions<T>) {
     let payload: T | null = null;
     let origin = { x: 0, y: 0, id: -1 };
     let pending = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let last: PointerEvent | null = null;
     let cleanup: (() => void) | null = null;
 
     const info = (event: PointerEvent): DragInfo => ({ x: event.clientX, y: event.clientY, dx: event.clientX - origin.x, dy: event.clientY - origin.y, event });
@@ -49,12 +58,16 @@ export function pointerDrag<T>(options: DragOptions<T>) {
 
     function onMove(event: PointerEvent) {
         if (event.pointerId !== origin.id) return;
+        last = event;
         if (active) {
             options.onMove?.(payload as T, info(event));
             return;
         }
         const far = Math.hypot(event.clientX - origin.x, event.clientY - origin.y) > (options.threshold ?? 4);
-        if (far && pending) begin(event);
+        if (!far || !pending) return;
+        // A touch that moves before its delay is a scroll, not a drag.
+        if (event.pointerType === 'touch' && (options.touchDelay ?? 0) > 0) return finish();
+        begin(event);
     }
 
     function onUp(event: PointerEvent) {
@@ -62,7 +75,7 @@ export function pointerDrag<T>(options: DragOptions<T>) {
         if (active) {
             options.onEnd?.(payload as T, info(event));
             swallowClick();
-        }
+        } else if (pending) options.onClick?.(payload as T, event);
         finish();
     }
 
@@ -97,6 +110,7 @@ export function pointerDrag<T>(options: DragOptions<T>) {
         payload = value;
         origin = { x: event.clientX, y: event.clientY, id: event.pointerId };
         pending = true;
+        last = event;
         const doc = document;
         doc.addEventListener('pointermove', onMove);
         doc.addEventListener('pointerup', onUp);
@@ -110,9 +124,15 @@ export function pointerDrag<T>(options: DragOptions<T>) {
             doc.removeEventListener('keydown', onKeydown, true);
             doc.removeEventListener('touchmove', onTouchmove);
         };
+        if (event.pointerType === 'touch' && (options.touchDelay ?? 0) > 0) {
+            timer = setTimeout(() => {
+                if (pending && last) begin(last);
+            }, options.touchDelay);
+        }
     }
 
     function finish() {
+        clearTimeout(timer);
         cleanup?.();
         cleanup = null;
         pending = false;
@@ -127,5 +147,5 @@ export function pointerDrag<T>(options: DragOptions<T>) {
         if (was) options.onCancel?.(value as T);
     }
 
-    return { active: () => active, press, cancel };
+    return { active: () => active, press, cancel, lastEvent: () => last };
 }

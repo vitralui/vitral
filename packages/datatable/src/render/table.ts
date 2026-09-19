@@ -1,6 +1,6 @@
 import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type Locale } from '@vitral/core';
-import { h, mergeAttrs, s, type Child, type Props, type VElement } from '@vitral/dom';
-import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX } from '@vitral/icons';
+import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
+import { getIcon } from '@vitral/icons';
 import { cellText, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { Content, PageContext, Row, TableColumn, TableConfig, TableModels } from '../engine/types';
 
@@ -67,31 +67,8 @@ export interface TableActions<T = Row> {
     scrolled: (event: Event) => void;
 }
 
-/** An icon from `@vitral/icons`, drawn the way the icon component draws it. */
-export function iconView(name: string, props?: Props): Child {
-    const def = getIcon(name);
-    if (!def) return null;
-    // In the SVG namespace, or `viewBox` is written as `viewbox` and the icon
-    // is drawn at the wrong scale — which is to say, not seen at all.
-    return s(
-        'svg',
-        mergeAttrs(
-            {
-                class: 'vt-icon',
-                viewBox: def.viewBox ?? ICON_VIEWBOX,
-                fill: 'none',
-                stroke: 'currentColor',
-                'stroke-width': ICON_STROKE_WIDTH,
-                'stroke-linecap': 'round',
-                'stroke-linejoin': 'round',
-                focusable: 'false',
-                'aria-hidden': 'true',
-                innerHTML: def.body
-            },
-            props
-        )
-    );
-}
+/** An icon by name, drawn the way the icon component draws it. */
+export const iconView = (name: string, props?: Props): Child => iconNode(getIcon(name), props);
 
 const named = (name: string, value: string | undefined): Props | null => (value === undefined ? null : { [name]: value });
 

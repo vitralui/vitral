@@ -1,8 +1,7 @@
 import { formatMessage, visuallyHidden, type Locale } from '@vitral/core';
-import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX } from '@vitral/icons';
+import { getIcon } from '@vitral/icons';
 import type { ChartTable } from '../engine/a11y';
-import { mergeAttrs } from '@vitral/dom';
-import { h, s, type Child, type Props } from '@vitral/dom';
+import { h, iconNode, mergeAttrs, type Child, type Props } from '@vitral/dom';
 
 // The HTML around the picture: the legend, the tooltip, the toolbar and its
 // download menu, and the hidden data table.
@@ -14,23 +13,8 @@ export type HookResult = string | Node | Node[] | null | undefined;
 
 export const hookChild = (result: HookResult): Child => (result === null || result === undefined ? null : Array.isArray(result) ? result : result);
 
-/** An icon from `@vitral/icons`, drawn the way the icon component draws it. */
-export function iconView(name: string): Child {
-    const def = getIcon(name);
-    if (!def) return null;
-    return s('svg', {
-        class: 'vt-icon',
-        viewBox: def.viewBox ?? ICON_VIEWBOX,
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': ICON_STROKE_WIDTH,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        focusable: 'false',
-        'aria-hidden': 'true',
-        innerHTML: def.body
-    });
-}
+/** An icon by name, drawn the way the icon component draws it. */
+export const iconView = (name: string): Child => iconNode(getIcon(name));
 
 export interface LegendEntry {
     series: number;

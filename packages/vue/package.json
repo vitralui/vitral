@@ -60,6 +60,7 @@
     "@vitral/dom": "workspace:*",
     "@vitral/forms": "workspace:*",
     "@vitral/icons": "workspace:*",
+    "@vitral/schedule": "workspace:*",
     "@vitral/styles": "workspace:*",
     "@vitral/themes": "workspace:*"
   }
