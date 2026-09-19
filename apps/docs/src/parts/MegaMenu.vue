@@ -16,7 +16,7 @@ import { templateCategories, templates } from '../templates';
  * It is a disclosure rather than a menubar: the panel holds links, so Tab walks
  * them, Escape closes, and a press outside closes.
  */
-type Panel = 'components' | 'templates' | 'docs';
+type Panel = 'components' | 'addons' | 'templates' | 'docs';
 
 const open = ref<Panel | null>(null);
 const offset = ref(0);
@@ -34,8 +34,13 @@ const root = ref<HTMLElement | null>(null);
  * bar before it ever reaches what was just revealed. A disclosure's content
  * follows its disclosure.
  */
+const addonRoutes = new Set(addons.map((addon) => addon.component));
+
 const panels: { key: Panel; label: string; active: () => boolean }[] = [
-    { key: 'components', label: 'Components', active: () => route.value.name === 'component' },
+    { key: 'components', label: 'Components', active: () => route.value.name === 'component' && !addonRoutes.has(route.value.id) },
+    // The four packages that draw themselves, the charts gallery among them:
+    // a reader looking for the chart page should not have to know it is one.
+    { key: 'addons', label: 'Addons', active: () => route.value.name === 'addons' || route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) },
     { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' },
     { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' }
 ];
@@ -43,11 +48,16 @@ const panels: { key: Panel; label: string; active: () => boolean }[] = [
 const drawer = ref(false);
 const search = defineModel<boolean>('search', { default: false });
 
-const shortcuts = computed(() => [
-    { label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' },
-    { label: 'Charts', to: '/charts', note: `${chartEntries.length} kinds, drawn live`, icon: 'areaChart', active: route.value.name === 'charts' },
-    { label: 'Addons', to: '/addons', note: `${addons.length} packages with no framework in them`, icon: 'blocks', active: route.value.name === 'addons' }
-]);
+const shortcuts = computed(() => [{ label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' }]);
+
+/** What the addons panel lists: the four of them, and where each is shown off. */
+const addonLinks = computed(() =>
+    addons.map((addon) => ({
+        ...addon,
+        note: addon.id === 'chart' ? `${chartEntries.length} kinds, drawn live` : addon.note,
+        active: addon.to === '/charts' ? route.value.name === 'charts' : route.value.id === addon.component
+    }))
+);
 
 // A link inside the drawer has done its job; the drawer should not stay open
 // over the page it just opened.
@@ -151,6 +161,19 @@ onBeforeUnmount(() => {
                     <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components <Icon icon="arrowRight" /></a>
                 </template>
 
+                <template v-else-if="panel.key === 'addons'">
+                    <div class="mega-grid">
+                        <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-item" :class="{ 'is-active': addon.active }">
+                            <span class="mega-icon"><Icon :icon="addon.icon" /></span>
+                            <span>
+                                <b>{{ addon.title }} <code>{{ addon.name }}</code></b>
+                                <em>{{ addon.note }}</em>
+                            </span>
+                        </a>
+                    </div>
+                    <a :href="href('/addons')" class="mega-foot">What an addon is, and how to call one without a framework <Icon icon="arrowRight" /></a>
+                </template>
+
                 <template v-else-if="panel.key === 'templates'">
                     <div class="mega-columns">
                         <div v-for="group in templateCategories" :key="group.category" class="mega-group">
@@ -183,8 +206,6 @@ onBeforeUnmount(() => {
             </template>
 
             <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
-            <a :href="href('/charts')" :class="{ 'is-active': route.name === 'charts' }" :aria-current="route.name === 'charts' ? 'page' : undefined">Charts</a>
-            <a :href="href('/addons')" :class="{ 'is-active': route.name === 'addons' }" :aria-current="route.name === 'addons' ? 'page' : undefined">Addons</a>
         </nav>
 
         <Button
@@ -210,6 +231,22 @@ onBeforeUnmount(() => {
                     <span>
                         <b>{{ item.label }}</b>
                         <em>{{ item.note }}</em>
+                    </span>
+                </a>
+
+                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
+                <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon :icon="addon.icon" /></span>
+                    <span>
+                        <b>{{ addon.title }}</b>
+                        <em>{{ addon.note }}</em>
+                    </span>
+                </a>
+                <a :href="href('/addons')" class="mega-drawer-link" :aria-current="route.name === 'addons' ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon icon="blocks" /></span>
+                    <span>
+                        <b>What an addon is</b>
+                        <em>The four packages, and how to call one without a framework</em>
                     </span>
                 </a>
 

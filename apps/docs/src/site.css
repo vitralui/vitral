@@ -1144,6 +1144,14 @@ a {
     font-weight: 600;
 }
 
+/* The package a menu entry stands for, beside its name. */
+.mega-item b code {
+    font-family: var(--vt-font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--vt-text-muted-color);
+}
+
 .mega-item small {
     padding: 0 0.3125rem;
     border-radius: 999px;

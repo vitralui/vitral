@@ -8,9 +8,15 @@ export interface AddonEntry {
     /** The package, without the scope. */
     id: string;
     name: string;
+    /** What it is called in a menu, where the package name is too long to scan. */
+    title: string;
     /** One line: what it draws. */
     summary: string;
+    /** A shorter line, for a menu. */
+    note: string;
     icon: string;
+    /** Where a menu entry goes: the page that shows the thing off. */
+    to: string;
     /** The component page it backs. */
     component: string;
     /** What the engine entry holds on its own. */
@@ -23,6 +29,9 @@ export const addons: AddonEntry[] = [
     {
         id: 'chart',
         name: '@vitral/chart',
+        title: 'Charts',
+        note: 'Every kind, drawn live with its options',
+        to: '/charts',
         summary: 'SVG charts: line, area, bar, pie, radar, heat map, candlestick and the rest, with axes, legend, tooltip, zoom and export.',
         icon: 'areaChart',
         component: 'chart',
@@ -40,6 +49,9 @@ chart.update({ series });`
     {
         id: 'datatable',
         name: '@vitral/datatable',
+        title: 'DataTable',
+        note: 'Sort, filter, page, select, arrange the columns',
+        to: '/components/datatable',
         summary: 'A real <table>: sorting, filtering, paging, selection, and columns the reader resizes, moves, pins and hides.',
         icon: 'grip',
         component: 'datatable',
@@ -60,6 +72,9 @@ const table = createDataTable(document.querySelector('#people'), {
     {
         id: 'schedule',
         name: '@vitral/schedule',
+        title: 'Schedule',
+        note: 'Month, week, day, agenda and timeline',
+        to: '/components/schedule',
         summary: 'A calendar and scheduler: month, week, day, agenda and timeline, with recurrence, drag and drop, and a keyboard that does the same.',
         icon: 'calendar',
         component: 'schedule',
@@ -75,6 +90,9 @@ const schedule = createSchedule(document.querySelector('#week'), {
     {
         id: 'taskboard',
         name: '@vitral/taskboard',
+        title: 'Taskboard',
+        note: 'Columns, swimlanes and accessible dragging',
+        to: '/components/taskboard',
         summary: 'A task board: columns, swimlanes, work-in-progress limits, and drag and drop that a keyboard can do too.',
         icon: 'columns',
         component: 'taskboard',
