@@ -1,0 +1,176 @@
+import {
+    getField,
+    isBlankFilter,
+    isSelected,
+    orderColumns,
+    queryData,
+    selectionState,
+    stickyOffsets,
+    type ColumnLayout,
+    type ColumnSticky,
+    type CompositeFilter,
+    type FilterConstraint,
+    type FilterMeta,
+    type SortMeta
+} from '@vitral/core';
+import type { LoadRequest, Row, TableColumn, TableConfig, TableModels } from './types';
+
+/**
+ * What a table draws, worked out from what it was told: which columns, in what
+ * order and at what width; which rows, sorted, filtered and paged; and what is
+ * selected. Everything here is a function of the configuration and the state —
+ * no DOM, no timers — so the renderer only has to draw the answer and the same
+ * answer can be tested on its own.
+ */
+
+/** A column with everything the renderer needs decided: its key, its width, where it sticks. */
+export interface ResolvedColumn<T = Row> {
+    column: TableColumn<T>;
+    key: string;
+    field?: string;
+    sortField: string;
+    filterField: string;
+    header: string;
+    sticky?: ColumnSticky;
+    width?: number;
+    align?: 'left' | 'center' | 'right';
+    selectionMode?: 'single' | 'multiple';
+}
+
+export const keyOf = (column: TableColumn, index: number): string => String(column.key ?? column.field ?? `column-${index}`);
+export const isComposite = (filter: FilterConstraint | CompositeFilter): filter is CompositeFilter => 'constraints' in filter;
+
+export const defaultModels = (): TableModels => ({
+    first: 0,
+    rows: 10,
+    sortField: null,
+    sortOrder: null,
+    multiSortMeta: [],
+    filters: {},
+    selection: null,
+    columnLayout: {}
+});
+
+/** The columns as declared, before the reader's layout: hidden ones are already out. */
+export function declaredColumns<T>(config: TableConfig<T>): { column: TableColumn<T>; key: string }[] {
+    return (config.columns ?? []).filter((column) => !column.hidden).map((column, index) => ({ column, key: keyOf(column, index) }));
+}
+
+/**
+ * The layout the table draws from: what the reader changed, over what the
+ * columns themselves asked for, so a table is laid out as written until
+ * someone moves something.
+ */
+export function tableLayout<T>(config: TableConfig<T>, models: TableModels): ColumnLayout {
+    const declared = declaredColumns(config);
+    const given = models.columnLayout ?? {};
+    const widths = { ...Object.fromEntries(declared.filter(({ column }) => column.width !== undefined).map(({ column, key }) => [key, column.width!])), ...given.widths };
+    const pinned = { ...Object.fromEntries(declared.filter(({ column }) => column.pinned).map(({ column, key }) => [key, column.pinned!])), ...given.pinned };
+    return { order: given.order, hidden: given.hidden ?? [], widths, pinned };
+}
+
+/** The columns to draw, in order, with their widths and sticky offsets. */
+export function tableColumns<T>(config: TableConfig<T>, models: TableModels): ResolvedColumn<T>[] {
+    const declared = declaredColumns(config);
+    const layout = tableLayout(config, models);
+    const byKey = new Map(declared.map((entry) => [entry.key, entry.column]));
+    const order = orderColumns(
+        declared.map((entry) => entry.key),
+        layout
+    );
+    const sticky = stickyOffsets(order, layout);
+    return order
+        .filter((key) => byKey.has(key))
+        .map((key) => {
+            const column = byKey.get(key)!;
+            return {
+                column,
+                key,
+                field: column.field,
+                sortField: String(column.sortField ?? column.field ?? ''),
+                filterField: String(column.filterField ?? column.field ?? ''),
+                header: column.header ?? column.field ?? '',
+                sticky: sticky[key],
+                width: layout.widths?.[key],
+                align: column.align,
+                selectionMode: column.selectionMode
+            };
+        });
+}
+
+/** The sort the table is in, however it was expressed. */
+export function sortsOf(config: TableConfig, models: TableModels): SortMeta[] {
+    if (config.sortMode === 'multiple') return models.multiSortMeta ?? [];
+    const order = models.sortOrder;
+    return models.sortField && (order === 1 || order === -1) ? [{ field: models.sortField, order }] : [];
+}
+
+/** What the table asks for: the same request whether it is answered here or by a server. */
+export function loadRequest(config: TableConfig, models: TableModels, filters: FilterMeta): LoadRequest {
+    const { global, ...fields } = filters;
+    const globalFilter =
+        global && !isComposite(global) && config.globalFilterFields?.length ? { value: global.value, fields: [...config.globalFilterFields], matchMode: global.matchMode } : undefined;
+    return {
+        first: config.paginator ? models.first : undefined,
+        rows: config.paginator ? models.rows : undefined,
+        sort: sortsOf(config, models).map((sort) => ({ field: sort.field, order: sort.order })),
+        filters: fields,
+        globalFilter,
+        locale: config.locale?.code
+    };
+}
+
+export type TableMode = 'local' | 'lazy' | 'source';
+export const modeOf = (config: TableConfig): TableMode => (config.dataSource ? 'source' : config.lazy ? 'lazy' : 'local');
+
+export interface ResolvedRows<T = Row> {
+    /** The rows on the page. */
+    page: T[];
+    /** Every row the query matched, which is what select-all covers; the page itself for a server. */
+    all: T[];
+    total: number;
+    /** Where the page starts, for the index a row reports. */
+    offset: number;
+}
+
+/** The rows to draw. `remote` is what a data source last answered. */
+export function resolveRows<T>(config: TableConfig<T>, models: TableModels, filters: FilterMeta, remote?: { items: T[]; total: number }): ResolvedRows<T> {
+    const mode = modeOf(config);
+    const value = config.value ?? [];
+    const offset = config.paginator ? models.first : 0;
+    if (mode === 'lazy') return { page: value, all: value, total: config.totalRecords ?? value.length, offset };
+    if (mode === 'source') return { page: remote?.items ?? [], all: remote?.items ?? [], total: remote?.total ?? 0, offset };
+    const request = loadRequest(config, models, filters);
+    const processed = queryData(value, { ...request, first: undefined, rows: undefined });
+    const page = config.paginator ? queryData(processed.items, { first: models.first, rows: models.rows }).items : processed.items;
+    return { page, all: processed.items, total: processed.total, offset };
+}
+
+/** Whether anything is being filtered, which decides which empty message is shown. */
+export function hasActiveFilter(filters: FilterMeta): boolean {
+    return Object.values(filters).some((filter) => (isComposite(filter) ? filter.constraints.some((c) => !isBlankFilter(c.value)) : !isBlankFilter(filter.value)));
+}
+
+/** A column takes a filter box when it has a field to filter and a filter to put in it. */
+export function isFilterable(column: ResolvedColumn, filters: FilterMeta): boolean {
+    return !column.selectionMode && !!column.filterField && (!!column.column.filterContent || !!filters[column.filterField]);
+}
+
+export const selectionKind = (config: TableConfig, columns: ResolvedColumn[]): 'single' | 'multiple' | undefined =>
+    columns.find((column) => column.selectionMode)?.selectionMode ?? config.selectionMode;
+
+export const rowSelected = (config: TableConfig, models: TableModels, kind: 'single' | 'multiple' | undefined, row: unknown): boolean =>
+    !!kind && isSelected(models.selection, row, kind, config.dataKey);
+
+export const allSelectedState = (config: TableConfig, models: TableModels, rows: readonly unknown[]) => selectionState(rows, models.selection, config.dataKey);
+
+/** The key a row is drawn under: its `dataKey` field, or where it sits. */
+export const rowKey = (config: TableConfig, row: unknown, index: number, offset: number): string | number =>
+    config.dataKey ? String(getField(row, config.dataKey)) : offset + index;
+
+/** The text of a cell that draws itself no other way. */
+export function cellText(value: unknown, locale?: string): string {
+    if (value === null || value === undefined) return '';
+    if (value instanceof Date) return value.toLocaleDateString(locale);
+    return String(value);
+}

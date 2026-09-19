@@ -99,6 +99,21 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
 
+  packages/datatable:
+    dependencies:
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/dom:
     dependencies:
       '@vitral/core':

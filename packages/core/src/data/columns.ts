@@ -19,7 +19,7 @@ export interface ColumnLayout {
 }
 
 export interface ColumnResizeOptions {
-    /** The smallest a column may be, in pixels. Defaults to 48. */
+    /** The smallest a column may be, in pixels. Defaults to `MIN_COLUMN_WIDTH`. */
     min?: number;
     /**
      * `'expand'` widens the table; `'fit'` takes what one column gains from the
@@ -94,6 +94,9 @@ export function pinColumn(layout: ColumnLayout | null | undefined, key: string, 
     return { ...current, pinned };
 }
 
+/** The narrowest a column goes when nothing narrower is asked for, in pixels. */
+export const MIN_COLUMN_WIDTH = 48;
+
 /**
  * A column's new width after a drag of `delta` pixels. In `'fit'` mode the
  * next column gives up what this one takes, so neither goes below the minimum
@@ -101,7 +104,7 @@ export function pinColumn(layout: ColumnLayout | null | undefined, key: string, 
  */
 export function resizeColumn(layout: ColumnLayout | null | undefined, key: string, delta: number, options: ColumnResizeOptions = {}): ColumnLayout {
     const current = clean(layout);
-    const min = options.min ?? 48;
+    const min = options.min ?? MIN_COLUMN_WIDTH;
     const widthOf = (k: string) => current.widths[k] ?? options.measured?.[k] ?? min;
     const widths = { ...current.widths };
     const from = widthOf(key);

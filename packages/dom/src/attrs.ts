@@ -79,8 +79,10 @@ function resolve(value: PassThroughValue | undefined, context: PassThroughContex
 export interface PartOptions {
     style: ComponentStyle;
     unstyled: () => boolean;
-    classes: () => Partial<Record<string, ClassEntry>> | undefined;
-    pt: () => PassThrough | undefined;
+    /** Per-part class replacements, when the host offers any. */
+    classes?: () => Partial<Record<string, ClassEntry>> | undefined;
+    /** Per-part attributes, when the host offers any. */
+    pt?: () => PassThrough | undefined;
     props: () => Record<string, unknown>;
 }
 
@@ -92,10 +94,10 @@ export function partResolver(options: PartOptions) {
     return function part(name: string, state?: unknown): Props {
         let cls: string | undefined;
         if (!options.unstyled()) {
-            const own = options.classes()?.[name];
+            const own = options.classes?.()?.[name];
             cls = (own !== undefined ? classOf({ name: '', css: '', classes: { [name]: own } }, name, state) : classOf(options.style, name, state)) || undefined;
         }
-        const pt = options.pt()?.[name];
+        const pt = options.pt?.()?.[name];
         if (!pt) return { class: cls };
         return mergeAttrs({ class: cls }, resolve(pt, { part: name, state, props: options.props() }));
     };
