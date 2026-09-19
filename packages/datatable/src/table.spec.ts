@@ -276,6 +276,15 @@ describe('what the host draws itself', () => {
         expect(seen[0]).toEqual({ first: 0, rows: 2, page: 0, pageCount: 3, total: 5 });
     });
 
+    it('draws its icons as SVG, in the namespace that makes them icons', () => {
+        const { element } = mount({ paginator: true, rows: 2 });
+        const icon = element.querySelector('.vt-paginator-first svg')!;
+        expect(icon.namespaceURI).toBe('http://www.w3.org/2000/svg');
+        // Written as `viewBox`, which outside the namespace becomes `viewbox` and is ignored.
+        expect(icon.getAttribute('viewBox')).toBe('0 0 24 24');
+        expect(icon.getAttribute('aria-hidden')).toBe('true');
+    });
+
     it('says it is waiting, where a reader who cannot see it hears it', () => {
         const { element } = mount({ loading: true });
         const mask = element.querySelector('.vt-datatable-loading-mask')!;

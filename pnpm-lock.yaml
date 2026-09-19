@@ -163,6 +163,12 @@ importers:
       '@vitral/core':
         specifier: workspace:*
         version: link:../core
+      '@vitral/datatable':
+        specifier: workspace:*
+        version: link:../datatable
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
       '@vitral/forms':
         specifier: workspace:*
         version: link:../forms

@@ -56,6 +56,8 @@
   "dependencies": {
     "@vitral/chart": "workspace:*",
     "@vitral/core": "workspace:*",
+    "@vitral/datatable": "workspace:*",
+    "@vitral/dom": "workspace:*",
     "@vitral/forms": "workspace:*",
     "@vitral/icons": "workspace:*",
     "@vitral/styles": "workspace:*",

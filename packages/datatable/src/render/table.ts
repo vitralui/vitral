@@ -1,5 +1,5 @@
 import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type Locale } from '@vitral/core';
-import { h, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
+import { h, mergeAttrs, s, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX } from '@vitral/icons';
 import { cellText, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { Content, PageContext, Row, TableColumn, TableConfig, TableModels } from '../engine/types';
@@ -71,7 +71,9 @@ export interface TableActions<T = Row> {
 export function iconView(name: string, props?: Props): Child {
     const def = getIcon(name);
     if (!def) return null;
-    return h(
+    // In the SVG namespace, or `viewBox` is written as `viewbox` and the icon
+    // is drawn at the wrong scale — which is to say, not seen at all.
+    return s(
         'svg',
         mergeAttrs(
             {
@@ -90,6 +92,8 @@ export function iconView(name: string, props?: Props): Child {
         )
     );
 }
+
+const named = (name: string, value: string | undefined): Props | null => (value === undefined ? null : { [name]: value });
 
 const content = (value: Content): Child => (value === null || value === undefined ? null : value);
 
@@ -124,13 +128,16 @@ export function tableView<T>(context: ViewContext<T>): Child[] {
             }),
             h(
                 'table',
-                mergeAttrs({ key: 'table' }, part('table'), {
-                    id: context.ids.table,
-                    style: config.tableStyle,
-                    'aria-busy': context.busy ? 'true' : undefined,
-                    'aria-label': config.caption && !config.showCaption ? undefined : config.ariaLabel,
-                    'aria-labelledby': config.ariaLabelledby ?? (config.caption && !config.showCaption ? context.ids.caption : undefined)
-                }),
+                // The naming attributes are only written when there is one to
+                // write: a host may have put its own on this part, and an
+                // absent name must not wipe it out.
+                mergeAttrs(
+                    { key: 'table' },
+                    named('aria-label', config.caption && !config.showCaption ? undefined : config.ariaLabel),
+                    named('aria-labelledby', config.ariaLabelledby ?? (config.caption && !config.showCaption ? context.ids.caption : undefined)),
+                    part('table'),
+                    { id: context.ids.table, style: config.tableStyle, 'aria-busy': context.busy ? 'true' : undefined }
+                ),
                 config.caption ? h('caption', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
                 headView(context),
                 bodyView(context),

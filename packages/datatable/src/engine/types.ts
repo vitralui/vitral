@@ -182,7 +182,7 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     scrollHeight?: string;
     emptyMessage?: string;
     rowClass?: (row: T) => string | undefined;
-    tableStyle?: Record<string, string>;
+    tableStyle?: string | Record<string, string>;
     caption?: string;
     showCaption?: boolean;
 
@@ -201,8 +201,14 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     content?: TableContent;
     /** For a Content-Security-Policy: the nonce of the injected stylesheet. */
     nonce?: string;
-    /** Where overlays are put; the document's body by default. */
-    overlayTarget?: () => Element | null | undefined;
+    /** A CSS cascade layer to put the stylesheet in. */
+    cssLayer?: string | false;
+    /**
+     * Where overlays are put: an element, a selector, or a function giving
+     * either. `'body'` and `'self'` mean the nearest overlay scope, and the
+     * document's body when there is none.
+     */
+    overlayTarget?: HTMLElement | string | (() => HTMLElement | string | null | undefined);
     /** The z-index overlays start from. */
     zIndex?: number;
     on?: TableEvents<T>;

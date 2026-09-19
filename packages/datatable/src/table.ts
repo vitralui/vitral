@@ -6,6 +6,7 @@ import {
     layoutFor,
     loadStyle,
     moveColumn,
+    overlayContainerOf,
     pageCount,
     pageOf,
     pinColumn,
@@ -60,6 +61,8 @@ export interface TableHandle<T = Row> {
     state(): TableModels;
     /** Draws again, for data that changed underneath. */
     refresh(): void;
+    /** Asks the data source again, for rows that changed where they came from. */
+    reload(): void;
     /** Removes everything this table added to the element. */
     destroy(): void;
     readonly element: HTMLElement;
@@ -81,6 +84,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     let activeRow = 0;
     let filterTimer: ReturnType<typeof setTimeout> | undefined;
     let sourceRun = 0;
+    let sourceLoading = false;
     let shared: ColumnLayout | null = null;
     let echo = false;
     let stopGroup: (() => void) | null = null;
@@ -89,7 +93,11 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     const ids = { table: `${id}-table`, list: `${id}-columns`, caption: `${id}-caption` };
     const root = createRoot(element);
     const portal = createPortal();
-    const overlayTarget = (): Element => current.overlayTarget?.() ?? document.body;
+    function overlayTarget(): HTMLElement {
+        let target = typeof current.overlayTarget === 'function' ? current.overlayTarget() : current.overlayTarget;
+        if (typeof target === 'string') target = target === 'body' || target === 'self' ? undefined : (document.querySelector<HTMLElement>(target) ?? undefined);
+        return target ?? overlayContainerOf(element) ?? document.body;
+    }
     const locale = (): Locale => current.locale ?? en;
     const part = partResolver({
         style: datatableStyle,
@@ -111,12 +119,14 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         props: () => current as Record<string, unknown>
     });
 
+    const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
+
     if (!config.unstyled) {
         // The shared rules too: the table's own icons, fields and screen-reader
         // text are the ones every Vitral control uses.
-        loadStyle(baseStyle.name, baseStyle.css, { nonce: config.nonce });
-        loadStyle(datatableStyle.name, datatableStyle.css, { nonce: config.nonce });
-        if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, { nonce: config.nonce });
+        loadStyle(baseStyle.name, baseStyle.css, styleOptions());
+        loadStyle(datatableStyle.name, datatableStyle.css, styleOptions());
+        if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
     }
 
     // ---- what the host hears ------------------------------------------------------
@@ -142,12 +152,21 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         if (!source) return;
         const run = ++sourceRun;
         const request = loadRequest(current, models, applied);
-        void Promise.resolve(source.load(request)).then((answer) => {
-            // A slow answer that arrives after a newer one is thrown away.
-            if (run !== sourceRun) return;
-            remote = answer as { items: T[]; total: number };
-            if (!clampPage()) render();
-        });
+        sourceLoading = true;
+        void Promise.resolve(source.load(request)).then(
+            (answer) => {
+                // A slow answer that arrives after a newer one is thrown away.
+                if (run !== sourceRun) return;
+                sourceLoading = false;
+                remote = answer as { items: T[]; total: number };
+                if (!clampPage()) render();
+            },
+            () => {
+                if (run !== sourceRun) return;
+                sourceLoading = false;
+                render();
+            }
+        );
         render();
     }
 
@@ -284,7 +303,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             const next = columnAfter(column);
             const from = event.clientX;
             const rtl = getComputedStyle(element).direction === 'rtl';
-            writeLayout({ ...tableLayout(current, models), widths: { ...start, ...tableLayout(current, models).widths } });
+            writeLayout({ ...tableLayout(current, withShared()), widths: { ...start, ...tableLayout(current, withShared()).widths } });
             let last = from;
             const move = (moved: PointerEvent) => {
                 applyResize(column, (moved.clientX - last) * (rtl ? -1 : 1), next, start, moved);
@@ -358,13 +377,13 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             render();
         },
         pin(column, side, event) {
-            const layout = { ...tableLayout(current, models), widths: { ...measured(), ...tableLayout(current, models).widths } };
+            const layout = { ...tableLayout(current, withShared()), widths: { ...measured(), ...tableLayout(current, withShared()).widths } };
             const next = pinColumn(layout, column.key, side);
             writeLayout(next);
             emit('column-pin', { originalEvent: event, key: column.key, side, layout: next });
         },
         setVisible(key, visible, event) {
-            const next = toggleColumn(tableLayout(current, models), key, visible);
+            const next = toggleColumn(tableLayout(current, withShared()), key, visible);
             writeLayout(next);
             emit('column-toggle', { originalEvent: event, key, visible, layout: next });
         },
@@ -429,7 +448,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
 
     function move(key: string, before: string | null, event: Event) {
         const keys = declaredColumns(current).map((entry) => entry.key);
-        const next = moveColumn(tableLayout(current, models), keys, key, before);
+        const next = moveColumn(tableLayout(current, withShared()), keys, key, before);
         if (!next.order) return;
         writeLayout(next);
         emit('column-reorder', { originalEvent: event, key, order: next.order, layout: next });
@@ -437,7 +456,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
 
     function applyResize(column: ResolvedColumn<T>, delta: number, next: string | undefined, start: Record<string, number>, event: Event) {
         if (!delta) return;
-        const layout = resizeColumn(tableLayout(current, models), column.key, delta, {
+        const layout = resizeColumn(tableLayout(current, withShared()), column.key, delta, {
             min: column.column.minWidth,
             mode: current.columnResizeMode ?? 'fit',
             next: (current.columnResizeMode ?? 'fit') === 'fit' ? next : undefined,
@@ -453,7 +472,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         return Object.fromEntries(columnsNow().map((column, index) => [column.key, Math.round(cells[index]?.getBoundingClientRect().width ?? 0)]));
     }
 
-    const columnsNow = () => tableColumns(withShared(), models);
+    const columnsNow = () => tableColumns(current, withShared());
 
     /**
      * The column drawn after this one, by key: the resolved columns are made
@@ -466,11 +485,11 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         return at < 0 ? undefined : columns[at + 1]?.key;
     }
 
-    /** The configuration as the group has agreed it, for the columns this table has. */
-    function withShared(): TableConfig<T> {
-        if (!current.group || !shared) return current;
+    /** The models as the group has agreed them: its layout, for the columns this table has. */
+    function withShared(): TableModels {
+        if (!current.group || !shared) return models;
         const keys = declaredColumns(current).map((entry) => entry.key);
-        return { ...current, columnLayout: layoutFor(keys, shared, models.columnLayout) };
+        return { ...models, columnLayout: layoutFor(keys, shared, models.columnLayout) };
     }
 
     function joinGroup() {
@@ -495,30 +514,30 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     // ---- drawing --------------------------------------------------------------------
 
     function render() {
-        const config_ = withShared();
-        const columns = tableColumns(config_, models);
-        const rows = resolveRows(config_, models, applied, remote);
-        const kind = selectionKind(config_, columns);
+        const shownModels = withShared();
+        const columns = tableColumns(current, shownModels);
+        const rows = resolveRows(current, models, applied, remote);
+        const kind = selectionKind(current, columns);
         const cover = mode() === 'local' ? rows.all : rows.page;
-        const declared = declaredColumns(config_);
-        const layout = tableLayout(config_, models);
+        const declared = declaredColumns(current);
+        const layout = tableLayout(current, shownModels);
         const shownToggleable = declared.filter(({ column, key }) => column.toggleable !== false && !column.selectionMode && !(layout.hidden ?? []).includes(key));
         const context: ViewContext<T> = {
-            config: config_,
+            config: current,
             models,
             columns,
             rows,
             filters: models.filters,
             locale: locale(),
             ids,
-            busy: !!current.loading || (mode() === 'source' && remote === undefined),
+            busy: !!current.loading || (mode() === 'source' && (sourceLoading || remote === undefined)),
             part,
             pagePart,
             on: actions,
-            allState: allSelectedState(config_, models, cover),
-            selected: (row: T) => rowSelected(config_, models, kind, row),
+            allState: allSelectedState(current, models, cover),
+            selected: (row: T) => rowSelected(current, models, kind, row),
             selectionKind: kind,
-            sorts: sortsOf(config_, models),
+            sorts: sortsOf(current, models),
             tabRow: Math.min(activeRow, Math.max(0, rows.page.length - 1)),
             chooser: {
                 open: chooserOpen,
@@ -537,14 +556,14 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         const emptyMessage = current.emptyMessage ?? (hasActiveFilter(applied) ? locale().emptySearchMessage : locale().emptyMessage);
         root.attrs(
             part('root', {
-                striped: config_.stripedRows,
-                gridlines: config_.showGridlines,
-                size: config_.size,
-                scrollable: config_.scrollable,
+                striped: current.stripedRows,
+                gridlines: current.showGridlines,
+                size: current.size,
+                scrollable: current.scrollable,
                 loading: context.busy
             })
         );
-        const drawn: ViewContext<T> = { ...context, config: { ...config_, emptyMessage } };
+        const drawn: ViewContext<T> = { ...context, config: { ...current, emptyMessage } };
         root.render(tableView(drawn));
         // After the table, so the button the panel hangs from is the one just drawn.
         renderChooser(drawn);
@@ -563,7 +582,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             if (Object.keys(changedModels).length) models = { ...models, ...changedModels };
             if ('filters' in changedModels) applied = cloneFilters(models.filters);
             if (current.group !== wasGroup) joinGroup();
-            if (!current.unstyled && current.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, { nonce: current.nonce });
+            if (!current.unstyled && current.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
             if ('value' in next || 'dataSource' in next || 'lazy' in next) {
                 if (current.dataSource) requestSource();
             }
@@ -572,6 +591,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         },
         state: () => ({ ...models }),
         refresh: render,
+        reload: requestSource,
         destroy() {
             clearTimeout(filterTimer);
             stopGroup?.();
