@@ -1,6 +1,7 @@
 import { ptBR } from '@vitral/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
+import type { PageContext } from './engine/types';
 import { createDataTable, type TableHandle } from './table';
 
 interface Person {
@@ -170,7 +171,7 @@ describe('a table with no framework in it', () => {
         // And with the column list open, and nothing to show.
         element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!.click();
         handle!.update({ value: [] });
-        await expectNoA11yViolations(element);
+        await expectNoA11yViolations(document.body);
     });
 
     it('clears up after itself', () => {
@@ -179,6 +180,108 @@ describe('a table with no framework in it', () => {
         handle = null;
         expect(element.children).toHaveLength(0);
         expect(element.className).toBe('');
+    });
+});
+
+describe('its paginator', () => {
+    it('holds what the template names, in that order', () => {
+        const { element } = mount({
+            paginator: true,
+            rows: 2,
+            rowsPerPageOptions: [2, 4],
+            paginatorTemplate: 'CurrentPageReport PrevPageLink PageLinks NextPageLink RowsPerPageDropdown'
+        });
+        const nav = element.querySelector('nav')!;
+        expect(nav.getAttribute('aria-label')).toBe('Pagination');
+        expect(Array.from(nav.children).map((child) => child.className.split(' ').at(-1))).toEqual([
+            'vt-paginator-current',
+            'vt-paginator-prev',
+            'vt-paginator-pages',
+            'vt-paginator-next',
+            'vt-paginator-rows-per-page'
+        ]);
+        expect(nav.querySelector('.vt-paginator-first')).toBeNull();
+    });
+
+    it('reports where the reader is, in the words it was given', () => {
+        const { element } = mount({ paginator: true, rows: 2, paginatorTemplate: 'CurrentPageReport', currentPageReportTemplate: 'Page {page} of {pageCount}' });
+        expect(element.querySelector('.vt-paginator-current')!.textContent).toBe('Page 1 of 3');
+    });
+
+    it('changes the page size and keeps the row being read on the page', () => {
+        const paged = vi.fn();
+        const { element, column } = mount({ paginator: true, rows: 2, first: 4, rowsPerPageOptions: [2, 4], on: { page: paged } });
+        const select = element.querySelector<HTMLSelectElement>('select.vt-paginator-rows-per-page')!;
+        select.value = '4';
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(handle!.state()).toMatchObject({ rows: 4, first: 4 });
+        expect(column(0)).toEqual(['Élise Martin']);
+        expect(paged).toHaveBeenCalledWith({ first: 4, rows: 4, page: 1, pageCount: 2 });
+    });
+
+    it('says the ends are disabled without dropping the keyboard on them', () => {
+        const { element } = mount({ paginator: true, rows: 2 });
+        const next = element.querySelector<HTMLButtonElement>('.vt-paginator-next')!;
+        expect(element.querySelector('.vt-paginator-prev')!.getAttribute('aria-disabled')).toBe('true');
+        expect(element.querySelector<HTMLButtonElement>('.vt-paginator-prev')!.disabled).toBe(false);
+        expect(next.getAttribute('aria-disabled')).toBeNull();
+    });
+
+    it('comes back to the last page there is when the rows run out under it', () => {
+        const paged = vi.fn();
+        const { element, rows } = mount({ paginator: true, rows: 2, first: 4, on: { page: paged } });
+        expect(rows()).toHaveLength(1);
+        handle!.update({ value: people.slice(0, 3) });
+        expect(handle!.state().first).toBe(2);
+        expect(element.querySelector('.vt-paginator-page-selected')!.textContent).toBe('2');
+        expect(paged).toHaveBeenCalledWith({ first: 2, rows: 2, page: 1, pageCount: 2 });
+    });
+
+    it('stays away when there is one page and it was told to', () => {
+        const { element } = mount({ paginator: true, rows: 50, alwaysShowPaginator: false });
+        expect(element.querySelector('nav')).toBeNull();
+    });
+});
+
+describe('what the host draws itself', () => {
+    it('takes its header, its footer and its empty message', () => {
+        const node = (text: string) => () => {
+            const el = document.createElement('span');
+            el.textContent = text;
+            return el;
+        };
+        const { element } = mount({ value: [], content: { header: node('Everyone'), footer: node('Five of them'), empty: node('Nobody here') } });
+        expect(element.querySelector('.vt-datatable-header')!.textContent).toBe('Everyone');
+        expect(element.querySelector('.vt-datatable-footer')!.textContent).toBe('Five of them');
+        expect(element.querySelector('.vt-datatable-empty-cell')!.textContent).toBe('Nobody here');
+    });
+
+    it('takes a paginator of its own, where the built-in one would be', () => {
+        const seen: unknown[] = [];
+        const { element } = mount({
+            paginator: true,
+            rows: 2,
+            content: {
+                paginator: (state: PageContext) => {
+                    seen.push(state);
+                    const own = document.createElement('div');
+                    own.className = 'mine';
+                    own.textContent = `${state.page + 1}/${state.pageCount}`;
+                    return own;
+                }
+            }
+        });
+        expect(element.querySelector('.vt-paginator')).toBeNull();
+        expect(element.querySelector('.mine')!.textContent).toBe('1/3');
+        expect(seen[0]).toEqual({ first: 0, rows: 2, page: 0, pageCount: 3, total: 5 });
+    });
+
+    it('says it is waiting, where a reader who cannot see it hears it', () => {
+        const { element } = mount({ loading: true });
+        const mask = element.querySelector('.vt-datatable-loading-mask')!;
+        expect(mask.getAttribute('role')).toBe('status');
+        expect(mask.textContent).toContain('Loading');
+        expect(element.querySelector('table')!.getAttribute('aria-busy')).toBe('true');
     });
 });
 
@@ -219,11 +322,36 @@ describe('its columns', () => {
     it('are shown and hidden from a list of their own', () => {
         const { element, headings } = mount({ columnToggle: true });
         const button = element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        expect(button.getAttribute('aria-expanded')).toBe('false');
         button.click();
-        const boxes = Array.from(element.querySelectorAll<HTMLInputElement>('.vt-datatable-chooser-checkbox'));
+        // The list hangs from the button in an overlay, so the table cannot cut it off.
+        const panel = document.querySelector<HTMLElement>('.vt-datatable-chooser-panel')!;
+        expect(panel.parentElement).toBe(document.body);
+        expect(button.getAttribute('aria-controls')).toBe(panel.id);
+        expect(button.getAttribute('aria-expanded')).toBe('true');
+        const boxes = Array.from(panel.querySelectorAll<HTMLInputElement>('.vt-datatable-chooser-checkbox'));
         expect(boxes).toHaveLength(3);
         boxes[1]!.click();
         expect(headings()).toEqual(['Name', 'Age']);
         expect(handle!.state().columnLayout.hidden).toEqual(['city']);
+    });
+
+    it('put the list away on Escape, with the keyboard back where it was', () => {
+        const { element } = mount({ columnToggle: true });
+        const button = element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        button.focus();
+        button.click();
+        expect(document.querySelector('.vt-datatable-chooser-panel')).not.toBeNull();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        expect(document.querySelector('.vt-datatable-chooser-panel')).toBeNull();
+        expect(document.activeElement).toBe(button);
+    });
+
+    it('take the list with them when the table goes', () => {
+        const { element } = mount({ columnToggle: true });
+        element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!.click();
+        handle!.destroy();
+        handle = null;
+        expect(document.querySelector('.vt-datatable-chooser-panel')).toBeNull();
     });
 });

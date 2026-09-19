@@ -96,6 +96,32 @@
     gap: var(--vt-paginator-rows-per-page-gap);
 }
 
+/*
+ * The page size where the paginator draws the control itself: a native select,
+ * so a phone opens the picker its reader already knows.
+ */
+select.vt-paginator-rows-per-page {
+    box-sizing: border-box;
+    min-height: var(--vt-control-sm-min-height);
+    padding: 0 var(--vt-form-field-sm-padding-x);
+    font: inherit;
+    font-size: var(--vt-form-field-sm-font-size);
+    color: var(--vt-form-field-color);
+    background: var(--vt-form-field-background);
+    border: var(--vt-form-field-border-width) solid var(--vt-form-field-border-color);
+    border-radius: var(--vt-form-field-border-radius);
+    cursor: pointer;
+}
+
+select.vt-paginator-rows-per-page:hover {
+    border-color: var(--vt-form-field-hover-border-color);
+}
+
+select.vt-paginator-rows-per-page:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .vt-paginator-button {
         transition: none;

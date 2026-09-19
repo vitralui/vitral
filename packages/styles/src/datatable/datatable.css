@@ -172,9 +172,28 @@
     border-bottom: 1px solid var(--vt-datatable-header-cell-border-color);
 }
 
+.vt-datatable-filter-field {
+    width: 100%;
+    min-width: 6rem;
+}
+
 .vt-datatable-filter-input {
     width: 100%;
     min-width: 6rem;
+}
+
+/* The box the table draws itself, inside the shared field. */
+.vt-datatable-filter-field > .vt-datatable-filter-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: var(--vt-form-field-sm-padding-y) 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    appearance: none;
 }
 
 /* ---- body ------------------------------------------------------------- */
@@ -516,6 +535,22 @@
 .vt-datatable-chooser-button:focus-visible {
     outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
     outline-offset: 2px;
+}
+
+/*
+ * The column list, where the table draws the panel itself: a card over the
+ * table, from the button that opened it.
+ */
+.vt-datatable-chooser-panel {
+    /* Placed by the overlay it is put in, and never taller than the window. */
+    max-height: min(20rem, calc(100vh - 2rem));
+    overflow-y: auto;
+    padding: var(--vt-popover-content-padding, 0.75rem);
+    color: var(--vt-popover-color, var(--vt-datatable-row-color));
+    background: var(--vt-popover-background, var(--vt-datatable-background));
+    border: 1px solid var(--vt-popover-border-color, var(--vt-datatable-border-color));
+    border-radius: var(--vt-popover-border-radius, var(--vt-border-radius-md));
+    box-shadow: var(--vt-popover-shadow, var(--vt-shadow-md));
 }
 
 .vt-datatable-chooser-list {

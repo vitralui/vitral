@@ -23,6 +23,8 @@ export interface CellContext<T = Row> {
 /** Content a host draws itself: a string, a node it made, or nothing. */
 export type Content = string | number | Node | null | undefined;
 
+export type PaginatorItem = 'FirstPageLink' | 'PrevPageLink' | 'PageLinks' | 'NextPageLink' | 'LastPageLink' | 'RowsPerPageDropdown' | 'CurrentPageReport';
+
 export interface TableColumn<T = Row> {
     /** Identifies the column when `field` does not (two columns on one field, or none). */
     key?: string;
@@ -57,6 +59,34 @@ export interface TableColumn<T = Row> {
     footerContent?: (context: { column: TableColumn<T> }) => Content;
     /** Draws the filter control for this column, instead of the text box. */
     filterContent?: (context: { column: TableColumn<T>; value: unknown; setValue: (value: unknown) => void }) => Content;
+}
+
+/** Where the table is in its pages, for whatever a host draws around it. */
+export interface PageContext {
+    first: number;
+    rows: number;
+    page: number;
+    pageCount: number;
+    total: number;
+}
+
+/**
+ * The parts a host draws itself, beside the ones a column draws. A framework
+ * component passes its slots through here; a page with no framework hands in
+ * nodes it made, or nothing, and the table draws its own.
+ */
+export interface TableContent {
+    /** The bar above the table, beside the column list. */
+    header?: () => Content;
+    /** The bar below it. */
+    footer?: () => Content;
+    /** What an empty table says, instead of the message. */
+    empty?: () => Content;
+    loadingIcon?: () => Content;
+    /** Drawn instead of the built-in paginator, where that one would be. */
+    paginator?: (context: PageContext) => Content;
+    paginatorStart?: (context: PageContext) => Content;
+    paginatorEnd?: (context: PageContext) => Content;
 }
 
 export interface TableEvents<T = Row> {
@@ -121,6 +151,10 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     paginator?: boolean;
     rowsPerPageOptions?: number[];
     pageLinkSize?: number;
+    /** Which controls the paginator holds, and in what order. */
+    paginatorTemplate?: string | PaginatorItem[];
+    /** The page report's wording, with `{first}`, `{last}`, `{totalRecords}`, `{page}` and `{pageCount}`. */
+    currentPageReportTemplate?: string;
     paginatorPosition?: 'top' | 'bottom';
     alwaysShowPaginator?: boolean;
 
@@ -163,7 +197,13 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     pt?: PassThrough;
     /** Prefix of the ids the table gives its elements; generated when unset. */
     id?: string;
+    /** What the host draws itself. */
+    content?: TableContent;
     /** For a Content-Security-Policy: the nonce of the injected stylesheet. */
     nonce?: string;
+    /** Where overlays are put; the document's body by default. */
+    overlayTarget?: () => Element | null | undefined;
+    /** The z-index overlays start from. */
+    zIndex?: number;
     on?: TableEvents<T>;
 }

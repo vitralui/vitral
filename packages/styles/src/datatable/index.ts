@@ -71,6 +71,8 @@ export const datatableStyle = defineStyle({
         ],
         resizer: 'vt-datatable-resizer',
         chooserButton: 'vt-datatable-chooser-button',
+        /** The panel the list sits in, where the table draws it itself rather than in a popover. */
+        chooserPanel: 'vt-datatable-chooser-panel',
         chooserList: 'vt-datatable-chooser-list',
         chooserItem: 'vt-datatable-chooser-item',
         chooserLabel: 'vt-datatable-chooser-label',
@@ -82,6 +84,12 @@ export const datatableStyle = defineStyle({
         sortStatus: 'vt-sr-only',
         filterRow: 'vt-datatable-filter-row',
         filterCell: (s: DataTableCellState) => ['vt-datatable-filter-cell', align(s), pinned(s)],
+        /**
+         * Around the filter box, where the table draws the box itself rather
+         * than an input component: the shared field classes, so it is the same
+         * box either way.
+         */
+        filterField: 'vt-field vt-field-sm vt-field-fluid vt-datatable-filter-field',
         filterInput: 'vt-datatable-filter-input',
         tbody: 'vt-datatable-tbody',
         row: (s: DataTableRowState) => ['vt-datatable-row', { 'vt-datatable-row-selectable': s.selectable, 'vt-datatable-row-selected': s.selected }],

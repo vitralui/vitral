@@ -1,8 +1,8 @@
-import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, type FilterMeta, type Locale } from '@vitral/core';
-import { h, mergeAttrs, type Child, type Props } from '@vitral/dom';
+import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type Locale } from '@vitral/core';
+import { h, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon, ICON_STROKE_WIDTH, ICON_VIEWBOX } from '@vitral/icons';
 import { cellText, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
-import type { Content, Row, TableColumn, TableConfig, TableModels } from '../engine/types';
+import type { Content, PageContext, Row, TableColumn, TableConfig, TableModels } from '../engine/types';
 
 /**
  * The table as plain objects: a real `<table>`, one `<th scope="col">` a
@@ -46,6 +46,8 @@ export interface TableActions<T = Row> {
     sort: (column: ResolvedColumn<T>, event: MouseEvent) => void;
     setFilter: (column: ResolvedColumn<T>, value: unknown) => void;
     page: (first: number, rows: number) => void;
+    /** A new page size, keeping the first row on screen. */
+    pageSize: (rows: number) => void;
     toggleRow: (row: T, index: number, event: Event, type: 'row' | 'checkbox' | 'radio') => void;
     toggleAll: (event: Event) => void;
     rowClick: (row: T, index: number, event: MouseEvent) => void;
@@ -60,25 +62,33 @@ export interface TableActions<T = Row> {
     pin: (column: ResolvedColumn<T>, side: 'left' | 'right' | null, event: Event) => void;
     setVisible: (key: string, visible: boolean, event: Event) => void;
     toggleChooser: () => void;
+    /** The button the column list hangs from, as it is drawn. */
+    chooserButton: (element: Element | null) => void;
     scrolled: (event: Event) => void;
 }
 
 /** An icon from `@vitral/icons`, drawn the way the icon component draws it. */
-export function iconView(name: string): Child {
+export function iconView(name: string, props?: Props): Child {
     const def = getIcon(name);
     if (!def) return null;
-    return h('svg', {
-        class: 'vt-icon',
-        viewBox: def.viewBox ?? ICON_VIEWBOX,
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': ICON_STROKE_WIDTH,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        focusable: 'false',
-        'aria-hidden': 'true',
-        innerHTML: def.body
-    });
+    return h(
+        'svg',
+        mergeAttrs(
+            {
+                class: 'vt-icon',
+                viewBox: def.viewBox ?? ICON_VIEWBOX,
+                fill: 'none',
+                stroke: 'currentColor',
+                'stroke-width': ICON_STROKE_WIDTH,
+                'stroke-linecap': 'round',
+                'stroke-linejoin': 'round',
+                focusable: 'false',
+                'aria-hidden': 'true',
+                innerHTML: def.body
+            },
+            props
+        )
+    );
 }
 
 const content = (value: Content): Child => (value === null || value === undefined ? null : value);
@@ -127,57 +137,88 @@ export function tableView<T>(context: ViewContext<T>): Child[] {
                 footView(context)
             )
         ),
-        paginator && config.paginatorPosition !== 'top' ? paginatorView(context) : null
+        paginator && config.paginatorPosition !== 'top' ? paginatorView(context) : null,
+        footerBar(context),
+        loadingMask(context)
     ];
 }
 
-/** The bar above the table: the host's own header, and the column list. */
+/** The bar below the table, when the host draws one. */
+function footerBar<T>(context: ViewContext<T>): Child {
+    const own = content(context.config.content?.footer?.());
+    return own === null ? null : h('div', mergeAttrs({ key: 'footer' }, context.part('footer')), own);
+}
+
+/** Over the table while it waits, named for a reader who cannot see it turn. */
+function loadingMask<T>(context: ViewContext<T>): Child {
+    if (!context.busy) return null;
+    const { part, locale } = context;
+    return h(
+        'div',
+        mergeAttrs({ key: 'loading' }, part('loadingMask'), { role: 'status' }),
+        content(context.config.content?.loadingIcon?.()) ?? iconView('spinner', mergeAttrs(part('loadingIcon'), { class: 'vt-icon-spin' })),
+        h('span', part('loadingText'), locale.loading)
+    );
+}
+
+/** The bar above the table: the host's own header, and the button the column list hangs from. */
 function headerBar<T>(context: ViewContext<T>): Child {
     const { config, part, locale } = context;
-    if (!config.columnToggle) return null;
+    const own = content(config.content?.header?.());
+    if (!config.columnToggle && own === null) return null;
     return h(
         'div',
         mergeAttrs({ key: 'header' }, part('header')),
-        h(
-            'button',
-            mergeAttrs({ type: 'button' }, part('chooserButton'), {
-                'aria-expanded': context.chooser.open ? 'true' : 'false',
-                'aria-controls': context.ids.list,
-                onClick: context.on.toggleChooser
-            }),
-            iconView('sliders'),
-            h('span', null, locale.aria.chooseColumns)
-        ),
-        context.chooser.open
-            ? h(
-                  'div',
-                  mergeAttrs({ key: 'chooser', id: context.ids.list }, part('chooserPanel'), { role: 'group', 'aria-label': locale.aria.columns }),
-                  h(
-                      'ul',
-                      part('chooserList'),
-                      context.chooser.columns.map((entry) =>
-                          h(
-                              'li',
-                              mergeAttrs({ key: entry.key }, part('chooserItem')),
-                              h(
-                                  'label',
-                                  part('chooserLabel'),
-                                  h(
-                                      'input',
-                                      mergeAttrs({ type: 'checkbox' }, part('chooserCheckbox'), {
-                                          checked: entry.visible,
-                                          disabled: entry.visible && entry.last,
-                                          onChange: (event: Event) => context.on.setVisible(entry.key, (event.target as HTMLInputElement).checked, event)
-                                      })
-                                  ),
-                                  h('span', null, entry.header)
-                              )
-                          )
-                      )
-                  )
+        own,
+        !config.columnToggle
+            ? null
+            : h(
+                  'button',
+                  mergeAttrs({ key: 'chooser-button', type: 'button' }, part('chooserButton'), {
+                      'aria-expanded': context.chooser.open ? 'true' : 'false',
+                      'aria-controls': context.ids.list,
+                      ref: context.on.chooserButton,
+                      onClick: context.on.toggleChooser
+                  }),
+                  iconView('sliders'),
+                  h('span', null, locale.aria.chooseColumns)
               )
-            : null
     );
+}
+
+/**
+ * The column list itself, which the handle puts in an overlay anchored to that
+ * button — so a long list is not cut off by the table it hangs over.
+ */
+export function chooserView<T>(context: ViewContext<T>): VElement {
+    const { part, locale } = context;
+    return h(
+        'div',
+        mergeAttrs({ id: context.ids.list }, part('chooserPanel'), { role: 'group', 'aria-label': locale.aria.columns }),
+        h(
+            'ul',
+            part('chooserList'),
+            context.chooser.columns.map((entry) =>
+                h(
+                    'li',
+                    mergeAttrs({ key: entry.key }, part('chooserItem')),
+                    h(
+                        'label',
+                        part('chooserLabel'),
+                        h(
+                            'input',
+                            mergeAttrs({ type: 'checkbox' }, part('chooserCheckbox'), {
+                                checked: entry.visible,
+                                disabled: entry.visible && entry.last,
+                                onChange: (event: Event) => context.on.setVisible(entry.key, (event.target as HTMLInputElement).checked, event)
+                            })
+                        ),
+                        h('span', null, entry.header)
+                    )
+                )
+            )
+        )
+    ) as VElement;
 }
 
 function headView<T>(context: ViewContext<T>): Child {
@@ -241,7 +282,7 @@ function headView<T>(context: ViewContext<T>): Child {
                                       onChange: context.on.toggleAll
                                   })
                               ),
-                              context.allState !== 'none' ? iconView(context.allState === 'all' ? 'check' : 'minus') : null
+                              context.allState !== 'none' ? iconView(context.allState === 'all' ? 'check' : 'minus', part('checkboxIcon')) : null
                           )
                         : column.selectionMode
                           ? h('span', part('selectionHeaderText'), locale.aria.selectRow)
@@ -333,7 +374,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
             h(
                 'tr',
                 part('emptyRow'),
-                h('td', mergeAttrs(part('emptyCell'), { colspan: String(Math.max(1, columns.length)) }), config.emptyMessage ?? locale.emptyMessage)
+                h('td', mergeAttrs(part('emptyCell'), { colspan: String(Math.max(1, columns.length)) }), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
             )
         );
     }
@@ -370,7 +411,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                                           onChange: (event: Event) => context.on.toggleRow(row, index, event, column.selectionMode === 'multiple' ? 'checkbox' : 'radio')
                                       })
                                   ),
-                                  selected && column.selectionMode === 'multiple' ? iconView('check') : null
+                                  selected && column.selectionMode === 'multiple' ? iconView('check', part('checkboxIcon')) : null
                               )
                             : (content(
                                   column.column.body?.({ row, index: rows.offset + index, field: column.field, value: valueOf(row, column), column: column.column })
@@ -402,36 +443,89 @@ function footView<T>(context: ViewContext<T>): Child {
     );
 }
 
-/** Pages as buttons, with the first, previous, next and last of them. */
+/**
+ * The controls the template names, in the order it names them: the ends are
+ * announced disabled rather than disabled, so focus stays on "Next" when it
+ * reaches the last page instead of falling to the document.
+ */
 function paginatorView<T>(context: ViewContext<T>): Child {
     const { config, models, part, pagePart, locale, rows } = context;
     const count = pageCount(rows.total, models.rows);
-    const page = pageOf(models.first, models.rows);
+    const page = Math.min(pageOf(models.first, models.rows), Math.max(0, count - 1));
+    const state: PageContext = { first: models.first, rows: models.rows, page, pageCount: count, total: rows.total };
+    const own = content(config.content?.paginator?.(state));
+    if (own !== null) return own;
+
+    const atStart = page <= 0;
+    const atEnd = page >= count - 1;
     const go = (target: number) => () => context.on.page(Math.max(0, Math.min(count - 1, target)) * models.rows, models.rows);
-    const button = (name: string, label: string, icon: string, target: number, disabled: boolean) =>
-        h('button', mergeAttrs({ key: name, type: 'button' }, pagePart(name), { 'aria-label': label, disabled, onClick: go(target) }), iconView(icon));
+    const button = (name: string, label: string, icon: string, target: number, off: boolean) =>
+        h(
+            'button',
+            mergeAttrs({ key: name, type: 'button' }, pagePart(name), { 'aria-label': label, 'aria-disabled': off ? 'true' : undefined, onClick: go(target) }),
+            iconView(icon)
+        );
+    const item = (name: string): Child => {
+        switch (name) {
+            case 'FirstPageLink':
+                return button('first', locale.aria.first, 'chevronsLeft', 0, atStart);
+            case 'PrevPageLink':
+                return button('prev', locale.aria.previous, 'chevronLeft', page - 1, atStart);
+            case 'NextPageLink':
+                return button('next', locale.aria.next, 'chevronRight', page + 1, atEnd);
+            case 'LastPageLink':
+                return button('last', locale.aria.last, 'chevronsRight', count - 1, atEnd);
+            case 'PageLinks':
+                return h(
+                    'span',
+                    mergeAttrs({ key: 'pages' }, pagePart('pages')),
+                    pageLinks(page, count, config.pageLinkSize ?? 5).map((index) =>
+                        h(
+                            'button',
+                            mergeAttrs({ key: `page-${index}`, type: 'button' }, pagePart('page', { selected: index === page }), {
+                                'aria-current': index === page ? 'page' : undefined,
+                                'aria-label': formatMessage(locale.aria.page, { page: index + 1 }),
+                                onClick: go(index)
+                            }),
+                            String(index + 1)
+                        )
+                    )
+                );
+            case 'CurrentPageReport':
+                return h(
+                    'span',
+                    mergeAttrs({ key: 'report' }, pagePart('current'), { 'aria-live': 'polite' }),
+                    formatMessage(config.currentPageReportTemplate ?? locale.pageReport, pageReportParams(models.first, models.rows, rows.total))
+                );
+            case 'RowsPerPageDropdown': {
+                const options = config.rowsPerPageOptions ?? [];
+                if (!options.length) return null;
+                // A native select: the reader's own platform draws it, which on a
+                // phone is the picker they already know.
+                return h(
+                    'select',
+                    mergeAttrs({ key: 'rows-per-page' }, pagePart('rowsPerPage'), {
+                        'aria-label': locale.rowsPerPage,
+                        value: String(models.rows),
+                        onChange: (event: Event) => context.on.pageSize(Number((event.target as HTMLSelectElement).value))
+                    }),
+                    options.map((size) => h('option', { key: size, value: String(size), selected: size === models.rows }, String(size)))
+                );
+            }
+            default:
+                return null;
+        }
+    };
+    const template = config.paginatorTemplate ?? ['FirstPageLink', 'PrevPageLink', 'PageLinks', 'NextPageLink', 'LastPageLink', 'RowsPerPageDropdown'];
+    const items = typeof template === 'string' ? template.split(/\s+/).filter(Boolean) : template;
+    const start = content(config.content?.paginatorStart?.(state));
+    const end = content(config.content?.paginatorEnd?.(state));
     return h(
         'nav',
         mergeAttrs({ key: 'paginator' }, pagePart('root'), part('paginator', { position: config.paginatorPosition ?? 'bottom' }), { 'aria-label': locale.aria.pagination }),
-        button('first', locale.aria.first, 'chevronsLeft', 0, page === 0),
-        button('prev', locale.aria.previous, 'chevronLeft', page - 1, page === 0),
-        h(
-            'span',
-            pagePart('pages'),
-            pageLinks(page, count, config.pageLinkSize ?? 5).map((index) =>
-                h(
-                    'button',
-                    mergeAttrs({ key: `page-${index}`, type: 'button' }, pagePart('page', { selected: index === page }), {
-                        'aria-current': index === page ? 'page' : undefined,
-                        'aria-label': formatMessage(locale.aria.page, { page: index + 1 }),
-                        onClick: go(index)
-                    }),
-                    String(index + 1)
-                )
-            )
-        ),
-        button('next', locale.aria.next, 'chevronRight', page + 1, page >= count - 1),
-        button('last', locale.aria.last, 'chevronsRight', count - 1, page >= count - 1)
+        start === null ? null : h('div', mergeAttrs({ key: 'start' }, pagePart('start')), start),
+        items.map(item),
+        end === null ? null : h('div', mergeAttrs({ key: 'end' }, pagePart('end')), end)
     );
 }
 

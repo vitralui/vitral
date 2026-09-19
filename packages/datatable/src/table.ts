@@ -1,4 +1,5 @@
 import {
+    anchorTo,
     clampFirst,
     dropTarget,
     en,
@@ -10,16 +11,18 @@ import {
     pinColumn,
     resizeColumn,
     selectRows,
+    pushLayer,
     tableBus,
     toggleColumn,
     toggleSelection,
     toggleSort,
+    ZIndex,
     type ColumnLayout,
     type FilterMeta,
     type Locale
 } from '@vitral/core';
-import { createRoot, partResolver } from '@vitral/dom';
-import { datatableStyle, paginatorStyle } from '@vitral/styles';
+import { createPortal, createRoot, partResolver } from '@vitral/dom';
+import { baseStyle, datatableStyle, paginatorStyle } from '@vitral/styles';
 import {
     allSelectedState,
     declaredColumns,
@@ -37,7 +40,7 @@ import {
     type ResolvedColumn
 } from './engine/state';
 import type { Row, TableConfig, TableModels } from './engine/types';
-import { tableView, type TableActions, type ViewContext } from './render/table';
+import { chooserView, tableView, type TableActions, type ViewContext } from './render/table';
 
 /**
  * A data table with no framework in it: it is handed a configuration, it draws
@@ -71,6 +74,8 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     let applied: FilterMeta = cloneFilters(models.filters);
     let remote: { items: T[]; total: number } | undefined;
     let chooserOpen = false;
+    let chooserEl: HTMLElement | null = null;
+    let stopChooserLayer: (() => void) | null = null;
     let dragging: string | null = null;
     let dropOn: string | null = null;
     let activeRow = 0;
@@ -83,6 +88,8 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     const id = config.id ?? `vt-table-${++counter}`;
     const ids = { table: `${id}-table`, list: `${id}-columns`, caption: `${id}-caption` };
     const root = createRoot(element);
+    const portal = createPortal();
+    const overlayTarget = (): Element => current.overlayTarget?.() ?? document.body;
     const locale = (): Locale => current.locale ?? en;
     const part = partResolver({
         style: datatableStyle,
@@ -105,6 +112,9 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     });
 
     if (!config.unstyled) {
+        // The shared rules too: the table's own icons, fields and screen-reader
+        // text are the ones every Vitral control uses.
+        loadStyle(baseStyle.name, baseStyle.css, { nonce: config.nonce });
         loadStyle(datatableStyle.name, datatableStyle.css, { nonce: config.nonce });
         if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, { nonce: config.nonce });
     }
@@ -136,9 +146,26 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             // A slow answer that arrives after a newer one is thrown away.
             if (run !== sourceRun) return;
             remote = answer as { items: T[]; total: number };
-            render();
+            if (!clampPage()) render();
         });
         render();
+    }
+
+    /**
+     * When the rows shrink under the page being read — a filter, a delete, a
+     * smaller answer — the table moves to the last page there is. Answers with
+     * nothing in them are left alone: a lazy table reports a total of 0 before
+     * its first page arrives.
+     */
+    function clampPage(): boolean {
+        if (!current.paginator) return false;
+        const total = resolveRows(current, models, applied, remote).total;
+        if (!(total > 0)) return false;
+        const first = clampFirst(models.first, models.rows, total);
+        if (first >= models.first) return false;
+        change({ first });
+        emit('page', { first, rows: models.rows, page: pageOf(first, models.rows), pageCount: pageCount(total, models.rows) });
+        return true;
     }
 
     function requestRows() {
@@ -191,6 +218,15 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             const next = clampFirst(first, rows, total);
             change({ first: next, rows });
             emit('page', { first: next, rows, page: pageOf(next, rows), pageCount: pageCount(total, rows) });
+            requestRows();
+        },
+        // A new page size keeps the first row on screen, rather than jumping back to page one.
+        pageSize(size) {
+            if (!(size > 0) || size === models.rows) return;
+            const total = resolveRows(current, models, applied, remote).total;
+            const first = pageOf(models.first, size) * size;
+            change({ first, rows: size });
+            emit('page', { first, rows: size, page: pageOf(first, size), pageCount: pageCount(total, size) });
             requestRows();
         },
         toggleRow(row, index, event, type) {
@@ -333,14 +369,53 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             emit('column-toggle', { originalEvent: event, key, visible, layout: next });
         },
         toggleChooser() {
-            chooserOpen = !chooserOpen;
-            render();
+            setChooser(!chooserOpen);
+        },
+        chooserButton(el) {
+            chooserEl = el as HTMLElement | null;
         },
         scrolled(event) {
             if (!current.group || echo) return;
             tableBus.publish(current.group, { kind: 'scroll', source: id, left: (event.currentTarget as HTMLElement).scrollLeft });
         }
     };
+
+    /**
+     * The column list hangs from its button in an overlay, so it is not cut off
+     * by the table it covers, and it closes the way any panel does: Escape,
+     * which puts the keyboard back on the button, or a press outside it.
+     */
+    function setChooser(open: boolean, restoreFocus = false) {
+        if (open === chooserOpen) return;
+        chooserOpen = open;
+        render();
+        if (!open && restoreFocus) chooserEl?.focus();
+    }
+
+    /** Draws the panel where it belongs, and keeps it there while anything moves. */
+    function renderChooser(context: ViewContext<T>) {
+        const wanted = chooserOpen && !!chooserEl && chooserEl.isConnected;
+        const before = portal.element();
+        const panel = portal.render(wanted ? overlayTarget() : null, wanted ? chooserView(context) : null);
+        if (!panel) {
+            stopChooserLayer?.();
+            stopChooserLayer = null;
+            return;
+        }
+        if (panel === before) return;
+        stopChooserLayer?.();
+        const button = chooserEl!;
+        const floating = panel as HTMLElement;
+        const stops = [
+            anchorTo(button, floating, { placement: 'bottom-end' }),
+            pushLayer({ elements: () => [button, floating], onEscape: () => setChooser(false, true), onPointerDownOutside: () => setChooser(false) })
+        ];
+        ZIndex.set('overlay', floating, current.zIndex ?? 1000);
+        stopChooserLayer = () => {
+            stops.forEach((stop) => stop());
+            ZIndex.clear(floating);
+        };
+    }
 
     // ---- the column layout ----------------------------------------------------------
 
@@ -469,7 +544,10 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
                 loading: context.busy
             })
         );
-        root.render(tableView({ ...context, config: { ...config_, emptyMessage } }));
+        const drawn: ViewContext<T> = { ...context, config: { ...config_, emptyMessage } };
+        root.render(tableView(drawn));
+        // After the table, so the button the panel hangs from is the one just drawn.
+        renderChooser(drawn);
     }
 
     joinGroup();
@@ -489,6 +567,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             if ('value' in next || 'dataSource' in next || 'lazy' in next) {
                 if (current.dataSource) requestSource();
             }
+            if (clampPage()) return;
             render();
         },
         state: () => ({ ...models }),
@@ -496,6 +575,8 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         destroy() {
             clearTimeout(filterTimer);
             stopGroup?.();
+            stopChooserLayer?.();
+            portal.render(null, null);
             root.clear();
         }
     };
