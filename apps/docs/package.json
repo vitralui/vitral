@@ -1,17 +1,20 @@
 {
-    "name": "docs",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build && node ../../scripts/prerender.mjs",
-        "preview": "vite preview",
-        "build:spa": "vite build"
-    },
-    "dependencies": {
-        "@vitral/chart": "workspace:*",
-        "@vitral/themes": "workspace:*",
-        "@vitral/vue": "workspace:*",
-        "vue": "^3.5.0"
-    }
+  "name": "docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node ../../scripts/prerender.mjs",
+    "preview": "vite preview",
+    "build:spa": "vite build"
+  },
+  "dependencies": {
+    "@vitral/chart": "workspace:*",
+    "@vitral/core": "workspace:*",
+    "@vitral/forms": "workspace:*",
+    "@vitral/icons": "workspace:*",
+    "@vitral/themes": "workspace:*",
+    "@vitral/vue": "workspace:*",
+    "vue": "^3.5.0"
+  }
 }

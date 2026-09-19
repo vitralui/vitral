@@ -47,6 +47,15 @@ importers:
       '@vitral/chart':
         specifier: workspace:*
         version: link:../../packages/chart
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@vitral/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../../packages/icons
       '@vitral/themes':
         specifier: workspace:*
         version: link:../../packages/themes
