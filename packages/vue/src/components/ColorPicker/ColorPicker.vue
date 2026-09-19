@@ -257,7 +257,7 @@ defineExpose({ show, hide });
             ref="swatchRef"
             type="button"
             v-bind="mergeProps({ ...attrs, class: undefined, style: undefined }, swatchName, part('swatch'))"
-            :style="{ backgroundColor: css }"
+            :style="{ '--vt-colorpicker-color': css }"
             :disabled="disabled"
             aria-haspopup="dialog"
             :aria-expanded="open ? 'true' : 'false'"
@@ -328,7 +328,7 @@ defineExpose({ show, hide });
                         <span v-bind="part('handle')" :style="{ left: `${alphaValue * 100}%`, background: css }" />
                     </div>
                     <div v-if="showInput" v-bind="part('footer')">
-                        <span v-bind="part('preview')" :style="{ backgroundColor: css }" aria-hidden="true" />
+                        <span v-bind="part('preview')" :style="{ '--vt-colorpicker-color': css }" aria-hidden="true" />
                         <span v-bind="part('field')">
                             <input
                                 :id="inputId"

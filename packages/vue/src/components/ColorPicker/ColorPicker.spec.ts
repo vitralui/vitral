@@ -109,6 +109,20 @@ describe('ColorPicker', () => {
         await expectNoA11yViolations();
     });
 
+    it('paints the colour over the chequer, not under it', async () => {
+        const { swatch, dialog } = mountPicker({ alpha: true, modelValue: '3366994d' });
+        // A background image paints above a background colour, and the chequer
+        // is one: the colour has to be its own layer or every swatch shows its
+        // squares whatever its opacity is.
+        expect(swatch().style.backgroundColor).toBe('');
+        expect(swatch().style.getPropertyValue('--vt-colorpicker-color')).toBe('rgba(51, 102, 153, 0.302)');
+        swatch().click();
+        await nextTick();
+        const preview = dialog()!.querySelector<HTMLElement>('.vt-colorpicker-preview')!;
+        expect(preview.style.backgroundColor).toBe('');
+        expect(preview.style.getPropertyValue('--vt-colorpicker-color')).toBe('rgba(51, 102, 153, 0.302)');
+    });
+
     it('carries an opacity when asked, and none when not', async () => {
         const { value, swatch, dialog } = mountPicker({ alpha: true, modelValue: '3366994d' });
         swatch().click();

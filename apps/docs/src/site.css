@@ -673,6 +673,18 @@ a {
 }
 
 /*
+ * Fields line up by their tops, not their middles. Centred, a field with a
+ * hint under it is taller than the one beside it, so the two labels and the
+ * two controls each sit at a different height — which is what a reader
+ * notices first. Rows of odds and ends (buttons, badges, a card) keep the
+ * middle, where it reads better.
+ */
+.demo-body:has(> .demo-field),
+.demo-row:has(> .demo-field) {
+    align-items: start;
+}
+
+/*
  * A flex item refuses to go below its content's width unless told to, so a
  * table or a chart that scrolls perfectly well inside its own box still pushed
  * the page sideways on a phone. This is what lets it shrink and scroll.
@@ -689,10 +701,16 @@ a {
     align-items: center;
 }
 
+/*
+ * A column of examples. It had no gap at all, so two of anything stacked in
+ * one section were stuck together with nothing between them; a reader could
+ * not tell where one example ended and the next began.
+ */
 .demo-stack {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
 }
 
 /* A demo that wants the row to itself. */
@@ -706,6 +724,36 @@ a {
     flex-direction: column;
     gap: 0.375rem;
     min-width: 16rem;
+}
+
+/* The line under a field belongs to it: it goes under the control, not beside it. */
+.demo-field > .demo-hint {
+    margin-top: -0.125rem;
+}
+
+/* ---- a demo written without a framework, bound to plain elements ---- */
+
+.vanilla-form {
+    display: grid;
+    gap: 0.875rem;
+    justify-items: start;
+}
+
+.vanilla-field {
+    display: grid;
+    gap: 0.375rem;
+    width: 100%;
+}
+
+.vanilla-field > label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.vanilla-error {
+    font-size: 0.75rem;
+    min-height: 1em;
+    color: var(--vt-danger-color);
 }
 
 .demo-field > label {

@@ -71,6 +71,12 @@
  * the slider's gradient and anything painted with a colour that has an alpha —
  * without it, half transparent over a white panel is indistinguishable from
  * pale, and over a dark one from dim.
+ *
+ * Under, not over. The chequer is a `background-image`, and a background image
+ * paints above the background colour: painting the colour with
+ * `background-color` put the chequer on top of it, so every swatch showed its
+ * squares whatever its opacity was. The colour is a layer of its own now, over
+ * the chequer, the way the opacity slider's gradient already was.
  */
 .vt-colorpicker-alpha,
 .vt-colorpicker-preview,
@@ -87,6 +93,20 @@
         0 calc(var(--vt-chequer) / 2),
         calc(var(--vt-chequer) / 2) calc(var(--vt-chequer) / -2),
         calc(var(--vt-chequer) / -2) 0;
+}
+
+.vt-colorpicker-preview,
+.vt-colorpicker-swatch {
+    position: relative;
+}
+
+.vt-colorpicker-preview::after,
+.vt-colorpicker-swatch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--vt-colorpicker-color, transparent);
 }
 
 .vt-colorpicker-alpha {

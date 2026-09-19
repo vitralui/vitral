@@ -42,9 +42,12 @@ import {
     type FormSubmitEvent,
     type TreeNode
 } from '@vitral/vue';
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import CodeBlock from '../parts/CodeBlock.vue';
 import DemoSection from '../DemoSection.vue';
 import { href } from '../lib/router';
+import { mountSignupForm } from './vanilla/signupForm';
+import signupFormSource from './vanilla/signupForm.ts?raw';
 
 const show = (target: { value: string }) => (event: FormSubmitEvent) => {
     target.value = event.valid ? JSON.stringify(event.values, null, 2) : `${Object.keys(event.errors).length} field(s) to fix`;
@@ -167,6 +170,13 @@ const onEverything = show(everythingResult);
 const positive = rules.custom<number | null>((v) => (v ?? 0) > 0, 'Move it above zero.');
 // The editor's value is HTML: an empty paragraph is still empty.
 const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').trim(), 'Write a few words.');
+
+// ---- the same rules with no framework over them
+const vanillaHost = ref<HTMLElement | null>(null);
+const vanillaSaid = ref('Nothing submitted yet.');
+let vanillaForm: ReturnType<typeof mountSignupForm> | null = null;
+onMounted(() => (vanillaForm = mountSignupForm(vanillaHost.value!, (text) => (vanillaSaid.value = text))));
+onBeforeUnmount(() => vanillaForm?.destroy());
 </script>
 
 <template>
@@ -415,5 +425,16 @@ const hasText = rules.custom<string>((html) => !!html?.replace(/<[^>]*>/g, '').t
             </div>
         </Form.Root>
         <pre v-if="everythingResult" class="demo-output" style="margin: 0; font-size: 0.75rem; max-height: 16rem; overflow: auto; width: 100%" tabindex="0" aria-label="Submitted values">{{ everythingResult }}</pre>
+    </DemoSection>
+
+    <DemoSection
+        title="Using the form without a framework"
+        description="The state, the rules and the async checks are @vitral/forms, which draws nothing and imports no framework; the Form parts are a wrapper over it. createForm() holds the values and the errors, register() says what a field is called and what it has to be, and subscribe() reports every change. The one below is bound to three plain inputs by the module beneath it — which is all a React or an Angular adapter would do."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <div ref="vanillaHost" style="width: 100%; max-width: 26rem" />
+            <span class="demo-hint">{{ vanillaSaid }}</span>
+            <CodeBlock :code="signupFormSource" label="signupForm.ts" lang="ts" />
+        </div>
     </DemoSection>
 </template>
