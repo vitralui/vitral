@@ -1,4 +1,4 @@
-import { ptBR } from '@vitral/core';
+import { en, ptBR } from '@vitral/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { createTextEditor } from './editor';
@@ -223,5 +223,89 @@ describe('the menu a slash opens', () => {
         expect(options()).toHaveLength(1);
         options()[0]!.click();
         expect(run).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('the handle beside a block', () => {
+    const grip = (element: HTMLElement) => element.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]');
+    const menu = () => document.querySelector<HTMLElement>('[role="menu"]');
+    const items = () => Array.from(document.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const item = (label: string) => items().find((entry) => entry.textContent?.includes(label))!;
+
+    /** Two paragraphs, with the caret in the second: what a block action acts on. */
+    function twoBlocks(config: Record<string, unknown> = {}) {
+        const mounted = mount({ content: '<p></p>', toolbar: false, ...config });
+        handle!.typeText('one');
+        mounted.content().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        handle!.typeText('two');
+        return mounted;
+    }
+
+    it('sits in the editor, named, and opens a menu', () => {
+        const { element } = twoBlocks();
+        const button = grip(element)!;
+        expect(button).not.toBeNull();
+        expect(button.getAttribute('aria-label')).toBe(en.editor.blockMenu);
+        expect(button.getAttribute('aria-expanded')).toBe('false');
+        // It is the editor's own furniture, never part of what is edited.
+        expect(button.getAttribute('contenteditable')).toBe('false');
+        expect(menu()).toBeNull();
+        button.click();
+        expect(button.getAttribute('aria-expanded')).toBe('true');
+        expect(items().map((entry) => entry.textContent)).toEqual(['Duplicate', 'Move up', 'Move down', 'Turn into text', 'Delete']);
+    });
+
+    it('duplicates the block the caret is in', () => {
+        const { element } = twoBlocks();
+        grip(element)!.click();
+        item('Duplicate').click();
+        expect(handle!.getHTML()).toBe('<p>one</p><p>two</p><p>two</p>');
+        expect(menu()).toBeNull();
+    });
+
+    it('moves it, and deletes it', () => {
+        const { element } = twoBlocks();
+        grip(element)!.click();
+        item('Move up').click();
+        expect(handle!.getHTML()).toBe('<p>two</p><p>one</p>');
+        grip(element)!.click();
+        item('Delete').click();
+        expect(handle!.getHTML()).toBe('<p>one</p>');
+    });
+
+    it('turns it back into text', () => {
+        const { element } = twoBlocks();
+        handle!.run('toggleHeading', 2);
+        expect(handle!.getHTML()).toBe('<p>one</p><h2>two</h2>');
+        grip(element)!.click();
+        item('Turn into text').click();
+        expect(handle!.getHTML()).toBe('<p>one</p><p>two</p>');
+    });
+
+    it('stays away when it is turned off', () => {
+        const { element } = twoBlocks({ blockMenu: false });
+        expect(grip(element)).toBeNull();
+    });
+
+    it('takes the actions it is given, and hides those the block is not for', () => {
+        const run = vi.fn();
+        const { element } = twoBlocks({
+            blockMenu: [
+                { id: 'note', label: 'Make a note', run },
+                { id: 'headingOnly', label: 'Only on headings', when: (block: { type: string }) => block.type === 'heading', run: () => {} }
+            ]
+        });
+        grip(element)!.click();
+        expect(items().map((entry) => entry.textContent)).toEqual(['Make a note']);
+        items()[0]!.click();
+        expect(run).toHaveBeenCalledTimes(1);
+        expect(run.mock.calls[0]![1]).toMatchObject({ type: 'paragraph' });
+        expect(run.mock.calls[0]![2]).toBe(1);
+    });
+
+    it('has nothing axe objects to with the menu open', async () => {
+        const { element } = twoBlocks();
+        grip(element)!.click();
+        await expectNoA11yViolations(document.body);
     });
 });

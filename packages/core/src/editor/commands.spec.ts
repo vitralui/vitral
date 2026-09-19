@@ -414,6 +414,59 @@ describe('editor commands: inserting', () => {
     });
 });
 
+describe('editor commands: the block the caret is in', () => {
+    it('duplicates it, with the caret in the copy', () => {
+        const out = cmd.duplicateBlock(stateOf(n.doc(n.h(2, 'Title'), n.p('body')), at([0], 3)));
+        expect(html(out)).toBe('<h2>Title</h2><h2>Title</h2><p>body</p>');
+        expect(sel(out)).toEqual([at([1], 0), at([1], 0)]);
+    });
+
+    it('copies it deeply, so editing one does not reach the other', () => {
+        const out = cmd.duplicateBlock(stateOf(n.doc(n.ul(n.li('a'), n.li('b'))), at([0, 0, 0], 0)))!;
+        const typed = cmd.insertText({ ...out, selection: { anchor: at([0, 0, 0], 1), head: at([0, 0, 0], 1) } }, 'X');
+        expect(html(typed)).toBe('<ul><li><p>aX</p></li><li><p>b</p></li><li><p>a</p></li><li><p>b</p></li></ul>');
+    });
+
+    it('moves it past its neighbour, and refuses at either end', () => {
+        const doc = n.doc(n.p('a'), n.p('b'), n.p('c'));
+        expect(html(cmd.moveBlock(stateOf(doc, at([1], 0)), -1))).toBe('<p>b</p><p>a</p><p>c</p>');
+        expect(html(cmd.moveBlock(stateOf(doc, at([1], 0)), 1))).toBe('<p>a</p><p>c</p><p>b</p>');
+        expect(cmd.moveBlock(stateOf(doc, at([0], 0)), -1)).toBeNull();
+        expect(cmd.moveBlock(stateOf(doc, at([2], 0)), 1)).toBeNull();
+    });
+
+    it('carries the caret with the block it moved', () => {
+        const out = cmd.moveBlock(stateOf(n.doc(n.p('a'), n.p('b')), at([1], 1)), -1);
+        expect(sel(out)).toEqual([at([0], 0), at([0], 0)]);
+    });
+
+    it('takes it out and puts the caret in what took its place', () => {
+        const out = cmd.deleteBlock(stateOf(n.doc(n.p('a'), n.p('b'), n.p('c')), at([1], 1)));
+        expect(html(out)).toBe('<p>a</p><p>c</p>');
+        expect(sel(out)).toEqual([at([1], 0), at([1], 0)]);
+    });
+
+    it('never leaves the document with nothing in it', () => {
+        const out = cmd.deleteBlock(stateOf(n.doc(n.p('only')), at([0], 2)));
+        // An empty paragraph is what is left, and an empty document says
+        // nothing in HTML.
+        expect(out!.doc.content).toEqual([n.p()]);
+        expect(html(out)).toBe('');
+        expect(sel(out)).toEqual([at([0], 0), at([0], 0)]);
+    });
+
+    it('takes the last block out and falls back to the one before it', () => {
+        const out = cmd.deleteBlock(stateOf(n.doc(n.p('a'), n.p('b')), at([1], 1)));
+        expect(html(out)).toBe('<p>a</p>');
+        expect(sel(out)).toEqual([at([0], 0), at([0], 0)]);
+    });
+
+    it('acts on the top-level block, not the one the caret is nested in', () => {
+        const out = cmd.deleteBlock(stateOf(n.doc(n.p('before'), n.ul(n.li('a'), n.li('b'))), at([1, 1, 0], 0)));
+        expect(html(out)).toBe('<p>before</p>');
+    });
+});
+
 describe('text units', () => {
     it('steps over graphemes and words', () => {
         expect(cmd.previousCharOffset('a👨‍👩‍👧', 9)).toBe(1);
