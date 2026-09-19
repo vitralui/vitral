@@ -112,6 +112,24 @@ const board = createTaskboard(document.querySelector('#sprint'), {
 });`
     },
     {
+        id: 'editor',
+        name: '@vitral/editor',
+        title: 'Editor',
+        note: 'Rich text, with a slash menu and block actions',
+        to: '/components/editor',
+        summary: 'A rich text editor: the toolbar, the panels, the floating toolbar over a selection, the menu a slash opens and the handle beside a block.',
+        icon: 'pencil',
+        component: 'editor',
+        engine: 'the document, the commands, the undo history and the input rules, which live in @vitral/core',
+        example: `import { createTextEditor } from '@vitral/editor';
+
+const editor = createTextEditor(document.querySelector('#notes'), {
+    content: '<p>Hello</p>',
+    placeholder: 'Write something…',
+    on: { change: ({ html }) => save(html) }
+});`
+    },
+    {
         id: 'forms',
         name: '@vitral/forms',
         title: 'Form',
@@ -119,7 +137,7 @@ const board = createTaskboard(document.querySelector('#sprint'), {
         to: '/components/form',
         headless: true,
         summary: 'Form state and validation: nested and array paths, dirty and touched per field, async rules, field arrays, and resolvers for Zod, Yup, Valibot and the rest.',
-        icon: 'pencil',
+        icon: 'check',
         component: 'form',
         engine: 'the whole package is the engine: it draws nothing at all',
         example: `import { createForm, rules } from '@vitral/forms';
