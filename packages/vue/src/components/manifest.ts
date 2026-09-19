@@ -143,6 +143,7 @@ export const componentNames = [
     'SplitView',
     'Splitter',
     'SplitterPanel',
+    'Spreadsheet',
     'StackPanel',
     'Step',
     'StepItem',

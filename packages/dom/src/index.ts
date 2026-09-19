@@ -14,7 +14,8 @@
  *   looked up.
  *
  * The addons (`@vitral/chart`, `@vitral/datatable`, `@vitral/schedule`,
- * `@vitral/taskboard`, `@vitral/editor`) and the controls they share
+ * `@vitral/taskboard`, `@vitral/editor`, `@vitral/spreadsheet`) and the
+ * controls they share
  * (`@vitral/controls`) render with it; the framework components wrap those.
  * Nothing here knows about any framework.
  */

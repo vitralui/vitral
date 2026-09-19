@@ -18,9 +18,10 @@ const install = (id: string) => `npm install @vitral/${id}`;
             <span class="eyebrow">Addons</span>
             <h1>The big ones are not Vue</h1>
             <p>
-                A chart, a data table, a scheduler, a task board, a rich text editor, a form's state and rules: months of work each, and none of it is about a framework.
-                In Vitral they are written as plain TypeScript — an engine that answers a question (which marks, which rows, which period, which cell, which block, which
-                field is invalid) and, where something is drawn, a renderer that draws the answer into an element you hand it. <code>@vitral/vue</code> wraps them; a React
+                A chart, a data table, a scheduler, a task board, a rich text editor, a spreadsheet, a form's state and rules: months of work each, and none of it is
+                about a framework. In Vitral they are written as plain TypeScript — an engine that answers a question (which marks, which rows, which period, which cell,
+                which block, what that formula comes to, which field is invalid) and, where something is drawn, a renderer that draws the answer into an element you hand
+                it. <code>@vitral/vue</code> wraps them; a React
                 or an Angular component would wrap the same thing, and a page with no framework at all can call them directly.
             </p>
             <p class="addons-head-links">

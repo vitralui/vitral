@@ -86,6 +86,7 @@ export * from './SpeedDial';
 export * from './SplitButton';
 export * from './SplitView';
 export * from './Splitter';
+export * from './Spreadsheet';
 export * from './StackPanel';
 export * from './Stepper';
 export * from './Tabs';

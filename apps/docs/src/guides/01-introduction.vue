@@ -125,6 +125,14 @@ const cities = [
                     <td class="doc">None</td>
                 </tr>
                 <tr>
+                    <td>@vitral/spreadsheet</td>
+                    <td class="doc">
+                        The spreadsheet: the engine (A1 references, formulas, the dependency graph that says what an edit reaches) and <code>createSpreadsheet()</code>, a
+                        virtualised grid with the keyboard a spreadsheet has always had
+                    </td>
+                    <td class="doc">None</td>
+                </tr>
+                <tr>
                     <td>@vitral/forms</td>
                     <td class="doc">Form state and validation: nested paths, field arrays, built-in rules, async checks, and resolvers for schema libraries</td>
                     <td class="doc">None</td>
@@ -144,8 +152,8 @@ const cities = [
     </div>
     <p>
         Everything that does not need a framework lives in a package that does not import one. That is what should make a React or Angular adapter cheap later: it writes the
-        rendering and reuses the behaviour, the look and the markup contract. Six of them go further: the chart, the table, the scheduler, the board and the editor draw
-        themselves, and the form's rules draw nothing at all — so <code>&lt;Chart&gt;</code> and its like are wrappers, and a page with no framework calls the same function
+        rendering and reuses the behaviour, the look and the markup contract. Seven of them go further: the chart, the table, the scheduler, the board, the editor and the
+        spreadsheet draw themselves, and the form's rules draw nothing at all — so <code>&lt;Chart&gt;</code> and its like are wrappers, and a page with no framework calls the same function
         they do. <a :href="href('/addons')">The addons</a> is the page for that.
     </p>
 

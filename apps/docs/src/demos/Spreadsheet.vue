@@ -1,0 +1,144 @@
+<script lang="ts">
+import type { DemoMeta } from '../demo';
+
+export const meta: DemoMeta = {
+    title: 'Spreadsheet',
+    category: 'Data',
+    description:
+        'A spreadsheet with its own formula engine and no dependency: A1 references, rectangles, sixty-three functions, a dependency graph so an edit works out only what followed from it, and errors that travel. v-model is what was typed, keyed by A1, so a formula survives a round trip. The grid is one tab stop with a caret inside it — the arrows move a cell, Ctrl and an arrow jump to the end of a run, Tab and Enter walk the selected block, and a character starts an edit.'
+};
+</script>
+
+<script setup lang="ts">
+import { Spreadsheet } from '@vitral/vue';
+import { computed, ref } from 'vue';
+import DemoSection from '../DemoSection.vue';
+
+const invoice = ref<Record<string, string | number | boolean | null>>({
+    A1: 'Item',
+    B1: 'Price',
+    C1: 'Qty',
+    D1: 'Total',
+    A2: 'Standing desk',
+    B2: 320,
+    C2: 2,
+    D2: '=B2*C2',
+    A3: 'Office chair',
+    B3: 95.5,
+    C3: 4,
+    D3: '=B3*C3',
+    A4: 'Monitor arm',
+    B4: 48,
+    C4: 2,
+    D4: '=B4*C4',
+    A6: 'Subtotal',
+    D6: '=SUM(D2:D4)',
+    A7: 'VAT',
+    B7: '20%',
+    D7: '=D6*B7',
+    A8: 'Due',
+    D8: '=D6+D7'
+});
+
+const formats = {
+    'B2:B4': { kind: 'currency', currency: 'GBP' } as const,
+    'D2:D8': { kind: 'currency', currency: 'GBP' } as const,
+    B7: { kind: 'percent' } as const
+};
+
+const scores = ref<Record<string, string | number | boolean | null>>({
+    A1: 'Name',
+    B1: 'Score',
+    C1: 'Grade',
+    A2: 'Ada',
+    B2: 92,
+    C2: '=IF(B2>=90,"A",IF(B2>=80,"B","C"))',
+    A3: 'Alan',
+    B3: 84,
+    C3: '=IF(B3>=90,"A",IF(B3>=80,"B","C"))',
+    A4: 'Grace',
+    B4: 78,
+    C4: '=IF(B4>=90,"A",IF(B4>=80,"B","C"))',
+    A6: 'Average',
+    B6: '=ROUND(AVERAGE(B2:B4),1)',
+    A7: 'Top',
+    B7: '=MAX(B2:B4)',
+    A8: 'Above 80',
+    B8: '=COUNTIF(B2:B4,">=80")'
+});
+
+const errors = ref<Record<string, string | number | boolean | null>>({
+    A1: '=1/0',
+    A2: '=NOPE(1)',
+    A3: '=A3+1',
+    A4: '=VLOOKUP("nothing",B1:C2,2)',
+    A5: '=IFERROR(1/0,"caught")',
+    B1: 'divided by nothing',
+    B2: 'no such function',
+    B3: 'reads itself',
+    B4: 'not in the list',
+    B5: 'caught instead'
+});
+
+const terms = ref<Record<string, string | number | boolean | null>>({
+    A1: 'Plan',
+    B1: 'Seats',
+    C1: 'Monthly',
+    A2: 'Team',
+    B2: 12,
+    C2: '=B2*9',
+    A3: 'Business',
+    B3: 40,
+    C3: '=B3*7'
+});
+
+const selection = ref('A1');
+const due = computed(() => invoice.value.D8);
+</script>
+
+<template>
+    <DemoSection title="Default" description="Type into it, drag the handle at the corner of the selection to fill, and watch the totals follow.">
+        <Spreadsheet v-model="invoice" :formats="formats" :rows="20" :columns="6" aria-label="Invoice" style="height: 22rem; width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="What comes back" description="`v-model` is what was typed, keyed by A1 — the formulas are formulas, not what they worked out to.">
+        <div class="demo-stack" style="width: 100%">
+            <p>
+                The last cell reads <strong>{{ due }}</strong
+                >, and what is kept for <code>D8</code> is <code>{{ invoice.D8 }}</code
+                >.
+            </p>
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="Formulas"
+        description="Sixty-three of them: SUM, AVERAGE, MIN, MAX, COUNT and COUNTIF, IF and IFERROR, the text ones, INDEX, MATCH and VLOOKUP, and dates as the days every spreadsheet counts in."
+    >
+        <Spreadsheet v-model="scores" :rows="12" :columns="4" aria-label="Scores" style="height: 16rem; width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="When a formula cannot answer" description="An error is a value: it travels through arithmetic, and `IFERROR` catches it.">
+        <Spreadsheet v-model="errors" :rows="8" :columns="3" :column-widths="{ B: 180 }" aria-label="Errors" style="height: 12rem; width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Read only" description="`readonly` leaves the keyboard and the selection, and takes the typing and the fill handle away.">
+        <Spreadsheet v-model="terms" readonly :formula-bar="false" :rows="6" :columns="4" aria-label="Terms" style="height: 10rem; width: 100%" />
+    </DemoSection>
+
+    <DemoSection title="Where the keyboard is" description="`selection-change` says which cell, or which rectangle, every time it moves.">
+        <div class="demo-stack" style="width: 100%">
+            <Spreadsheet
+                v-model="terms"
+                :rows="8"
+                :columns="4"
+                aria-label="Selection example"
+                style="height: 12rem; width: 100%"
+                @selection-change="selection = $event.address"
+            />
+            <p>
+                Selected: <code>{{ selection }}</code>
+            </p>
+        </div>
+    </DemoSection>
+</template>

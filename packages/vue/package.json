@@ -63,6 +63,7 @@
     "@vitral/icons": "workspace:*",
     "@vitral/schedule": "workspace:*",
     "@vitral/styles": "workspace:*",
+    "@vitral/spreadsheet": "workspace:*",
     "@vitral/taskboard": "workspace:*",
     "@vitral/themes": "workspace:*"
   }

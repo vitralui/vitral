@@ -69,6 +69,11 @@ export const backlog: BacklogRow[] = [
     { vitral: 'Chart', group: 'Data', note: 'SVG charts with an ApexCharts-shaped, JSON-serialisable options object: line, area, bar, scatter, heatmap, candlestick, donut, radar — with zoom, a brush and synced groups.' },
     { vitral: 'Taskboard', group: 'Data', note: 'A kanban board: cards in columns and swimlanes, moved by pointer, touch or keyboard, with work-in-progress limits.' },
     { vitral: 'Schedule', group: 'Data', note: 'A calendar and scheduler: month, week, day, agenda and resource timeline, with recurring events and drag to move and resize.' },
+    {
+        vitral: 'Spreadsheet',
+        group: 'Data',
+        note: 'A grid of cells with a formula engine behind it: A1 references, rectangles, a dependency graph so an edit costs what followed from it, and the keyboard a spreadsheet has always had.'
+    },
 
     // ---- Panel
     { vitral: 'Card', group: 'Panel' },

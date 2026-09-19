@@ -58,19 +58,21 @@ each component injects its own CSS the first time it renders. On Nuxt, add
 | [`@vitral/schedule`](https://www.npmjs.com/package/@vitral/schedule) | The calendar and scheduler: views, periods, recurrence, layout |
 | [`@vitral/taskboard`](https://www.npmjs.com/package/@vitral/taskboard) | The task board: lanes, moves, limits, and drag and drop a keyboard can do |
 | [`@vitral/editor`](https://www.npmjs.com/package/@vitral/editor) | The rich text editor's interface: toolbar, panels, the slash menu and the block handle |
+| [`@vitral/spreadsheet`](https://www.npmjs.com/package/@vitral/spreadsheet) | The spreadsheet: cells, A1 references, formulas and the graph between them |
 | [`@vitral/forms`](https://www.npmjs.com/package/@vitral/forms) | Form state, validation and schema resolvers |
 
 Vue 3 is the first target. Everything that does not need a framework lives in
 the packages that do not import one, so a React or Angular adapter only has to
 write the rendering.
 
-The six at the bottom of that table go further: they draw themselves. A chart,
-a data table, a scheduler, a task board, a rich text editor and a form's rules
-are months of work each and none of it is about a framework, so each is an
-engine in plain TypeScript and, where something is drawn, a renderer that draws
-it into an element you hand it. `<Chart>`, `<DataTable>`, `<Schedule>`,
-`<Taskboard>` and `<Editor>` are wrappers over them, and a page with no
-framework at all calls `createChart(element, …)` itself —
+The seven at the bottom of that table go further: they draw themselves. A
+chart, a data table, a scheduler, a task board, a rich text editor, a
+spreadsheet and a form's rules are months of work each and none of it is about
+a framework, so each is an engine in plain TypeScript and, where something is
+drawn, a renderer that draws it into an element you hand it. `<Chart>`,
+`<DataTable>`, `<Schedule>`, `<Taskboard>`, `<Editor>` and `<Spreadsheet>` are
+wrappers over them, and a page with no framework at all calls
+`createChart(element, …)` itself —
 [the addons](https://vitralui.github.io/vitral/addons/) shows how.
 
 ## Reading

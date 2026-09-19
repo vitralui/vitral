@@ -271,6 +271,9 @@ importers:
       '@vitral/schedule':
         specifier: workspace:*
         version: link:../schedule
+      '@vitral/spreadsheet':
+        specifier: workspace:*
+        version: link:../spreadsheet
       '@vitral/styles':
         specifier: workspace:*
         version: link:../styles

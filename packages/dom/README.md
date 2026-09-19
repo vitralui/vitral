@@ -7,8 +7,8 @@ of one part in one state with pass-through over them (`partResolver`,
 finger (`pointerDrag`).
 
 The addons are built on it — `@vitral/chart`, `@vitral/datatable`,
-`@vitral/schedule`, `@vitral/taskboard` and `@vitral/editor`, and
-`@vitral/controls`, the select, menu and anchored panel they share — and the
-Vue, React and Angular components wrap those.
+`@vitral/schedule`, `@vitral/taskboard`, `@vitral/editor` and
+`@vitral/spreadsheet`, and `@vitral/controls`, the select, menu and anchored
+panel they share — and the Vue, React and Angular components wrap those.
 
 Licensed LGPL-3.0-or-later.

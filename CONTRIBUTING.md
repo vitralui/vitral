@@ -16,6 +16,7 @@
 | `@vitral/schedule`     | The calendar and scheduler: engine (views, periods, recurrence, layout) and `createSchedule` | none      |
 | `@vitral/taskboard`    | The task board: engine (lanes, moves, limits) and `createTaskboard`                          | none      |
 | `@vitral/editor`       | The rich text editor's interface over core's editor engine: `createTextEditor`               | none      |
+| `@vitral/spreadsheet`  | The spreadsheet: engine (A1, formulas, the dependency graph) and `createSpreadsheet`         | none      |
 | `@vitral/vue`          | Components, composables, directives, the plugin                                              | Vue       |
 | `@vitral/nuxt`         | The Nuxt module: configuration, auto-imports, server-rendered styles, the scheme cookie      | Nuxt      |
 | `apps/docs`            | The documentation site                                                                       | Vue       |
@@ -28,14 +29,14 @@ contract (the class maps in styles), and only writes the rendering.
 
 ### The addons
 
-Six packages go further. Five of them draw their own DOM — the chart, the data
-table, the scheduler, the task board and the editor — and the sixth,
-`@vitral/forms`, is all engine and draws nothing at all. Each has its engine
-(the arithmetic, with no DOM and no timers in it) and, where something is
-drawn, a renderer, behind one function that takes an element and its
+Seven packages go further. Six of them draw their own DOM — the chart, the data
+table, the scheduler, the task board, the editor and the spreadsheet — and the
+seventh, `@vitral/forms`, is all engine and draws nothing at all. Each has its
+engine (the arithmetic, with no DOM and no timers in it) and, where something
+is drawn, a renderer, behind one function that takes an element and its
 configuration: `createChart`, `createDataTable`, `createSchedule`,
-`createTaskboard`, `createTextEditor`. They return a handle with `update`, `on`
-where there are events, and `destroy`.
+`createTaskboard`, `createTextEditor`, `createSpreadsheet`. They return a
+handle with `update`, `on` where there are events, and `destroy`.
 
 They are built on `@vitral/dom` (the keyed patcher, part classes with
 pass-through, pointer drags) and, where they need a control rather than plain

@@ -130,6 +130,24 @@ const editor = createTextEditor(document.querySelector('#notes'), {
 });`
     },
     {
+        id: 'spreadsheet',
+        name: '@vitral/spreadsheet',
+        title: 'Spreadsheet',
+        note: 'Cells, formulas and the graph between them',
+        to: '/components/spreadsheet',
+        summary: 'A spreadsheet: a grid of cells with A1 references, formulas over them, and the dependency graph that says what has to be worked out again.',
+        icon: 'table',
+        component: 'spreadsheet',
+        engine: 'what a cell comes to, and which cells an edit reaches',
+        example: `import { createSpreadsheet } from '@vitral/spreadsheet';
+
+const sheet = createSpreadsheet(document.querySelector('#budget'), {
+    cells: { A1: 'Desk', B1: 320, C1: 2, D1: '=B1*C1' },
+    formats: { 'D1:D9': { kind: 'currency', currency: 'GBP' } },
+    on: { change: ({ cells }) => save(cells) }
+});`
+    },
+    {
         id: 'forms',
         name: '@vitral/forms',
         title: 'Form',
