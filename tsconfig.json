@@ -13,6 +13,8 @@
       "@vitral/datatable/engine": ["packages/datatable/src/engine/index.ts"],
       "@vitral/schedule": ["packages/schedule/src/index.ts"],
       "@vitral/schedule/engine": ["packages/schedule/src/engine/index.ts"],
+      "@vitral/taskboard": ["packages/taskboard/src/index.ts"],
+      "@vitral/taskboard/engine": ["packages/taskboard/src/engine/index.ts"],
       "@vitral/forms": ["packages/forms/src/index.ts"],
       "@vitral/chart": ["packages/chart/src/index.ts"],
       "@vitral/chart/engine": ["packages/chart/src/engine/index.ts"],

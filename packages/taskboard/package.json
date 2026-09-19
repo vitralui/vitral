@@ -1,0 +1,55 @@
+{
+  "name": "@vitral/taskboard",
+  "version": "0.1.0",
+  "description": "Framework-free task board for Vitral: the engine (columns, lanes, moves, limits) and a DOM renderer with accessible drag and drop, which the Vue, React and Angular components wrap.",
+  "keywords": [
+    "vitral",
+    "taskboard",
+    "kanban",
+    "board",
+    "drag-and-drop"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "author": "Gustavo Will",
+  "homepage": "https://vitralui.github.io/vitral/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitralui/vitral.git",
+    "directory": "packages/taskboard"
+  },
+  "bugs": "https://github.com/vitralui/vitral/issues",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./engine": {
+      "types": "./dist/engine/index.d.ts",
+      "import": "./dist/engine/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "LICENSE.GPL"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@vitral/core": "workspace:*",
+    "@vitral/dom": "workspace:*",
+    "@vitral/icons": "workspace:*",
+    "@vitral/styles": "workspace:*"
+  }
+}

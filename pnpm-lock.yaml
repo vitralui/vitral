@@ -164,6 +164,21 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/taskboard:
+    dependencies:
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/themes:
     dependencies:
       '@vitral/core':
@@ -196,6 +211,9 @@ importers:
       '@vitral/styles':
         specifier: workspace:*
         version: link:../styles
+      '@vitral/taskboard':
+        specifier: workspace:*
+        version: link:../taskboard
       '@vitral/themes':
         specifier: workspace:*
         version: link:../themes

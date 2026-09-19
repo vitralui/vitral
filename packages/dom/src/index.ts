@@ -20,4 +20,5 @@
 export * from './h';
 export * from './attrs';
 export * from './drag';
+export * from './scroll';
 export * from './icon';
