@@ -11,7 +11,7 @@ export const meta: DemoMeta = {
 
 <script setup lang="ts">
 import { Spreadsheet } from '@vitral/vue';
-import { computed, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
 const invoice = ref<Record<string, string | number | boolean | null>>({
@@ -92,21 +92,43 @@ const terms = ref<Record<string, string | number | boolean | null>>({
     C3: '=B3*7'
 });
 
+// The selection example keeps its own copy: two sheets over one `v-model`
+// would be one sheet drawn twice.
+const plans = ref<Record<string, string | number | boolean | null>>({
+    A1: 'Plan',
+    B1: 'Seats',
+    C1: 'Monthly',
+    A2: 'Team',
+    B2: 12,
+    C2: '=B2*9',
+    A3: 'Business',
+    B3: 40,
+    C3: '=B3*7'
+});
+
 const selection = ref('A1');
-const due = computed(() => invoice.value.D8);
+
+// `v-model` carries what was typed; what a cell reads as comes from the sheet
+// the component exposes.
+const sheet = ref<InstanceType<typeof Spreadsheet> | null>(null);
+const due = ref('');
+async function readDue() {
+    await nextTick();
+    due.value = sheet.value?.sheet()?.display({ row: 7, col: 3 }) ?? '';
+}
+onMounted(readDue);
 </script>
 
 <template>
     <DemoSection title="Default" description="Type into it, drag the handle at the corner of the selection to fill, and watch the totals follow.">
-        <Spreadsheet v-model="invoice" :formats="formats" :rows="20" :columns="6" aria-label="Invoice" style="height: 22rem; width: 100%" />
+        <Spreadsheet ref="sheet" v-model="invoice" :formats="formats" :rows="20" :columns="6" aria-label="Invoice" style="height: 22rem; width: 100%" @change="readDue" />
     </DemoSection>
 
     <DemoSection title="What comes back" description="`v-model` is what was typed, keyed by A1 — the formulas are formulas, not what they worked out to.">
         <div class="demo-stack" style="width: 100%">
             <p>
-                The last cell reads <strong>{{ due }}</strong
-                >, and what is kept for <code>D8</code> is <code>{{ invoice.D8 }}</code
-                >.
+                What is kept for <code>D8</code> is <code>{{ invoice.D8 }}</code
+                >, and it reads <strong>{{ due }}</strong> — edit a price above and both follow.
             </p>
         </div>
     </DemoSection>
@@ -129,7 +151,7 @@ const due = computed(() => invoice.value.D8);
     <DemoSection title="Where the keyboard is" description="`selection-change` says which cell, or which rectangle, every time it moves.">
         <div class="demo-stack" style="width: 100%">
             <Spreadsheet
-                v-model="terms"
+                v-model="plans"
                 :rows="8"
                 :columns="4"
                 aria-label="Selection example"
