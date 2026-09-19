@@ -536,6 +536,34 @@ describe('Editor parts', () => {
         expect(document.querySelector('[role="option"]')).toBeNull();
     });
 
+    it('runs a slash command that brought its own `run`', async () => {
+        const ran = vi.fn();
+        const { wrapper, value } = mountEditor({
+            modelValue: '<p></p>',
+            slashMenu: [
+                {
+                    id: 'today',
+                    label: "Today's date",
+                    run: (editor: { run: (name: string, ...args: unknown[]) => boolean }) => {
+                        ran();
+                        editor.run('insertText', '19/09/2026');
+                    }
+                }
+            ]
+        });
+        const editor = (wrapper.findComponent({ name: 'VtEditorRoot' }).vm as unknown as { editor: { typeText: (text: string) => boolean } }).editor;
+        for (const char of '/today') editor.typeText(char);
+        await flush();
+        const option = document.querySelector<HTMLElement>('[role="option"]');
+        expect(option?.textContent).toContain("Today's date");
+        option!.click();
+        await flush();
+        expect(ran).toHaveBeenCalledTimes(1);
+        // The slash and what was typed after it went with it, and what the
+        // command put in is all that is left.
+        expect(value.value).toBe('<p>19/09/2026</p>');
+    });
+
     it('offers the block actions from the handle beside the text', async () => {
         const { root, value } = mountEditor({ modelValue: '<p>One</p><p>Two</p>' });
         await flush();

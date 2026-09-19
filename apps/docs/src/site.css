@@ -198,19 +198,41 @@ a {
     color: var(--vt-text-muted-color);
 }
 
+/* A grid rather than a wrapping row: `space-between` left the columns that
+   wrapped stranded at opposite edges with a hole between them, and the last
+   one alone on a line of its own. Four columns become two on a tablet and one
+   on a phone, and every column starts at the same edge either way. */
 .footer-inner {
     max-width: var(--site-max);
     margin: 0 auto;
     padding: 0 var(--site-gutter);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem 2.5rem;
-    align-items: flex-start;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+    gap: 2rem 2.5rem;
+    align-items: start;
 }
 
 .footer-about {
-    max-width: 30ch;
+    max-width: 34ch;
+}
+
+@media (max-width: 900px) {
+    .footer-inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* The blurb reads across the width rather than in a column of its own. */
+    .footer-about {
+        grid-column: 1 / -1;
+        max-width: 48ch;
+    }
+}
+
+@media (max-width: 520px) {
+    .footer-inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.75rem;
+    }
 }
 
 .footer-about .brand {

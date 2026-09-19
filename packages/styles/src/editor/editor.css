@@ -560,13 +560,22 @@
 
 /* ---- the handle beside a block ----------------------------------------- */
 
+/* The handle lives in a gutter of its own down the leading edge, so it never
+   sits on the words it is about. The gutter is only opened where there is a
+   handle to put in it: an editor with the block menu off keeps its own
+   padding. */
+.vt-editor:has(.vt-editor-block-handle) .vt-editor-content {
+    padding-inline-start: var(--vt-editor-block-handle-gutter);
+}
+
 .vt-editor-block-handle {
     position: absolute;
+    inset-inline-start: var(--vt-editor-block-handle-inset);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--vt-editor-block-handle-size);
+    height: var(--vt-editor-block-handle-size);
     padding: 0;
     color: var(--vt-text-muted-color);
     background: transparent;

@@ -2,7 +2,7 @@ import { editorSelectionRange, editorTextblocks, en, type EditorInstance, type E
 import { createOverlay, type OverlayTarget } from '@vitral/controls';
 import type { Props } from '@vitral/dom';
 import { slashMenuView } from './render/menus';
-import type { SlashCommand } from './types';
+import type { CommandRunner, SlashCommand } from './types';
 
 /**
  * The menu a `/` opens, as a piece that attaches to any editor: the
@@ -115,6 +115,10 @@ export function createSlashMenu(options: SlashMenuOptions): SlashMenu {
         close();
         for (let n = 0; n < remove; n++) options.editor.backspace('char');
         if (options.onRun) options.onRun(item);
+        // An entry's own `run` is what an application writes a command of its
+        // own with: without this it was only ever called by a host that passed
+        // `onRun`, so a slash command with a `run` did nothing in Vue.
+        else if (item.run) item.run(options.editor as unknown as CommandRunner);
         else if (item.command) (options.editor.run as (name: string, ...args: unknown[]) => boolean)(item.command[0], ...item.command.slice(1));
     }
 

@@ -34,6 +34,13 @@ export default {
         activeBackground: '{highlight.background}',
         disabledOpacity: '{disabledOpacity}'
     },
+    // The handle beside a block sits in a gutter down the leading edge: the
+    // gutter is as wide as the handle plus the padding the text would have had.
+    blockHandle: {
+        size: '1.5rem',
+        inset: '0.25rem',
+        gutter: '2rem'
+    },
     content: {
         minHeight: '9rem',
         maxHeight: '32rem',

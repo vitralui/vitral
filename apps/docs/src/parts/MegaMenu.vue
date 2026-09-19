@@ -36,13 +36,17 @@ const root = ref<HTMLElement | null>(null);
  */
 const addonRoutes = new Set(addons.map((addon) => addon.component));
 
+/**
+ * The order is the way through the site: what there is (the two catalogues,
+ * next to each other because a reader looking for a chart should not have to
+ * know it is an addon), then how to use it, then whole applications built from
+ * it. Icons is a shortcut beside them rather than a panel of its own.
+ */
 const panels: { key: Panel; label: string; active: () => boolean }[] = [
     { key: 'components', label: 'Components', active: () => route.value.name === 'component' && !addonRoutes.has(route.value.id) },
-    { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' },
+    { key: 'addons', label: 'Addons', active: () => route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) },
     { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' },
-    // The four packages that draw themselves, the charts gallery among them:
-    // a reader looking for the chart page should not have to know it is one.
-    { key: 'addons', label: 'Addons', active: () => route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) }
+    { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' }
 ];
 
 const drawer = ref(false);
@@ -242,6 +246,15 @@ onBeforeUnmount(() => {
                     </span>
                 </a>
 
+                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
+                <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
+                    <span class="mega-icon"><Icon :icon="addon.icon" /></span>
+                    <span>
+                        <b>{{ addon.title }}</b>
+                        <em>{{ addon.note }}</em>
+                    </span>
+                </a>
+
                 <h2>Documentation</h2>
                 <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
                     <span class="mega-icon"><Icon icon="file" /></span>
@@ -260,14 +273,6 @@ onBeforeUnmount(() => {
                     </span>
                 </a>
 
-                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
-                <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
-                    <span class="mega-icon"><Icon :icon="addon.icon" /></span>
-                    <span>
-                        <b>{{ addon.title }}</b>
-                        <em>{{ addon.note }}</em>
-                    </span>
-                </a>
             </nav>
         </Drawer>
 
