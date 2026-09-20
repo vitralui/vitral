@@ -30,6 +30,18 @@ export default {
         borderColor: '{primary.color}',
         rangeOpacity: '0.12'
     },
+    // The outlines over what a formula being typed is reading. They are the
+    // chart palette, picked apart for contrast rather than for a series: no two
+    // next to each other read as the same colour at two pixels wide.
+    reference: {
+        borderWidth: '2px',
+        fillOpacity: '0.1',
+        1: '{chart.1}',
+        2: '{chart.6}',
+        3: '{chart.3}',
+        4: '{chart.7}',
+        5: '{chart.5}'
+    },
     handle: {
         size: '0.5rem',
         background: '{primary.color}',

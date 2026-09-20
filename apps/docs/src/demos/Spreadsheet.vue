@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Spreadsheet',
     category: 'Data',
     description:
-        'A spreadsheet with its own formula engine and no dependency: A1 references, rectangles, sixty-three functions, a dependency graph so an edit works out only what followed from it, and errors that travel. v-model is what was typed, keyed by A1, so a formula survives a round trip. The grid is one tab stop with a caret inside it — the arrows move a cell, Ctrl and an arrow jump to the end of a run, Tab and Enter walk the selected block, and a character starts an edit.'
+        'A spreadsheet with its own formula engine and no dependency: A1 references, rectangles, sixty-three functions, a dependency graph so an edit works out only what followed from it, and errors that travel. v-model is what was typed, keyed by A1, so a formula survives a round trip. The grid is one tab stop with a caret inside it — the arrows move a cell, Ctrl and an arrow jump to the end of a run, Tab and Enter walk the selected block, and a character starts an edit. A formula being typed outlines every place it reads, a colour to each, the way a spreadsheet has always done it.'
 };
 </script>
 
@@ -150,7 +150,7 @@ onMounted(readDue);
 </script>
 
 <template>
-    <DemoSection title="Default" description="Type into it, drag the handle at the corner of the selection to fill, and watch the totals follow.">
+    <DemoSection title="Default" description="Type into it, drag the handle at the corner of the selection to fill, and watch the totals follow. Start a formula — `=B2*C2` — and each cell it reads is outlined where it sits.">
         <Spreadsheet ref="sheet" v-model="invoice" :formats="formats" :rows="20" :columns="6" aria-label="Invoice" style="height: 22rem; width: 100%" @change="readDue" />
     </DemoSection>
 

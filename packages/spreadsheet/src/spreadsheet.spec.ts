@@ -45,6 +45,7 @@ function mount(config: SpreadsheetOptions = {}) {
         formula: () => element.querySelector<HTMLInputElement>('.vt-spreadsheet-formula')!,
         editor: () => element.querySelector<HTMLInputElement>('.vt-spreadsheet-editor'),
         active: () => element.querySelector<HTMLElement>('.vt-spreadsheet-active')!,
+        references: () => Array.from(element.querySelectorAll<HTMLElement>('.vt-spreadsheet-reference')),
         handleDot: () => element.querySelector<HTMLElement>('.vt-spreadsheet-handle'),
         toolbar: () => element.querySelector<HTMLElement>('[role="toolbar"]'),
         tools: () => Array.from(element.querySelectorAll<HTMLButtonElement>('[role="toolbar"] button')),
@@ -152,6 +153,39 @@ describe('a spreadsheet with no framework in it', () => {
         expect(cell('D3')!.textContent).toBe('955');
         // Enter moves on down, which is how a column gets typed in.
         expect(address()).toBe('C4');
+    });
+
+    it('outlines what a formula is reading, in a colour each, as it is typed', () => {
+        const { grid, editor, references, cell } = mount();
+        key(grid(), 'ArrowDown');
+        key(grid(), 'ArrowRight');
+        key(grid(), 'ArrowRight');
+        key(grid(), 'ArrowRight');
+        key(grid(), 'F2');
+        expect(editor()!.value).toBe('=B2*C2');
+        // The colour goes by where the reference sits in the formula, so it is
+        // the colour, not the document order, that says which box is which.
+        const box = (colour: number) => references().find((element) => element.className.includes(`vt-spreadsheet-reference-${colour}`))!;
+        expect(references()).toHaveLength(2);
+        expect(box(1).style.left).toBe(cell('B2')!.style.left);
+        expect(box(1).style.top).toBe(cell('B2')!.parentElement!.style.top);
+        expect(box(2).style.left).toBe(cell('C2')!.style.left);
+
+        // Half a formula is still outlined: that is who the outlines are for.
+        editor()!.value = '=SUM(D2:D3)+B2*';
+        editor()!.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(references()).toHaveLength(2);
+        // The rectangle is two rows tall, and it leads, so it takes the first colour.
+        expect(box(1).style.height).toBe('56px');
+        expect(box(2).style.left).toBe(cell('B2')!.style.left);
+
+        // A rectangle mentioned twice is outlined once, and nothing is
+        // outlined once the formula is in.
+        editor()!.value = '=B2+B2';
+        editor()!.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(references()).toHaveLength(1);
+        key(editor()!, 'Enter');
+        expect(references()).toHaveLength(0);
     });
 
     it('gives an edit up on Escape, and keeps what was there', () => {

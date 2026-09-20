@@ -10,6 +10,7 @@ export { createDependencies, referencesOf, type Dependencies } from './deps';
 export { evaluate, type EvalContext } from './evaluate';
 export { functions, type FunctionContext, type SheetFunction, type Thunk } from './functions';
 export { formulaBody, offsetNode, parseFormula, printNode, tokenize, FormulaSyntaxError, type BinaryOperator, type Node } from './parse';
+export { formulaReferences, type ReferenceSpan } from './references';
 export { createSheet, type Sheet } from './sheet';
 export {
     createMetrics,

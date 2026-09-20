@@ -581,7 +581,13 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             resizeDrag.press(event, { axis, index, size: axis === 'column' ? size.columns.size(index) : size.rows.size(index) });
         },
         editorInput(value) {
-            if (editing) editing = { ...editing, value };
+            if (!editing) return;
+            editing = { ...editing, value };
+            // Drawn again on every keystroke, so the outlines over what the
+            // formula is reading follow what is being typed. The patcher only
+            // writes a field's value when it differs from what is in it, and
+            // this value came out of the field, so the caret does not move.
+            schedule();
         },
         editorKeydown: onEditorKeydown,
         editorBlur() {
@@ -589,8 +595,12 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             if (editing?.from === 'cell') commitEditing();
         },
         formulaInput(value) {
-            if (editing) editing = { ...editing, value };
-            else startEditing(selection.active, value, 'bar');
+            if (!editing) {
+                startEditing(selection.active, value, 'bar');
+                return;
+            }
+            editing = { ...editing, value };
+            schedule();
         },
         formulaKeydown(event) {
             if (event.key !== 'Enter' && event.key !== 'Escape') return;

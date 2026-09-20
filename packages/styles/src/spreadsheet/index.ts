@@ -9,6 +9,9 @@ export interface SpreadsheetCellState {
     italic?: boolean;
 }
 
+/** How many colours the outlines cycle through before starting again. */
+const REFERENCE_COLOURS = 5;
+
 export const spreadsheetStyle = defineStyle({
     name: 'spreadsheet',
     css,
@@ -52,6 +55,8 @@ export const spreadsheetStyle = defineStyle({
                 'vt-spreadsheet-cell-italic': s.italic
             }
         ],
+        /** One per rectangle a formula being typed mentions, coloured in the order they were written. */
+        reference: (s: { index?: number }) => ['vt-spreadsheet-reference', `vt-spreadsheet-reference-${((s.index ?? 0) % REFERENCE_COLOURS) + 1}`],
         range: 'vt-spreadsheet-range',
         active: 'vt-spreadsheet-active',
         handle: 'vt-spreadsheet-handle',

@@ -283,6 +283,40 @@
     font-style: italic;
 }
 
+/* ---- what a formula is reading ----
+   A formula being typed outlines every place it mentions, each rectangle in
+   its own colour, so `=B4*C4` shows which B4 and which C4 before it is
+   committed. The colours cycle; the class map decides how many there are. */
+
+.vt-spreadsheet-reference {
+    position: absolute;
+    z-index: 1;
+    box-sizing: border-box;
+    pointer-events: none;
+    border: var(--vt-spreadsheet-reference-border-width) solid var(--vt-spreadsheet-reference-1);
+    background: color-mix(in srgb, var(--vt-spreadsheet-reference-1) calc(var(--vt-spreadsheet-reference-fill-opacity) * 100%), transparent);
+}
+
+.vt-spreadsheet-reference-2 {
+    border-color: var(--vt-spreadsheet-reference-2);
+    background: color-mix(in srgb, var(--vt-spreadsheet-reference-2) calc(var(--vt-spreadsheet-reference-fill-opacity) * 100%), transparent);
+}
+
+.vt-spreadsheet-reference-3 {
+    border-color: var(--vt-spreadsheet-reference-3);
+    background: color-mix(in srgb, var(--vt-spreadsheet-reference-3) calc(var(--vt-spreadsheet-reference-fill-opacity) * 100%), transparent);
+}
+
+.vt-spreadsheet-reference-4 {
+    border-color: var(--vt-spreadsheet-reference-4);
+    background: color-mix(in srgb, var(--vt-spreadsheet-reference-4) calc(var(--vt-spreadsheet-reference-fill-opacity) * 100%), transparent);
+}
+
+.vt-spreadsheet-reference-5 {
+    border-color: var(--vt-spreadsheet-reference-5);
+    background: color-mix(in srgb, var(--vt-spreadsheet-reference-5) calc(var(--vt-spreadsheet-reference-fill-opacity) * 100%), transparent);
+}
+
 /* ---- the selection ---- */
 
 .vt-spreadsheet-range {

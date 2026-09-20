@@ -1,6 +1,7 @@
 import type { Locale } from '@vitral/core';
 import { h, mergeAttrs, type Child, type Props } from '@vitral/dom';
 import { columnLabel, formatRange, formatRef, normalizeRange } from '../engine/a1';
+import { formulaReferences } from '../engine/references';
 import type { Metrics, Selection, Window } from '../engine/state';
 import type { Sheet } from '../engine/sheet';
 import { isError, type CellAddress, type CellRange, type SpreadsheetConfig } from '../engine/types';
@@ -280,6 +281,7 @@ function cellsView(context: ViewContext): Child {
             'div',
             mergeAttrs({ key: 'sizer' }, part('sizer'), { style: { width: px(metrics.columns.total), height: px(metrics.rows.total) } }),
             ...lines,
+            ...referenceViews(context),
             h('div', mergeAttrs({ key: 'range' }, part('range'), { style: boxStyle(selectionBox) })),
             h('div', mergeAttrs({ key: 'active' }, part('active'), { style: boxStyle(activeBox) })),
             context.config.readonly
@@ -298,6 +300,26 @@ function cellsView(context: ViewContext): Child {
             editorView(context)
         )
     );
+}
+
+/**
+ * While a formula is being typed, every place it mentions is outlined where it
+ * sits, each rectangle in its own colour — so `=B4*C4` says which B4 and which
+ * C4 before it is committed, the way a spreadsheet has always done it. A
+ * rectangle mentioned twice keeps the colour it was given the first time.
+ */
+function referenceViews(context: ViewContext): Child[] {
+    const { editing, metrics, part } = context;
+    if (!editing) return [];
+    const seen = new Set<string>();
+    const out: Child[] = [];
+    for (const span of formulaReferences(editing.value)) {
+        const key = formatRange(span.range);
+        if (seen.has(key)) continue;
+        out.push(h('div', mergeAttrs({ key: `ref-${key}` }, part('reference', { index: seen.size }), { style: boxStyle(rangeBox(metrics, span.range)) })));
+        seen.add(key);
+    }
+    return out;
 }
 
 function editorView(context: ViewContext): Child {
