@@ -142,17 +142,30 @@ describe('createChat', () => {
         expect(retry).toHaveBeenCalledWith(failed);
     });
 
-    it('opens the widget’s panel from its launcher and says so', () => {
+    it('opens the widget’s panel from its launcher, outside the box it sits in', () => {
         const openChange = vi.fn();
         const { el } = mount({ variant: 'widget', on: { 'open-change': openChange } });
         const launcher = el.querySelector<HTMLButtonElement>('.vt-chat-launcher')!;
         expect(el.classList.contains('vt-chat-widget-root')).toBe(true);
         expect(launcher.getAttribute('aria-expanded')).toBe('false');
-        expect(el.querySelector('.vt-chat-panel')).toBeNull();
+        expect(document.querySelector('.vt-chat-panel')).toBeNull();
+
         launcher.click();
         expect(openChange).toHaveBeenCalledWith(true);
-        expect(el.querySelector('.vt-chat-panel')).not.toBeNull();
-        expect(el.querySelector<HTMLButtonElement>('.vt-chat-launcher')!.getAttribute('aria-expanded')).toBe('true');
+        const panel = document.querySelector('.vt-chat-panel')!;
+        expect(panel).not.toBeNull();
+        // Hung from the launcher rather than nested inside it: a launcher is
+        // dropped wherever there is room, and the first ancestor with a hidden
+        // overflow would otherwise cut the panel in half.
+        expect(el.contains(panel)).toBe(false);
+        expect(panel.querySelector('.vt-chat-log')).not.toBeNull();
+        expect(launcher.getAttribute('aria-expanded')).toBe('true');
+        expect(launcher.getAttribute('aria-controls')).toBe(panel.id);
+
+        // And it goes when the launcher is pressed again.
+        el.querySelector<HTMLButtonElement>('.vt-chat-launcher')!.click();
+        expect(openChange).toHaveBeenLastCalledWith(false);
+        expect(document.querySelector('.vt-chat-panel')).toBeNull();
     });
 
     it('drops its bubbles for a transcript, and its avatars for a side panel', () => {

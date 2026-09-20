@@ -1,4 +1,4 @@
-import { areaChart, columns, listChecks, server, table } from '@vitral/icons';
+import { areaChart, columns, listChecks, messageSquare, server, table } from '@vitral/icons';
 import { Vitral } from '@vitral/vue';
 import { createApp } from 'vue';
 import App from './App.vue';
@@ -17,8 +17,8 @@ createApp(App)
         // rather than mounting the default and being changed a frame later.
         theme: { preset: initialPreset(), colorScheme: pinned ?? 'system', storageKey: pinned ? false : 'vitral-docs-scheme' },
         // The icons the site wants that are not in the base set: two for the
-        // landing page, three for the addons menu.
-        icons: [listChecks, server, areaChart, columns, table]
+        // landing page, four for the addons menu.
+        icons: [listChecks, server, areaChart, columns, table, messageSquare]
     })
     .mount('#app');
 

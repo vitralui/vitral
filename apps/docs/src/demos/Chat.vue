@@ -3,7 +3,7 @@ import type { DemoMeta } from '../demo';
 
 export const meta: DemoMeta = {
     title: 'Chat',
-    category: 'Data',
+    category: 'Messages',
     description:
         'A conversation with no dependency: `<Chat :messages v-model:draft>`. Runs of messages from one speaker are grouped so a thread reads as speech; an answer that is still arriving grows in place with a caret after it; tools an agent reached for are shown as the steps they were. Five shapes from one component — a plain thread, a messenger, a copilot column, an agent with its tool calls, and a launcher with a panel — plus captions for speech as it is recognised. The log is one tab stop with the arrows moving inside it, so a thread of two hundred messages does not bury the composer, and a message is announced only once it settles, because a live region that changes on every token says nothing a screen reader can follow.'
 };

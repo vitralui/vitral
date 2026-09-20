@@ -3,7 +3,7 @@ import type { DemoMeta } from '../demo';
 
 export const meta: DemoMeta = {
     title: 'Command',
-    category: 'Misc',
+    category: 'Menu',
     description:
         'A search box over a list of commands: an always-expanded WAI-ARIA combobox. Up and Down move, Enter runs, typing filters (accents and case ignored) and says how many match. CommandDialog puts it in a modal palette, opened with a hotkey.'
 };

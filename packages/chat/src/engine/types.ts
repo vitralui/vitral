@@ -1,4 +1,5 @@
 import type { Locale } from '@vitral/core';
+import type { OverlayTarget } from '@vitral/controls';
 import type { ClassEntry } from '@vitral/styles';
 import type { PassThrough } from '@vitral/dom';
 
@@ -147,6 +148,14 @@ export interface ChatConfig {
     sendOnEnter?: boolean;
     /** The widget's panel. */
     open?: boolean;
+    /**
+     * Where the widget's panel is put. It is taken out of the page and hung
+     * from the launcher, because a panel that opens over the page cannot live
+     * inside whatever box the launcher was dropped into — the first container
+     * with a scrollbar or a hidden overflow would cut it in half.
+     */
+    overlayTarget?: OverlayTarget;
+    zIndex?: number;
     /** Height of the thread's scroller. Defaults to `'28rem'`. */
     height?: string;
     locale?: Locale;

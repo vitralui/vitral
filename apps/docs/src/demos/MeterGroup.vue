@@ -3,7 +3,7 @@ import type { DemoMeta } from '../demo';
 
 export const meta: DemoMeta = {
     title: 'MeterGroup',
-    category: 'Misc',
+    category: 'Messages',
     description: 'Several values on one bar, with a legend. It is a single WAI-ARIA meter whose value is the total and whose value text lists every part.'
 };
 </script>

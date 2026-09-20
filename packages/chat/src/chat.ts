@@ -1,6 +1,8 @@
 import { en, isClient, loadStyle, type Locale } from '@vitral/core';
-import { createRoot, h, iconNode, mergeAttrs, partResolver, type Child } from '@vitral/dom';
-import { getIcon } from '@vitral/icons';
+import { createOverlay } from '@vitral/controls';
+import { createRoot, h, iconNode, mergeAttrs, partResolver, type Child, type VElement } from '@vitral/dom';
+// Aliased: this module has a `send` of its own, and a bare `x` reads as a variable.
+import { getIcon, messageSquare as messageSquareIcon, paperclip as paperclipIcon, registerIcons, send as sendIcon, x as closeIcon } from '@vitral/icons';
 import { baseStyle, chatStyle } from '@vitral/styles';
 import { announcementOf, messageKeyTarget, showsAvatars } from './engine/state';
 import type { ChatAttachment, ChatConfig, ChatMessage, ChatVariant } from './engine/types';
@@ -59,6 +61,11 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(chatStyle.name, chatStyle.css, options);
     }
+
+    // The composer and the launcher draw icons that are not in the base set,
+    // so the addon brings its own rather than leaving an application to work
+    // out which names it has to register before a chat will draw.
+    registerIcons([paperclipIcon, sendIcon, closeIcon, messageSquareIcon]);
 
     // ---- what is on screen
 
@@ -200,10 +207,12 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         if (destroyed || drawing) return;
         drawing = true;
         try {
-            const drawn = context();
             const widget = variant() === 'widget';
             root.attrs(part(widget ? 'widget' : 'root', { variant: variant(), readonly: current.readonly, disabled: current.disabled }));
-            root.render(widget ? widgetView(drawn) : chatView(drawn));
+            root.render(widget ? widgetView() : chatView(context()));
+            if (!widget) panel.close();
+            else if (current.open) (panel.isOpen ? panel.update : panel.open)();
+            else panel.close();
         } finally {
             drawing = false;
         }
@@ -213,8 +222,30 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
      * The widget: a launcher, and the thread in a panel that opens over the
      * page. The shell is the handle's rather than the view's, because it is the
      * handle that owns whether the panel is open.
+     *
+     * The panel is hung from the launcher by an overlay rather than positioned
+     * inside it. A launcher is dropped wherever an application has room, and
+     * the first ancestor with a scrollbar or a hidden overflow would otherwise
+     * cut the panel in half — which is exactly what a panel that opens over the
+     * page must never let happen.
      */
-    function widgetView(drawn: ViewContext): Child[] {
+    let launcherEl: HTMLElement | null = null;
+    const panel = createOverlay({
+        anchor: () => launcherEl,
+        placement: 'top-end',
+        offset: 12,
+        target: () => current.overlayTarget,
+        zIndex: current.zIndex,
+        render: () => h('div', mergeAttrs({ id: `${id}-panel` }, part('root', { variant: 'widget' }), part('panel')), ...chatView(context())) as VElement,
+        onClose: () => {
+            if (!current.open) return;
+            current = { ...current, open: false };
+            emit('open-change', false);
+            render();
+        }
+    });
+
+    function widgetView(): Child[] {
         const open = !!current.open;
         const custom = current.slots?.launcher?.({ open });
         return [
@@ -224,11 +255,11 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
                     'aria-expanded': open ? 'true' : 'false',
                     'aria-controls': `${id}-panel`,
                     'aria-label': open ? locale().chat.closeChat : locale().chat.openChat,
+                    ref: (el: Element | null) => (launcherEl = el as HTMLElement | null),
                     onClick: actions.toggleOpen
                 }),
                 custom !== null && custom !== undefined ? (custom as Child) : iconNode(getIcon(open ? 'x' : 'messageSquare'))
-            ),
-            open ? h('div', mergeAttrs({ key: 'panel', id: `${id}-panel` }, part('root', { variant: 'widget' }), part('panel')), ...chatView(drawn)) : null
+            )
         ];
     }
 
@@ -295,6 +326,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         destroy() {
             if (destroyed) return;
             destroyed = true;
+            panel.destroy();
             root.clear();
             logEl = null;
             inputEl = null;

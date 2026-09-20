@@ -581,11 +581,9 @@
     outline-offset: 2px;
 }
 
+/* Hung from the launcher by an overlay, which is what puts it on the page and
+   where: all it owns here is how wide it is and the shadow it casts. */
 .vt-chat-panel {
-    position: absolute;
-    inset-inline-end: 0;
-    bottom: calc(var(--vt-chat-launcher-size) + 0.75rem);
-    z-index: 1;
     width: var(--vt-chat-panel-width);
     max-width: calc(100vw - 2rem);
     box-shadow: var(--vt-chat-panel-shadow);

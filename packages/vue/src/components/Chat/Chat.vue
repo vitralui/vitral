@@ -22,6 +22,7 @@ import {
 } from 'vue';
 import { collectParts, contentOf } from '../../base/parts';
 import type { PassThroughAttrs, PassThroughContext, PassThroughValue } from '../../base/types';
+import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
 import type { ChatEmits, ChatProps, ChatSlots } from './types';
 
@@ -49,6 +50,7 @@ const emit = defineEmits<ChatEmits>();
 const slots = defineSlots<ChatSlots>();
 
 const { config, theme } = useVitral();
+const overlayTarget = useOverlayTarget();
 const attrs = useAttrs();
 const id = useId();
 const instance = getCurrentInstance()!;
@@ -190,7 +192,17 @@ const events: ChatConfig['on'] = {
 };
 
 onMounted(() => {
-    chat = createChat(host.value!, { ...inputs(), id, nonce: config.csp.nonce, cssLayer: config.cssLayer, on: events });
+    chat = createChat(host.value!, {
+        ...inputs(),
+        id,
+        nonce: config.csp.nonce,
+        cssLayer: config.cssLayer,
+        // The widget's panel hangs outside the page, so it needs the same
+        // overlay scope every other Vitral panel uses.
+        overlayTarget: () => overlayTarget.value,
+        zIndex: config.zIndex.overlay,
+        on: events
+    });
     sweep();
 });
 
@@ -211,8 +223,8 @@ watch(
     () => push(inputs())
 );
 watch(
-    () => [config.locale, unstyled(), props.pt, props.dt, config.pt.chat] as const,
-    () => push({ locale: config.locale, unstyled: unstyled(), pt: passThroughMap() }),
+    () => [config.locale, unstyled(), props.pt, props.dt, config.pt.chat, config.zIndex.overlay] as const,
+    () => push({ locale: config.locale, unstyled: unstyled(), pt: passThroughMap(), zIndex: config.zIndex.overlay }),
     { deep: true }
 );
 
