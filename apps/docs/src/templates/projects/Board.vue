@@ -3,13 +3,12 @@ import { messageSquare, plus } from '@vitral/icons';
 import { Avatar, Button, Dialog, Icon, InputText, Select, SelectButton, Tag, Taskboard, type TaskboardCardMoveEvent, type TaskboardKey } from '@vitral/vue';
 import { computed, reactive, ref, useId } from 'vue';
 import { photo } from '../kit/format';
-import { columns, memberOf, prioritySeverity, tagSeverity, tasks, team, type Task } from './data';
+import { columns, memberOf, prioritySeverity, tagSeverity, tasks, team, view, type Task } from './data';
 
 const id = useId();
 const field = (name: string) => `${id}-${name}`;
 
 const owner = ref<string | null>(null);
-const view = ref('All');
 const visible = computed<unknown[]>({
     get: () =>
         tasks.value.filter(

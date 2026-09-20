@@ -17,7 +17,8 @@ export const template: TemplateMeta = {
         'A course catalogue with subject filters and search',
         'A lesson page with a syllabus accordion, completion tracking, notes and discussion',
         'A calendar with recurring classes and all-day deadlines, in month, week and agenda views',
-        'Grades with a weighted average, a chart per course and a sortable gradebook'
+        'Grades with a weighted average, a chart per course and a sortable gradebook',
+        'Support and feedback in a quieter list at the foot of the same sidebar'
     ],
     faq: [
         {
@@ -57,7 +58,8 @@ export const template: TemplateMeta = {
         'Sidebar',
         'Tabs',
         'Tag',
-        'Textarea'
+        'Textarea',
+        'Tooltip'
     ],
     layout: defineAsyncComponent(() => import('./Layout.vue')),
     screens

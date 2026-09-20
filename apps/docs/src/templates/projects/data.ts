@@ -59,6 +59,13 @@ export const tasks = ref<Task[]>([
     { id: 11, title: 'Accessibility audit', status: 'todo', owner: 'mia', tag: 'QA', priority: 'High', due: 'Sep 26', points: 5, comments: 1, start: 4, length: 5 }
 ]);
 
+/**
+ * Which cards the board shows. It lives here, not in the board, because the
+ * sidebar's sub-list under “Board” sets the same one: two ways to the same
+ * view, and no chance of the two disagreeing.
+ */
+export const view = ref('All');
+
 export const tagSeverity = (tag: Task['tag']) =>
     ({ Design: 'info', Frontend: 'success', Backend: 'warn', QA: 'secondary', Launch: 'contrast' })[tag] as 'info' | 'success' | 'warn' | 'secondary' | 'contrast';
 export const prioritySeverity = (priority: Task['priority']) => (priority === 'High' ? 'danger' : priority === 'Medium' ? 'warn' : 'secondary');

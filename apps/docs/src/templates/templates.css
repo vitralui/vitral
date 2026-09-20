@@ -703,16 +703,26 @@
 
 /* ---- the app shell */
 
+/* The shell is a column — a site header, where there is one, then the row of
+   rail and page — so the header can span the sidebar as well as the page. */
 .tp-app {
     display: flex;
-    align-items: stretch;
+    flex-direction: column;
     min-height: 100%;
+    --tp-app-top: 0rem;
 }
 
-.tp-app > .vt-sidebar {
+.tp-app-row {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
+}
+
+.tp-app-row > .vt-sidebar {
     position: sticky;
-    top: 0;
-    height: var(--tp-viewport-height, 100vh);
+    top: var(--tp-app-top);
+    height: calc(var(--tp-viewport-height, 100vh) - var(--tp-app-top));
     flex: none;
 }
 
@@ -725,7 +735,7 @@
 
 /* Inset: the rail keeps the canvas colour and the page floats on it as a card.
    It is the same shell — only the seam between the two moves. */
-.tp-app-inset > .vt-sidebar {
+.tp-app-inset .tp-app-row > .vt-sidebar {
     background: transparent;
     border-inline-end: 0;
 }
@@ -742,6 +752,47 @@
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+}
+
+/* Floating: the other way round — the page keeps the canvas and the rail lifts
+   off it as a card, which suits a tool with one project in it at a time. */
+.tp-app-floating .tp-app-row > .vt-sidebar {
+    height: calc(var(--tp-viewport-height, 100vh) - var(--tp-app-top) - 1.5rem);
+    margin: 0.75rem;
+    top: calc(var(--tp-app-top) + 0.75rem);
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--tp-radius);
+    background: var(--vt-content-background);
+}
+
+.tp-app-floating .tp-app-bar {
+    background: color-mix(in srgb, var(--vt-app-background) 92%, transparent);
+}
+
+/* A header over both: the sidebar starts under it, and the screen's name is the
+   last crumb of a trail rather than a title of its own. */
+.tp-app-headered {
+    --tp-app-top: 3.5rem;
+}
+
+.tp-app-top {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: var(--tp-app-top);
+    padding-inline: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--vt-content-border-color);
+    background: var(--vt-content-background);
+}
+
+.tp-app-rule {
+    width: 1px;
+    height: 1.25rem;
+    margin-inline-end: 0.25rem;
+    background: var(--vt-content-border-color);
 }
 
 /* ---- what templates hang in the sidebar */
@@ -794,6 +845,78 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+}
+
+/* The quieter nav at the foot of the navigation. It is the sidebar's own items
+   in a lower voice: the same shape and tokens, a size down, pushed to the
+   bottom of the <nav> it shares with them. */
+.tp-aside-nav {
+    margin: auto 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-sidebar-group-gap);
+}
+
+.tp-aside-nav button {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-sidebar-item-gap);
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--vt-sidebar-item-padding);
+    font: inherit;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+    text-align: start;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-sidebar-item-border-radius);
+    cursor: pointer;
+}
+
+.tp-aside-nav button:hover {
+    color: var(--vt-sidebar-item-hover-color);
+    background: var(--vt-sidebar-item-hover-background);
+}
+
+.tp-aside-nav-folded button {
+    justify-content: center;
+}
+
+/* A brand that switches workspaces: the name is two lines and a chevron says so. */
+.tp-app .tp-brand-switch {
+    width: 100%;
+    padding: 0.25rem;
+    border-radius: var(--vt-sidebar-item-border-radius);
+    cursor: pointer;
+}
+
+.tp-app .tp-brand-switch:hover {
+    background: var(--vt-sidebar-item-hover-background);
+}
+
+.tp-brand-name {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.25;
+    font-size: 0.9375rem;
+}
+
+.tp-brand-name b,
+.tp-brand-name small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tp-brand-name small {
+    font-weight: 400;
     font-size: 0.75rem;
     color: var(--vt-text-muted-color);
 }
@@ -859,7 +982,35 @@
     color: var(--vt-text-muted-color);
 }
 
-.tp-app .tp-brand {
+/* The same line, made the button that opens the account menu. */
+.tp-app-user-button {
+    width: 100%;
+    padding: 0.25rem;
+    font: inherit;
+    text-align: start;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-sidebar-item-border-radius);
+    cursor: pointer;
+}
+
+.tp-app-user-button:hover {
+    background: var(--vt-sidebar-item-hover-background);
+}
+
+.tp-app-user-button > span {
+    flex: 1 1 auto;
+}
+
+.tp-app-user-button b,
+.tp-app-user-button small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* The brand names the application; it navigates nowhere — unless it is the
+   workspace switcher, which does. */
+.tp-app .tp-brand:not(.tp-brand-switch) {
     cursor: default;
 }
 
@@ -2965,6 +3116,10 @@
 
     .tp-app-bar {
         padding-inline: 1rem;
+    }
+
+    .tp-app-top {
+        padding-inline: 0.5rem 1rem;
     }
 
     .tp-store-bar {

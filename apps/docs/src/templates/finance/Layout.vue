@@ -19,6 +19,7 @@ const query = ref('');
         brand="Harborline"
         :brand-icon="bank"
         :icons="icons"
+        header="site"
         :groups="[{ label: 'Money out', screens: ['transfer'] }]"
         :user="{ name: 'Daniel Rocha', role: 'Personal banking', initials: 'DR' }"
     >

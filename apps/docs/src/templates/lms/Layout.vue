@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { award, bookOpen, calendarDays, graduationCap, playCircle } from '@vitral/icons';
+import { award, bookOpen, calendarDays, graduationCap, lifeBuoy, playCircle, send } from '@vitral/icons';
 import { ProgressBar, ToggleSwitch } from '@vitral/vue';
 import { ref, useId } from 'vue';
 import AppShell from '../kit/AppShell.vue';
@@ -14,6 +14,12 @@ const icons = { courses: bookOpen, lesson: playCircle, calendar: calendarDays, g
 // A student's sidebar answers one question before any other: how far along am I.
 const focus = ref(false);
 const focusId = useId();
+// Help and feedback are not screens, and a student does not navigate by them,
+// so they go in a quieter list at the foot of the same navigation.
+const secondary = [
+    { label: 'Support', icon: lifeBuoy },
+    { label: 'Send feedback', icon: send }
+];
 </script>
 
 <template>
@@ -21,6 +27,8 @@ const focusId = useId();
         brand="Brightpath"
         :brand-icon="graduationCap"
         :icons="icons"
+        variant="inset"
+        :secondary="secondary"
         :groups="[{ label: 'This term', screens: ['calendar', 'grades'] }]"
         :user="{ name: 'Sofia Brandão', role: 'Student · Year 2', initials: 'SB' }"
     >

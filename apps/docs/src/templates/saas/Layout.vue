@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { layoutDashboard, settings, sparkles, users } from '@vitral/icons';
-import { Button, Icon, InputText, Select } from '@vitral/vue';
+import { bell, creditCard, flask, inbox, layoutDashboard, logOut, settings, sparkles, userCircle, users } from '@vitral/icons';
+import { Button, Icon, InputText, type MenuItem } from '@vitral/vue';
 import { ref } from 'vue';
 import AppShell from '../kit/AppShell.vue';
 import { provideTemplate } from '../kit/context';
@@ -8,16 +8,25 @@ import { screens } from './screens';
 
 const props = defineProps<{ standalone?: boolean }>();
 const screen = defineModel<string>('screen', { default: 'overview' });
-const { current } = provideTemplate(screen, screens, () => props.standalone);
+const { current, go } = provideTemplate(screen, screens, () => props.standalone);
 
 const icons = { overview: layoutDashboard, customers: users, settings };
-// An admin for more than one product has to say which one it is showing.
+// An admin for more than one product has to say which one it is showing, so the
+// brand is the switcher: the product you are in, its plan, and the way out.
 const workspaces = [
-    { label: 'Lumen Metrics', value: 'metrics' },
-    { label: 'Lumen Inbox', value: 'inbox' },
-    { label: 'Acme (sandbox)', value: 'sandbox' }
+    { label: 'Lumen Metrics', value: 'metrics', hint: 'Scale · 5 seats', icon: sparkles },
+    { label: 'Lumen Inbox', value: 'inbox', hint: 'Growth · 2 seats', icon: inbox },
+    { label: 'Acme (sandbox)', value: 'sandbox', hint: 'Free', icon: flask }
 ];
 const workspace = ref('metrics');
+// The signed-in line at the foot opens the account, the way a console's does.
+const account: MenuItem[] = [
+    { label: 'Account', icon: userCircle, command: () => go('settings') },
+    { label: 'Billing', icon: creditCard, command: () => go('settings') },
+    { label: 'Notifications', icon: bell, command: () => go('settings') },
+    { separator: true },
+    { label: 'Sign out', icon: logOut }
+];
 </script>
 
 <template>
@@ -26,14 +35,11 @@ const workspace = ref('metrics');
         :brand-icon="sparkles"
         :icons="icons"
         variant="inset"
+        :switcher="workspaces"
+        v-model:workspace="workspace"
         :groups="[{ label: 'Account', screens: ['settings'] }]"
-        :user="{ name: 'Priya Raman', role: 'Head of Growth', initials: 'PR' }"
+        :user="{ name: 'Priya Raman', role: 'Head of Growth', initials: 'PR', menu: account }"
     >
-        <template #aside="{ collapsed }">
-            <div v-if="!collapsed" class="tp-aside">
-                <Select v-model="workspace" :options="workspaces" option-label="label" option-value="value" size="small" aria-label="Workspace" fluid />
-            </div>
-        </template>
         <template #asideFooter="{ collapsed }">
             <div v-if="!collapsed" class="tp-aside-note">
                 Events this month

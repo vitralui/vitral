@@ -17,7 +17,8 @@ export const template: TemplateMeta = {
         'Area, bar and donut charts that take their colours from the theme',
         'A customer table with global search, a plan filter, sorting, selection and pages',
         'Settings in tabs: a profile form, notification switches, usage and plans',
-        'A sidebar that folds to icons on narrow screens'
+        'A brand that switches workspace, and an account menu at the foot of the sidebar',
+        'An inset sidebar that folds to icons on narrow screens'
     ],
     faq: [
         {
@@ -44,6 +45,7 @@ export const template: TemplateMeta = {
         'Chart',
         'DataTable',
         'InputText',
+        'Menu',
         'Message',
         'MeterGroup',
         'Select',

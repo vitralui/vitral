@@ -17,7 +17,8 @@ export const template: TemplateMeta = {
         'Net worth and cash-flow charts, and budgets that turn red when exceeded',
         'A transaction table filtered by payee, categories, account and date',
         'A linear transfer: payee list, currency input, schedule, review, one-time code',
-        'The transfer updates the balance and appears as a pending transaction'
+        'The transfer updates the balance and appears as a pending transaction',
+        'One header across the top: the collapse button, a breadcrumb, and the sidebar under it'
     ],
     faq: [
         {
@@ -33,6 +34,7 @@ export const template: TemplateMeta = {
     ],
     components: [
         'Avatar',
+        'Breadcrumb',
         'Button',
         'Card',
         'Chart',
