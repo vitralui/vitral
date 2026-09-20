@@ -44,7 +44,7 @@ const frFR = {
     <p>
         <code>en</code> and <code>ptBR</code> ship. <Button label="Try pt-BR here" size="small" severity="secondary" @click="localeId = 'pt-BR'" />
         <Button label="Back to English" size="small" variant="text" severity="secondary" @click="localeId = 'en'" /> then open a <a :href="href('/components/datepicker')">DatePicker</a>
-        or a <a :href="href('/components/datatable')">DataTable</a>.
+        or a <a :href="href('/components/datagrid')">DataGrid</a>.
     </p>
 
     <h2>At runtime</h2>

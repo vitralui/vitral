@@ -2,7 +2,7 @@ import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf
 import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
 import { cellText, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
-import type { Content, PageContext, Row, TableColumn, TableConfig, TableModels } from '../engine/types';
+import type { Content, PageContext, Row, DataGridColumn, DataGridConfig, DataGridModels } from '../engine/types';
 
 /**
  * The table as plain objects: a real `<table>`, one `<th scope="col">` a
@@ -13,8 +13,8 @@ import type { Content, PageContext, Row, TableColumn, TableConfig, TableModels }
 
 /** Everything the view needs that is not the configuration itself. */
 export interface ViewContext<T = Row> {
-    config: TableConfig<T>;
-    models: TableModels;
+    config: DataGridConfig<T>;
+    models: DataGridModels;
     columns: ResolvedColumn<T>[];
     rows: ResolvedRows<T>;
     filters: FilterMeta;
@@ -26,7 +26,7 @@ export interface ViewContext<T = Row> {
     /** The same, for the paginator's own parts: it wears the paginator's classes wherever it is drawn. */
     pagePart: (name: string, state?: unknown) => Props;
     /** What the reader can do. */
-    on: TableActions<T>;
+    on: DataGridActions<T>;
     /** `'all'`, `'some'` or `'none'` over the rows select-all covers. */
     allState: 'all' | 'some' | 'none';
     /** Whether one row is selected; the handle knows the models and the data key. */
@@ -42,7 +42,7 @@ export interface ViewContext<T = Row> {
     dropOn: string | null;
 }
 
-export interface TableActions<T = Row> {
+export interface DataGridActions<T = Row> {
     sort: (column: ResolvedColumn<T>, event: MouseEvent) => void;
     setFilter: (column: ResolvedColumn<T>, value: unknown) => void;
     page: (first: number, rows: number) => void;
@@ -83,7 +83,7 @@ function stickyStyle(column: ResolvedColumn): Record<string, string> | undefined
 
 const pinnedState = (column: ResolvedColumn) => ({ pinned: column.sticky?.side, pinnedEdge: column.sticky?.last });
 
-export function tableView<T>(context: ViewContext<T>): Child[] {
+export function gridView<T>(context: ViewContext<T>): Child[] {
     const { config, part } = context;
     const rootState = {
         striped: config.stripedRows,

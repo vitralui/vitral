@@ -17,7 +17,7 @@ export interface CellContext<T = Row> {
     index: number;
     field?: string;
     value: unknown;
-    column: TableColumn<T>;
+    column: DataGridColumn<T>;
 }
 
 /** Content a host draws itself: a string, a node it made, or nothing. */
@@ -25,7 +25,7 @@ export type Content = string | number | Node | null | undefined;
 
 export type PaginatorItem = 'FirstPageLink' | 'PrevPageLink' | 'PageLinks' | 'NextPageLink' | 'LastPageLink' | 'RowsPerPageDropdown' | 'CurrentPageReport';
 
-export interface TableColumn<T = Row> {
+export interface DataGridColumn<T = Row> {
     /** Identifies the column when `field` does not (two columns on one field, or none). */
     key?: string;
     /** The field (dotted path) a cell shows, sorts and filters by. */
@@ -55,10 +55,10 @@ export interface TableColumn<T = Row> {
     /** Draws the cell. Without it, the field's value is shown as text. */
     body?: (context: CellContext<T>) => Content;
     /** Draws the header, beside or instead of `header`. */
-    headerContent?: (context: { column: TableColumn<T> }) => Content;
-    footerContent?: (context: { column: TableColumn<T> }) => Content;
+    headerContent?: (context: { column: DataGridColumn<T> }) => Content;
+    footerContent?: (context: { column: DataGridColumn<T> }) => Content;
     /** Draws the filter control for this column, instead of the text box. */
-    filterContent?: (context: { column: TableColumn<T>; value: unknown; setValue: (value: unknown) => void }) => Content;
+    filterContent?: (context: { column: DataGridColumn<T>; value: unknown; setValue: (value: unknown) => void }) => Content;
 }
 
 /** Where the table is in its pages, for whatever a host draws around it. */
@@ -81,7 +81,7 @@ export interface RowsPerPageContext extends PageContext {
  * component passes its slots through here; a page with no framework hands in
  * nodes it made, or nothing, and the table draws its own.
  */
-export interface TableContent {
+export interface DataGridContent {
     /** The bar above the table, beside the column list. */
     header?: () => Content;
     /** The bar below it. */
@@ -102,7 +102,7 @@ export interface TableContent {
     rowsPerPage?: (context: RowsPerPageContext) => Content;
 }
 
-export interface TableEvents<T = Row> {
+export interface DataGridEvents<T = Row> {
     page?: (event: { first: number; rows: number; page: number; pageCount: number }) => void;
     sort?: (event: { originalEvent?: Event; sortField: string | null; sortOrder: 1 | -1 | null; multiSortMeta: SortMeta[] }) => void;
     filter?: (event: { filters: FilterMeta; filteredValue: T[] }) => void;
@@ -117,7 +117,7 @@ export interface TableEvents<T = Row> {
     'column-toggle'?: (event: ColumnEvent & { visible: boolean }) => void;
     'column-pin'?: (event: ColumnEvent & { side: 'left' | 'right' | null }) => void;
     /** Anything the reader changed: the models a framework binds back. */
-    change?: (state: TableModels) => void;
+    change?: (state: DataGridModels) => void;
 }
 
 export interface ColumnEvent {
@@ -137,7 +137,7 @@ export interface LoadRequest {
 }
 
 /** The parts of the state a host binds: everything the reader can change. */
-export interface TableModels {
+export interface DataGridModels {
     first: number;
     rows: number;
     sortField: string | null;
@@ -148,10 +148,10 @@ export interface TableModels {
     columnLayout: ColumnLayout;
 }
 
-export interface TableConfig<T = Row> extends Partial<TableModels> {
+export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
-    columns?: TableColumn<T>[];
+    columns?: DataGridColumn<T>[];
     /** A field that identifies a row, for selection and row keys. */
     dataKey?: string;
     /** Rows come from a data source, local or remote, instead of `value`. */
@@ -211,7 +211,7 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     /** Prefix of the ids the table gives its elements; generated when unset. */
     id?: string;
     /** What the host draws itself. */
-    content?: TableContent;
+    content?: DataGridContent;
     /** For a Content-Security-Policy: the nonce of the injected stylesheet. */
     nonce?: string;
     /** A CSS cascade layer to put the stylesheet in. */
@@ -224,5 +224,5 @@ export interface TableConfig<T = Row> extends Partial<TableModels> {
     overlayTarget?: HTMLElement | string | (() => HTMLElement | string | null | undefined);
     /** The z-index overlays start from. */
     zIndex?: number;
-    on?: TableEvents<T>;
+    on?: DataGridEvents<T>;
 }

@@ -41,7 +41,7 @@ describe('server-side rendering', () => {
         expect(tags).toContain('data-vitral-style="inputtext"');
         expect(elements.map((element) => element.key)).toEqual(['vitral:theme', 'vitral:base', 'vitral:button', 'vitral:inputtext']);
         // Only what rendered, not the whole library.
-        expect(tags).not.toContain('data-vitral-style="datatable"');
+        expect(tags).not.toContain('data-vitral-style="datagrid"');
     });
 
     it('marks the styles the way the browser does, so hydration skips them', async () => {

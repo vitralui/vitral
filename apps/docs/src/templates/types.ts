@@ -32,7 +32,7 @@ export interface TemplateMeta {
     tags: string[];
     features: string[];
     faq: { question: string; answer: string }[];
-    /** Component names as the catalog titles them (`DataTable`, `Galleria`). */
+    /** Component names as the catalog titles them (`DataGrid`, `Galleria`). */
     components: string[];
     /** The root: renders the chrome and the current screen. */
     layout: Component;

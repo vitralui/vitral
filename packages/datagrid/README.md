@@ -1,6 +1,6 @@
-# @vitral/datatable
+# @vitral/datagrid
 
-A data table with no framework in it: the engine and a DOM renderer, which the
+A data grid with no framework in it: the engine and a DOM renderer, which the
 Vitral components wrap.
 
 It draws a real `<table>` — one `<th scope="col">` a column, a button in the
@@ -8,9 +8,9 @@ header that carries the sort, native checkboxes and radios for selection, a
 text box a column filters by — so a screen reader reads it as the table it is.
 
 ```ts
-import { createDataTable } from '@vitral/datatable';
+import { createDataGrid } from '@vitral/datagrid';
 
-const table = createDataTable(element, {
+const table = createDataGrid(element, {
     value: people,
     dataKey: 'id',
     columns: [
@@ -37,10 +37,10 @@ Everything the reader can change is state the table keeps and publishes through
 wants to draw itself takes a function returning a string or a node, which is
 how a framework component passes a slot through.
 
-`@vitral/datatable/engine` is the arithmetic on its own: which columns, in what
+`@vitral/datagrid/engine` is the arithmetic on its own: which columns, in what
 order and at what width; which rows, sorted, filtered and paged; what is
 selected. No DOM, no timers.
 
-**[Documentation](https://vitralui.github.io/vitral/#/components/datatable)**
+**[Documentation](https://vitralui.github.io/vitral/#/components/datagrid)**
 
 LGPL-3.0-or-later. Part of the [Vitral](https://github.com/vitralui/vitral) monorepo.

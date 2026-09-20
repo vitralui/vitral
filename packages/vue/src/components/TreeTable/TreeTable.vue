@@ -15,7 +15,7 @@ import {
 import { treetableStyle } from '@vitral/styles';
 import { camelize, computed, Fragment, mergeProps, nextTick, ref, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
 import { useComponent } from '../../base/useComponent';
-import Column from '../DataTable/Column.vue';
+import Column from '../DataGrid/Column.vue';
 import Icon from '../Icon/Icon.vue';
 import Paginator from '../Paginator/Paginator.vue';
 import type { TreeExpandedKeys, TreeNodeLike, TreeSelectionKeys } from '../Tree/types';
@@ -27,7 +27,7 @@ import type { TreeTableEmits, TreeTableProps, TreeTableSlots } from './types';
 // goes to the parent, Home and End jump (core's treeKeyAction), Enter and
 // Space select, or, without selection, Enter toggles. Sorting keeps the
 // nesting (core's sortTree); a global filter keeps the branches that lead to
-// matches, opened. Columns are DataTable's <Column>.
+// matches, opened. Columns are DataGrid's <Column>.
 
 defineOptions({ name: 'VtTreeTable', inheritAttrs: false });
 

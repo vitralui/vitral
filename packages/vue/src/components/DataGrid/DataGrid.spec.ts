@@ -4,9 +4,9 @@ import { defineComponent, h, nextTick, ref, type VNode } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
 import Column from './Column.vue';
-import { DataTable as DataTableParts } from './index';
+import { DataGrid as DataGridParts } from './index';
 import type { ColumnLayoutLike } from './types';
-import DataTable from './DataTable.vue';
+import DataGrid from './DataGrid.vue';
 
 interface Person {
     id: number;
@@ -62,7 +62,7 @@ function mountTable(props: Record<string, unknown> = {}, columns: () => VNode[] 
     const wrapper = mountVt(
         defineComponent(
             () => () =>
-                h(DataTable, { 'aria-label': 'People', value: people, dataKey: 'id', ...props, ...bound(), ...listeners }, { default: columns })
+                h(DataGrid, { 'aria-label': 'People', value: people, dataKey: 'id', ...props, ...bound(), ...listeners }, { default: columns })
         )
     );
     const table = () => document.querySelector<HTMLTableElement>('table')!;
@@ -75,7 +75,7 @@ function mountTable(props: Record<string, unknown> = {}, columns: () => VNode[] 
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe('DataTable', () => {
+describe('DataGrid', () => {
     it('is a table named by its label, with scoped column headers, rendering every row', () => {
         const { table, column } = mountTable();
         expect(table().getAttribute('aria-label')).toBe('People');
@@ -250,22 +250,22 @@ describe('DataTable', () => {
 
     it('takes its content as parts written as children, as well as as slots', () => {
         const columns = () => [
-            h(DataTableParts.Column, { field: 'name', header: 'Name' }),
-            h(DataTableParts.Header, null, { default: () => h('strong', 'Everyone') }),
-            h(DataTableParts.Footer, null, { default: () => '12 people' }),
-            h(DataTableParts.Empty, null, { default: () => 'Nobody here' })
+            h(DataGridParts.Column, { field: 'name', header: 'Name' }),
+            h(DataGridParts.Header, null, { default: () => h('strong', 'Everyone') }),
+            h(DataGridParts.Footer, null, { default: () => '12 people' }),
+            h(DataGridParts.Empty, null, { default: () => 'Nobody here' })
         ];
         const { table, wrapper } = mountTable({ value: [] }, columns);
-        expect(document.querySelector('.vt-datatable-header')?.textContent).toBe('Everyone');
-        expect(document.querySelector('.vt-datatable-footer')?.textContent).toBe('12 people');
-        expect(table().querySelector('.vt-datatable-empty-cell')?.textContent).toBe('Nobody here');
+        expect(document.querySelector('.vt-datagrid-header')?.textContent).toBe('Everyone');
+        expect(document.querySelector('.vt-datagrid-footer')?.textContent).toBe('12 people');
+        expect(table().querySelector('.vt-datagrid-empty-cell')?.textContent).toBe('Nobody here');
         // A part draws nothing of its own.
-        expect(wrapper.html()).not.toContain('VtDataTable');
+        expect(wrapper.html()).not.toContain('VtDataGrid');
     });
 
     it('is the table itself under Root, with the same parts', () => {
-        expect(DataTableParts.Root).toBe(DataTable);
-        expect(DataTableParts.Column).toBe(Column);
+        expect(DataGridParts.Root).toBe(DataGrid);
+        expect(DataGridParts.Column).toBe(Column);
     });
 
     it('renders body, header and footer slots', () => {
@@ -308,7 +308,7 @@ describe('DataTable', () => {
     });
 });
 
-describe('DataTable columns', () => {
+describe('DataGrid columns', () => {
     /** A table whose layout the test owns, the way an application would. */
     function mountLayout(props: Record<string, unknown> = {}, columns: () => VNode[] = defaultColumns) {
         const layout = ref<ColumnLayoutLike | null | undefined>((props.columnLayout as ColumnLayoutLike) ?? null);
@@ -317,7 +317,7 @@ describe('DataTable columns', () => {
             defineComponent(
                 () => () =>
                     h(
-                        DataTable,
+                        DataGrid,
                         {
                             'aria-label': 'People',
                             value: people,
@@ -400,12 +400,12 @@ describe('DataTable columns', () => {
     it('opens a list of columns and shows or hides one from it', async () => {
         const { layout, events, headings } = mountLayout({ columnToggle: true });
         await nextTick();
-        const button = document.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        const button = document.querySelector<HTMLButtonElement>('.vt-datagrid-chooser-button')!;
         expect(button.textContent).toContain('Columns');
         button.click();
         await nextTick();
         await new Promise((r) => setTimeout(r, 0));
-        const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('.vt-datatable-chooser-checkbox'));
+        const boxes = Array.from(document.querySelectorAll<HTMLInputElement>('.vt-datagrid-chooser-checkbox'));
         expect(boxes).toHaveLength(4);
         expect(boxes.every((box) => box.checked)).toBe(true);
         boxes[1]!.checked = false;
@@ -418,18 +418,18 @@ describe('DataTable columns', () => {
     });
 });
 
-describe('DataTable groups', () => {
+describe('DataGrid groups', () => {
     /** Two tables under one group name, as an application would write them. */
     function mountPair(columnsB: () => VNode[] = defaultColumns) {
         mountVt(
             defineComponent(() => () => [
-                h(DataTable, { 'aria-label': 'Above', value: people.slice(0, 3), dataKey: 'id', group: 'people', resizableColumns: true }, { default: defaultColumns }),
-                h(DataTable, { 'aria-label': 'Below', value: people.slice(3, 6), dataKey: 'id', group: 'people' }, { default: columnsB })
+                h(DataGrid, { 'aria-label': 'Above', value: people.slice(0, 3), dataKey: 'id', group: 'people', resizableColumns: true }, { default: defaultColumns }),
+                h(DataGrid, { 'aria-label': 'Below', value: people.slice(3, 6), dataKey: 'id', group: 'people' }, { default: columnsB })
             ])
         );
         const tables = () => Array.from(document.querySelectorAll<HTMLTableElement>('table'));
         const headersOf = (i: number) => Array.from(tables()[i]!.tHead!.rows[0]!.cells);
-        const containers = () => Array.from(document.querySelectorAll<HTMLElement>('.vt-datatable-table-container'));
+        const containers = () => Array.from(document.querySelectorAll<HTMLElement>('.vt-datagrid-table-container'));
         return { tables, headersOf, containers };
     }
 

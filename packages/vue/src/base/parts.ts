@@ -7,10 +7,10 @@ import { defineComponent, Fragment, type Component, type Slots, type VNode } fro
  * compose than remember slot names, as parts written as children:
  *
  * ```vue
- * <DataTable :value="rows">
- *     <DataTable.Column field="name" header="Name" />
- *     <DataTable.Empty>Nothing here yet</DataTable.Empty>
- * </DataTable>
+ * <DataGrid :value="rows">
+ *     <DataGrid.Column field="name" header="Name" />
+ *     <DataGrid.Empty>Nothing here yet</DataGrid.Empty>
+ * </DataGrid>
  * ```
  *
  * A part renders nothing. The component reads the vnodes in its default slot,

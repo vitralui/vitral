@@ -1,4 +1,4 @@
-// A table of rows that nest: the DataTable look, with a toggle and an indent
+// A table of rows that nest: the DataGrid look, with a toggle and an indent
 // in the expander column. Rows use the list's hover and selected colours.
 export default {
     root: {

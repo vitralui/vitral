@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { download } from '@vitral/icons';
-import { Avatar, Button, Column, DataTable, DatePicker, Icon, InputText, MultiSelect, Select, Tag } from '@vitral/vue';
+import { Avatar, Button, Column, DataGrid, DatePicker, Icon, InputText, MultiSelect, Select, Tag } from '@vitral/vue';
 import { computed, ref, useId } from 'vue';
 import { categories, money, signed, transactions, type Transaction } from './data';
 
@@ -69,7 +69,7 @@ const day = (date: Date) => date.toLocaleDateString('en-US', { month: 'short', d
     </div>
 
     <div class="tp-card tp-card-flush">
-        <DataTable
+        <DataGrid
             :value="rows"
             data-key="id"
             paginator
@@ -112,6 +112,6 @@ const day = (date: Date) => date.toLocaleDateString('en-US', { month: 'short', d
                     <b class="tp-num" :class="{ 'tp-delta-up': (data as Transaction).amount > 0 }">{{ signed((data as Transaction).amount) }}</b>
                 </template>
             </Column>
-        </DataTable>
+        </DataGrid>
     </div>
 </template>

@@ -1,0 +1,581 @@
+.vt-datagrid {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--vt-datagrid-color);
+    background: var(--vt-datagrid-background);
+    border: 1px solid var(--vt-datagrid-border-color);
+    border-radius: var(--vt-datagrid-border-radius);
+    overflow: hidden;
+}
+
+.vt-datagrid-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: var(--vt-datagrid-header-padding);
+    color: var(--vt-datagrid-header-color);
+    border-bottom: 1px solid var(--vt-datagrid-header-border-color);
+}
+
+.vt-datagrid-footer {
+    padding: var(--vt-datagrid-footer-padding);
+    color: var(--vt-datagrid-footer-color);
+    border-top: 1px solid var(--vt-datagrid-border-color);
+}
+
+.vt-datagrid-table-container {
+    min-width: 0;
+    overflow: auto;
+}
+
+.vt-datagrid-flex-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.vt-datagrid-table {
+    width: 100%;
+    /* Separate borders, so a sticky header keeps its bottom rule while rows scroll under it. */
+    border-collapse: separate;
+    border-spacing: 0;
+    font: inherit;
+    color: inherit;
+}
+
+.vt-datagrid-caption {
+    caption-side: top;
+    padding: var(--vt-datagrid-header-padding);
+    font-weight: 600;
+    text-align: start;
+}
+
+/* ---- header ----------------------------------------------------------- */
+
+.vt-datagrid-scrollable .vt-datagrid-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.vt-datagrid-scrollable .vt-datagrid-header-cell,
+.vt-datagrid-scrollable .vt-datagrid-filter-cell {
+    background: var(--vt-datagrid-header-cell-sticky-background);
+}
+
+.vt-datagrid-header-cell {
+    position: relative;
+    padding: var(--vt-datagrid-header-cell-padding);
+    font-weight: var(--vt-datagrid-header-cell-font-weight);
+    text-align: start;
+    white-space: nowrap;
+    vertical-align: middle;
+    color: var(--vt-datagrid-header-cell-color);
+    background: var(--vt-datagrid-header-cell-background);
+    border-bottom: 1px solid var(--vt-datagrid-header-cell-border-color);
+}
+
+.vt-datagrid-header-cell-sorted {
+    color: var(--vt-datagrid-header-cell-sorted-color);
+}
+
+/*
+ * The button is the cell. Sized to its label it left most of the column dead to
+ * the pointer while the whole header looked pressable, so it spans the cell and
+ * takes the cell's own padding — which means the highlight covers exactly what
+ * the press does. Its content follows the column's alignment, since a flex box
+ * does not inherit `text-align`.
+ */
+.vt-datagrid-sort-button {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--vt-datagrid-header-cell-gap);
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-weight: inherit;
+    color: inherit;
+    text-align: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-datagrid-transition-duration),
+        color var(--vt-datagrid-transition-duration);
+}
+
+/*
+ * The hover belongs to the cell, not to the button inside it. The button is
+ * only as wide as its label, so highlighting it lit up the words and left the
+ * rest of the column cold — and the whole cell is the target, since pressing
+ * anywhere in it sorts.
+ */
+.vt-datagrid-align-center .vt-datagrid-sort-button {
+    justify-content: center;
+}
+
+.vt-datagrid-align-right .vt-datagrid-sort-button {
+    justify-content: flex-end;
+}
+
+.vt-datagrid-header-cell-sortable:hover {
+    color: var(--vt-datagrid-header-cell-hover-color);
+    background: var(--vt-datagrid-header-cell-hover-background);
+}
+
+.vt-datagrid-sort-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-datagrid-sort-icon {
+    color: var(--vt-datagrid-sort-icon-color);
+}
+
+.vt-datagrid-sort-icon-active {
+    color: var(--vt-datagrid-sort-icon-active-color);
+}
+
+/* An unsorted column shows its sort affordance only when pointed at or focused, as a desktop grid does. */
+.vt-datagrid-sort-icon-idle {
+    opacity: 0;
+    transition: opacity var(--vt-datagrid-transition-duration);
+}
+
+.vt-datagrid-sort-button:hover .vt-datagrid-sort-icon-idle,
+.vt-datagrid-sort-button:focus-visible .vt-datagrid-sort-icon-idle {
+    opacity: 1;
+}
+
+.vt-datagrid-sort-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--vt-datagrid-sort-badge-size);
+    height: var(--vt-datagrid-sort-badge-size);
+    font-size: var(--vt-datagrid-sort-badge-font-size);
+    line-height: 1;
+    color: var(--vt-datagrid-sort-badge-color);
+    background: var(--vt-datagrid-sort-badge-background);
+    border-radius: 999px;
+}
+
+.vt-datagrid-filter-cell {
+    padding: var(--vt-datagrid-filter-cell-padding);
+    font-weight: normal;
+    vertical-align: middle;
+    background: var(--vt-datagrid-header-cell-background);
+    border-bottom: 1px solid var(--vt-datagrid-header-cell-border-color);
+}
+
+.vt-datagrid-filter-field {
+    width: 100%;
+    min-width: 6rem;
+}
+
+.vt-datagrid-filter-input {
+    width: 100%;
+    min-width: 6rem;
+}
+
+/* The box the table draws itself, inside the shared field. */
+.vt-datagrid-filter-field > .vt-datagrid-filter-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: var(--vt-form-field-sm-padding-y) 0;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    appearance: none;
+}
+
+/* ---- body ------------------------------------------------------------- */
+
+.vt-datagrid-row {
+    color: var(--vt-datagrid-row-color);
+    background: var(--vt-datagrid-row-background);
+    transition: background-color var(--vt-datagrid-transition-duration);
+}
+
+.vt-datagrid-striped .vt-datagrid-row:nth-child(even) {
+    background: var(--vt-datagrid-row-striped-background);
+}
+
+.vt-datagrid-row-selectable {
+    cursor: pointer;
+}
+
+.vt-datagrid-row-selectable:hover,
+.vt-datagrid-striped .vt-datagrid-row-selectable:nth-child(even):hover {
+    background: var(--vt-datagrid-row-hover-background);
+}
+
+.vt-datagrid-row-selected,
+.vt-datagrid-row-selected:hover,
+.vt-datagrid-striped .vt-datagrid-row-selected:nth-child(even) {
+    color: var(--vt-datagrid-row-selected-color);
+    background: var(--vt-datagrid-row-selected-background);
+}
+
+.vt-datagrid-row:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(-1 * var(--vt-focus-ring-width));
+}
+
+.vt-datagrid-body-cell {
+    padding: var(--vt-datagrid-body-cell-padding);
+    text-align: start;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
+}
+
+.vt-datagrid-tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+/* The selection pill at the row's leading edge; transparent in presets that do not draw one. */
+.vt-datagrid-row-selected > td:first-child {
+    position: relative;
+}
+
+.vt-datagrid-row-selected > td:first-child::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 50%;
+    width: 3px;
+    height: 1rem;
+    border-radius: 3px;
+    background: var(--vt-datagrid-row-selected-indicator);
+    transform: translateY(-50%);
+}
+
+.vt-datagrid-align-center {
+    text-align: center;
+}
+
+.vt-datagrid-align-right {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-datagrid-selection-cell {
+    width: 2.5rem;
+    text-align: center;
+}
+
+.vt-datagrid-empty-cell {
+    padding: var(--vt-datagrid-body-cell-padding);
+    color: var(--vt-text-muted-color);
+    text-align: center;
+}
+
+/* ---- sizes and grid lines -------------------------------------------- */
+
+.vt-datagrid-sm .vt-datagrid-body-cell,
+.vt-datagrid-sm .vt-datagrid-header-cell,
+.vt-datagrid-sm .vt-datagrid-footer-cell {
+    padding: var(--vt-datagrid-body-cell-sm-padding);
+}
+
+.vt-datagrid-lg .vt-datagrid-body-cell,
+.vt-datagrid-lg .vt-datagrid-header-cell,
+.vt-datagrid-lg .vt-datagrid-footer-cell {
+    padding: var(--vt-datagrid-body-cell-lg-padding);
+}
+
+.vt-datagrid-gridlines .vt-datagrid-header-cell,
+.vt-datagrid-gridlines .vt-datagrid-filter-cell,
+.vt-datagrid-gridlines .vt-datagrid-body-cell,
+.vt-datagrid-gridlines .vt-datagrid-footer-cell {
+    border-inline-end: 1px solid var(--vt-datagrid-body-cell-border-color);
+}
+
+.vt-datagrid-gridlines tr > :last-child {
+    border-inline-end: 0;
+}
+
+.vt-datagrid-gridlines .vt-datagrid-tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+/* ---- footer ----------------------------------------------------------- */
+
+.vt-datagrid-footer-cell {
+    padding: var(--vt-datagrid-body-cell-padding);
+    font-weight: var(--vt-datagrid-footer-cell-font-weight);
+    text-align: start;
+    color: var(--vt-datagrid-footer-cell-color);
+    border-top: 1px solid var(--vt-datagrid-border-color);
+}
+
+.vt-datagrid-paginator {
+    border-top: 1px solid var(--vt-datagrid-border-color);
+    border-radius: 0;
+    background: transparent;
+}
+
+.vt-datagrid-paginator-top {
+    border-top: 0;
+    border-bottom: 1px solid var(--vt-datagrid-border-color);
+}
+
+/* ---- selection controls ---------------------------------------------- */
+
+.vt-datagrid-checkbox {
+    position: relative;
+    display: inline-flex;
+    width: var(--vt-datagrid-checkbox-size);
+    height: var(--vt-datagrid-checkbox-size);
+    vertical-align: middle;
+}
+
+.vt-datagrid-checkbox-input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: var(--vt-datagrid-checkbox-background);
+    border: 1px solid var(--vt-datagrid-checkbox-border-color);
+    border-radius: var(--vt-datagrid-checkbox-border-radius);
+    appearance: none;
+    cursor: pointer;
+    transition:
+        background-color var(--vt-datagrid-transition-duration),
+        border-color var(--vt-datagrid-transition-duration);
+}
+
+.vt-datagrid-checkbox-input[type='radio'] {
+    border-radius: 50%;
+}
+
+.vt-datagrid-checkbox-input:hover {
+    border-color: var(--vt-datagrid-checkbox-hover-border-color);
+}
+
+.vt-datagrid-checkbox-input:checked,
+.vt-datagrid-checkbox-input:indeterminate {
+    background: var(--vt-datagrid-checkbox-checked-background);
+    border-color: var(--vt-datagrid-checkbox-checked-border-color);
+}
+
+/* A checked radio is a ring around a dot of the field colour. */
+.vt-datagrid-checkbox-input[type='radio']:checked {
+    box-shadow: inset 0 0 0 0.3rem var(--vt-datagrid-checkbox-checked-background);
+    background: var(--vt-datagrid-checkbox-checked-color);
+}
+
+.vt-datagrid-checkbox-input:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-datagrid-checkbox-icon {
+    position: absolute;
+    inset: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin: auto;
+    color: var(--vt-datagrid-checkbox-checked-color);
+    stroke-width: 3;
+    pointer-events: none;
+}
+
+/* ---- loading ---------------------------------------------------------- */
+
+.vt-datagrid-loading-mask {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vt-datagrid-loading-mask-background);
+}
+
+.vt-datagrid-loading-icon {
+    width: var(--vt-datagrid-loading-icon-size);
+    height: var(--vt-datagrid-loading-icon-size);
+    color: var(--vt-datagrid-loading-icon-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-datagrid-row,
+    .vt-datagrid-sort-button,
+    .vt-datagrid-sort-icon-idle,
+    .vt-datagrid-checkbox-input {
+        transition: none;
+    }
+}
+
+/* ---- the reader's own column layout ------------------------------------- */
+
+/*
+ * The handle on a column's trailing edge. It is a separator in the tab order,
+ * so a width can be set with the arrow keys as well as with a pointer; it is
+ * wider than it looks, because a two-pixel target is a two-pixel target.
+ */
+.vt-datagrid-resizer {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: calc(var(--vt-datagrid-resizer-width) / -2);
+    width: var(--vt-datagrid-resizer-width);
+    cursor: col-resize;
+    touch-action: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.vt-datagrid-resizer::after {
+    content: '';
+    position: absolute;
+    inset-block: var(--vt-datagrid-resizer-inset);
+    inset-inline-start: calc(50% - 1px);
+    width: 2px;
+    border-radius: 1px;
+    background: transparent;
+}
+
+.vt-datagrid-resizer:hover::after,
+.vt-datagrid-resizer:focus-visible::after {
+    background: var(--vt-datagrid-resizer-color);
+}
+
+.vt-datagrid-resizer:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -2px;
+    border-radius: var(--vt-border-radius-sm);
+}
+
+/*
+ * A pinned column stands over the rest, so it has to be opaque: a row's own
+ * background is transparent by default, and the columns it covers would read
+ * straight through it.
+ */
+.vt-datagrid-pinned {
+    background: var(--vt-datagrid-background);
+}
+
+.vt-datagrid-header-cell.vt-datagrid-pinned,
+.vt-datagrid-filter-cell.vt-datagrid-pinned {
+    background: var(--vt-datagrid-header-cell-sticky-background);
+}
+
+.vt-datagrid-footer-cell.vt-datagrid-pinned {
+    background: var(--vt-datagrid-footer-cell-background);
+}
+
+/* Striped and hovered rows keep their colour under the pinned column, laid
+   over the opaque ground rather than instead of it. */
+.vt-datagrid-striped .vt-datagrid-row:nth-child(even) .vt-datagrid-pinned {
+    background:
+        linear-gradient(var(--vt-datagrid-row-striped-background), var(--vt-datagrid-row-striped-background)),
+        var(--vt-datagrid-background);
+}
+
+.vt-datagrid-row:hover .vt-datagrid-pinned {
+    background:
+        linear-gradient(var(--vt-datagrid-row-hover-background), var(--vt-datagrid-row-hover-background)),
+        var(--vt-datagrid-background);
+}
+
+/* The edge of the pinned block, shadowed so it reads as standing over the rest.
+   The shadow follows the writing direction, as the offsets do. */
+.vt-datagrid-pinned-edge.vt-datagrid-pinned-left {
+    box-shadow: var(--vt-datagrid-pinned-shadow-left);
+}
+
+.vt-datagrid-pinned-edge.vt-datagrid-pinned-right {
+    box-shadow: var(--vt-datagrid-pinned-shadow-right);
+}
+
+.vt-datagrid-pinned-edge.vt-datagrid-pinned-left:dir(rtl) {
+    box-shadow: var(--vt-datagrid-pinned-shadow-right);
+}
+
+.vt-datagrid-pinned-edge.vt-datagrid-pinned-right:dir(rtl) {
+    box-shadow: var(--vt-datagrid-pinned-shadow-left);
+}
+
+.vt-datagrid-dragging {
+    opacity: 0.5;
+}
+
+/* Where a dragged column would land. */
+.vt-datagrid-dropping {
+    box-shadow: inset var(--vt-datagrid-drop-width) 0 0 0 var(--vt-datagrid-drop-color);
+}
+
+.vt-datagrid-chooser-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-inline-start: auto;
+    padding: var(--vt-datagrid-chooser-button-padding);
+    font: inherit;
+    font-size: var(--vt-datagrid-chooser-button-font-size);
+    color: var(--vt-datagrid-header-cell-color);
+    background: transparent;
+    border: 1px solid var(--vt-datagrid-border-color);
+    border-radius: var(--vt-border-radius-md);
+    cursor: pointer;
+}
+
+.vt-datagrid-chooser-button:hover {
+    background: var(--vt-datagrid-row-hover-background);
+}
+
+.vt-datagrid-chooser-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+/*
+ * The column list, where the table draws the panel itself: a card over the
+ * table, from the button that opened it.
+ */
+.vt-datagrid-chooser-panel {
+    /* Placed by the overlay it is put in, and never taller than the window. */
+    max-height: min(20rem, calc(100vh - 2rem));
+    overflow-y: auto;
+    padding: var(--vt-popover-content-padding, 0.75rem);
+    color: var(--vt-popover-color, var(--vt-datagrid-row-color));
+    background: var(--vt-popover-background, var(--vt-datagrid-background));
+    border: 1px solid var(--vt-popover-border-color, var(--vt-datagrid-border-color));
+    border-radius: var(--vt-popover-border-radius, var(--vt-border-radius-md));
+    box-shadow: var(--vt-popover-shadow, var(--vt-shadow-md));
+}
+
+.vt-datagrid-chooser-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vt-datagrid-chooser-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.375rem;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+}
+
+.vt-datagrid-chooser-label:hover {
+    background: var(--vt-datagrid-row-hover-background);
+}
+
+.vt-datagrid-chooser-checkbox {
+    accent-color: var(--vt-primary-color);
+}

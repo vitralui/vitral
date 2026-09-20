@@ -23,7 +23,7 @@ export const template: TemplateMeta = {
     faq: [
         {
             question: 'Can the table load from an API?',
-            answer: 'Yes. DataTable takes a data source or runs lazy: sorting, filtering and paging are handed to your server and the markup stays the same.'
+            answer: 'Yes. DataGrid takes a data source or runs lazy: sorting, filtering and paging are handed to your server and the markup stays the same.'
         },
         {
             question: 'Why do the charts change colour with the theme?',
@@ -43,7 +43,7 @@ export const template: TemplateMeta = {
         'Button',
         'Card',
         'Chart',
-        'DataTable',
+        'DataGrid',
         'InputText',
         'Menu',
         'Message',

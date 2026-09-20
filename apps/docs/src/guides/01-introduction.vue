@@ -105,8 +105,8 @@ const cities = [
                     <td class="doc">None</td>
                 </tr>
                 <tr>
-                    <td>@vitral/datatable</td>
-                    <td class="doc">The data table: the engine (query, sort, filter, pages, selection, the column layout) and <code>createDataTable()</code>, which draws a real <code>&lt;table&gt;</code></td>
+                    <td>@vitral/datagrid</td>
+                    <td class="doc">The data table: the engine (query, sort, filter, pages, selection, the column layout) and <code>createDataGrid()</code>, which draws a real <code>&lt;table&gt;</code></td>
                     <td class="doc">None</td>
                 </tr>
                 <tr>

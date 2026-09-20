@@ -32,7 +32,7 @@ Docs: https://vitralui.github.io/vitral/llms.txt
 - Fields are real controls: \`<label for>\`, \`name\` and \`aria-describedby\` reach
   them without extra props.`;
 
-const ask = `Read https://vitralui.github.io/vitral/components/datatable.md
+const ask = `Read https://vitralui.github.io/vitral/components/datagrid.md
 and write me a table of invoices with sorting, filtering and paging.`;
 </script>
 

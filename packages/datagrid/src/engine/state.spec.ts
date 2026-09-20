@@ -1,7 +1,7 @@
 import { createDataSource } from '@vitral/core';
 import { describe, expect, it } from 'vitest';
 import { allSelectedState, cellText, defaultModels, hasActiveFilter, isFilterable, loadRequest, modeOf, resolveRows, rowKey, rowSelected, selectionKind, sortsOf, tableColumns, tableLayout } from './state';
-import type { TableColumn, TableConfig, TableModels } from './types';
+import type { DataGridColumn, DataGridConfig, DataGridModels } from './types';
 
 interface Row {
     id: number;
@@ -15,8 +15,8 @@ const rows: Row[] = [
     { id: 3, name: 'Carla', city: 'Porto' }
 ];
 
-const columns: TableColumn<Row>[] = [{ field: 'name', header: 'Name' }, { field: 'city', header: 'City' }, { key: 'actions' }];
-const models = (over: Partial<TableModels> = {}): TableModels => ({ ...defaultModels(), ...over });
+const columns: DataGridColumn<Row>[] = [{ field: 'name', header: 'Name' }, { field: 'city', header: 'City' }, { key: 'actions' }];
+const models = (over: Partial<DataGridModels> = {}): DataGridModels => ({ ...defaultModels(), ...over });
 
 describe('the columns a table draws', () => {
     it('are named by their key, their field, or where they sit', () => {
@@ -25,7 +25,7 @@ describe('the columns a table draws', () => {
     });
 
     it('take the widths and pins the columns declared, until the reader changes them', () => {
-        const declared: TableColumn<Row>[] = [
+        const declared: DataGridColumn<Row>[] = [
             { field: 'name', width: 120, pinned: 'left' },
             { field: 'city', width: 200 }
         ];
@@ -55,7 +55,7 @@ describe('the columns a table draws', () => {
 
 describe('what the table asks for', () => {
     it('is the same request whoever answers it', () => {
-        const config: TableConfig<Row> = { paginator: true, globalFilterFields: ['name', 'city'] };
+        const config: DataGridConfig<Row> = { paginator: true, globalFilterFields: ['name', 'city'] };
         const request = loadRequest(config, models({ first: 20, rows: 10, sortField: 'name', sortOrder: -1 }), {
             city: { value: 'por', matchMode: 'contains' },
             global: { value: 'an', matchMode: 'contains' }
@@ -102,7 +102,7 @@ describe('the rows to draw', () => {
     });
 
     it('are what a data source last answered, and nothing before it answers', () => {
-        const config: TableConfig<Row> = { dataSource: createDataSource(rows) };
+        const config: DataGridConfig<Row> = { dataSource: createDataSource(rows) };
         expect(resolveRows(config, models(), {})).toMatchObject({ page: [], total: 0 });
         expect(resolveRows(config, models(), {}, { items: rows, total: 3 })).toMatchObject({ page: rows, total: 3 });
     });
@@ -133,7 +133,7 @@ describe('what a table says about itself', () => {
     });
 
     it('knows a selected row by its key, not by the object it was given', () => {
-        const config: TableConfig<Row> = { dataKey: 'id' };
+        const config: DataGridConfig<Row> = { dataKey: 'id' };
         const state = models({ selection: [{ id: 2, name: 'Bruno', city: 'Lisboa' }] });
         expect(rowSelected(config, state, 'multiple', rows[1])).toBe(true);
         expect(rowSelected(config, state, 'multiple', rows[0])).toBe(false);

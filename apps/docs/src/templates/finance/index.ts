@@ -27,7 +27,7 @@ export const template: TemplateMeta = {
         },
         {
             question: 'How do the filters interact with the table?',
-            answer: 'They compute the rows handed to DataTable, which keeps sorting and paging on top. For large data, move the same filters to your API and use lazy mode.'
+            answer: 'They compute the rows handed to DataGrid, which keeps sorting and paging on top. For large data, move the same filters to your API and use lazy mode.'
         },
         { question: 'Is the one-time code secure?', answer: 'It is a UI only. InputOtp masks the digits and accepts numbers; verifying the code is your server’s job.' },
         { question: 'Can I show positive amounts in green without relying on colour?', answer: 'They already carry a “+” sign; colour is an extra cue, never the only one.' }
@@ -39,7 +39,7 @@ export const template: TemplateMeta = {
         'Card',
         'Chart',
         'Checkbox',
-        'DataTable',
+        'DataGrid',
         'DatePicker',
         'InputNumber',
         'InputOtp',

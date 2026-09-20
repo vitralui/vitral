@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { userPlus } from '@vitral/icons';
-import { Avatar, Button, Column, DataTable, Icon, InputText, SelectButton, Tag } from '@vitral/vue';
+import { Avatar, Button, Column, DataGrid, Icon, InputText, SelectButton, Tag } from '@vitral/vue';
 import { computed, ref } from 'vue';
 import { customers, healthSeverity, initials, type Customer } from './data';
 
@@ -27,7 +27,7 @@ const total = computed(() => rows.value.reduce((sum, customer) => sum + customer
     </div>
 
     <div class="tp-card tp-card-flush">
-        <DataTable
+        <DataGrid
             v-model:filters="filters"
             v-model:selection="selected"
             :value="rows"
@@ -76,6 +76,6 @@ const total = computed(() => rows.value.reduce((sum, customer) => sum + customer
                 <template #body="{ data }"><Tag :value="(data as Customer).health" :severity="healthSeverity((data as Customer).health)" /></template>
             </Column>
             <Column field="since" header="Customer since" />
-        </DataTable>
+        </DataGrid>
     </div>
 </template>

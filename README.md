@@ -54,7 +54,7 @@ each component injects its own CSS the first time it renders. On Nuxt, add
 | [`@vitral/dom`](https://www.npmjs.com/package/@vitral/dom) | What the framework-free packages render with: a keyed patcher, parts and pass-through, pointer drags |
 | [`@vitral/controls`](https://www.npmjs.com/package/@vitral/controls) | The select, the menu and the anchored panel those packages need, wearing the same styles |
 | [`@vitral/chart`](https://www.npmjs.com/package/@vitral/chart) | The chart: scales, the scene and its SVG renderer |
-| [`@vitral/datatable`](https://www.npmjs.com/package/@vitral/datatable) | The data table: sorting, filtering, paging, selection, the column layout, and a real `<table>` |
+| [`@vitral/datagrid`](https://www.npmjs.com/package/@vitral/datagrid) | The data table: sorting, filtering, paging, selection, the column layout, and a real `<table>` |
 | [`@vitral/schedule`](https://www.npmjs.com/package/@vitral/schedule) | The calendar and scheduler: views, periods, recurrence, layout |
 | [`@vitral/taskboard`](https://www.npmjs.com/package/@vitral/taskboard) | The task board: lanes, moves, limits, and drag and drop a keyboard can do |
 | [`@vitral/editor`](https://www.npmjs.com/package/@vitral/editor) | The rich text editor's interface: toolbar, panels, the slash menu and the block handle |
@@ -70,7 +70,7 @@ chart, a data table, a scheduler, a task board, a rich text editor, a
 spreadsheet and a form's rules are months of work each and none of it is about
 a framework, so each is an engine in plain TypeScript and, where something is
 drawn, a renderer that draws it into an element you hand it. `<Chart>`,
-`<DataTable>`, `<Schedule>`, `<Taskboard>`, `<Editor>` and `<Spreadsheet>` are
+`<DataGrid>`, `<Schedule>`, `<Taskboard>`, `<Editor>` and `<Spreadsheet>` are
 wrappers over them, and a page with no framework at all calls
 `createChart(element, …)` itself.
 

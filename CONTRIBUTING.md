@@ -12,7 +12,7 @@
 | `@vitral/controls`     | The select, the menu and the anchored panel an addon needs, over core and dom                | none      |
 | `@vitral/forms`        | Form state, validation rules, async checks, field arrays and schema resolvers                | none      |
 | `@vitral/chart`        | The chart: engine, DOM renderer (`createChart`), class map and CSS                           | none      |
-| `@vitral/datatable`    | The data table: engine (query, sort, pages, selection, columns) and `createDataTable`        | none      |
+| `@vitral/datagrid`    | The data table: engine (query, sort, pages, selection, columns) and `createDataGrid`        | none      |
 | `@vitral/schedule`     | The calendar and scheduler: engine (views, periods, recurrence, layout) and `createSchedule` | none      |
 | `@vitral/taskboard`    | The task board: engine (lanes, moves, limits) and `createTaskboard`                          | none      |
 | `@vitral/editor`       | The rich text editor's interface over core's editor engine: `createTextEditor`               | none      |
@@ -34,7 +34,7 @@ table, the scheduler, the task board, the editor and the spreadsheet — and the
 seventh, `@vitral/forms`, is all engine and draws nothing at all. Each has its
 engine (the arithmetic, with no DOM and no timers in it) and, where something
 is drawn, a renderer, behind one function that takes an element and its
-configuration: `createChart`, `createDataTable`, `createSchedule`,
+configuration: `createChart`, `createDataGrid`, `createSchedule`,
 `createTaskboard`, `createTextEditor`, `createSpreadsheet`. They return a
 handle with `update`, `on` where there are events, and `destroy`.
 

@@ -42,7 +42,7 @@ export type TreeTableEmits = {
 };
 
 export interface TreeTableSlots {
-    /** The `<Column>`s, the same component DataTable reads. `expander` marks the column with the toggle. */
+    /** The `<Column>`s, the same component DataGrid reads. `expander` marks the column with the toggle. */
     default?: () => unknown;
     header?: () => unknown;
     footer?: () => unknown;

@@ -30,13 +30,13 @@ export const addons: AddonEntry[] = [
         component: 'chart'
     },
     {
-        id: 'datatable',
-        name: '@vitral/datatable',
-        title: 'DataTable',
+        id: 'datagrid',
+        name: '@vitral/datagrid',
+        title: 'DataGrid',
         note: 'Sort, filter, page, select, arrange the columns',
         icon: 'grip',
-        to: '/components/datatable',
-        component: 'datatable'
+        to: '/components/datagrid',
+        component: 'datagrid'
     },
     {
         id: 'schedule',

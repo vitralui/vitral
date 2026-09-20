@@ -2,7 +2,7 @@ import { ptBR } from '@vitral/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import type { PageContext, RowsPerPageContext } from './engine/types';
-import { createDataTable, type TableHandle } from './table';
+import { createDataGrid, type DataGridHandle } from './grid';
 
 interface Person {
     id: number;
@@ -25,12 +25,12 @@ const columns = [
     { field: 'age', header: 'Age', sortable: true, align: 'right' as const }
 ];
 
-let handle: TableHandle<Person> | null = null;
+let handle: DataGridHandle<Person> | null = null;
 
 function mount(config: Record<string, unknown> = {}) {
     const element = document.createElement('div');
     document.body.appendChild(element);
-    handle = createDataTable<Person>(element, { value: people, dataKey: 'id', columns, ariaLabel: 'People', ...config });
+    handle = createDataGrid<Person>(element, { value: people, dataKey: 'id', columns, ariaLabel: 'People', ...config });
     return {
         element,
         table: () => element.querySelector('table')!,
@@ -87,7 +87,7 @@ describe('a table with no framework in it', () => {
 
     it('filters from the row under the headers', async () => {
         const { rows, element } = mount({ filterDisplay: 'row', filters: { city: { value: null, matchMode: 'contains' } } });
-        const box = element.querySelector<HTMLInputElement>('.vt-datatable-filter-input')!;
+        const box = element.querySelector<HTMLInputElement>('.vt-datagrid-filter-input')!;
         expect(box.getAttribute('aria-label')).toBe('Filter City');
         box.value = 'por';
         box.dispatchEvent(new Event('input', { bubbles: true }));
@@ -169,7 +169,7 @@ describe('a table with no framework in it', () => {
         });
         await expectNoA11yViolations(element);
         // And with the column list open, and nothing to show.
-        element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!.click();
+        element.querySelector<HTMLButtonElement>('.vt-datagrid-chooser-button')!.click();
         handle!.update({ value: [] });
         await expectNoA11yViolations(document.body);
     });
@@ -254,9 +254,9 @@ describe('what the host draws itself', () => {
             return el;
         };
         const { element } = mount({ value: [], content: { header: node('Everyone'), footer: node('Five of them'), empty: node('Nobody here') } });
-        expect(element.querySelector('.vt-datatable-header')!.textContent).toBe('Everyone');
-        expect(element.querySelector('.vt-datatable-footer')!.textContent).toBe('Five of them');
-        expect(element.querySelector('.vt-datatable-empty-cell')!.textContent).toBe('Nobody here');
+        expect(element.querySelector('.vt-datagrid-header')!.textContent).toBe('Everyone');
+        expect(element.querySelector('.vt-datagrid-footer')!.textContent).toBe('Five of them');
+        expect(element.querySelector('.vt-datagrid-empty-cell')!.textContent).toBe('Nobody here');
     });
 
     it('takes a paginator of its own, where the built-in one would be', () => {
@@ -317,7 +317,7 @@ describe('what the host draws itself', () => {
 
     it('says it is waiting, where a reader who cannot see it hears it', () => {
         const { element } = mount({ loading: true });
-        const mask = element.querySelector('.vt-datatable-loading-mask')!;
+        const mask = element.querySelector('.vt-datagrid-loading-mask')!;
         expect(mask.getAttribute('role')).toBe('status');
         expect(mask.textContent).toContain('Loading');
         expect(element.querySelector('table')!.getAttribute('aria-busy')).toBe('true');
@@ -360,15 +360,15 @@ describe('its columns', () => {
 
     it('are shown and hidden from a list of their own', () => {
         const { element, headings } = mount({ columnToggle: true });
-        const button = element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        const button = element.querySelector<HTMLButtonElement>('.vt-datagrid-chooser-button')!;
         expect(button.getAttribute('aria-expanded')).toBe('false');
         button.click();
         // The list hangs from the button in an overlay, so the table cannot cut it off.
-        const panel = document.querySelector<HTMLElement>('.vt-datatable-chooser-panel')!;
+        const panel = document.querySelector<HTMLElement>('.vt-datagrid-chooser-panel')!;
         expect(panel.parentElement).toBe(document.body);
         expect(button.getAttribute('aria-controls')).toBe(panel.id);
         expect(button.getAttribute('aria-expanded')).toBe('true');
-        const boxes = Array.from(panel.querySelectorAll<HTMLInputElement>('.vt-datatable-chooser-checkbox'));
+        const boxes = Array.from(panel.querySelectorAll<HTMLInputElement>('.vt-datagrid-chooser-checkbox'));
         expect(boxes).toHaveLength(3);
         boxes[1]!.click();
         expect(headings()).toEqual(['Name', 'Age']);
@@ -377,20 +377,20 @@ describe('its columns', () => {
 
     it('put the list away on Escape, with the keyboard back where it was', () => {
         const { element } = mount({ columnToggle: true });
-        const button = element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!;
+        const button = element.querySelector<HTMLButtonElement>('.vt-datagrid-chooser-button')!;
         button.focus();
         button.click();
-        expect(document.querySelector('.vt-datatable-chooser-panel')).not.toBeNull();
+        expect(document.querySelector('.vt-datagrid-chooser-panel')).not.toBeNull();
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
-        expect(document.querySelector('.vt-datatable-chooser-panel')).toBeNull();
+        expect(document.querySelector('.vt-datagrid-chooser-panel')).toBeNull();
         expect(document.activeElement).toBe(button);
     });
 
     it('take the list with them when the table goes', () => {
         const { element } = mount({ columnToggle: true });
-        element.querySelector<HTMLButtonElement>('.vt-datatable-chooser-button')!.click();
+        element.querySelector<HTMLButtonElement>('.vt-datagrid-chooser-button')!.click();
         handle!.destroy();
         handle = null;
-        expect(document.querySelector('.vt-datatable-chooser-panel')).toBeNull();
+        expect(document.querySelector('.vt-datagrid-chooser-panel')).toBeNull();
     });
 });

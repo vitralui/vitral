@@ -55,13 +55,13 @@ export const backlog: BacklogRow[] = [
     { vitral: 'SpeedDial', group: 'Button', note: 'A floating button that fans its actions out.' },
 
     // ---- Data
-    { vitral: 'DataTable', group: 'Data' },
+    { vitral: 'DataGrid', group: 'Data' },
     { vitral: 'Listbox', group: 'Data' },
     { vitral: 'Tree', group: 'Data' },
     { vitral: 'Paginator', group: 'Data' },
     { vitral: 'TreeTable', group: 'Data', note: 'Rows that expand into rows: the table and the tree, together.' },
     { vitral: 'DataView', group: 'Data', note: 'The data layer with your own template per item, in a list or a grid.' },
-    { vitral: 'VirtualScroller', group: 'Data', note: 'Windowed rendering, then virtual scrolling inside Select, Listbox and DataTable.' },
+    { vitral: 'VirtualScroller', group: 'Data', note: 'Windowed rendering, then virtual scrolling inside Select, Listbox and DataGrid.' },
     { vitral: 'OrderList', group: 'Data', note: 'A list the reader reorders, by drag and by keyboard.' },
     { vitral: 'PickList', group: 'Data', note: 'Two lists and the moves between them.' },
     { vitral: 'Timeline', group: 'Data', note: 'Events on an axis, either orientation.' },

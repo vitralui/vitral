@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Card, Chart, Column, DataTable, Knob, MeterGroup, ProgressBar, Tag, type ChartOptions } from '@vitral/vue';
+import { Card, Chart, Column, DataGrid, Knob, MeterGroup, ProgressBar, Tag, type ChartOptions } from '@vitral/vue';
 import { computed } from 'vue';
 import { grades } from './data';
 
@@ -74,7 +74,7 @@ const letter = (score: number) => (score >= 90 ? 'A' : score >= 80 ? 'B' : score
     </Card>
 
     <div class="tp-card tp-card-flush">
-        <DataTable :value="grades" data-key="id" sort-field="due" :sort-order="1" caption="Gradebook" class="tp-table">
+        <DataGrid :value="grades" data-key="id" sort-field="due" :sort-order="1" caption="Gradebook" class="tp-table">
             <template #header><h2 class="tp-h3">Gradebook</h2></template>
             <Column field="item" header="Assignment" sortable>
                 <template #body="{ data }">
@@ -104,6 +104,6 @@ const letter = (score: number) => (score >= 90 ? 'A' : score >= 80 ? 'B' : score
             <Column field="status" header="Status">
                 <template #body="{ data }"><Tag :value="(data as Grade).status" :severity="severity((data as Grade).status)" /></template>
             </Column>
-        </DataTable>
+        </DataGrid>
     </div>
 </template>

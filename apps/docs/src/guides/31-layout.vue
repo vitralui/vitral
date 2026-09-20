@@ -30,7 +30,7 @@ const shell = `<DockPanel>
         <template #pane><Listbox :options="sections" /></template>
 
         <Grid columns="2*,Auto,*" :column-spacing="12">
-            <GridItem :column="0"><DataTable :value="rows" /></GridItem>
+            <GridItem :column="0"><DataGrid :value="rows" /></GridItem>
             <GridItem :column="2"><Panel header="Details" toggleable /></GridItem>
         </Grid>
     </SplitView>

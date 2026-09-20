@@ -34,7 +34,7 @@ const tasks = ref<Task[]>([
     { id: 1, title: 'Draft the release notes', status: 'backlog', team: 'Docs', priority: 'low' },
     { id: 2, title: 'Audit colour contrast', status: 'todo', team: 'Design', priority: 'high' },
     { id: 3, title: 'Virtual scrolling in Select', status: 'todo', team: 'Web', priority: 'low' },
-    { id: 4, title: 'Keyboard grid for DataTable', status: 'doing', team: 'Web', priority: 'high' },
+    { id: 4, title: 'Keyboard grid for DataGrid', status: 'doing', team: 'Web', priority: 'high' },
     { id: 5, title: 'Theme editor prototype', status: 'doing', team: 'Design', priority: 'low' },
     { id: 6, title: 'Publish 0.1', status: 'done', team: 'Web', priority: 'high', locked: true }
 ]);

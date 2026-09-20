@@ -26,7 +26,7 @@ const nuxt = `export default defineNuxtConfig({
 const scoped = `<!-- One panel the other way round, inside a left-to-right page. -->
 <div dir="rtl">
     <Menubar :model="items" />
-    <DataTable :value="rows" />
+    <DataGrid :value="rows" />
 </div>`;
 
 const runtime = `const { direction, isRtl, setDirection } = useDirection();

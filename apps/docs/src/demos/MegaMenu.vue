@@ -24,7 +24,7 @@ const items: MegaMenuItem[] = [
         items: [
             [{ label: 'Form', items: [{ label: 'InputText', command: run }, { label: 'Select', command: run }, { label: 'DatePicker', command: run }] }],
             [
-                { label: 'Data', items: [{ label: 'DataTable', command: run }, { label: 'Tree', command: run }] },
+                { label: 'Data', items: [{ label: 'DataGrid', command: run }, { label: 'Tree', command: run }] },
                 { label: 'Overlay', items: [{ label: 'Dialog', command: run }, { label: 'Popover', command: run }] }
             ],
             [{ label: 'Menu', items: [{ label: 'Menubar', command: run }, { label: 'MegaMenu', command: run }, { label: 'Dock', command: run, disabled: true }] }]

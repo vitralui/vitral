@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createDataTable, type CellContext, type PageContext, type RowsPerPageContext, type TableColumn, type TableConfig, type TableHandle, type TableModels } from '@vitral/datatable';
+import { createDataGrid, type CellContext, type PageContext, type RowsPerPageContext, type DataGridColumn, type DataGridConfig, type DataGridHandle, type DataGridModels } from '@vitral/datagrid';
 import { mergeAttrs, type PassThrough, type PassThroughContext as DomPassThroughContext } from '@vitral/dom';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
 import {
@@ -29,9 +29,9 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
 import Select from '../Select/Select.vue';
 import Column from './Column.vue';
-import type { ColumnLayoutLike, DataTableEmits, DataTableFilterEvent, DataTableFilterMeta, DataTableProps, DataTableSlots, DataTableSortEvent, SortMetaLike } from './types';
+import type { ColumnLayoutLike, DataGridEmits, DataGridFilterEvent, DataGridFilterMeta, DataGridProps, DataGridSlots, DataGridSortEvent, SortMetaLike } from './types';
 
-// The table is `@vitral/datatable`'s framework-free renderer; this component
+// The table is `@vitral/datagrid`'s framework-free renderer; this component
 // only hands it the props, the columns the `<Column>`s declared, the Vitral
 // configuration (locale, unstyled, pass-through, the overlay host, the theme)
 // and the slots, and turns its events into emits. The element it renders
@@ -39,9 +39,9 @@ import type { ColumnLayoutLike, DataTableEmits, DataTableFilterEvent, DataTableF
 // its controls and their keyboard — is the addon's, and the same table can be
 // drawn by React, by Angular or by a page with no framework at all.
 
-defineOptions({ name: 'VtDataTable', inheritAttrs: false });
+defineOptions({ name: 'VtDataGrid', inheritAttrs: false });
 
-const props = withDefaults(defineProps<DataTableProps>(), {
+const props = withDefaults(defineProps<DataGridProps>(), {
     unstyled: undefined,
     value: () => [],
     sortMode: 'single',
@@ -56,13 +56,13 @@ const rows = defineModel<number>('rows', { default: 10 });
 const sortField = defineModel<string | null>('sortField', { default: null });
 const sortOrder = defineModel<number | null>('sortOrder', { default: null });
 const multiSortMeta = defineModel<SortMetaLike[] | null>('multiSortMeta', { default: null });
-const filters = defineModel<DataTableFilterMeta>('filters');
+const filters = defineModel<DataGridFilterMeta>('filters');
 const selection = defineModel<unknown>('selection');
 // The layout is a plain object an application can store and hand back: the
 // order, the widths, what is hidden and what is pinned.
 const columnLayout = defineModel<ColumnLayoutLike | null>('columnLayout');
-const emit = defineEmits<DataTableEmits>();
-const slots = defineSlots<DataTableSlots>();
+const emit = defineEmits<DataGridEmits>();
+const slots = defineSlots<DataGridSlots>();
 
 const { config, theme } = useVitral();
 const overlayTarget = useOverlayTarget();
@@ -70,7 +70,7 @@ const attrs = useAttrs();
 const id = useId();
 const instance = getCurrentInstance()!;
 const host = shallowRef<HTMLElement | null>(null);
-let table: TableHandle | null = null;
+let table: DataGridHandle | null = null;
 
 const unstyled = () => props.unstyled ?? config.unstyled;
 
@@ -112,7 +112,7 @@ function collect(nodes: unknown, out: ColumnDef[], found: Map<string, Slots>) {
 }
 
 /** What one `<Column>` declared, as the table reads a column. */
-function toTableColumn(def: ColumnDef): TableColumn {
+function toTableColumn(def: ColumnDef): DataGridColumn {
     const p = def.props;
     const field = p.field as string | undefined;
     const own = def.slots;
@@ -156,7 +156,7 @@ function toTableColumn(def: ColumnDef): TableColumn {
  * what the slot reads, a v-if or a bound header, is tracked like any other
  * dependency, and the table is told when it changes.
  */
-const columns = shallowRef<TableColumn[]>([]);
+const columns = shallowRef<DataGridColumn[]>([]);
 
 function readSlot(): undefined {
     const found: ColumnDef[] = [];
@@ -174,7 +174,7 @@ const filterCallback = () => (filters.value = { ...(filters.value ?? {}) });
 
 // Slot content keeps what it would inject where the table is (a theme scope, an overlay host).
 const SlotHost = defineComponent({
-    name: 'VtDataTableSlot',
+    name: 'VtDataGridSlot',
     props: { draw: { type: Function, required: true } },
     setup(p) {
         const self = getCurrentInstance() as ComponentInternalInstance & { provides: object };
@@ -217,7 +217,7 @@ const CONTENT_SLOTS: { slot: string; part: string; key: string }[] = [
     { slot: 'paginatorend', part: 'PaginatorEnd', key: 'paginatorEnd' }
 ];
 
-const slotContent = (): TableConfig['content'] => ({
+const slotContent = (): DataGridConfig['content'] => ({
     ...Object.fromEntries(
         CONTENT_SLOTS.map((entry) => [entry.key, contentOf(slots as Slots, entry.slot, parts.value, entry.part)])
             .filter(([, draw]) => !!draw)
@@ -255,7 +255,7 @@ const TABLE_ATTRS = ['aria-label', 'aria-labelledby', 'aria-describedby'];
 
 function passThrough(part: string, context: DomPassThroughContext): PassThroughAttrs | undefined {
     const ctx: PassThroughContext = { props: props as Record<string, unknown>, state: context.state, part };
-    const global = config.pt.datatable?.[part];
+    const global = config.pt.datagrid?.[part];
     const local = props.pt?.[part];
     let own: PassThroughAttrs | undefined;
     if (part === 'root') {
@@ -269,35 +269,35 @@ function passThrough(part: string, context: DomPassThroughContext): PassThroughA
 }
 
 function passThroughMap(): PassThrough {
-    const parts = new Set(['root', 'table', ...Object.keys(config.pt.datatable ?? {}), ...Object.keys(props.pt ?? {})]);
+    const parts = new Set(['root', 'table', ...Object.keys(config.pt.datagrid ?? {}), ...Object.keys(props.pt ?? {})]);
     return Object.fromEntries([...parts].map((part) => [part, (context: DomPassThroughContext) => passThrough(part, context)]));
 }
 
 // ---- the table ------------------------------------------------------------------
 
-const models = (): Partial<TableModels> => ({
+const models = (): Partial<DataGridModels> => ({
     first: first.value,
     rows: rows.value,
     sortField: sortField.value,
     sortOrder: (sortOrder.value as 1 | -1 | null) ?? null,
-    multiSortMeta: (multiSortMeta.value as TableModels['multiSortMeta']) ?? [],
-    filters: (filters.value ?? {}) as TableModels['filters'],
+    multiSortMeta: (multiSortMeta.value as DataGridModels['multiSortMeta']) ?? [],
+    filters: (filters.value ?? {}) as DataGridModels['filters'],
     selection: selection.value,
-    columnLayout: (columnLayout.value ?? {}) as TableModels['columnLayout']
+    columnLayout: (columnLayout.value ?? {}) as DataGridModels['columnLayout']
 });
 
-const inputs = (): TableConfig => ({
+const inputs = (): DataGridConfig => ({
     value: toRaw(props.value),
     columns: columns.value,
     dataKey: props.dataKey,
-    dataSource: props.dataSource as TableConfig['dataSource'],
+    dataSource: props.dataSource as DataGridConfig['dataSource'],
     lazy: props.lazy,
     totalRecords: props.totalRecords,
     loading: props.loading,
     paginator: props.paginator,
     rowsPerPageOptions: props.rowsPerPageOptions,
     pageLinkSize: props.pageLinkSize,
-    paginatorTemplate: props.paginatorTemplate as TableConfig['paginatorTemplate'],
+    paginatorTemplate: props.paginatorTemplate as DataGridConfig['paginatorTemplate'],
     currentPageReportTemplate: props.currentPageReportTemplate,
     paginatorPosition: props.paginatorPosition,
     alwaysShowPaginator: props.alwaysShowPaginator,
@@ -331,7 +331,7 @@ const inputs = (): TableConfig => ({
 
 /** What the reader changed, put back where the application bound it. */
 let writing = false;
-function published(state: TableModels) {
+function published(state: DataGridModels) {
     writing = true;
     first.value = state.first;
     rows.value = state.rows;
@@ -340,17 +340,17 @@ function published(state: TableModels) {
         sortField.value = state.sortField;
         sortOrder.value = state.sortOrder;
     }
-    filters.value = state.filters as DataTableFilterMeta;
+    filters.value = state.filters as DataGridFilterMeta;
     selection.value = state.selection;
     columnLayout.value = state.columnLayout as ColumnLayoutLike;
     writing = false;
 }
 
-const events: TableConfig['on'] = {
+const events: DataGridConfig['on'] = {
     change: published,
     page: (event) => emit('page', event),
-    sort: (event) => emit('sort', event as DataTableSortEvent),
-    filter: (event) => emit('filter', event as DataTableFilterEvent),
+    sort: (event) => emit('sort', event as DataGridSortEvent),
+    filter: (event) => emit('filter', event as DataGridFilterEvent),
     'lazy-load': (event) => emit('lazy-load', event),
     'row-click': (event) => emit('row-click', event),
     'row-select': (event) => emit('row-select', event),
@@ -364,7 +364,7 @@ const events: TableConfig['on'] = {
 };
 
 onMounted(() => {
-    table = createDataTable(host.value!, {
+    table = createDataGrid(host.value!, {
         ...inputs(),
         id,
         nonce: config.csp.nonce,
@@ -377,7 +377,7 @@ onMounted(() => {
 });
 
 /** Everything the table is told, whenever any of it changes. */
-function push(next: Partial<TableConfig>) {
+function push(next: Partial<DataGridConfig>) {
     if (!table) return;
     table.update(next);
     sweep();
@@ -427,22 +427,22 @@ watch(
     () => {
         if (writing || !table) return;
         const state = table.state();
-        const next: Partial<TableModels> = {};
+        const next: Partial<DataGridModels> = {};
         if (first.value !== state.first) next.first = first.value;
         if (rows.value !== state.rows) next.rows = rows.value;
         if (sortField.value !== state.sortField) next.sortField = sortField.value;
         if ((sortOrder.value ?? null) !== state.sortOrder) next.sortOrder = (sortOrder.value as 1 | -1 | null) ?? null;
-        if (multiSortMeta.value && multiSortMeta.value !== state.multiSortMeta) next.multiSortMeta = multiSortMeta.value as TableModels['multiSortMeta'];
-        if (filters.value !== state.filters) next.filters = (filters.value ?? {}) as TableModels['filters'];
+        if (multiSortMeta.value && multiSortMeta.value !== state.multiSortMeta) next.multiSortMeta = multiSortMeta.value as DataGridModels['multiSortMeta'];
+        if (filters.value !== state.filters) next.filters = (filters.value ?? {}) as DataGridModels['filters'];
         if (selection.value !== state.selection) next.selection = selection.value;
-        if (columnLayout.value && columnLayout.value !== state.columnLayout) next.columnLayout = columnLayout.value as TableModels['columnLayout'];
+        if (columnLayout.value && columnLayout.value !== state.columnLayout) next.columnLayout = columnLayout.value as DataGridModels['columnLayout'];
         if (Object.keys(next).length) push(next);
     },
     { deep: true }
 );
 
 watch(
-    () => [config.locale, unstyled(), props.pt, props.dt, config.pt.datatable, config.zIndex.overlay] as const,
+    () => [config.locale, unstyled(), props.pt, props.dt, config.pt.datagrid, config.zIndex.overlay] as const,
     () => push({ locale: config.locale, unstyled: unstyled(), pt: passThroughMap(), zIndex: config.zIndex.overlay }),
     { deep: true }
 );

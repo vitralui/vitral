@@ -18,13 +18,13 @@ export interface CompositeFilterLike {
 }
 
 /** Per-field filters keyed by field, plus an optional `global` one searched across `globalFilterFields`. */
-export type DataTableFilterMeta = Record<string, FilterConstraintLike | CompositeFilterLike>;
+export type DataGridFilterMeta = Record<string, FilterConstraintLike | CompositeFilterLike>;
 
 export interface LoadOptionsLike {
     first?: number;
     rows?: number;
     sort?: SortMetaLike[];
-    filters?: DataTableFilterMeta;
+    filters?: DataGridFilterMeta;
     globalFilter?: { value: unknown; fields: string[]; matchMode?: string };
     locale?: string;
 }
@@ -44,7 +44,7 @@ export interface ColumnLayoutLike {
     pinned?: Record<string, 'left' | 'right'>;
 }
 
-export interface DataTableProps extends BaseProps {
+export interface DataGridProps extends BaseProps {
     /** The rows; with `lazy`, only the current page. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value?: any[];
@@ -104,79 +104,79 @@ export interface DataTableProps extends BaseProps {
     showCaption?: boolean;
 }
 
-export interface DataTablePageEvent {
+export interface DataGridPageEvent {
     page: number;
     first: number;
     rows: number;
     pageCount: number;
 }
 
-export interface DataTableSortEvent {
+export interface DataGridSortEvent {
     originalEvent?: Event;
     sortField: string | null;
     sortOrder: 1 | -1 | null;
     multiSortMeta: SortMetaLike[];
 }
 
-export interface DataTableFilterEvent {
-    filters: DataTableFilterMeta;
+export interface DataGridFilterEvent {
+    filters: DataGridFilterMeta;
     filteredValue: unknown[];
 }
 
-export interface DataTableRowClickEvent {
+export interface DataGridRowClickEvent {
     originalEvent: Event;
     data: unknown;
     index: number;
 }
 
-export interface DataTableRowSelectEvent {
+export interface DataGridRowSelectEvent {
     originalEvent?: Event;
     data: unknown;
     index: number;
     type: 'row' | 'checkbox' | 'radio';
 }
 
-export interface DataTableSelectAllEvent {
+export interface DataGridSelectAllEvent {
     originalEvent?: Event;
     data: unknown[];
 }
 
-export interface DataTableColumnEvent {
+export interface DataGridColumnEvent {
     originalEvent?: Event;
     /** The column, by `columnKey` or `field`. */
     key: string;
     layout: ColumnLayoutLike;
 }
 
-export type DataTableEmits = {
-    page: [event: DataTablePageEvent];
+export type DataGridEmits = {
+    page: [event: DataGridPageEvent];
     /** A column was widened or narrowed. */
-    'column-resize': [event: DataTableColumnEvent & { width: number }];
+    'column-resize': [event: DataGridColumnEvent & { width: number }];
     /** A column was moved. */
-    'column-reorder': [event: DataTableColumnEvent & { order: string[] }];
+    'column-reorder': [event: DataGridColumnEvent & { order: string[] }];
     /** A column was shown or hidden. */
-    'column-toggle': [event: DataTableColumnEvent & { visible: boolean }];
+    'column-toggle': [event: DataGridColumnEvent & { visible: boolean }];
     /** A column was stuck to an edge, or let go. */
-    'column-pin': [event: DataTableColumnEvent & { side: 'left' | 'right' | null }];
-    sort: [event: DataTableSortEvent];
-    filter: [event: DataTableFilterEvent];
+    'column-pin': [event: DataGridColumnEvent & { side: 'left' | 'right' | null }];
+    sort: [event: DataGridSortEvent];
+    filter: [event: DataGridFilterEvent];
     'lazy-load': [event: LoadOptionsLike];
-    'row-click': [event: DataTableRowClickEvent];
-    'row-select': [event: DataTableRowSelectEvent];
-    'row-unselect': [event: DataTableRowSelectEvent];
-    'row-select-all': [event: DataTableSelectAllEvent];
-    'row-unselect-all': [event: DataTableSelectAllEvent];
+    'row-click': [event: DataGridRowClickEvent];
+    'row-select': [event: DataGridRowSelectEvent];
+    'row-unselect': [event: DataGridRowSelectEvent];
+    'row-select-all': [event: DataGridSelectAllEvent];
+    'row-unselect-all': [event: DataGridSelectAllEvent];
 };
 
-export interface DataTableSlots {
+export interface DataGridSlots {
     /** The `<Column>`s. */
     default?: () => unknown;
     header?: () => unknown;
     footer?: () => unknown;
     empty?: () => unknown;
     loadingicon?: () => unknown;
-    paginatorstart?: (props: DataTablePageEvent) => unknown;
-    paginatorend?: (props: DataTablePageEvent) => unknown;
+    paginatorstart?: (props: DataGridPageEvent) => unknown;
+    paginatorend?: (props: DataGridPageEvent) => unknown;
 }
 
 export interface ColumnProps {

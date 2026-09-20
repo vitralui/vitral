@@ -20,7 +20,7 @@ import {
 } from '@vitral/core';
 import { createOverlay, createSelect, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver } from '@vitral/dom';
-import { baseStyle, datatableStyle, paginatorStyle } from '@vitral/styles';
+import { baseStyle, datagridStyle, paginatorStyle } from '@vitral/styles';
 import {
     allSelectedState,
     declaredColumns,
@@ -37,8 +37,8 @@ import {
     tableLayout,
     type ResolvedColumn
 } from './engine/state';
-import type { Content, Row, RowsPerPageContext, TableConfig, TableModels } from './engine/types';
-import { chooserView, tableView, type TableActions, type ViewContext } from './render/table';
+import type { Content, Row, RowsPerPageContext, DataGridConfig, DataGridModels } from './engine/types';
+import { chooserView, gridView, type DataGridActions, type ViewContext } from './render/grid';
 
 /**
  * A data table with no framework in it: it is handed a configuration, it draws
@@ -51,11 +51,11 @@ import { chooserView, tableView, type TableActions, type ViewContext } from './r
  * host can bind it, store it and hand it back.
  */
 
-export interface TableHandle<T = Row> {
+export interface DataGridHandle<T = Row> {
     /** Changes part of the configuration; what did not change is not redrawn. */
-    update(config: Partial<TableConfig<T>>): void;
+    update(config: Partial<DataGridConfig<T>>): void;
     /** The models as they stand: the page, the sort, the filters, the selection, the layout. */
-    state(): TableModels;
+    state(): DataGridModels;
     /** Draws again, for data that changed underneath. */
     refresh(): void;
     /** Asks the data source again, for rows that changed where they came from. */
@@ -67,9 +67,9 @@ export interface TableHandle<T = Row> {
 
 let counter = 0;
 
-export function createDataTable<T = Row>(element: HTMLElement, config: TableConfig<T> = {}): TableHandle<T> {
-    let current: TableConfig<T> = { ...config };
-    let models: TableModels = { ...defaultModels(), ...pickModels(config) };
+export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridConfig<T> = {}): DataGridHandle<T> {
+    let current: DataGridConfig<T> = { ...config };
+    let models: DataGridModels = { ...defaultModels(), ...pickModels(config) };
     /** The filters the rows are computed from: at once for local data, after `filterDelay` for a server. */
     let applied: FilterMeta = cloneFilters(models.filters);
     let remote: { items: T[]; total: number } | undefined;
@@ -95,7 +95,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
 
     const locale = (): Locale => current.locale ?? en;
     const part = partResolver({
-        style: datatableStyle,
+        style: datagridStyle,
         unstyled: () => !!current.unstyled,
         classes: () => current.classes,
         pt: () => current.pt,
@@ -120,19 +120,19 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
         // The shared rules too: the table's own icons, fields and screen-reader
         // text are the ones every Vitral control uses.
         loadStyle(baseStyle.name, baseStyle.css, styleOptions());
-        loadStyle(datatableStyle.name, datatableStyle.css, styleOptions());
+        loadStyle(datagridStyle.name, datagridStyle.css, styleOptions());
         if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
     }
 
     // ---- what the host hears ------------------------------------------------------
 
-    function emit<K extends keyof NonNullable<TableConfig<T>['on']>>(name: K, payload: Parameters<NonNullable<NonNullable<TableConfig<T>['on']>[K]>>[0]) {
+    function emit<K extends keyof NonNullable<DataGridConfig<T>['on']>>(name: K, payload: Parameters<NonNullable<NonNullable<DataGridConfig<T>['on']>[K]>>[0]) {
         const handler = current.on?.[name] as ((value: unknown) => void) | undefined;
         handler?.(payload);
     }
 
     /** Every change to a model is published, so a host can bind them. */
-    function change(next: Partial<TableModels>) {
+    function change(next: Partial<DataGridModels>) {
         models = { ...models, ...next };
         current.on?.change?.({ ...models });
         render();
@@ -204,11 +204,11 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
 
     // ---- what the reader does ------------------------------------------------------
 
-    const actions: TableActions<T> = {
+    const actions: DataGridActions<T> = {
         sort(column, event) {
             const multiple = current.sortMode === 'multiple';
             const next = toggleSort(sortsOf(current, models), column.sortField, { multiple, additive: event.ctrlKey || event.metaKey, removable: current.removableSort });
-            const models_: Partial<TableModels> = multiple
+            const models_: Partial<DataGridModels> = multiple
                 ? { multiSortMeta: next }
                 : { sortField: next[0]?.field ?? null, sortOrder: next[0]?.order ?? null, multiSortMeta: next };
             if (current.paginator) models_.first = 0;
@@ -495,7 +495,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     }
 
     /** The models as the group has agreed them: its layout, for the columns this table has. */
-    function withShared(): TableModels {
+    function withShared(): DataGridModels {
         if (!current.group || !shared) return models;
         const keys = declaredColumns(current).map((entry) => entry.key);
         return { ...models, columnLayout: layoutFor(keys, shared, models.columnLayout) };
@@ -510,7 +510,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
             if (message.source === id) return;
             if (message.kind === 'scroll') {
                 echo = true;
-                const container = element.querySelector('.vt-datatable-table-container') as HTMLElement | null;
+                const container = element.querySelector('.vt-datagrid-table-container') as HTMLElement | null;
                 if (container) container.scrollLeft = message.left;
                 requestAnimationFrame(() => (echo = false));
             } else {
@@ -581,7 +581,7 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
                 content: { ...current.content, rowsPerPage: current.content?.rowsPerPage ?? pageSizeControl }
             }
         };
-        root.render(tableView(drawn));
+        root.render(gridView(drawn));
         // After the table, so the button the panel hangs from is the one just drawn.
         if (chooserOpen) chooser.open();
         else chooser.close();
@@ -621,8 +621,8 @@ export function createDataTable<T = Row>(element: HTMLElement, config: TableConf
     };
 }
 
-const pickModels = (config: Partial<TableConfig>): Partial<TableModels> => {
-    const out: Partial<TableModels> = {};
+const pickModels = (config: Partial<DataGridConfig>): Partial<DataGridModels> => {
+    const out: Partial<DataGridModels> = {};
     for (const key of ['first', 'rows', 'sortField', 'sortOrder', 'multiSortMeta', 'filters', 'selection', 'columnLayout'] as const) {
         if (config[key] !== undefined) (out as Record<string, unknown>)[key] = config[key];
     }

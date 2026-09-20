@@ -54,16 +54,16 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
-    "@vitral/editor": "workspace:*",
     "@vitral/chart": "workspace:*",
     "@vitral/core": "workspace:*",
-    "@vitral/datatable": "workspace:*",
+    "@vitral/datagrid": "workspace:*",
     "@vitral/dom": "workspace:*",
+    "@vitral/editor": "workspace:*",
     "@vitral/forms": "workspace:*",
     "@vitral/icons": "workspace:*",
     "@vitral/schedule": "workspace:*",
-    "@vitral/styles": "workspace:*",
     "@vitral/spreadsheet": "workspace:*",
+    "@vitral/styles": "workspace:*",
     "@vitral/taskboard": "workspace:*",
     "@vitral/themes": "workspace:*"
   }

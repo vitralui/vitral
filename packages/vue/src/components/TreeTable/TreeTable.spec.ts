@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
-import Column from '../DataTable/Column.vue';
+import Column from '../DataGrid/Column.vue';
 import type { TreeNodeLike, TreeSelectionKeys } from '../Tree/types';
 import TreeTable from './TreeTable.vue';
 

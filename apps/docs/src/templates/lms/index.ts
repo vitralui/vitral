@@ -45,7 +45,7 @@ export const template: TemplateMeta = {
         'Button',
         'Card',
         'Chart',
-        'DataTable',
+        'DataGrid',
         'DataView',
         'InputText',
         'Knob',

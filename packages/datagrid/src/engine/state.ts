@@ -13,7 +13,7 @@ import {
     type FilterMeta,
     type SortMeta
 } from '@vitral/core';
-import type { LoadRequest, Row, TableColumn, TableConfig, TableModels } from './types';
+import type { LoadRequest, Row, DataGridColumn, DataGridConfig, DataGridModels } from './types';
 
 /**
  * What a table draws, worked out from what it was told: which columns, in what
@@ -25,7 +25,7 @@ import type { LoadRequest, Row, TableColumn, TableConfig, TableModels } from './
 
 /** A column with everything the renderer needs decided: its key, its width, where it sticks. */
 export interface ResolvedColumn<T = Row> {
-    column: TableColumn<T>;
+    column: DataGridColumn<T>;
     key: string;
     field?: string;
     sortField: string;
@@ -37,10 +37,10 @@ export interface ResolvedColumn<T = Row> {
     selectionMode?: 'single' | 'multiple';
 }
 
-export const keyOf = (column: TableColumn, index: number): string => String(column.key ?? column.field ?? `column-${index}`);
+export const keyOf = (column: DataGridColumn, index: number): string => String(column.key ?? column.field ?? `column-${index}`);
 export const isComposite = (filter: FilterConstraint | CompositeFilter): filter is CompositeFilter => 'constraints' in filter;
 
-export const defaultModels = (): TableModels => ({
+export const defaultModels = (): DataGridModels => ({
     first: 0,
     rows: 10,
     sortField: null,
@@ -52,7 +52,7 @@ export const defaultModels = (): TableModels => ({
 });
 
 /** The columns as declared, before the reader's layout: hidden ones are already out. */
-export function declaredColumns<T>(config: TableConfig<T>): { column: TableColumn<T>; key: string }[] {
+export function declaredColumns<T>(config: DataGridConfig<T>): { column: DataGridColumn<T>; key: string }[] {
     return (config.columns ?? []).filter((column) => !column.hidden).map((column, index) => ({ column, key: keyOf(column, index) }));
 }
 
@@ -61,7 +61,7 @@ export function declaredColumns<T>(config: TableConfig<T>): { column: TableColum
  * columns themselves asked for, so a table is laid out as written until
  * someone moves something.
  */
-export function tableLayout<T>(config: TableConfig<T>, models: TableModels): ColumnLayout {
+export function tableLayout<T>(config: DataGridConfig<T>, models: DataGridModels): ColumnLayout {
     const declared = declaredColumns(config);
     const given = models.columnLayout ?? {};
     const widths = { ...Object.fromEntries(declared.filter(({ column }) => column.width !== undefined).map(({ column, key }) => [key, column.width!])), ...given.widths };
@@ -70,7 +70,7 @@ export function tableLayout<T>(config: TableConfig<T>, models: TableModels): Col
 }
 
 /** The columns to draw, in order, with their widths and sticky offsets. */
-export function tableColumns<T>(config: TableConfig<T>, models: TableModels): ResolvedColumn<T>[] {
+export function tableColumns<T>(config: DataGridConfig<T>, models: DataGridModels): ResolvedColumn<T>[] {
     const declared = declaredColumns(config);
     const layout = tableLayout(config, models);
     const byKey = new Map(declared.map((entry) => [entry.key, entry.column]));
@@ -99,14 +99,14 @@ export function tableColumns<T>(config: TableConfig<T>, models: TableModels): Re
 }
 
 /** The sort the table is in, however it was expressed. */
-export function sortsOf(config: TableConfig, models: TableModels): SortMeta[] {
+export function sortsOf(config: DataGridConfig, models: DataGridModels): SortMeta[] {
     if (config.sortMode === 'multiple') return models.multiSortMeta ?? [];
     const order = models.sortOrder;
     return models.sortField && (order === 1 || order === -1) ? [{ field: models.sortField, order }] : [];
 }
 
 /** What the table asks for: the same request whether it is answered here or by a server. */
-export function loadRequest(config: TableConfig, models: TableModels, filters: FilterMeta): LoadRequest {
+export function loadRequest(config: DataGridConfig, models: DataGridModels, filters: FilterMeta): LoadRequest {
     const { global, ...fields } = filters;
     const globalFilter =
         global && !isComposite(global) && config.globalFilterFields?.length ? { value: global.value, fields: [...config.globalFilterFields], matchMode: global.matchMode } : undefined;
@@ -121,7 +121,7 @@ export function loadRequest(config: TableConfig, models: TableModels, filters: F
 }
 
 export type TableMode = 'local' | 'lazy' | 'source';
-export const modeOf = (config: TableConfig): TableMode => (config.dataSource ? 'source' : config.lazy ? 'lazy' : 'local');
+export const modeOf = (config: DataGridConfig): TableMode => (config.dataSource ? 'source' : config.lazy ? 'lazy' : 'local');
 
 export interface ResolvedRows<T = Row> {
     /** The rows on the page. */
@@ -134,7 +134,7 @@ export interface ResolvedRows<T = Row> {
 }
 
 /** The rows to draw. `remote` is what a data source last answered. */
-export function resolveRows<T>(config: TableConfig<T>, models: TableModels, filters: FilterMeta, remote?: { items: T[]; total: number }): ResolvedRows<T> {
+export function resolveRows<T>(config: DataGridConfig<T>, models: DataGridModels, filters: FilterMeta, remote?: { items: T[]; total: number }): ResolvedRows<T> {
     const mode = modeOf(config);
     const value = config.value ?? [];
     const offset = config.paginator ? models.first : 0;
@@ -156,16 +156,16 @@ export function isFilterable(column: ResolvedColumn, filters: FilterMeta): boole
     return !column.selectionMode && !!column.filterField && (!!column.column.filterContent || !!filters[column.filterField]);
 }
 
-export const selectionKind = (config: TableConfig, columns: ResolvedColumn[]): 'single' | 'multiple' | undefined =>
+export const selectionKind = (config: DataGridConfig, columns: ResolvedColumn[]): 'single' | 'multiple' | undefined =>
     columns.find((column) => column.selectionMode)?.selectionMode ?? config.selectionMode;
 
-export const rowSelected = (config: TableConfig, models: TableModels, kind: 'single' | 'multiple' | undefined, row: unknown): boolean =>
+export const rowSelected = (config: DataGridConfig, models: DataGridModels, kind: 'single' | 'multiple' | undefined, row: unknown): boolean =>
     !!kind && isSelected(models.selection, row, kind, config.dataKey);
 
-export const allSelectedState = (config: TableConfig, models: TableModels, rows: readonly unknown[]) => selectionState(rows, models.selection, config.dataKey);
+export const allSelectedState = (config: DataGridConfig, models: DataGridModels, rows: readonly unknown[]) => selectionState(rows, models.selection, config.dataKey);
 
 /** The key a row is drawn under: its `dataKey` field, or where it sits. */
-export const rowKey = (config: TableConfig, row: unknown, index: number, offset: number): string | number =>
+export const rowKey = (config: DataGridConfig, row: unknown, index: number, offset: number): string | number =>
     config.dataKey ? String(getField(row, config.dataKey)) : offset + index;
 
 /** The text of a cell that draws itself no other way. */
