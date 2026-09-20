@@ -21,6 +21,8 @@ export interface LegendEntry {
     name: string;
     color: string;
     hidden: boolean;
+    /** A figure beside the name, when the legend was asked for one. */
+    value?: string;
 }
 
 export interface LegendItemContext {
@@ -28,6 +30,7 @@ export interface LegendItemContext {
     seriesIndex: number;
     hidden: boolean;
     color: string;
+    value?: string;
 }
 
 export interface LegendProps {
@@ -45,6 +48,18 @@ export interface LegendProps {
     tip?: (element: Element | null, text: string | undefined) => void;
 }
 
+/** A mouse or a pen, which can hover; a finger cannot, whatever events it sends. */
+const hoverable = (event: Event) => !('pointerType' in event) || (event as PointerEvent).pointerType !== 'touch';
+
+/**
+ * Whether a finger is down on a legend entry right now. A tap focuses the
+ * button it toggles, and that focus would otherwise dim every other series, so
+ * the focus that arrives mid-tap is ignored. It is only ever true between a
+ * touch going down and the same touch coming up, so a later Tab to the legend
+ * still dims the rest the way a keyboard should.
+ */
+let touchPressed = false;
+
 /**
  * The key. Entries are toggle buttons (pressed while their series shows) when
  * clicking toggles series, so the legend is operable from the keyboard; a
@@ -55,7 +70,7 @@ export function legendView(part: Part, p: LegendProps, key: string): Child {
         'ul',
         mergeAttrs({ key, 'aria-label': p.locale.chart.legend }, part('legend', { position: p.position, align: p.align })),
         p.entries.map((e) => {
-            const custom = p.item?.({ name: e.name, seriesIndex: e.series, hidden: e.hidden, color: e.color });
+            const custom = p.item?.({ name: e.name, seriesIndex: e.series, hidden: e.hidden, color: e.color, value: e.value });
             return h(
                 'li',
                 { key: e.series, style: 'display: contents' },
@@ -71,14 +86,38 @@ export function legendView(part: Part, p: LegendProps, key: string): Child {
                             ref: (el: Element | null) =>
                                 p.tip?.(el, p.interactive ? formatMessage(e.hidden ? p.locale.chart.seriesHidden : p.locale.chart.seriesShown, { series: e.name }) : undefined),
                             onClick: () => p.interactive && p.onToggle(e.series),
-                            onMouseenter: () => p.onHighlight(e.series),
-                            onMouseleave: () => p.onHighlight(-1),
-                            onFocus: () => p.onHighlight(e.series),
+                            // A finger is not a pointer resting on something. A tap
+                            // sends a mouseenter that no mouseleave ever answers and
+                            // leaves the button focused, so the highlight stuck on
+                            // whatever was last tapped and flickered as focus moved.
+                            // Hover dims the others for a mouse and a pen; touch
+                            // toggles the series and nothing else.
+                            onPointerenter: (event: Event) => hoverable(event) && p.onHighlight(e.series),
+                            onPointerleave: (event: Event) => hoverable(event) && p.onHighlight(-1),
+                            onPointerdown: (event: Event) => {
+                                touchPressed = !hoverable(event);
+                            },
+                            onPointerup: () => {
+                                touchPressed = false;
+                            },
+                            onPointercancel: () => {
+                                touchPressed = false;
+                            },
+                            onFocus: () => !touchPressed && p.onHighlight(e.series),
                             onBlur: () => p.onHighlight(-1)
                         }
                     ),
-                    h('span', mergeAttrs({ 'aria-hidden': 'true' }, part('legendMarker', { shape: p.shape }), { style: { background: e.color } })),
-                    h('span', part('legendText'), custom === null || custom === undefined ? e.name : hookChild(custom))
+                    // A hidden series keeps its colour as an outline rather than
+                    // losing it: the swatch says which series it is either way,
+                    // and hollow reads as off without striking the name through.
+                    h(
+                        'span',
+                        mergeAttrs({ 'aria-hidden': 'true' }, part('legendMarker', { shape: p.shape }), {
+                            style: e.hidden ? { background: 'transparent', boxShadow: `inset 0 0 0 2px ${e.color}` } : { background: e.color }
+                        })
+                    ),
+                    h('span', part('legendText'), custom === null || custom === undefined ? e.name : hookChild(custom)),
+                    e.value === undefined ? null : h('span', part('legendValue'), e.value)
                 )
             );
         })
@@ -147,12 +186,19 @@ export function tooltipView(part: Part, p: TooltipProps): Child {
             .split('\n')
             .map((line, i) => h('div', { key: `c${i}` }, line));
     } else {
+        // A shared tooltip lists the whole column, which answers "how do these
+        // compare" but not "what am I pointing at". The row for the series
+        // under the pointer is picked out and the rest step back, so one panel
+        // does both jobs — the reader no longer has to choose between seeing
+        // the column and seeing the point.
+        const picked = p.content.rows.length > 1 ? p.content.seriesIndex : -1;
+        const rowState = (seriesIndex: number) => (picked < 0 ? {} : { active: seriesIndex === picked, muted: seriesIndex !== picked });
         body = [
             p.content.title ? h('div', { key: 'title', ...part('tooltipTitle') }, p.content.title) : null,
             p.content.rows.map((row) => [
                 h(
                     'div',
-                    { key: `r${row.seriesIndex}`, ...part('tooltipRow') },
+                    { key: `r${row.seriesIndex}`, ...part('tooltipRow', rowState(row.seriesIndex)) },
                     p.swatches ? h('span', mergeAttrs(part('tooltipSwatch'), { style: { background: row.color } })) : null,
                     row.name ? h('span', part('tooltipName'), row.name) : null,
                     h('span', part('tooltipValue'), row.value)
@@ -160,7 +206,7 @@ export function tooltipView(part: Part, p: TooltipProps): Child {
                 (row.extra ?? []).map((e) =>
                     h(
                         'div',
-                        { key: `e${row.seriesIndex}-${e.name}`, ...part('tooltipRow') },
+                        { key: `e${row.seriesIndex}-${e.name}`, ...part('tooltipRow', rowState(row.seriesIndex)) },
                         p.swatches ? h('span', mergeAttrs(part('tooltipSwatch'), { style: 'visibility: hidden' })) : null,
                         h('span', part('tooltipName'), e.name),
                         h('span', part('tooltipValue'), e.text)

@@ -72,6 +72,18 @@ export function rectAt(scene: ChartScene, x: number, y: number): { series: numbe
 
 export type ZoomWindow = [number, number];
 
+/**
+ * The narrowest a window may get, as a fraction of the whole domain. A category
+ * axis floors at one whole category: there is nothing between `Oct` and `Nov` to
+ * look at, and a window narrower than a category makes the band a category
+ * occupies wider than the plot it is drawn in.
+ */
+export function leastSpan(full: ZoomWindow, kind: 'category' | 'numeric' | 'datetime'): number {
+    const total = full[1] - full[0];
+    if (kind !== 'category' || total <= 0) return 0.005;
+    return Math.min(1, 1 / total);
+}
+
 /** Keeps a window inside `full` and at least `minSpan` of it wide, sliding it back in rather than cutting it. */
 export function normalizeWindow(window: ZoomWindow, full: ZoomWindow, minSpan = 0.01): ZoomWindow {
     const total = full[1] - full[0];

@@ -344,9 +344,18 @@ export function buildCartesian(input: SceneInput): ChartScene {
         thin(catTickList);
     }
 
+    /**
+     * `align` as SVG says it, or the alignment the axis would have chosen.
+     * Declared, not assigned: `catLabel` is called before this line is reached.
+     */
+    function anchorOf(align: 'left' | 'center' | 'right' | undefined, fallback: SceneLabel['anchor']): SceneLabel['anchor'] {
+        return align === 'left' ? 'start' : align === 'center' ? 'middle' : align === 'right' ? 'end' : fallback;
+    }
+
     function catLabel(pos: number, text: string): SceneLabel {
         const style = catAxis.labels?.style;
-        if (horizontal) return { x: plot.x - 8 + (catAxis.labels?.offsetX ?? 0), y: pos + (catAxis.labels?.offsetY ?? 0), text, anchor: 'end', baseline: 'middle', style };
+        const align = catAxis.labels?.align;
+        if (horizontal) return { x: plot.x - 8 + (catAxis.labels?.offsetX ?? 0), y: pos + (catAxis.labels?.offsetY ?? 0), text, anchor: anchorOf(align, 'end'), baseline: 'middle', style };
         const topSide = catAxis.position === 'top';
         const tick = catAxis.axisTicks?.show !== false ? (catAxis.axisTicks?.height ?? 5) : 0;
         const y = topSide ? plot.y - tick - 4 : plot.y + plot.height + tick + 4;
@@ -354,7 +363,7 @@ export function buildCartesian(input: SceneInput): ChartScene {
             x: pos + (catAxis.labels?.offsetX ?? 0),
             y: y + (catAxis.labels?.offsetY ?? 0),
             text,
-            anchor: rotate ? 'end' : 'middle',
+            anchor: anchorOf(align, rotate ? 'end' : 'middle'),
             baseline: topSide ? 'auto' : 'hanging',
             rotate: rotate || undefined,
             style
@@ -397,9 +406,20 @@ export function buildCartesian(input: SceneInput): ChartScene {
                 const pos = val(a, v);
                 const text = valueTickText[a]![k]!;
                 if (axis.labels?.show === false) return { pos, value: v };
-                if (horizontal) return { pos, value: v, label: { x: pos, y: plot.y + plot.height + 6, text, anchor: 'middle', baseline: 'hanging', style: axis.labels?.style } };
+                if (horizontal) return { pos, value: v, label: { x: pos, y: plot.y + plot.height + 6, text, anchor: anchorOf(axis.labels?.align, 'middle'), baseline: 'hanging', style: axis.labels?.style } };
                 const x = axis.opposite ? rightEdge + 8 : leftEdge - 8;
-                return { pos, value: v, label: { x: x + (axis.labels?.offsetX ?? 0), y: pos + (axis.labels?.offsetY ?? 0), text, anchor: axis.opposite ? 'start' : 'end', baseline: 'middle', style: axis.labels?.style } };
+                return {
+                    pos,
+                    value: v,
+                    label: {
+                        x: x + (axis.labels?.offsetX ?? 0),
+                        y: pos + (axis.labels?.offsetY ?? 0),
+                        text,
+                        anchor: anchorOf(axis.labels?.align, axis.opposite ? 'start' : 'end'),
+                        baseline: 'middle',
+                        style: axis.labels?.style
+                    }
+                };
             });
             if (horizontal) {
                 axes.push({ side: 'bottom', at: plot.y + plot.height, ticks, line: !!axis.axisBorder?.show, tickMarks: !!axis.axisTicks?.show, tickLength: 5, color: axis.axisBorder?.color, title: axis.title?.text ? { x: plot.x + plot.width / 2, y: input.height - 2, text: axis.title.text, anchor: 'middle', style: axis.title.style } : undefined });

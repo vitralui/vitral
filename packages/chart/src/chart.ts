@@ -16,12 +16,12 @@ import { buildChartScene } from './engine/build';
 import { seriesColor } from './engine/common';
 import { chartFormatter } from './engine/format';
 import { brushChannel, chartBus, groupChannel, releaseInset, type ChartGroupMessage } from './engine/group';
-import { chartKeyTarget, columnAt, datumAt, isFullWindow, normalizeWindow, panWindow, rectAt, zoomWindow } from './engine/interaction';
+import { chartKeyTarget, columnAt, datumAt, isFullWindow, leastSpan, normalizeWindow, panWindow, rectAt, zoomWindow } from './engine/interaction';
 import { cellTypes, resolveChartOptions, type ResolvedChartOptions } from './engine/options';
 import { sliceAt, spokeAt } from './engine/polar';
 import type { ChartScene, SceneDatum } from './engine/scene';
-import { normalizeSeries, type NormalizedSeries } from './engine/series';
-import type { ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
+import { normalizeSeries, type ChartPoint, type NormalizedSeries } from './engine/series';
+import type { ChartEasing, ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
 import { createOverlay, createTooltips } from '@vitral/controls';
 import { mergeAttrs, partResolver, pointerDrag, type PassThrough as ChartPassThrough } from '@vitral/dom';
 import { downloadChart, serializeSvg, svgToPng } from './dom/export';
@@ -294,6 +294,28 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     let lastHeightCss: string | undefined;
     const reducedMotion = cfg.reducedMotion ?? (isClient && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+    // The shape of a chart's movement, under the names ApexCharts made
+    // familiar. The same choice drives the stylesheet's keyframes and the
+    // interpolation between two sets of data, so a chart moves one way.
+    const EASING_CSS: Record<ChartEasing, string> = {
+        linear: 'linear',
+        easein: 'cubic-bezier(0.32, 0, 0.67, 0)',
+        easeout: 'cubic-bezier(0.33, 1, 0.68, 1)',
+        easeinout: 'cubic-bezier(0.65, 0, 0.35, 1)'
+    };
+    const ease = (t: number, kind: ChartEasing): number => {
+        switch (kind) {
+            case 'linear':
+                return t;
+            case 'easein':
+                return t * t * t;
+            case 'easeinout':
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            default:
+                return 1 - Math.pow(1 - t, 3);
+        }
+    };
+
     // ---- derived values
 
     const optionsOf = memo((options: ChartOptions | undefined, type: ChartType, width: number, _v: number) => resolveChartOptions(options, type, width));
@@ -315,11 +337,116 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         ) => buildChartScene({ type, series, hidden: hiddenSet, options, width, height, locale: loc, window: { x, y, autoScaleY: autoY }, measure, fonts: fontSizes })
     );
 
+    // ---- moving between two sets of data
+    //
+    // New numbers used to appear in place. The scene is worked out from the
+    // series on every render, so the way to move between two sets of data is
+    // to move the data: the values are interpolated and the whole scene is
+    // built again each frame, which morphs bars, lines, areas, slices and
+    // everything else without asking CSS to animate a path's `d`, which it
+    // cannot do in every browser.
+    //
+    // Only a change that keeps its shape is worth moving through. A series
+    // arriving or leaving, or a different set of categories, has no
+    // point-to-point correspondence to follow, so it is simply drawn.
+
+    let shownSeries: NormalizedSeries[] | null = null;
+    let tweenFrom: NormalizedSeries[] | null = null;
+    let tweenTo: NormalizedSeries[] | null = null;
+    /** Advanced only by the frame loop, so `derive` gives the same answer all frame. */
+    let tweenT = 1;
+    let tweenFrame = 0;
+    let tweenCache: { t: number; series: NormalizedSeries[] } | null = null;
+
+    const sameShape = (a: NormalizedSeries[], b: NormalizedSeries[]) =>
+        a.length === b.length &&
+        a.every((s, i) => {
+            const other = b[i]!;
+            return s.name === other.name && s.points.length === other.points.length && s.points.every((p, j) => String(p.x) === String(other.points[j]!.x));
+        });
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const lerpAt = (a: readonly number[] | undefined, b: readonly number[] | undefined, t: number) => (b ? b.map((v, i) => lerp(a?.[i] ?? v, v, t)) : undefined);
+
+    function blend(from: NormalizedSeries[], to: NormalizedSeries[], t: number): NormalizedSeries[] {
+        const e = ease(t, tweenEasing);
+        return to.map((series, i) => {
+            const before = from[i]!;
+            return {
+                ...series,
+                points: series.points.map((point, j) => {
+                    const was = before.points[j]!;
+                    // A value that was or becomes absent has nothing to move
+                    // through: it appears or goes at the end of the movement.
+                    const y = point.y === null || was.y === null ? point.y : lerp(was.y, point.y, e);
+                    return {
+                        ...point,
+                        y,
+                        z: point.z === undefined || was.z === undefined ? point.z : lerp(was.z, point.z, e),
+                        target: point.target === undefined || was.target === undefined ? point.target : lerp(was.target, point.target, e),
+                        range: lerpAt(was.range, point.range, e) as ChartPoint['range'],
+                        ohlc: lerpAt(was.ohlc, point.ohlc, e) as ChartPoint['ohlc'],
+                        box: lerpAt(was.box, point.box, e) as ChartPoint['box']
+                    };
+                })
+            };
+        });
+    }
+
+    function stepTween() {
+        tweenFrame = 0;
+        if (destroyed || !tweenFrom || !tweenTo) return;
+        tweenT = Math.min(1, (now() - tweenStartedAt) / Math.max(1, tweenDuration));
+        if (tweenT >= 1) {
+            tweenFrom = null;
+            tweenTo = null;
+            tweenCache = null;
+        } else if (typeof requestAnimationFrame === 'function') {
+            tweenFrame = requestAnimationFrame(stepTween);
+        }
+        render();
+    }
+
+    let tweenStartedAt = 0;
+    let tweenDuration = 0;
+    let tweenEasing: ChartEasing = 'easeout';
+    const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
+    function moveTo(next: NormalizedSeries[], chart: ChartSettings) {
+        const dynamic = chart.animations?.dynamicAnimation;
+        const on = chart.animations?.enabled !== false && dynamic?.enabled !== false && !reducedMotion && typeof requestAnimationFrame === 'function';
+        const previous = tweenFrom && tweenTo ? blend(tweenFrom, tweenTo, tweenT) : shownSeries;
+        shownSeries = next;
+        if (!on || !previous || !sameShape(previous, next)) {
+            tweenFrom = null;
+            tweenTo = null;
+            tweenCache = null;
+            tweenT = 1;
+            return;
+        }
+        tweenFrom = previous;
+        tweenTo = next;
+        tweenT = 0;
+        tweenCache = null;
+        tweenStartedAt = now();
+        tweenDuration = dynamic?.speed ?? chart.animations?.speed ?? 300;
+        tweenEasing = chart.animations?.easing ?? 'easeout';
+        if (!tweenFrame) tweenFrame = requestAnimationFrame(stepTween);
+    }
+
+    /** The series as they should be drawn now: the real ones, or a point on the way to them. */
+    function drawnSeries(series: NormalizedSeries[], chart: ChartSettings): NormalizedSeries[] {
+        if (series !== shownSeries) moveTo(series, chart);
+        if (!tweenFrom || !tweenTo) return series;
+        if (tweenCache?.t !== tweenT) tweenCache = { t: tweenT, series: blend(tweenFrom, tweenTo, tweenT) };
+        return tweenCache.series;
+    }
+
     function derive() {
         const type: ChartType = cfg.type ?? cfg.options?.chart?.type ?? 'line';
         const options = optionsOf(cfg.options, type, rootWidth || Infinity, version);
         const chart: ChartSettings = options.chart ?? {};
-        const series = seriesOf(cfg.series, type, options.labels, version);
+        const series = drawnSeries(seriesOf(cfg.series, type, options.labels, version), chart);
         const signature = series.map((x) => `${x.name}:${x.hidden}`).join('|');
         if (signature !== hiddenSignature) {
             hiddenSignature = signature;
@@ -442,7 +569,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     }
 
     function onLegendHighlight(index: number) {
-        const next = derive().options.legend?.onItemHover?.highlightDataSeries === false ? -1 : index;
+        const next = derive().options.legend?.onItemHover?.highlightDataSeries ? index : -1;
         if (next === legendFocus) return;
         legendFocus = next;
         schedule();
@@ -455,7 +582,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     function setWindow(window: [number, number] | null, opts: { publish?: boolean; silent?: boolean } = {}) {
         const d = derive();
         const full = d.scene.xDomain.full;
-        const next = window ? normalizeWindow(window, full, 0.005) : null;
+        const next = window ? normalizeWindow(window, full, leastSpan(full, d.scene.xDomain.kind)) : null;
         const value = next && !isFullWindow(next, full) ? next : null;
         const same = value?.[0] === xWindow?.[0] && value?.[1] === xWindow?.[1];
         xWindow = value;
@@ -482,8 +609,8 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     }
 
     function zoomBy(factor: number, anchor?: number) {
-        const full = derive().scene.xDomain.full;
-        setWindow(zoomWindow(xWindow ?? full, full, factor, anchor));
+        const { full, kind } = derive().scene.xDomain;
+        setWindow(zoomWindow(xWindow ?? full, full, factor, anchor, leastSpan(full, kind)));
     }
 
     const resetZoom = () => setWindow(null);
@@ -491,7 +618,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     function setBrush(window: [number, number] | null, publish = true) {
         const d = derive();
         const full = d.scene.xDomain.full;
-        const next = window ? normalizeWindow(window, full, 0.005) : null;
+        const next = window ? normalizeWindow(window, full, leastSpan(full, d.scene.xDomain.kind)) : null;
         brushWindow = next;
         schedule();
         if (!publish || !d.chart.brush?.target) return;
@@ -1030,7 +1157,10 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             hoverSeries: focusDatum?.series ?? hover?.series ?? -1,
             hoverIndex: focusDatum?.index ?? hover?.index ?? -1,
             selected,
-            animated
+            animated,
+            // Series entering one after another: the delay each one waits, or 0
+            // when they are all to arrive together.
+            stagger: animated && chart.animations?.animateGradually?.enabled ? (chart.animations.animateGradually.delay ?? 150) : 0
         };
         const ctx: ViewContext = { part, id, scene: sc, state };
 
@@ -1045,8 +1175,40 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         const showLegend = !!legend?.show && !d.sparkline && d.type !== 'heatmap' && series.some((x) => x.name) && (series.length > 1 || !!legend.showForSingleSeries || d.pieLike);
         const legendPosition = legend?.position ?? 'bottom';
         const legendFormat = chartFormatter(legend?.formatter, '{series}', loc);
+        // The figure a legend entry can carry. A hidden series keeps its own
+        // number: the entry is what brings it back, so blanking it would take
+        // away the one reason to press it.
+        const legendValue = legend?.value?.show ? chartFormatter(legend.value.formatter, '{value}', loc) : null;
+        const legendSource = legend?.value?.source ?? 'total';
+        const figureOf = (s: NormalizedSeries): number | null => {
+            const values = s.points.map((point) => point.y).filter((y): y is number => y !== null && Number.isFinite(y));
+            if (!values.length) return null;
+            switch (legendSource) {
+                case 'last':
+                    return values[values.length - 1]!;
+                case 'first':
+                    return values[0]!;
+                case 'min':
+                    return Math.min(...values);
+                case 'max':
+                    return Math.max(...values);
+                case 'average':
+                    return values.reduce((sum, v) => sum + v, 0) / values.length;
+                default:
+                    return values.reduce((sum, v) => sum + v, 0);
+            }
+        };
         const entries: LegendEntry[] = showLegend
-            ? series.map((x) => ({ series: x.index, name: legendFormat(x.name, { seriesName: x.name, seriesIndex: x.index }), color: seriesColor(options, x, x.index, series.length), hidden: hidden.has(x.index) }))
+            ? series.map((x) => {
+                  const figure = legendValue ? figureOf(x) : null;
+                  return {
+                      series: x.index,
+                      name: legendFormat(x.name, { seriesName: x.name, seriesIndex: x.index }),
+                      color: seriesColor(options, x, x.index, series.length),
+                      hidden: hidden.has(x.index),
+                      value: legendValue && figure !== null ? legendValue(figure, { seriesName: x.name, seriesIndex: x.index }) : undefined
+                  };
+              })
             : [];
         const legendNode = (key: string) =>
             legendView(
@@ -1080,13 +1242,21 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             const { plot } = sc;
             const lineStyle = { stroke: cross?.stroke?.color, strokeWidth: cross?.stroke?.width, strokeDasharray: cross?.stroke?.dashArray === undefined ? undefined : String(cross.stroke.dashArray) };
             const front = cross?.position === 'front';
+            // Trimmed to the plot: a column at either end has half its band
+            // outside, and a single category on show has a band as wide as the
+            // plot, so an untrimmed rectangle leaves the chart altogether.
+            const inPlot = (r: { x: number; y: number; width: number; height: number }): Props => {
+                const x = Math.max(r.x, plot.x);
+                const y = Math.max(r.y, plot.y);
+                return { x: round(x), y: round(y), width: round(Math.max(0, Math.min(r.x + r.width, plot.x + plot.width) - x)), height: round(Math.max(0, Math.min(r.y + r.height, plot.y + plot.height) - y)) };
+            };
             if (sc.horizontal)
                 crosshair = band
-                    ? { band: { x: plot.x, y: col.pos - col.half, width: plot.width, height: col.half * 2 }, front }
+                    ? { band: inPlot({ x: plot.x, y: col.pos - col.half, width: plot.width, height: col.half * 2 }), front }
                     : { line: { x1: round(plot.x), x2: round(plot.x + plot.width), y1: round(col.pos), y2: round(col.pos), style: lineStyle }, front };
             else
                 crosshair = band
-                    ? { band: { x: col.pos - col.half, y: plot.y, width: col.half * 2, height: plot.height }, front }
+                    ? { band: inPlot({ x: col.pos - col.half, y: plot.y, width: col.half * 2, height: plot.height }), front }
                     : { line: { x1: round(col.pos), x2: round(col.pos), y1: round(plot.y), y2: round(plot.y + plot.height), style: lineStyle }, front };
         }
         const crosshairNodes = (key: string): Child =>
@@ -1151,6 +1321,15 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         else if (sc.radar) plotNodes = radarView(ctx);
         else plotNodes = marksView(ctx);
 
+        // A point sitting on the first or last category is half outside the plot
+        // by design, so the clip is let out by the widest marker rather than by
+        // a fixed six pixels that sliced the bigger ones in half.
+        let plotBleed = 6;
+        for (const m of sc.marks) {
+            const markers = m.kind === 'line' || m.kind === 'points' ? m.markers : [];
+            for (const marker of markers) plotBleed = Math.max(plotBleed, marker.size / 2 + marker.strokeWidth + 2);
+        }
+
         const svg = s(
             'svg',
             mergeAttrs({ key: 'svg', role: 'img', 'aria-labelledby': summaryId }, part('svg'), {
@@ -1174,7 +1353,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             s(
                 'defs',
                 { key: 'defs' },
-                s('clipPath', { id: `${id}-clip` }, s('rect', { x: round(sc.plot.x - 6), y: round(sc.plot.y - 6), width: round(sc.plot.width + 12), height: round(sc.plot.height + 12) }))
+                s('clipPath', { id: `${id}-clip` }, s('rect', { x: round(sc.plot.x - plotBleed), y: round(sc.plot.y - plotBleed), width: round(sc.plot.width + plotBleed * 2), height: round(sc.plot.height + plotBleed * 2) }))
             ),
             sc.title ? s('text', { key: 'chart-title', ...part('title'), ...textAttrs(sc.title) }, sc.title.text) : null,
             sc.subtitle ? s('text', { key: 'chart-subtitle', ...part('subtitle'), ...textAttrs(sc.subtitle) }, sc.subtitle.text) : null,
@@ -1264,7 +1443,8 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
                     background: chart.background,
                     fontFamily: chart.fontFamily,
                     color: chart.foreColor,
-                    '--vt-chart-animation-duration': chart.animations?.speed !== undefined ? `${chart.animations.speed}ms` : undefined
+                    '--vt-chart-animation-duration': chart.animations?.speed !== undefined ? `${chart.animations.speed}ms` : undefined,
+                    '--vt-chart-animation-easing': chart.animations?.easing ? EASING_CSS[chart.animations.easing] : undefined
                 }
             })
         );
@@ -1418,6 +1598,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             queued = false;
             observer?.disconnect();
             if (frame) cancelAnimationFrame(frame);
+            if (tweenFrame) cancelAnimationFrame(tweenFrame);
             svgEl?.removeEventListener('wheel', onWheel);
             subscriptions.splice(0).forEach((off) => off());
             const chart = derive().chart;

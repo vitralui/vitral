@@ -22,6 +22,76 @@ import salesChartSource from './vanilla/salesChart.ts?raw';
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const quiet = { chart: { toolbar: { show: false } } } satisfies ChartOptions;
 
+// ---- new numbers, arriving
+const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+let reading = 0;
+const quarterly = [
+    [
+        { name: 'Europe', data: [44, 55, 41, 67] },
+        { name: 'Americas', data: [13, 23, 20, 8] }
+    ],
+    [
+        { name: 'Europe', data: [61, 38, 72, 49] },
+        { name: 'Americas', data: [28, 45, 12, 33] }
+    ],
+    [
+        { name: 'Europe', data: [30, 70, 55, 35] },
+        { name: 'Americas', data: [40, 18, 38, 22] }
+    ]
+] satisfies ChartSeries[];
+const moving = ref<ChartSeries>(quarterly[0]!);
+const nextReading = () => {
+    reading = (reading + 1) % quarterly.length;
+    moving.value = quarterly[reading]!;
+};
+const movingOptions: ChartOptions = {
+    ...quiet,
+    xaxis: { categories: quarters },
+    plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+    legend: { position: 'top', horizontalAlign: 'left', value: { show: true } }
+};
+
+// ---- the shape and the order of the movement
+const easings = ['linear', 'easein', 'easeout', 'easeinout'] as const;
+const easing = ref<(typeof easings)[number]>('easeout');
+const gradually = ref(true);
+const replay = ref(0);
+const animationOptions = computed<ChartOptions>(() => ({
+    ...quiet,
+    xaxis: { categories: quarters },
+    plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+    legend: { position: 'top', horizontalAlign: 'left' },
+    chart: { ...quiet.chart, animations: { enabled: true, speed: 900, easing: easing.value, animateGradually: { enabled: gradually.value, delay: 220 } } }
+}));
+
+// ---- the key as a readout
+const legendValueOptions: ChartOptions = {
+    ...quiet,
+    xaxis: { categories: months },
+    stroke: { curve: 'smooth', width: 2 },
+    legend: { position: 'top', horizontalAlign: 'left', value: { show: true, source: 'last', formatter: '{value}' } }
+};
+
+// ---- bands behind the line
+const bandedOptions: ChartOptions = {
+    ...quiet,
+    xaxis: { categories: months },
+    stroke: { curve: 'smooth', width: 3 },
+    legend: { show: false },
+    annotations: {
+        position: 'back',
+        yaxis: [
+            { y: 0, y2: 400, fillColor: 'var(--vt-chart-3)', opacity: 0.1, label: { text: 'Quiet', position: 'left' } },
+            { y: 700, y2: 1000, fillColor: 'var(--vt-chart-6)', opacity: 0.1, label: { text: 'Busy', position: 'left' } }
+        ],
+        xaxis: [{ x: 'Jul', x2: 'Sep', fillColor: 'var(--vt-chart-5)', opacity: 0.12, label: { text: 'Campaign' } }]
+    }
+};
+
+// ---- one readout or the whole column
+const sharedTooltip: ChartOptions = { ...quiet, xaxis: { categories: quarters }, legend: { position: 'top', horizontalAlign: 'left' } };
+const singleTooltip: ChartOptions = { ...sharedTooltip, tooltip: { shared: false, intersect: true } };
+
 // ---- lines and areas
 const traffic: ChartSeries = [
     { name: 'Visitors', data: [310, 402, 385, 520, 610, 580, 720, 690, 810, 760, 905, 980] },
@@ -254,17 +324,57 @@ const candles = Array.from({ length: 45 }, (_, i) => {
     const low = Math.min(open, close) - Math.round(walk() * 300) / 100;
     return { x: start + i * 86400000, y: [open, high, low, close], volume: Math.round(2000 + walk() * 6000) };
 });
-const price: ChartSeries = [{ name: 'VTRL', data: candles.map((c) => ({ x: c.x, y: c.y })) }];
-const volume: ChartSeries = [{ name: 'Volume', data: candles.map((c) => ({ x: c.x, y: c.volume })) }];
-const priceOptions: ChartOptions = {
-    chart: { group: 'market', id: 'price', height: 260 },
+// The last candle is the one still being traded: a tick moves its close, and
+// its high and low only ever widen. That is what makes the session lines worth
+// drawing — they are read off the session, so they move as it does.
+const live = ref(false);
+const price = ref<ChartSeries>([{ name: 'VTRL', data: candles.map((c) => ({ x: c.x, y: c.y })) }]);
+const volume = ref<ChartSeries>([{ name: 'Volume', data: candles.map((c) => ({ x: c.x, y: c.volume })) }]);
+const session = ref({ prevClose: candles[candles.length - 2]!.y[3], high: candles[candles.length - 1]!.y[1], low: candles[candles.length - 2]!.y[3] });
+
+const tickWalk = seeded(23);
+let ticker = 0;
+
+function tick() {
+    const bars = candles.map((c) => ({ ...c, y: [...c.y] as [number, number, number, number] }));
+    const last = bars[bars.length - 1]!;
+    const previous = bars[bars.length - 2]!;
+    const moved = Math.round((last.y[3] + (tickWalk() - 0.5) * 3) * 100) / 100;
+    last.y[3] = moved;
+    last.y[1] = Math.max(last.y[1], moved);
+    last.y[2] = Math.min(last.y[2], moved);
+    last.volume = Math.round(last.volume + tickWalk() * 400);
+    candles[candles.length - 1] = last;
+    price.value = [{ name: 'VTRL', data: bars.map((c) => ({ x: c.x, y: c.y })) }];
+    volume.value = [{ name: 'Volume', data: bars.map((c) => ({ x: c.x, y: c.volume })) }];
+    session.value = { prevClose: previous.y[3], high: last.y[1], low: last.y[2] };
+}
+
+function toggleLive() {
+    live.value = !live.value;
+    if (live.value) ticker = window.setInterval(tick, 1200);
+    else window.clearInterval(ticker);
+}
+onBeforeUnmount(() => window.clearInterval(ticker));
+
+const money = (n: number) => `$${n.toFixed(2)}`;
+const priceOptions = computed<ChartOptions>(() => ({
+    chart: { group: 'market', id: 'price', height: 260, animations: { dynamicAnimation: { speed: 900 } } },
     xaxis: { type: 'datetime', labels: { show: false }, axisTicks: { show: false } },
     yaxis: { labels: { formatter: '{value|currency:USD}' }, forceNiceScale: true },
     tooltip: { x: { format: 'EEE, d MMM yyyy' } },
-    legend: { show: false }
-};
+    legend: { show: false },
+    // Three lines read straight off the session, so they travel with it.
+    annotations: {
+        yaxis: [
+            { y: session.value.prevClose, borderColor: 'var(--vt-chart-8)', strokeDashArray: 4, label: { text: `Prev close ${money(session.value.prevClose)}`, position: 'left' } },
+            { y: session.value.high, borderColor: 'var(--vt-chart-3)', strokeDashArray: 0, label: { text: `Session high ${money(session.value.high)}` } },
+            { y: session.value.low, borderColor: 'var(--vt-chart-6)', strokeDashArray: 0, label: { text: `Session low ${money(session.value.low)}`, position: 'left' } }
+        ]
+    }
+}));
 const volumeOptions: ChartOptions = {
-    chart: { group: 'market', id: 'volume', height: 140, toolbar: { show: false } },
+    chart: { group: 'market', id: 'volume', height: 140, toolbar: { show: false }, animations: { dynamicAnimation: { speed: 900 } } },
     xaxis: { type: 'datetime' },
     yaxis: { labels: { formatter: '{value|compact}' }, tickAmount: 2 },
     colors: ['var(--vt-chart-8)'],
@@ -447,8 +557,15 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
         <Chart type="calendar" :series="commits" :options="calendarOptions" height="200" style="width: 100%" />
     </DemoSection>
 
-    <DemoSection title="Synced charts" description="A price and its volume in one group: they share the crosshair, the tooltip and the zoom. Drag across either to zoom both; Shift-drag pans.">
+    <DemoSection
+        title="Synced charts, trading"
+        description="A price and its volume in one group: they share the crosshair, the tooltip and the zoom. Drag across either to zoom both; Shift-drag pans. Start the feed and the last candle becomes the one still being traded — its close moves on every tick, its high and low only ever widen — and the three session lines, read off that candle, move with it. Because the data is interpolated rather than replaced, a tick is a movement instead of a jump."
+    >
         <div class="demo-stack" style="width: 100%; gap: 0.25rem">
+            <div style="display: flex; align-items: center; gap: 0.75rem">
+                <button type="button" class="copy-btn" :aria-pressed="live" @click="toggleLive">{{ live ? 'Stop the feed' : 'Start the feed' }}</button>
+                <span class="demo-hint">Last {{ money(session.high) }} high · {{ money(session.low) }} low · prev close {{ money(session.prevClose) }}</span>
+            </div>
             <Chart type="candlestick" :series="price" :options="priceOptions" />
             <Chart type="bar" :series="volume" :options="volumeOptions" />
         </div>
@@ -507,6 +624,56 @@ function pickVanillaKind(kind: (typeof vanillaKinds)[number]) {
                 </template>
             </Chart>
             <Chart type="bar" :series="[]" height="240" />
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="New numbers arrive by moving"
+        description="Press the button. The bars travel to their new heights instead of appearing at them, so it is visible which way each one went — the values are interpolated and the picture is redrawn each frame, which is why lines, areas and slices move too. `chart.animations.dynamicAnimation` sets the pace or turns it off, and a change that adds or removes a series simply draws, since there is nothing to move through."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <div><button type="button" class="copy-btn" @click="nextReading">New numbers</button></div>
+            <Chart type="bar" :series="moving" :options="movingOptions" height="260" style="width: 100%" />
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="How a chart moves"
+        description="`chart.animations` sets the shape of the movement and whether the series arrive together or one behind the other. The same easing drives the first draw and every change after it, so a chart moves one way. None of it runs for a reader whose system asks for reduced motion."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+                <div style="display: flex; gap: 0.5rem" role="group" aria-label="Easing">
+                    <button v-for="e in easings" :key="e" type="button" class="copy-btn" :aria-pressed="easing === e" @click="((easing = e), replay++)">{{ e }}</button>
+                </div>
+                <button type="button" class="copy-btn" :aria-pressed="gradually" @click="((gradually = !gradually), replay++)">one at a time</button>
+                <button type="button" class="copy-btn" @click="replay++">replay</button>
+            </div>
+            <Chart :key="replay" type="bar" :series="quarterly[0]!" :options="animationOptions" height="240" style="width: 100%" />
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="The key as a readout"
+        description="`legend.value` puts a figure beside each series name — its total, where it ended, its highest or lowest — so the question usually asked next to a legend is answered in it. This one shows the last reading of each line."
+    >
+        <Chart type="line" :series="traffic" :options="legendValueOptions" height="260" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection
+        title="Bands behind the marks"
+        description="Annotations with a `fillColor` shade a range rather than draw a line: two y bands naming what counts as quiet and busy, and an x band over the months a campaign ran. `position: 'back'` puts them under the data, where a background belongs."
+    >
+        <Chart type="line" :series="[traffic[0]!]" :options="bandedOptions" height="260" style="width: 100%" />
+    </DemoSection>
+
+    <DemoSection
+        title="The whole column, or just what is under the pointer"
+        description="On the left the tooltip is shared: it lists every series at the category, and picks out the one being pointed at so the panel answers both “how do these compare” and “what am I on”. On the right `tooltip.intersect` says one readout only, and it appears when the pointer is actually over a bar."
+    >
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; width: 100%">
+            <Chart type="bar" :series="quarterly[0]!" :options="sharedTooltip" height="240" />
+            <Chart type="bar" :series="quarterly[0]!" :options="singleTooltip" height="240" />
         </div>
     </DemoSection>
 

@@ -89,6 +89,105 @@ describe('createChart', () => {
         expect(document.querySelector('.vt-chart-tooltip')).toBeNull();
     });
 
+    it('never draws outside its own box, however far the zoom goes', async () => {
+        const { chart, svg } = mount({ type: 'bar' });
+        // A window narrower than one category made the band that category
+        // occupies wider than the plot it sits in — sixteen times wider, at the
+        // old floor of half a percent — and the band was drawn unclipped, so it
+        // painted straight across whatever the page had put beside the chart.
+        chart.zoomX(0.9, 1.1);
+        await settle();
+        const scene = chart.scene();
+        const [from, to] = scene.xDomain.view;
+        expect(to - from).toBeGreaterThanOrEqual(1);
+
+        const middle = scene.plot.x + scene.plot.width / 2;
+        svg().dispatchEvent(pointer('pointermove', middle, scene.plot.y + 20));
+        await tick();
+        const band = svg().querySelector('.vt-chart-crosshair-band')!;
+        const num = (name: string) => Number(band.getAttribute(name));
+        expect(num('width')).toBeGreaterThan(0);
+        expect(num('x')).toBeGreaterThanOrEqual(Math.round(scene.plot.x) - 1);
+        expect(num('x') + num('width')).toBeLessThanOrEqual(Math.round(scene.plot.x + scene.plot.width) + 1);
+        expect(num('y') + num('height')).toBeLessThanOrEqual(Math.round(scene.plot.y + scene.plot.height) + 1);
+    });
+
+    it('picks out the series under the pointer inside the shared tooltip', async () => {
+        const { chart, svg } = mount({ type: 'bar' });
+        const scene = chart.scene();
+        // Over Feb's Costs bar: the panel still lists the whole column, so the
+        // two can be compared, but says which of them is being pointed at.
+        const bar = scene.data.find((d) => d.series === 1 && d.column === 1)!;
+        svg().dispatchEvent(pointer('pointermove', bar.x, bar.y + 4));
+        await tick();
+        const rows = [...document.querySelectorAll('.vt-chart-tooltip-row')];
+        expect(rows.map((r) => r.textContent)).toEqual(['Sales7', 'Costs4']);
+        expect(rows[0]!.classList.contains('vt-chart-tooltip-row-muted')).toBe(true);
+        expect(rows[1]!.classList.contains('vt-chart-tooltip-row-active')).toBe(true);
+    });
+
+    it('shows one series alone when the tooltip is asked to intersect', async () => {
+        const { chart, svg } = mount({ type: 'bar', options: { ...quarter, tooltip: { shared: false, intersect: true } } });
+        const scene = chart.scene();
+        const bar = scene.data.find((d) => d.series === 1 && d.column === 1)!;
+        svg().dispatchEvent(pointer('pointermove', bar.x, bar.y + 4));
+        await tick();
+        expect([...document.querySelectorAll('.vt-chart-tooltip-row')].map((r) => r.textContent)).toEqual(['Costs4']);
+        // Off every bar, there is nothing to intersect and so nothing to say.
+        svg().dispatchEvent(pointer('pointermove', scene.plot.x + 2, scene.plot.y + 2));
+        await tick();
+        expect(document.querySelector('.vt-chart-tooltip')).toBeNull();
+    });
+
+    it('moves between two sets of data instead of jumping to the new one', async () => {
+        const moving = { ...quarter, chart: { animations: { enabled: true, dynamicAnimation: { speed: 80 } } } };
+        const { chart } = mount({ type: 'bar', options: moving, reducedMotion: false });
+        const valueAt = () => chart.scene().data.find((d) => d.series === 0 && d.column === 2)!.value;
+        expect(valueAt()).toBe(12);
+
+        chart.update({ series: [{ name: 'Sales', data: [3, 7, 40] }, { name: 'Costs', data: [2, 4, 5] }] });
+        // The movement starts where the old data was, so the bar is still its
+        // old height on the frame the new numbers arrive.
+        expect(valueAt()).toBe(12);
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        expect(valueAt()).toBe(40);
+    });
+
+    it('takes the shape and the order of its movement from the options', async () => {
+        const { el, svg } = mount({
+            type: 'bar',
+            reducedMotion: false,
+            options: { ...quarter, chart: { animations: { enabled: true, speed: 800, easing: 'easeinout', animateGradually: { enabled: true, delay: 120 } } } }
+        });
+        const root = el as HTMLElement;
+        expect(root.style.getPropertyValue('--vt-chart-animation-duration')).toBe('800ms');
+        expect(root.style.getPropertyValue('--vt-chart-animation-easing')).toBe('cubic-bezier(0.65, 0, 0.35, 1)');
+        // Each series waits behind the one before it, so a stack is read in order.
+        expect([...svg().querySelectorAll<SVGElement>('.vt-chart-series')].map((g) => g.style.animationDelay)).toEqual(['0ms', '120ms']);
+
+        // Left alone, they all arrive together.
+        document.body.innerHTML = '';
+        const together = mount({ type: 'bar', reducedMotion: false, options: { ...quarter, chart: { animations: { enabled: true } } } });
+        expect([...together.svg().querySelectorAll<SVGElement>('.vt-chart-series')].every((g) => !g.style.animationDelay)).toBe(true);
+    });
+
+    it('draws new data at once when there is nothing to move through', async () => {
+        const moving = { ...quarter, chart: { animations: { enabled: true, dynamicAnimation: { speed: 80 } } } };
+        const { chart } = mount({ type: 'bar', options: moving, reducedMotion: false });
+        // A series arriving has no point-to-point correspondence to follow.
+        chart.update({ series: [...sales, { name: 'Refunds', data: [1, 1, 1] }] });
+        expect(chart.scene().visibleSeries).toHaveLength(3);
+        expect(chart.scene().data.find((d) => d.series === 2 && d.column === 0)!.value).toBe(1);
+    });
+
+    it('leaves the data where it is told not to move', async () => {
+        const still = { ...quarter, chart: { animations: { enabled: true, dynamicAnimation: { enabled: false } } } };
+        const { chart } = mount({ type: 'bar', options: still, reducedMotion: false });
+        chart.update({ series: [{ name: 'Sales', data: [3, 7, 40] }, { name: 'Costs', data: [2, 4, 5] }] });
+        expect(chart.scene().data.find((d) => d.series === 0 && d.column === 2)!.value).toBe(40);
+    });
+
     it('keeps its elements while the pointer moves, so nothing replays or loses focus', async () => {
         const { chart, svg } = mount({ options: { ...quarter, chart: { animations: { enabled: true } } } });
         const lines = [...svg().querySelectorAll('.vt-chart-series')];
@@ -132,8 +231,119 @@ describe('createChart', () => {
         expect(click).toHaveBeenCalledTimes(1);
     });
 
+    const highlighting = { ...quarter, legend: { onItemHover: { highlightDataSeries: true } } };
+
+    it('can carry each series figure in the legend, so the key doubles as a readout', async () => {
+        // The entry's text is now the name and the figure, so it is found by its name alone.
+        const entry = (name: string) => [...document.querySelectorAll<HTMLButtonElement>('.vt-chart-legend-item')].find((b) => b.querySelector('.vt-chart-legend-text')?.textContent === name)!;
+        mount({ options: { ...quarter, legend: { value: { show: true } } } });
+        // The total, by default: Sales 3 + 7 + 12, Costs 2 + 4 + 5.
+        expect([...document.querySelectorAll('.vt-chart-legend-value')].map((e) => e.textContent)).toEqual(['22', '11']);
+
+        document.body.innerHTML = '';
+        mount({ options: { ...quarter, legend: { value: { show: true, source: 'max', formatter: 'peak {value}' } } } });
+        expect([...document.querySelectorAll('.vt-chart-legend-value')].map((e) => e.textContent)).toEqual(['peak 12', 'peak 5']);
+
+        // A hidden series keeps its figure: the entry is what brings it back.
+        document.body.innerHTML = '';
+        mount({ options: { ...quarter, legend: { value: { show: true } } } });
+        entry('Sales').click();
+        await settle();
+        expect(entry('Sales').getAttribute('aria-pressed')).toBe('false');
+        expect(entry('Sales').querySelector('.vt-chart-legend-value')?.textContent).toBe('22');
+    });
+
+    it('answers its own width, not the window\'s, and re-reads it when that width changes', async () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        const width = (px: number) => Object.defineProperty(host, 'clientWidth', { value: px, configurable: true });
+        width(900);
+        const responsive = {
+            ...quarter,
+            legend: { position: 'right' as const },
+            responsive: [
+                { breakpoint: 700, options: { legend: { position: 'bottom' as const } } },
+                { breakpoint: 420, options: { legend: { show: false } } }
+            ]
+        };
+        const { chart, el } = mount({ options: responsive }, host);
+        await settle();
+        expect(el.querySelector('.vt-chart-legend-right')).not.toBeNull();
+
+        // A chart in a narrow column is narrow whatever the window is doing, so
+        // the breakpoints are read against the element.
+        width(600);
+        chart.resize();
+        await settle();
+        expect(el.querySelector('.vt-chart-legend-bottom')).not.toBeNull();
+
+        // Narrower still, and the narrowest entry wins over the one above it.
+        width(380);
+        chart.resize();
+        await settle();
+        expect(el.querySelector('.vt-chart-legend')).toBeNull();
+    });
+
+    it('lets each axis say which end of its labels sits at the tick', () => {
+        const { svg } = mount({
+            type: 'bar',
+            options: { ...quarter, xaxis: { ...quarter.xaxis, labels: { align: 'left' } }, yaxis: [{ labels: { align: 'left' } }] }
+        });
+        const anchors = (side: string) => [...svg().querySelectorAll(`.vt-chart-axis-${side} .vt-chart-axis-label`)].map((t) => t.getAttribute('text-anchor'));
+        expect(anchors('bottom')).toEqual(['start', 'start', 'start']);
+        expect(anchors('left').every((a) => a === 'start')).toBe(true);
+
+        // Unset, each axis keeps the alignment that reads best where it is.
+        document.body.innerHTML = '';
+        const plain = mount({ type: 'bar' });
+        const plainAnchors = (side: string) => [...plain.svg().querySelectorAll(`.vt-chart-axis-${side} .vt-chart-axis-label`)].map((t) => t.getAttribute('text-anchor'));
+        expect(plainAnchors('bottom')).toEqual(['middle', 'middle', 'middle']);
+        expect(plainAnchors('left').every((a) => a === 'end')).toBe(true);
+    });
+
+    it('makes the legend do one thing: it toggles, and only dims when asked to', async () => {
+        const plain = mount();
+        plain.button('Sales').dispatchEvent(new PointerEvent('pointerenter', { pointerId: 1, pointerType: 'mouse' }));
+        await tick();
+        // Two answers to one entry — dimming under the pointer and toggling
+        // under the press — left the reader working out which had happened.
+        expect(plain.button('Costs').classList.contains('vt-chart-dim')).toBe(false);
+        plain.button('Sales').click();
+        await settle();
+        expect(plain.button('Sales').getAttribute('aria-pressed')).toBe('false');
+
+        plain.chart.destroy();
+        document.body.innerHTML = '';
+        const dimming = mount({ options: highlighting });
+        dimming.button('Sales').dispatchEvent(new PointerEvent('pointerenter', { pointerId: 1, pointerType: 'mouse' }));
+        await tick();
+        expect(dimming.button('Costs').classList.contains('vt-chart-dim')).toBe(true);
+    });
+
+    it('lets a finger toggle a series without leaving the legend half lit', async () => {
+        const { chart, button } = mount({ options: highlighting });
+        const legendClick = vi.fn();
+        chart.on('legendClick', legendClick);
+        const sales = button('Sales');
+        // A tap sends mouse events a mouse never would: an enter with no leave
+        // to answer it, and focus on the button it just pressed. Taken as
+        // hover, they dimmed every other series and stayed that way.
+        const touch = (type: string) => sales.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 2, pointerType: 'touch' }));
+        touch('pointerenter');
+        touch('pointerdown');
+        sales.focus();
+        touch('pointerup');
+        sales.click();
+        await settle();
+        expect(legendClick).toHaveBeenCalledTimes(1);
+        expect(button('Sales').getAttribute('aria-pressed')).toBe('false');
+        expect(button('Costs').classList.contains('vt-chart-dim')).toBe(false);
+        // Hidden is a hollow swatch, not a name struck through.
+        expect(button('Sales').querySelector<HTMLElement>('.vt-chart-legend-marker')!.style.background).toBe('transparent');
+    });
+
     it('toggles series from the legend from the keyboard, keeping focus, but never the last one', async () => {
-        const { chart, button, svg, status } = mount();
+        const { chart, button, svg, status } = mount({ options: highlighting });
         const legendClick = vi.fn();
         chart.on('legendClick', legendClick);
         const salesButton = button('Sales');

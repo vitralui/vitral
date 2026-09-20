@@ -65,7 +65,7 @@ export const chartStyle = defineStyle({
         noData: 'vt-chart-no-data',
         tooltip: 'vt-chart-tooltip',
         tooltipTitle: 'vt-chart-tooltip-title',
-        tooltipRow: 'vt-chart-tooltip-row',
+        tooltipRow: (s: { active?: boolean; muted?: boolean }) => ['vt-chart-tooltip-row', { 'vt-chart-tooltip-row-active': s.active, 'vt-chart-tooltip-row-muted': s.muted }],
         tooltipSwatch: 'vt-chart-tooltip-swatch',
         tooltipName: 'vt-chart-tooltip-name',
         tooltipValue: 'vt-chart-tooltip-value',
@@ -76,6 +76,7 @@ export const chartStyle = defineStyle({
         ],
         legendMarker: (s: { shape?: string }) => ['vt-chart-legend-marker', s.shape && `vt-chart-legend-marker-${s.shape}`],
         legendText: 'vt-chart-legend-text',
+        legendValue: 'vt-chart-legend-value',
         status: 'vt-chart-status',
         table: 'vt-chart-table'
     }

@@ -77,6 +77,15 @@ export interface ChartAxisLabels {
     show?: boolean;
     /** A template: `'{value|compact}'`, `'{value|date:dd MMM}'`… */
     formatter?: ChartFormatter;
+    /**
+     * Which end of the label sits at the tick. Unset, each axis keeps the
+     * alignment that reads best where it is: a value axis' labels end at the
+     * plot (and start at it when the axis is `opposite`), a category label is
+     * centred under its tick. Setting it overrides that — a left-aligned
+     * column of y labels lines its numbers up on the digit rather than on the
+     * decimal point, which is what a table of figures beside a chart wants.
+     */
+    align?: 'left' | 'center' | 'right';
     /** Degrees; negative leans up to the left. */
     rotate?: number;
     hideOverlappingLabels?: boolean;
@@ -193,6 +202,12 @@ export interface ChartDataLabels {
     background?: { enabled?: boolean; color?: string; borderRadius?: number; padding?: number };
 }
 
+/** The shape of a chart's movement, in the names ApexCharts made familiar. */
+export type ChartEasing = 'linear' | 'easein' | 'easeout' | 'easeinout';
+
+/** Which one number stands for a whole series in the legend. */
+export type ChartLegendValueSource = 'total' | 'last' | 'first' | 'min' | 'max' | 'average';
+
 export interface ChartLegend {
     show?: boolean;
     showForSingleSeries?: boolean;
@@ -202,7 +217,21 @@ export interface ChartLegend {
     formatter?: ChartFormatter;
     fontSize?: string;
     markers?: { size?: number; shape?: ChartMarkerShape };
+    /**
+     * A figure beside each series name, so the key doubles as a readout: the
+     * series' total, where it ended, or its range — the question a legend is
+     * usually read next to. `source` picks which number; `formatter` dresses
+     * it, and is given the number and the series it belongs to.
+     */
+    value?: { show?: boolean; source?: ChartLegendValueSource; formatter?: ChartFormatter };
+    /** Pressing an entry shows and hides its series. On by default. */
     onItemClick?: { toggleDataSeries?: boolean };
+    /**
+     * Hovering an entry dims the other series. Off by default: an entry that
+     * both answers the pointer and answers the press asks the reader to work
+     * out which of the two just happened, so the legend does one thing unless
+     * it is told otherwise.
+     */
     onItemHover?: { highlightDataSeries?: boolean };
 }
 
@@ -418,7 +447,16 @@ export interface ChartSettings {
     /** This chart is a brush: its selection drives the chart whose `chart.id` is `target`. */
     brush?: { enabled?: boolean; target?: string; autoScaleYaxis?: boolean };
     toolbar?: ChartToolbar;
-    animations?: { enabled?: boolean; speed?: number; dynamicAnimation?: { enabled?: boolean; speed?: number } };
+    animations?: {
+        enabled?: boolean;
+        speed?: number;
+        /** The shape of the movement, for both the first draw and every change after it. */
+        easing?: ChartEasing;
+        /** Series enter one after another rather than together, `delay` apart. */
+        animateGradually?: { enabled?: boolean; delay?: number };
+        /** How new data reaches the screen once the chart is already drawn. */
+        dynamicAnimation?: { enabled?: boolean; speed?: number };
+    };
     /** Accessibility extras. */
     accessibility?: {
         /** Replaces the generated summary that names the chart. */

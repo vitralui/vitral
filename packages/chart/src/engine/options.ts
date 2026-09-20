@@ -78,6 +78,7 @@ const axisLabels = (formatter: string) =>
     obj({
         show: bool(true),
         formatter: template(formatter, 'Template for each tick: {value}, with a preset such as {value|compact}'),
+        align: oneOf(['left', 'center', 'right'] as const, undefined, 'Which end of the label sits at the tick; unset, each axis keeps what reads best'),
         rotate: num(0, 'Degrees', { min: -90, max: 90 }),
         hideOverlappingLabels: bool(true),
         offsetX: num(0),
@@ -145,6 +146,8 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
         animations: obj({
             enabled: bool(true, 'Always off under prefers-reduced-motion'),
             speed: num(500, 'Milliseconds', { min: 0, max: 3000, step: 50 }),
+            easing: oneOf(['linear', 'easein', 'easeout', 'easeinout'] as const, 'easeout', 'The shape of the movement'),
+            animateGradually: obj({ enabled: bool(false, 'Series enter one after another'), delay: num(150, 'Milliseconds between them', { min: 0, max: 2000, step: 25 }) }),
             dynamicAnimation: obj({ enabled: bool(true), speed: num(300) })
         }),
         accessibility: obj({
@@ -227,8 +230,13 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
         formatter: template('{series}'),
         fontSize: size(),
         markers: obj({ size: num(10), shape: markerShape }),
+        value: obj({
+            show: bool(false, 'A figure beside each series name'),
+            source: oneOf(['total', 'last', 'first', 'min', 'max', 'average'] as const, 'total'),
+            formatter: template('{value}', 'Over {value} and {series}')
+        }),
         onItemClick: obj({ toggleDataSeries: bool(true) }),
-        onItemHover: obj({ highlightDataSeries: bool(true) })
+        onItemHover: obj({ highlightDataSeries: bool(false, 'Off beside the toggle: one legend entry doing two things at once reads as neither') })
     }),
     tooltip: obj({
         enabled: bool(true),

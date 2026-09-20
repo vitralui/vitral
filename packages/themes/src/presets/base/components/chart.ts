@@ -10,7 +10,10 @@ export default {
         color: '{text.color}',
         background: 'transparent',
         transitionDuration: '{transitionDuration}',
-        animationDuration: '0.5s'
+        animationDuration: '0.5s',
+        // The curve the first draw follows. `chart.animations.easing` writes
+        // over it per chart; this is what a chart moves like by default.
+        animationEasing: 'cubic-bezier(0.33, 1, 0.68, 1)'
     },
     title: {
         fontSize: '0.9375rem',
@@ -89,9 +92,27 @@ export default {
         swatchSize: '0.625rem',
         swatchRadius: '{borderRadius.xs}',
         valueFontWeight: '600',
-        offset: '12px'
+        offset: '12px',
+        // The row for the series under the pointer, and the rest of the column
+        // behind it. The inset lets the highlight run to the panel's padding
+        // rather than stopping at the text.
+        row: {
+            radius: '{borderRadius.xs}',
+            mutedOpacity: '0.55',
+            activeBackground: '{surface.100}',
+            activeInset: '2px'
+        }
     },
     legend: {
+        // The chip a legend entry can carry when it is showing a figure.
+        value: {
+            gap: '0.125rem',
+            padding: '0 0.3125rem',
+            radius: '{borderRadius.sm}',
+            background: '{surface.100}',
+            color: '{text.color}',
+            fontWeight: '600'
+        },
         gap: '0.25rem 0.75rem',
         fontSize: '0.8125rem',
         color: '{text.color}',

@@ -16,6 +16,8 @@ export interface RenderState {
     hoverIndex: number;
     selected: ReadonlySet<string>;
     animated: boolean;
+    /** Milliseconds each series waits behind the one before it; 0 to arrive together. */
+    stagger: number;
 }
 
 export interface ViewContext {
@@ -164,6 +166,12 @@ const markerStyle = (m: SceneMarker) => ({ fill: m.fill, stroke: m.stroke, strok
 export function marksView(c: ViewContext): Child[] {
     const { scene, state, part, id } = c;
     const dim = (series: number) => state.focusSeries >= 0 && state.focusSeries !== series;
+    /**
+     * How long a series waits before it draws itself in. Series arrive together
+     * unless the chart was asked to let them in one at a time, which is worth
+     * doing when the order they are stacked in is part of the reading.
+     */
+    const waits = (series: number) => (state.stagger ? { animationDelay: `${series * state.stagger}ms` } : undefined);
     const gradientId = (series: number) => `${id}-fill-${series}`;
     const areaFill = (fill: SceneFill, series: number) => (fill.gradient ? `url(#${gradientId(series)})` : fill.color);
     const isHover = (series: number, column: number) => state.column === column && (state.hoverSeries < 0 || state.hoverSeries === series);
@@ -203,7 +211,7 @@ export function marksView(c: ViewContext): Child[] {
             if (m.kind === 'line') {
                 return s(
                     'g',
-                    { key, ...part('series', { kind: 'line', dim: dim(m.series) }), 'data-series': m.series },
+                    mergeAttrs({ key }, part('series', { kind: 'line', dim: dim(m.series) }), { style: waits(m.series), 'data-series': m.series }),
                     m.area ? s('path', { ...part('area'), d: m.area, style: { fill: areaFill(m.fill!, m.series), fillOpacity: m.fill!.gradient ? 1 : m.fill!.opacity } }) : null,
                     m.path ? s('path', { ...part('line'), d: m.path, style: { stroke: m.color, strokeWidth: m.width, strokeDasharray: m.dash || undefined, strokeLinecap: m.cap } }) : null
                 );
@@ -212,7 +220,7 @@ export function marksView(c: ViewContext): Child[] {
                 return s(
                     'g',
                     mergeAttrs({ key }, part('series', { kind: scene.horizontal ? 'bar-horizontal' : 'bar', dim: dim(m.series) }), {
-                        style: { opacity: m.opacity !== 1 ? m.opacity : undefined, '--vt-chart-origin': origin },
+                        style: { opacity: m.opacity !== 1 ? m.opacity : undefined, '--vt-chart-origin': origin, ...waits(m.series) },
                         'data-series': m.series
                     }),
                     m.connectors ? s('path', mergeAttrs({ key: 'connectors' }, part('connector'), { d: m.connectors })) : null,
@@ -243,7 +251,7 @@ export function marksView(c: ViewContext): Child[] {
             if (m.kind === 'candle') {
                 return s(
                     'g',
-                    { key, ...part('series', { kind: 'candle', dim: dim(m.series) }), 'data-series': m.series },
+                    mergeAttrs({ key }, part('series', { kind: 'candle', dim: dim(m.series) }), { style: waits(m.series), 'data-series': m.series }),
                     m.candles.map((cd) =>
                         s(
                             'g',
@@ -268,7 +276,7 @@ export function marksView(c: ViewContext): Child[] {
             }
             return s(
                 'g',
-                { key, ...part('series', { kind: 'points', dim: dim(m.series) }), 'data-series': m.series },
+                mergeAttrs({ key }, part('series', { kind: 'points', dim: dim(m.series) }), { style: waits(m.series), 'data-series': m.series }),
                 m.markers.map((p) =>
                     s('path', mergeAttrs({ key: p.index }, part('marker', { hover: state.hoverSeries === m.series && state.hoverIndex === p.index }), { d: markerD(p), style: { ...markerStyle(p), fillOpacity: m.opacity } }))
                 )
