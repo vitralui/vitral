@@ -52,6 +52,7 @@ export * from './date/range';
 export * from './date/datepicker';
 export * from './date/recurrence';
 export * from './date/schedule';
+export * from './date/timezone';
 export * from './number/number';
 export * from './number/slider';
 export * from './number/dial';

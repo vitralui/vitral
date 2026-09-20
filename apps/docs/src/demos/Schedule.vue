@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Schedule',
     category: 'Data',
     description:
-        'A calendar and scheduler: month, week, day, agenda and a timeline by resource. Drag events to move them and their edge to resize them, or use Alt with the arrow keys (Alt+Shift for the end), and drag across empty time to pick a range, or Shift with the arrows. Recurring events take an RRULE. Dates are local: an application working in another time zone converts on the way in and out.'
+        'A calendar and scheduler: month, week, day, agenda and a timeline by resource. Drag events to move them and their edge to resize them, or use Alt with the arrow keys (Alt+Shift for the end), and drag across empty time to pick a range, or Shift with the arrows. Recurring events take an RRULE. `timeZone` draws the whole calendar in any IANA zone — the events keep the instants they were given, only the hour and the day they are shown at change, and every date it reports back is an instant again.'
 };
 </script>
 
@@ -98,6 +98,18 @@ const bookings = ref<ScheduleEvent[]>([
     { id: 'k5', title: 'Recording', start: at(0, 8), end: at(0, 10), resourceId: 'd' },
     { id: 'k6', title: 'Maintenance', start: day(0), end: day(1), allDay: true, resourceId: 'd' }
 ]);
+// ---- the same instants, read in three places
+const zones = ['UTC', 'America/Sao_Paulo', 'Asia/Tokyo'] as const;
+const zone = ref<(typeof zones)[number]>('America/Sao_Paulo');
+const handoverDay = new Date(2026, 2, 9);
+const handovers = [
+    { id: 'h1', title: 'Handover', start: new Date(Date.UTC(2026, 2, 9, 15, 0)), end: new Date(Date.UTC(2026, 2, 9, 16, 0)) },
+    { id: 'h2', title: 'Market open', start: new Date(Date.UTC(2026, 2, 9, 13, 30)), end: new Date(Date.UTC(2026, 2, 9, 14, 0)) },
+    { id: 'h3', title: 'Nightly build', start: new Date(Date.UTC(2026, 2, 9, 2, 0)), end: new Date(Date.UTC(2026, 2, 9, 3, 0)) }
+];
+const readBack = ref('');
+const showInstant = (change: { occurrence: { start: Date } }) => (readBack.value = change.occurrence.start.toISOString());
+
 function rebook(change: ScheduleEventChange) {
     bookings.value = bookings.value.map((e) => (e === change.event ? { ...e, start: change.start, end: change.end, resourceId: change.resourceId } : e));
 }
@@ -156,6 +168,21 @@ function rebook(change: ScheduleEventChange) {
                 </span>
             </template>
         </Schedule>
+    </DemoSection>
+
+    <DemoSection
+        title="The same instants, read somewhere else"
+        description="Three fixed instants, drawn in whichever zone is chosen. Nothing about the events changes — only which hour and which day the grid puts them at, so the nightly build crosses into the day before or the day after depending on where you are standing. Click an event: what comes back is the instant it always was."
+    >
+        <div class="demo-stack" style="width: 100%">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+                <div style="display: flex; gap: 0.5rem" role="group" aria-label="Time zone">
+                    <button v-for="z in zones" :key="z" type="button" class="copy-btn" :aria-pressed="zone === z" @click="zone = z">{{ z }}</button>
+                </div>
+                <span v-if="readBack" class="demo-hint">Reported as {{ readBack }}</span>
+            </div>
+            <Schedule :events="handovers" :date="handoverDay" view="day" :views="['day']" :time-zone="zone" scroll-time="00:00" aria-label="Handovers" @event-click="showInstant" />
+        </div>
     </DemoSection>
 
     <DemoSection title="Custom toolbar, content and revert" description="The toolbar and the event content are slots. Hours run 08:00–18:00 in 15-minute slots, and a move onto a weekend is reverted.">

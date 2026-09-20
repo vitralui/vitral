@@ -164,6 +164,15 @@ export interface ScheduleConfig extends Partial<ScheduleModels> {
     views?: ScheduleViewName[];
     /** The built-in toolbar. Defaults to true. */
     toolbar?: boolean;
+    /**
+     * The zone the calendar is drawn in — an IANA name such as
+     * `'America/Sao_Paulo'`. Events keep the instants they were given; only
+     * which hour and which day they are shown at changes, and every date the
+     * schedule reports back is an instant again. Unset, it is the zone the
+     * browser is in. An all-day event is a date rather than an instant, so it
+     * stays where it is put.
+     */
+    timeZone?: string;
     /** Minutes per row of the week and day views. Defaults to 30. */
     slotDuration?: number;
     /** Minutes the timeline's columns span. Defaults to 60. */

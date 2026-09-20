@@ -181,6 +181,7 @@ const inputs = (): ScheduleConfig => ({
     resources: toRaw(props.resources),
     views: props.views,
     toolbar: props.toolbar,
+    timeZone: props.timeZone,
     slotDuration: props.slotDuration,
     timelineSlotDuration: props.timelineSlotDuration,
     snapDuration: props.snapDuration,
@@ -253,6 +254,7 @@ watch(
     () => [
         props.views,
         props.toolbar,
+        props.timeZone,
         props.slotDuration,
         props.timelineSlotDuration,
         props.snapDuration,

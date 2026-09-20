@@ -7,7 +7,9 @@ import {
     formatDate,
     formatMessage,
     formatTime,
+    fromZone,
     isClient,
+    isValidTimeZone,
     isSameDay,
     loadStyle,
     minutesOfDay,
@@ -17,6 +19,7 @@ import {
     startOfDay,
     stepViewDate,
     timeGridKeyTarget,
+    toZone,
     type Locale
 } from '@vitral/core';
 import { createOverlay, createTooltips } from '@vitral/controls';
@@ -91,8 +94,10 @@ let counter = 0;
 export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}): ScheduleHandle {
     let current: ScheduleConfig = { ...config };
     let models: ScheduleModels = { ...defaultModels(), ...pickModels(config) };
-    let today = startOfDay(new Date());
-    let now = new Date();
+    // The same validation the settings do, since these run before them.
+    const startZone = config.timeZone && isValidTimeZone(config.timeZone) ? config.timeZone : undefined;
+    let today = startOfDay(toZone(new Date(), startZone));
+    let now = toZone(new Date(), startZone);
     let announcement = '';
     /** What the reader has moved since the events were handed over. */
     const overrides = new Map<string, Override>();
@@ -143,7 +148,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     // The clock moves the "now" line and rolls the day over at midnight.
     const clock = isClient
         ? setInterval(() => {
-              now = new Date();
+              now = shown(new Date());
               if (!isSameDay(now, today)) today = startOfDay(now);
               render();
           }, 30_000)
@@ -152,6 +157,15 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     // ---- what is on show ------------------------------------------------------------
 
     const settings = (): ScheduleSettings => settingsOf(current, locale());
+    /**
+     * The grid is drawn in the reader's wall clock and the application speaks
+     * in instants, so every date crossing that line is converted: `shown` on
+     * the way in, `instant` on the way out. With no zone set they are both the
+     * identity and nothing costs anything.
+     */
+    const zone = () => settings().timeZone;
+    const shown = (date: Date) => toZone(date, zone());
+    const instant = (date: Date) => fromZone(date, zone());
     const views = () => viewsOf(current);
     const range = () => rangeOf(current, models, settings());
     const occurrences = () => {
@@ -189,7 +203,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     const step = (by: number) => change({ date: stepViewDate(models.view, models.date, by, { days: daysFor(models.view, settings()) }) });
 
     function goToday() {
-        today = startOfDay(new Date());
+        today = startOfDay(shown(new Date()));
         focus = { ...focus, date: timed() ? focusTimeOf(today, settings()) : today };
         change({ date: today });
     }
@@ -229,13 +243,17 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             return false;
         const key = occurrence.key;
         const previous = overrides.get(key);
-        overrides.set(key, next);
+        // What the reader dragged is in their wall clock. An override stands in
+        // for the event itself, and occurrences are drawn by shifting events
+        // into the wall clock, so storing it unconverted would shift it twice.
+        const moved: Override = next.allDay ? next : { ...next, start: instant(next.start), end: instant(next.end) };
+        overrides.set(key, moved);
         emit('event-change', {
             event: occurrence.event,
-            occurrence: infoOf(occurrence),
+            occurrence: infoOf(occurrence, zone()),
             kind,
-            start: next.start,
-            end: next.end,
+            start: moved.start,
+            end: moved.end,
             allDay: next.allDay,
             resourceId: next.resourceId,
             via,
@@ -325,12 +343,12 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             event.preventDefault();
             const chosen = selection();
             if (chosen) {
-                emit('select', { start: chosen.start, end: chosen.end, allDay: chosen.allDay, resourceId: list[chosen.resource]?.id, via: 'keyboard' });
+                emit('select', { start: chosen.allDay ? chosen.start : instant(chosen.start), end: chosen.allDay ? chosen.end : instant(chosen.end), allDay: chosen.allDay, resourceId: list[chosen.resource]?.id, via: 'keyboard' });
                 selecting = null;
                 announce(formatMessage(locale().schedule.selected, { when: whenText(chosen.start, chosen.end, chosen.allDay, locale(), current.hour12) }));
             } else {
                 const cell = focusCell();
-                emit('date-click', { date: cell.start, allDay: cell.allDay, resourceId: list[cell.resource]?.id, originalEvent: event });
+                emit('date-click', { date: cell.allDay ? cell.start : instant(cell.start), allDay: cell.allDay, resourceId: list[cell.resource]?.id, originalEvent: event });
             }
             return;
         }
@@ -412,7 +430,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         },
         onEnd: () => {
             const chosen = selection();
-            if (chosen) emit('select', { start: chosen.start, end: chosen.end, allDay: chosen.allDay, resourceId: resources()[chosen.resource]?.id, via: 'pointer' });
+            if (chosen) emit('select', { start: chosen.allDay ? chosen.start : instant(chosen.start), end: chosen.allDay ? chosen.end : instant(chosen.end), allDay: chosen.allDay, resourceId: resources()[chosen.resource]?.id, via: 'pointer' });
         },
         onCancel: () => {
             selecting = null;
@@ -422,7 +440,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             selecting = null;
             focus = { date: cell.start, resource: cell.resource };
             render();
-            emit('date-click', { date: cell.start, allDay: cell.allDay, resourceId: resources()[cell.resource]?.id, originalEvent: event });
+            emit('date-click', { date: cell.allDay ? cell.start : instant(cell.start), allDay: cell.allDay, resourceId: resources()[cell.resource]?.id, originalEvent: event });
         }
     });
 
@@ -532,7 +550,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         setView,
         gotoDay,
         gridKeydown,
-        eventClick: (event, occurrence) => emit('event-click', { event: occurrence.event, occurrence: infoOf(occurrence), originalEvent: event }),
+        eventClick: (event, occurrence) => emit('event-click', { event: occurrence.event, occurrence: infoOf(occurrence, zone()), originalEvent: event }),
         eventKeydown,
         eventPointerdown,
         showMore,
@@ -627,7 +645,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             const key = `${drawn.range.start.getTime()}:${drawn.range.end.getTime()}:${models.view}`;
             if (key !== lastRange) {
                 lastRange = key;
-                emit('range-change', { start: drawn.range.start, end: drawn.range.end, view: models.view });
+                emit('range-change', { start: instant(drawn.range.start), end: instant(drawn.range.end), view: models.view });
             }
         } finally {
             drawing = false;

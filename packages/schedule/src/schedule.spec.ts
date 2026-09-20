@@ -353,4 +353,56 @@ describe('what it says to a reader who cannot see it', () => {
         const editable = eventButtons()[0]!;
         expect(element.querySelector(`#${editable.getAttribute('aria-describedby')}`)?.textContent).toContain('Alt');
     });
+
+    describe('in a zone that is not the reader\'s', () => {
+        // One instant, 15:00 UTC on the Monday. In Tokyo that is midnight on
+        // Tuesday, which is a different column of the grid entirely.
+        const instant = new Date(Date.UTC(2026, 2, 9, 15, 0));
+        const oneEvent: ScheduleEvent[] = [{ id: 1, title: 'Handover', start: instant, end: new Date(instant.getTime() + 3600_000) }];
+
+        it('draws an event at the hour and the day the zone reads, not the browser', () => {
+            const utc = mount({ events: oneEvent, timeZone: 'UTC', view: 'day', date: new Date(2026, 2, 9) });
+            expect(utc.titles()).toEqual(['Handover']);
+            handle!.destroy();
+            document.body.innerHTML = '';
+
+            // Midnight in Tokyo is the next day, so the Monday shows nothing.
+            const tokyo = mount({ events: oneEvent, timeZone: 'Asia/Tokyo', view: 'day', date: new Date(2026, 2, 9) });
+            expect(tokyo.titles()).toEqual([]);
+            handle!.destroy();
+            document.body.innerHTML = '';
+
+            const tuesday = mount({ events: oneEvent, timeZone: 'Asia/Tokyo', view: 'day', date: new Date(2026, 2, 10) });
+            expect(tuesday.titles()).toEqual(['Handover']);
+        });
+
+        it('hands every date back as the instant it was, whatever it was drawn as', () => {
+            const clicked: unknown[] = [];
+            mount({
+                events: oneEvent,
+                timeZone: 'Asia/Tokyo',
+                view: 'day',
+                date: new Date(2026, 2, 10),
+                on: { 'event-click': (e: { occurrence: { start: Date; end: Date } }) => clicked.push(e.occurrence) }
+            });
+            const button = document.querySelector<HTMLButtonElement>('[data-vt-event]')!;
+            button.click();
+            const shown = clicked[0] as { start: Date; end: Date };
+            // Drawn at midnight in Tokyo, reported as the instant it always was.
+            expect(shown.start.toISOString()).toBe(instant.toISOString());
+            expect(shown.end.toISOString()).toBe(new Date(instant.getTime() + 3600_000).toISOString());
+        });
+
+        it('leaves an all-day event where it was put, since a date is not an instant', () => {
+            const allDay: ScheduleEvent[] = [{ id: 1, title: 'Offsite', start: new Date(2026, 2, 11), end: new Date(2026, 2, 12), allDay: true }];
+            const tokyo = mount({ events: allDay, timeZone: 'Asia/Tokyo', view: 'week', date: MONDAY });
+            // Shifting it would move it into the column next door.
+            expect(tokyo.titles()).toEqual(['Offsite']);
+        });
+
+        it('ignores a zone it does not know rather than drawing nothing', () => {
+            const bad = mount({ events: oneEvent, timeZone: 'Mars/Olympus_Mons', view: 'week', date: MONDAY });
+            expect(bad.titles()).toEqual(['Handover']);
+        });
+    });
 });

@@ -28,7 +28,7 @@ export function eventView(context: ViewContext, occurrence: Occurrence, options:
     const own = content(
         context.config.content?.event?.({
             event: occurrence.event,
-            occurrence: infoOf(occurrence),
+            occurrence: infoOf(occurrence, context.settings.timeZone),
             timeText: time,
             view: context.models.view
         })

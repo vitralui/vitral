@@ -6,12 +6,15 @@ import {
     formatDate,
     formatMessage,
     formatTime,
+    fromZone,
     isBusinessTime,
+    isValidTimeZone,
     isSameDay,
     minutesOfDay,
     parseTime,
     snapMinutes,
     startOfDay,
+    toZone,
     viewRange,
     type Locale
 } from '@vitral/core';
@@ -43,6 +46,8 @@ export interface ScheduleSettings {
     editable: boolean;
     selectable: boolean;
     nowIndicator: boolean;
+    /** The zone the grid is drawn in, or undefined for the browser's own. */
+    timeZone?: string;
     firstDay: number;
     scrollHeight: string;
 }
@@ -63,6 +68,7 @@ export function settingsOf(config: ScheduleConfig, locale: Locale): ScheduleSett
         editable: config.editable ?? true,
         selectable: config.selectable ?? true,
         nowIndicator: config.nowIndicator ?? true,
+        timeZone: config.timeZone && isValidTimeZone(config.timeZone) ? config.timeZone : undefined,
         firstDay: config.firstDayOfWeek ?? locale.firstDayOfWeek,
         scrollHeight: config.scrollHeight ?? '36rem'
     };
@@ -104,10 +110,24 @@ export interface Override {
 }
 
 /** Everything on in the period, with whatever the reader has moved since. */
+/**
+ * The occurrences in the range, in the zone the calendar is drawn in.
+ *
+ * The range is the reader's — it is whatever the grid is showing — so it is
+ * turned back into instants to ask the events, and what the events answer is
+ * turned into the reader's wall clock to be drawn. An all-day occurrence is a
+ * date, not an instant, so it is left where it was put: shifting it would move
+ * it into the column next door.
+ */
 export function occurrencesOf(config: ScheduleConfig, range: { start: Date; end: Date }, settings: ScheduleSettings, overrides: Map<string, Override>): Occurrence[] {
-    return expandEvents(config.events ?? [], range.start, range.end, settings.defaultDuration).map((occurrence) => {
+    const zone = settings.timeZone;
+    const from = fromZone(range.start, zone);
+    const to = fromZone(range.end, zone);
+    return expandEvents(config.events ?? [], from, to, settings.defaultDuration).map((occurrence) => {
         const override = overrides.get(occurrence.key);
-        return override ? { ...occurrence, ...override } : occurrence;
+        const shown = override ? { ...occurrence, ...override } : occurrence;
+        if (!zone || shown.allDay) return shown;
+        return { ...shown, start: toZone(shown.start, zone), end: toZone(shown.end, zone) };
     });
 }
 
@@ -121,10 +141,15 @@ export function colorOf(occurrence: Occurrence, resources: readonly ScheduleReso
     return `var(--vt-chart-${((index >= 0 ? index : occurrence.index) % 8) + 1})`;
 }
 
-export const infoOf = (occurrence: Occurrence): ScheduleOccurrenceInfo => ({
+/**
+ * What is handed back to the application. The grid works in the reader's wall
+ * clock; an application works in instants, so the dates are turned back before
+ * they leave. An all-day occurrence was never shifted, so it is not unshifted.
+ */
+export const infoOf = (occurrence: Occurrence, timeZone?: string): ScheduleOccurrenceInfo => ({
     event: occurrence.event,
-    start: occurrence.start,
-    end: occurrence.end,
+    start: occurrence.allDay ? occurrence.start : fromZone(occurrence.start, timeZone),
+    end: occurrence.allDay ? occurrence.end : fromZone(occurrence.end, timeZone),
     allDay: occurrence.allDay,
     resourceId: occurrence.resourceId,
     recurring: occurrence.recurring,

@@ -63,6 +63,14 @@ export interface ScheduleProps extends BaseProps {
     /** Shown after the title; set to false to hide the built-in toolbar. Defaults to true. */
     toolbar?: boolean;
     /** Minutes per row of the week and day views, and per column of the timeline. Defaults to 30 (60 in the timeline). */
+    /**
+     * The zone the calendar is drawn in — an IANA name such as
+     * `'America/Sao_Paulo'`. Events keep the instants they were given; only
+     * which hour and which day they are shown at changes, and every date the
+     * schedule emits is an instant again. An all-day event is a date rather
+     * than an instant, so it stays where it is put.
+     */
+    timeZone?: string;
     slotDuration?: number;
     /** Minutes the timeline's columns span. Defaults to 60. */
     timelineSlotDuration?: number;
