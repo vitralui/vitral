@@ -16,6 +16,7 @@ import NotFound from './pages/NotFound.vue';
 import TemplateFullscreen from './pages/TemplateFullscreen.vue';
 import TemplatePage from './pages/TemplatePage.vue';
 import TemplatesPage from './pages/TemplatesPage.vue';
+import AddonNav from './parts/AddonNav.vue';
 import SiteFooter from './parts/SiteFooter.vue';
 import TopBar from './parts/TopBar.vue';
 
@@ -114,6 +115,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 </template>
 
                 <template v-else>
+                    <AddonNav />
                     <template v-for="group in sections" :key="group.category">
                         <h2>{{ group.category }}</h2>
                         <a v-for="entry in group.items" :key="entry.id" :href="href(`/components/${entry.id}`)" :aria-current="route.id === entry.id ? 'page' : undefined">

@@ -386,6 +386,111 @@ a {
     outline-offset: -2px;
 }
 
+/* ---- the addons, at the head of the sidebar ---- */
+
+.addon-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--vt-content-border-color);
+}
+
+.addon-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3125rem 0.75rem;
+    border-radius: var(--vt-border-radius-md);
+    font-size: 0.875rem;
+    color: var(--vt-navigation-item-color);
+    cursor: pointer;
+    list-style: none;
+}
+
+.addon-summary::-webkit-details-marker {
+    display: none;
+}
+
+.addon-summary:hover {
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.addon-summary:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -2px;
+}
+
+.addon-icon {
+    flex: none;
+    color: var(--vt-primary-color);
+}
+
+.addon-title {
+    font-weight: 500;
+}
+
+/* The chevron turns rather than swapping, so the panel it belongs to is obvious. */
+.addon-chevron {
+    flex: none;
+    margin-inline-start: auto;
+    font-size: 0.75rem;
+    color: var(--vt-text-muted-color);
+    transition: rotate 0.15s ease;
+}
+
+.addon[open] > .addon-summary > .addon-chevron {
+    rotate: 180deg;
+}
+
+.addon-body {
+    padding: 0.125rem 0.75rem 0.5rem 2rem;
+}
+
+.addon-note {
+    margin: 0 0 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--vt-text-muted-color);
+}
+
+.addon-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0;
+    font-family: var(--site-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    color: var(--vt-primary-color);
+    text-decoration: none;
+}
+
+.addon-link:hover {
+    text-decoration: underline;
+}
+
+.addon-link:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+/* The pane's own link rules would otherwise give this one a page marker and a background. */
+.addon-nav .addon-link[aria-current='page'] {
+    background: transparent;
+    font-weight: 600;
+}
+
+.addon-nav .addon-link[aria-current='page']::before {
+    content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .addon-chevron {
+        transition: none;
+    }
+}
+
 .pill {
     margin-inline-start: auto;
     padding: 0 0.375rem;
