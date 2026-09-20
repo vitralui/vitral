@@ -28,6 +28,41 @@ function mountRange(props: Record<string, unknown> = {}) {
 }
 
 describe('DateRange', () => {
+    it('leaves out a neighbouring month while showing that month next door', async () => {
+        // Two calendars, September and October 2026. September's grid runs on
+        // into October and October's starts back in September, so without this
+        // the same date is drawn twice, a range paints across both copies and
+        // the line between the two calendars stops meaning anything.
+        mountRange({ inline: true });
+        await nextTick();
+        const cells = [...document.querySelectorAll('.vt-daterange-day')];
+        expect(cells.length).toBe(2 * 6 * 7);
+        const blanks = cells.filter((c) => c.classList.contains('vt-daterange-day-blank'));
+        expect(blanks.length).toBeGreaterThan(0);
+        // The grid keeps its six rows: the cells are there, they are just empty.
+        expect(blanks.every((c) => !c.hasAttribute('data-date') && c.textContent === '')).toBe(true);
+        expect(document.querySelectorAll('.vt-daterange-day-other-month')).toHaveLength(0);
+        // Every date on show now has exactly one cell, so exactly one tab stop.
+        const dated = cells.filter((c) => c.hasAttribute('data-date')).map((c) => c.getAttribute('data-date'));
+        expect(new Set(dated).size).toBe(dated.length);
+        expect(document.querySelectorAll('.vt-daterange-day[tabindex="0"]')).toHaveLength(1);
+    });
+
+    it('draws the neighbouring days on a single calendar, and wherever it is asked to', async () => {
+        document.body.innerHTML = '';
+        mountRange({ inline: true, months: 1 });
+        await nextTick();
+        // One calendar has no neighbour to duplicate, so the days either side stay.
+        expect(document.querySelectorAll('.vt-daterange-day-blank')).toHaveLength(0);
+        expect(document.querySelectorAll('.vt-daterange-day-other-month').length).toBeGreaterThan(0);
+
+        document.body.innerHTML = '';
+        mountRange({ inline: true, showOtherMonths: true });
+        await nextTick();
+        expect(document.querySelectorAll('.vt-daterange-day-blank')).toHaveLength(0);
+        expect(document.querySelectorAll('.vt-daterange-day-other-month').length).toBeGreaterThan(0);
+    });
+
     it('opens a dialog holding two months, which is the point of it', async () => {
         const { button, grids } = mountRange();
         expect(grids()).toHaveLength(0);

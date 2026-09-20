@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'DateRange',
     category: 'Form',
     description:
-        'Two dates and the days between them. Two months side by side by default, because a span that crosses a month boundary is the ordinary case and paging back and forth to pick it is not; `months="1"` shows the same range in one calendar. The first press opens the range and the second closes it, either way round — the ends sort themselves — and while one end is down the day under the pointer or the arrows is drawn as the other, so the span is visible before it is committed. It is the WAI-ARIA date picker dialog with one span instead of one day: one tabbable day across every month, focus kept in the dialog, Escape back to the button.'
+        'Two dates and the days between them. Two months side by side by default, because a span that crosses a month boundary is the ordinary case and paging back and forth to pick it is not; `months="1"` shows the same range in one calendar. Side by side, each calendar shows its own month only: the last days of one are the first days of the next, so drawing both would put the same date on screen twice and paint a range across both copies. One calendar keeps them, and `show-other-months` settles it either way. The first press opens the range and the second closes it, either way round — the ends sort themselves — and while one end is down the day under the pointer or the arrows is drawn as the other, so the span is visible before it is committed. It is the WAI-ARIA date picker dialog with one span instead of one day: one tabbable day across every month, focus kept in the dialog, Escape back to the button.'
 };
 </script>
 
@@ -43,7 +43,7 @@ const shape = `const stay = ref<DateRange>({ start: null, end: null });
 </script>
 
 <template>
-    <DemoSection title="Two months" description="The default. Pick a start, then an end; the band between them follows the pointer before you commit.">
+    <DemoSection title="Two months" description="The default. Pick a start, then an end; the band between them follows the pointer before you commit. Each calendar stops at its own month — the days either side are left blank rather than repeating the month next door.">
         <div class="demo-field" style="min-width: 0">
             <span id="dr-stay">Your stay</span>
             <DateRange v-model="stay" :min-date="at(0)" show-clear-button aria-labelledby="dr-stay" />
@@ -51,7 +51,7 @@ const shape = `const stay = ref<DateRange>({ start: null, end: null });
         </div>
     </DemoSection>
 
-    <DemoSection title="One month" description="The same range in a single calendar, for a form with no room for two.">
+    <DemoSection title="One month" description="The same range in a single calendar, for a form with no room for two. With no neighbour to repeat, the days either side of the month come back.">
         <div class="demo-field" style="min-width: 0">
             <span id="dr-one">Dates</span>
             <DateRange v-model="single" :months="1" placeholder="Pick two dates" aria-labelledby="dr-one" />
@@ -72,6 +72,10 @@ const shape = `const stay = ref<DateRange>({ start: null, end: null });
 
     <DemoSection title="Inline" description="Without the text box or the popup.">
         <DateRange v-model="inline" inline aria-label="Dates" />
+    </DemoSection>
+
+    <DemoSection title="Showing the neighbouring days anyway" description="`show-other-months` overrides what the number of calendars decided. Two months with their edges drawn: February’s last days appear again as March’s first, and a range spanning the boundary is painted twice.">
+        <DateRange v-model="inline" inline show-other-months aria-label="Dates, edges drawn" />
     </DemoSection>
 
     <DemoSection title="The shape of it">

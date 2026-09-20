@@ -132,6 +132,12 @@
     color: var(--vt-daterange-other-month-color);
 }
 
+/* A day that belongs to a neighbouring month, on a view that is already showing
+   that month elsewhere. The cell holds its place in the grid and draws nothing. */
+.vt-daterange-day-blank {
+    cursor: default;
+}
+
 .vt-daterange-day-disabled {
     cursor: default;
 }

@@ -16,6 +16,15 @@ export interface DateRangeProps extends BaseProps {
      * calendar.
      */
     months?: number;
+    /**
+     * Whether the days either side of each month are drawn. Left unset, they
+     * are on a single calendar and off on several: with two months side by
+     * side the last days of one are the first days of the next, so the same
+     * date appears twice, a range paints across both copies, and the boundary
+     * between the calendars stops meaning anything. The cells stay — the grid
+     * keeps its six rows and its height — they are simply left empty.
+     */
+    showOtherMonths?: boolean;
     /** A `formatDate` pattern; defaults to the locale's `dateFormat`. */
     dateFormat?: string;
     /** Between the two dates in the text box. */

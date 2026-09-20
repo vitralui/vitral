@@ -8,6 +8,8 @@ export interface DateRangeDayState {
     inRange?: boolean;
     today?: boolean;
     otherMonth?: boolean;
+    /** A cell kept only so the six-week grid keeps its shape. */
+    blank?: boolean;
     disabled?: boolean;
     /** Part of the range being previewed rather than the one chosen. */
     preview?: boolean;
@@ -40,6 +42,7 @@ export const daterangeStyle = defineStyle({
                 'vt-daterange-day-preview': s.preview,
                 'vt-daterange-day-today': s.today,
                 'vt-daterange-day-other-month': s.otherMonth,
+                'vt-daterange-day-blank': s.blank,
                 'vt-daterange-day-disabled': s.disabled
             }
         ],

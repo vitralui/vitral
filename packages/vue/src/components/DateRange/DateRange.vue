@@ -51,6 +51,9 @@ const props = withDefaults(defineProps<DateRangeProps>(), {
     unstyled: undefined,
     variant: undefined,
     months: 2,
+    // Absent, not false: an unset boolean prop is `false` to Vue, and this one
+    // has to tell "left to the number of months" from "asked for off".
+    showOtherMonths: undefined,
     separator: '–',
     minDate: null,
     maxDate: null,
@@ -131,6 +134,24 @@ const text = computed(() => {
 
 /** The one day that takes the tab stop, across every month on show. */
 const activeDate = computed(() => focusedDate.value ?? value.value.start ?? startOfDay(new Date()));
+
+/** Days either side of a month: drawn on a single calendar, left out of several. */
+const showOther = computed(() => props.showOtherMonths ?? count.value === 1);
+/** A cell that is only there to hold the grid's shape. */
+const blank = (day: CalendarDay) => !showOther.value && day.otherMonth;
+
+/**
+ * The day the tab stop sits on. The active one, normally — but a day the
+ * calendars are only showing as a neighbour now has no cell of its own, so the
+ * tab stop falls back to the first of the months on show and the grid stays
+ * reachable. It also settles which of two calendars gets the tab stop when a
+ * date is drawn in both, which nothing decided before.
+ */
+const tabDate = computed(() => {
+    const active = activeDate.value;
+    for (const month of months.value) for (const day of month.weeks.flat()) if (isSameDay(day.date, active) && !blank(day)) return active;
+    return months.value[0]?.date ?? active;
+});
 
 function dayState(day: CalendarDay) {
     const end = isRangeEnd(day.date, shown.value);
@@ -271,24 +292,26 @@ defineExpose({ show, hide, clear });
                     </thead>
                     <tbody>
                         <tr v-for="(week, w) in month.weeks" :key="w" v-bind="part('week')">
-                            <td
-                                v-for="day in week"
-                                :key="day.date.getTime()"
-                                :tabindex="!disabled && isSameDay(day.date, activeDate) ? 0 : -1"
-                                :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
-                                :aria-current="day.today ? 'date' : undefined"
-                                :aria-disabled="disabled || dayState(day).disabled ? 'true' : undefined"
-                                :data-date="`${day.year}-${day.month + 1}-${day.day}`"
-                                v-bind="part('day', dayState(day))"
-                                @click="press(day, $event)"
-                                @mouseenter="hovered = day.date"
-                            >
-                                <span v-bind="part('dayLabel')">
-                                    <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
-                                        {{ day.day }}
-                                    </slot>
-                                </span>
-                            </td>
+                            <template v-for="day in week" :key="day.date.getTime()">
+                                <td v-if="blank(day)" v-bind="part('day', { blank: true })" />
+                                <td
+                                    v-else
+                                    :tabindex="!disabled && isSameDay(day.date, tabDate) ? 0 : -1"
+                                    :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
+                                    :aria-current="day.today ? 'date' : undefined"
+                                    :aria-disabled="disabled || dayState(day).disabled ? 'true' : undefined"
+                                    :data-date="`${day.year}-${day.month + 1}-${day.day}`"
+                                    v-bind="part('day', dayState(day))"
+                                    @click="press(day, $event)"
+                                    @mouseenter="hovered = day.date"
+                                >
+                                    <span v-bind="part('dayLabel')">
+                                        <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
+                                            {{ day.day }}
+                                        </slot>
+                                    </span>
+                                </td>
+                            </template>
                         </tr>
                     </tbody>
                 </table>
@@ -346,24 +369,26 @@ defineExpose({ show, hide, clear });
                             </thead>
                             <tbody>
                                 <tr v-for="(week, w) in month.weeks" :key="w" v-bind="part('week')">
-                                    <td
-                                        v-for="day in week"
-                                        :key="day.date.getTime()"
-                                        :tabindex="isSameDay(day.date, activeDate) ? 0 : -1"
-                                        :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
-                                        :aria-current="day.today ? 'date' : undefined"
-                                        :aria-disabled="dayState(day).disabled ? 'true' : undefined"
-                                        :data-date="`${day.year}-${day.month + 1}-${day.day}`"
-                                        v-bind="part('day', dayState(day))"
-                                        @click="press(day, $event)"
-                                        @mouseenter="hovered = day.date"
-                                    >
-                                        <span v-bind="part('dayLabel')">
-                                            <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
-                                                {{ day.day }}
-                                            </slot>
-                                        </span>
-                                    </td>
+                                    <template v-for="day in week" :key="day.date.getTime()">
+                                        <td v-if="blank(day)" v-bind="part('day', { blank: true })" />
+                                        <td
+                                            v-else
+                                            :tabindex="isSameDay(day.date, tabDate) ? 0 : -1"
+                                            :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
+                                            :aria-current="day.today ? 'date' : undefined"
+                                            :aria-disabled="dayState(day).disabled ? 'true' : undefined"
+                                            :data-date="`${day.year}-${day.month + 1}-${day.day}`"
+                                            v-bind="part('day', dayState(day))"
+                                            @click="press(day, $event)"
+                                            @mouseenter="hovered = day.date"
+                                        >
+                                            <span v-bind="part('dayLabel')">
+                                                <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
+                                                    {{ day.day }}
+                                                </slot>
+                                            </span>
+                                        </td>
+                                    </template>
                                 </tr>
                             </tbody>
                         </table>
