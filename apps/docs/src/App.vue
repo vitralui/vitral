@@ -92,7 +92,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
     <TemplateFullscreen v-if="route.name === 'template-preview' && !missing" />
 
     <template v-else>
+        <!-- WCAG 2.4.1: every page opens with the same bar and the same
+             sidebar, so a keyboard needs a way past them to the thing it came
+             for. Visible only once it has focus. -->
+        <a class="skip-link" href="#content">Skip to content</a>
         <TopBar v-model:search="search" />
+
+        <!-- `display: contents`, so it is a place to send focus and nothing to
+             the layout. -->
+        <div id="content" tabindex="-1" class="content-target">
 
         <NotFound v-if="route.name === 'not-found' || missing" />
         <Home v-else-if="route.name === 'home'" />
@@ -127,6 +135,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
             <DocPage v-if="isDocs" />
             <ComponentPage v-else />
+        </div>
+
         </div>
 
         <SiteFooter />

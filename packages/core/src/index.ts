@@ -47,6 +47,7 @@ export * from './data/virtual';
 export * from './data/reorder';
 export * from './data/board';
 
+export * from './data/group';
 export * from './date/calendar';
 export * from './date/range';
 export * from './date/datepicker';

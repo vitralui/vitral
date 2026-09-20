@@ -386,6 +386,36 @@ a {
     outline-offset: -2px;
 }
 
+/* ---- past the furniture ---- */
+
+/* Off screen until it is tabbed to, then the first thing on the page. It is
+   moved rather than hidden, because `display: none` takes it out of the tab
+   order and there would be nothing to skip with. */
+.skip-link {
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    z-index: 100;
+    padding: 0.625rem 1rem;
+    background: var(--vt-primary-color);
+    color: var(--vt-primary-contrast-color);
+    border-radius: 0 0 var(--vt-border-radius-md) 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transform: translateY(-120%);
+}
+
+.skip-link:focus-visible {
+    transform: none;
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -3px;
+}
+
+.content-target {
+    display: contents;
+}
+
 /* ---- the addons, at the head of the sidebar ---- */
 
 .addon-nav {
