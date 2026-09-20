@@ -14,6 +14,7 @@ export * from './buttongroup';
 export * from './card';
 export * from './carousel';
 export * from './cascadeselect';
+export * from './chat';
 export * from './checkbox';
 export * from './chip';
 export * from './colorpicker';

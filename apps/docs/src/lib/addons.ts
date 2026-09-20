@@ -75,6 +75,15 @@ export const addons: AddonEntry[] = [
         component: 'spreadsheet'
     },
     {
+        id: 'chat',
+        name: '@vitral/chat',
+        title: 'Chat',
+        note: 'Threads, streaming answers and the tools an agent used',
+        icon: 'messageSquare',
+        to: '/components/chat',
+        component: 'chat'
+    },
+    {
         id: 'forms',
         name: '@vitral/forms',
         title: 'Form',

@@ -105,6 +105,24 @@ importers:
         specifier: workspace:*
         version: link:../icons
 
+  packages/chat:
+    dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/controls:
     dependencies:
       '@vitral/core':
@@ -126,7 +144,7 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
 
-  packages/datatable:
+  packages/datagrid:
     dependencies:
       '@vitral/controls':
         specifier: workspace:*
@@ -262,12 +280,15 @@ importers:
       '@vitral/chart':
         specifier: workspace:*
         version: link:../chart
+      '@vitral/chat':
+        specifier: workspace:*
+        version: link:../chat
       '@vitral/core':
         specifier: workspace:*
         version: link:../core
-      '@vitral/datatable':
+      '@vitral/datagrid':
         specifier: workspace:*
-        version: link:../datatable
+        version: link:../datagrid
       '@vitral/dom':
         specifier: workspace:*
         version: link:../dom

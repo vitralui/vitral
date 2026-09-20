@@ -57,6 +57,7 @@ export const backlog: BacklogRow[] = [
     // ---- Data
     { vitral: 'DataGrid', group: 'Data' },
     { vitral: 'DataTable', group: 'Data' },
+    { vitral: 'Chat', group: 'Data' },
     { vitral: 'Listbox', group: 'Data' },
     { vitral: 'Tree', group: 'Data' },
     { vitral: 'Paginator', group: 'Data' },

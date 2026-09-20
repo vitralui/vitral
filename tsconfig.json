@@ -14,6 +14,8 @@
       "@vitral/editor/buttons": ["packages/editor/src/buttons.ts"],
       "@vitral/datagrid": ["packages/datagrid/src/index.ts"],
       "@vitral/datagrid/engine": ["packages/datagrid/src/engine/index.ts"],
+      "@vitral/chat": ["packages/chat/src/index.ts"],
+      "@vitral/chat/engine": ["packages/chat/src/engine/index.ts"],
       "@vitral/schedule": ["packages/schedule/src/index.ts"],
       "@vitral/schedule/engine": ["packages/schedule/src/engine/index.ts"],
       "@vitral/taskboard": ["packages/taskboard/src/index.ts"],

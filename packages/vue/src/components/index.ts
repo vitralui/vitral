@@ -13,6 +13,7 @@ export * from './Card';
 export * from './Carousel';
 export * from './CascadeSelect';
 export * from './Chart';
+export * from './Chat';
 export * from './Checkbox';
 export * from './Chip';
 export * from './ColorPicker';

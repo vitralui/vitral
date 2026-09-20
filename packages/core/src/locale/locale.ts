@@ -191,6 +191,32 @@ export interface Locale {
         seriesShown: string;
         untitled: string;
     };
+    /** The conversation's text. */
+    chat: {
+        /** Names the message log. */
+        conversation: string;
+        /** Names the composer. */
+        message: string;
+        placeholder: string;
+        send: string;
+        attach: string;
+        /** Removes a file from the composer. `{name}` */
+        removeAttachment: string;
+        /** Asks for an answer again. */
+        retry: string;
+        /** Someone is composing a reply. */
+        typing: string;
+        /** Nothing said yet. */
+        empty: string;
+        /** Back to the newest message. */
+        newest: string;
+        toolRunning: string;
+        toolDone: string;
+        toolFailed: string;
+        /** Opens and closes the widget's panel. */
+        openChat: string;
+        closeChat: string;
+    };
 
     /** The rich-text editor's text. */
     editor: {
@@ -666,6 +692,23 @@ export const en: Locale = {
         seriesShown: '{series} shown',
         untitled: 'Chart'
     },
+    chat: {
+        conversation: 'Conversation',
+        message: 'Message',
+        placeholder: 'Write a message',
+        send: 'Send',
+        attach: 'Attach files',
+        removeAttachment: 'Remove {name}',
+        retry: 'Try again',
+        typing: 'Typing',
+        empty: 'No messages yet',
+        newest: 'Newest',
+        toolRunning: 'running',
+        toolDone: 'done',
+        toolFailed: 'failed',
+        openChat: 'Open chat',
+        closeChat: 'Close chat'
+    },
     editor: {
         toolbar: 'Formatting',
         bubble: 'Selection formatting',
@@ -1065,6 +1108,23 @@ export const ptBR: Locale = {
         seriesHidden: '{series} oculta',
         seriesShown: '{series} visível',
         untitled: 'Gráfico'
+    },
+    chat: {
+        conversation: 'Conversa',
+        message: 'Mensagem',
+        placeholder: 'Escreva uma mensagem',
+        send: 'Enviar',
+        attach: 'Anexar arquivos',
+        removeAttachment: 'Remover {name}',
+        retry: 'Tentar de novo',
+        typing: 'Digitando',
+        empty: 'Nenhuma mensagem ainda',
+        newest: 'Mais recentes',
+        toolRunning: 'executando',
+        toolDone: 'concluído',
+        toolFailed: 'falhou',
+        openChat: 'Abrir conversa',
+        closeChat: 'Fechar conversa'
     },
     editor: {
         toolbar: 'Formatação',

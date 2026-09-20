@@ -13,6 +13,7 @@ import card from './card';
 import carousel from './carousel';
 import cascadeselect from './cascadeselect';
 import chart from './chart';
+import chat from './chat';
 import checkbox from './checkbox';
 import chip from './chip';
 import colorpicker from './colorpicker';
@@ -123,6 +124,7 @@ export const components = {
     carousel,
     cascadeselect,
     chart,
+    chat,
     checkbox,
     chip,
     colorpicker,

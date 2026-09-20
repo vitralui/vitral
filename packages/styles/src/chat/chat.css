@@ -1,0 +1,605 @@
+/* A conversation: a scrolling log of messages and the box that adds to it.
+   The variant decides the shape — bubbles or a running transcript, avatars or
+   none, a panel on the page or one that opens over it — not the colours. */
+
+.vt-chat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    color: var(--vt-chat-color);
+    background: var(--vt-chat-background);
+    border: 1px solid var(--vt-chat-border-color);
+    border-radius: var(--vt-chat-border-radius);
+    overflow: hidden;
+}
+
+.vt-chat-header,
+.vt-chat-footer {
+    flex: none;
+    padding: var(--vt-chat-header-padding);
+}
+
+.vt-chat-header {
+    border-bottom: 1px solid var(--vt-chat-border-color);
+    font-weight: 600;
+}
+
+.vt-chat-footer {
+    border-top: 1px solid var(--vt-chat-border-color);
+    color: var(--vt-chat-muted-color);
+    font-size: var(--vt-chat-meta-font-size);
+}
+
+/* ---- the log ---- */
+
+.vt-chat-log {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-chat-group-gap);
+    padding: var(--vt-chat-log-padding);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.vt-chat-log:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-offset) * -1);
+}
+
+.vt-chat-group {
+    display: flex;
+    gap: var(--vt-chat-avatar-gap);
+    align-items: flex-start;
+}
+
+.vt-chat-group-own {
+    flex-direction: row-reverse;
+}
+
+.vt-chat-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-chat-message-gap);
+    min-width: 0;
+    max-width: var(--vt-chat-message-max-width);
+}
+
+.vt-chat-group-own .vt-chat-stack {
+    align-items: flex-end;
+}
+
+.vt-chat-author {
+    font-size: var(--vt-chat-meta-font-size);
+    font-weight: 600;
+    color: var(--vt-chat-muted-color);
+}
+
+/* ---- one message ---- */
+
+.vt-chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    border-radius: var(--vt-chat-bubble-radius);
+    scroll-margin: 0.5rem;
+}
+
+.vt-chat-message:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+.vt-chat-bubble {
+    padding: var(--vt-chat-bubble-padding);
+    border-radius: var(--vt-chat-bubble-radius);
+    background: var(--vt-chat-other-background);
+    color: var(--vt-chat-other-color);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.vt-chat-message-own .vt-chat-bubble {
+    background: var(--vt-chat-own-background);
+    color: var(--vt-chat-own-color);
+}
+
+.vt-chat-message-error .vt-chat-bubble {
+    background: var(--vt-chat-error-background);
+    color: var(--vt-chat-error-color);
+}
+
+/* A note about the conversation rather than a turn in it. */
+.vt-chat-message-system {
+    align-self: center;
+    text-align: center;
+    color: var(--vt-chat-muted-color);
+    font-size: var(--vt-chat-meta-font-size);
+}
+
+.vt-chat-message-system .vt-chat-bubble {
+    background: transparent;
+    color: inherit;
+    padding: 0.125rem 0;
+}
+
+/* The caret that follows the last character while an answer is arriving. */
+.vt-chat-caret {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    margin-inline-start: 0.125em;
+    vertical-align: text-bottom;
+    background: currentColor;
+    border-radius: 1px;
+    animation: vt-chat-blink 1s steps(2, start) infinite;
+}
+
+@keyframes vt-chat-blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+.vt-chat-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--vt-chat-meta-font-size);
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-message-own .vt-chat-meta {
+    justify-content: flex-end;
+}
+
+.vt-chat-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.vt-chat-retry:hover {
+    background: var(--vt-chat-hover-background);
+}
+
+.vt-chat-retry:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+}
+
+/* ---- the avatar ---- */
+
+.vt-chat-avatar {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-chat-avatar-size);
+    height: var(--vt-chat-avatar-size);
+    border-radius: 50%;
+    background: var(--vt-chat-avatar-background);
+    color: var(--vt-chat-avatar-color);
+    font-size: var(--vt-chat-avatar-font-size);
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.vt-chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* A run keeps the avatar's space without repeating it, so the stack stays aligned. */
+.vt-chat-avatar-spacer {
+    visibility: hidden;
+}
+
+/* ---- what the assistant reached for ---- */
+
+.vt-chat-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.vt-chat-tool {
+    border: 1px solid var(--vt-chat-border-color);
+    border-radius: var(--vt-border-radius-sm);
+    background: var(--vt-chat-tool-background);
+    font-size: var(--vt-chat-meta-font-size);
+    overflow: hidden;
+}
+
+.vt-chat-tool-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    list-style: none;
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-tool-summary::-webkit-details-marker {
+    display: none;
+}
+
+.vt-chat-tool-name {
+    font-family: var(--vt-chat-code-font-family);
+    color: var(--vt-chat-color);
+}
+
+.vt-chat-tool-status-running {
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-tool-status-error {
+    color: var(--vt-chat-error-color);
+}
+
+.vt-chat-tool-body {
+    margin: 0;
+    padding: 0.375rem 0.5rem;
+    border-top: 1px solid var(--vt-chat-border-color);
+    font-family: var(--vt-chat-code-font-family);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* ---- attachments and citations ---- */
+
+.vt-chat-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.vt-chat-attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    max-width: 100%;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--vt-chat-border-color);
+    border-radius: var(--vt-border-radius-sm);
+    background: var(--vt-chat-tool-background);
+    font-size: var(--vt-chat-meta-font-size);
+    color: inherit;
+    text-decoration: none;
+}
+
+.vt-chat-attachment-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vt-chat-attachment-size {
+    flex: none;
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-attachment-remove {
+    flex: none;
+    display: inline-flex;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--vt-chat-muted-color);
+    cursor: pointer;
+}
+
+.vt-chat-attachment-remove:hover {
+    color: var(--vt-chat-color);
+}
+
+.vt-chat-citations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    font-size: var(--vt-chat-meta-font-size);
+}
+
+.vt-chat-citation {
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-citation:hover {
+    color: var(--vt-chat-color);
+}
+
+/* ---- someone is answering ---- */
+
+.vt-chat-typing {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--vt-chat-meta-font-size);
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-typing-dots {
+    display: inline-flex;
+    gap: 0.1875rem;
+}
+
+.vt-chat-typing-dots > span {
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 50%;
+    background: currentColor;
+    animation: vt-chat-bounce 1.2s ease-in-out infinite;
+}
+
+.vt-chat-typing-dots > span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.vt-chat-typing-dots > span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes vt-chat-bounce {
+    0%,
+    60%,
+    100% {
+        opacity: 0.35;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+
+/* ---- nothing said yet ---- */
+
+.vt-chat-empty {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+    color: var(--vt-chat-muted-color);
+}
+
+.vt-chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.375rem;
+}
+
+.vt-chat-suggestion {
+    padding: 0.375rem 0.625rem;
+    border: 1px solid var(--vt-chat-border-color);
+    border-radius: var(--vt-chat-bubble-radius);
+    background: transparent;
+    color: var(--vt-chat-color);
+    font: inherit;
+    font-size: var(--vt-chat-meta-font-size);
+    cursor: pointer;
+}
+
+.vt-chat-suggestion:hover {
+    background: var(--vt-chat-hover-background);
+}
+
+.vt-chat-suggestion:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+}
+
+/* ---- back to the newest ---- */
+
+.vt-chat-jump {
+    position: absolute;
+    inset-inline-end: 1rem;
+    bottom: var(--vt-chat-jump-offset);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--vt-chat-border-color);
+    border-radius: 999px;
+    background: var(--vt-chat-background);
+    color: var(--vt-chat-color);
+    font: inherit;
+    font-size: var(--vt-chat-meta-font-size);
+    box-shadow: var(--vt-chat-panel-shadow);
+    cursor: pointer;
+}
+
+/* ---- the composer ---- */
+
+.vt-chat-composer {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--vt-chat-composer-padding);
+    border-top: 1px solid var(--vt-chat-border-color);
+}
+
+.vt-chat-composer-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.vt-chat-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    resize: none;
+    padding: var(--vt-chat-input-padding);
+    border: 1px solid var(--vt-chat-input-border-color);
+    border-radius: var(--vt-chat-input-radius);
+    background: var(--vt-chat-input-background);
+    color: inherit;
+    font: inherit;
+}
+
+.vt-chat-input:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+.vt-chat-input:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: not-allowed;
+}
+
+.vt-chat-action {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-chat-action-size);
+    height: var(--vt-chat-action-size);
+    border: 0;
+    border-radius: var(--vt-chat-input-radius);
+    background: transparent;
+    color: var(--vt-chat-muted-color);
+    cursor: pointer;
+}
+
+.vt-chat-action:hover:not(:disabled) {
+    background: var(--vt-chat-hover-background);
+    color: var(--vt-chat-color);
+}
+
+.vt-chat-action:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+}
+
+.vt-chat-action:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: not-allowed;
+}
+
+.vt-chat-send {
+    background: var(--vt-chat-send-background);
+    color: var(--vt-chat-send-color);
+}
+
+.vt-chat-send:hover:not(:disabled) {
+    background: var(--vt-chat-send-hover-background);
+    color: var(--vt-chat-send-color);
+}
+
+.vt-chat-file {
+    display: none;
+}
+
+/* ---- the variants ---- */
+
+/* A narrow column beside the work: no bubbles, tighter rows. */
+.vt-chat-copilot .vt-chat-bubble {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+
+.vt-chat-copilot .vt-chat-stack {
+    max-width: 100%;
+}
+
+.vt-chat-copilot .vt-chat-group-own {
+    flex-direction: row;
+}
+
+.vt-chat-copilot .vt-chat-group-own .vt-chat-stack {
+    align-items: flex-start;
+}
+
+/* A running transcript: no bubbles, no sides, the newest at the bottom. */
+.vt-chat-captions {
+    border: 0;
+    background: transparent;
+}
+
+.vt-chat-captions .vt-chat-log {
+    gap: 0.25rem;
+}
+
+.vt-chat-captions .vt-chat-group,
+.vt-chat-captions .vt-chat-group-own {
+    flex-direction: row;
+}
+
+.vt-chat-captions .vt-chat-stack {
+    max-width: 100%;
+    align-items: flex-start;
+}
+
+.vt-chat-captions .vt-chat-bubble {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+
+.vt-chat-captions .vt-chat-author {
+    color: var(--vt-chat-caption-author-color);
+}
+
+/* A launcher and a panel that opens over the page. */
+.vt-chat-widget-root {
+    position: relative;
+    display: inline-flex;
+}
+
+.vt-chat-launcher {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: var(--vt-chat-launcher-size);
+    height: var(--vt-chat-launcher-size);
+    border: 0;
+    border-radius: 50%;
+    background: var(--vt-chat-send-background);
+    color: var(--vt-chat-send-color);
+    box-shadow: var(--vt-chat-panel-shadow);
+    cursor: pointer;
+}
+
+.vt-chat-launcher:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
+
+.vt-chat-panel {
+    position: absolute;
+    inset-inline-end: 0;
+    bottom: calc(var(--vt-chat-launcher-size) + 0.75rem);
+    z-index: 1;
+    width: var(--vt-chat-panel-width);
+    max-width: calc(100vw - 2rem);
+    box-shadow: var(--vt-chat-panel-shadow);
+}
+
+@media (max-width: 30rem) {
+    .vt-chat-stack {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-chat-caret,
+    .vt-chat-typing-dots > span {
+        animation: none;
+    }
+}

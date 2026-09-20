@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@vitral/chart": "workspace:*",
+    "@vitral/chat": "workspace:*",
     "@vitral/core": "workspace:*",
     "@vitral/datagrid": "workspace:*",
     "@vitral/dom": "workspace:*",
