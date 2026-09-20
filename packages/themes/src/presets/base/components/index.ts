@@ -22,6 +22,7 @@ import confirmpopup from './confirmpopup';
 import contextmenu from './contextmenu';
 import cropper from './cropper';
 import datagrid from './datagrid';
+import datatable from './datatable';
 import dataview from './dataview';
 import datepicker from './datepicker';
 import daterange from './daterange';
@@ -131,6 +132,7 @@ export const components = {
     contextmenu,
     cropper,
     datagrid,
+    datatable,
     dataview,
     datepicker,
     daterange,

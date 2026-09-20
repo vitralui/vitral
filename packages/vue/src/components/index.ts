@@ -22,6 +22,7 @@ export * from './ConfirmPopup';
 export * from './ContextMenu';
 export * from './Cropper';
 export * from './DataGrid';
+export * from './DataTable';
 export * from './DataView';
 export * from './DatePicker';
 export * from './DateRange';

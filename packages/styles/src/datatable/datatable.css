@@ -1,0 +1,169 @@
+/* The small table: a real <table> with a sortable head, stripes, gridlines and
+   a head that can stick. Everything a table grows into once it is doing real
+   work — paging, filters, selection, columns the reader moves, freezes and
+   resizes — is `@vitral/datagrid`'s, and none of it is here. */
+
+.vt-datatable {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--vt-datatable-color);
+    background: var(--vt-datatable-background);
+    border: 1px solid var(--vt-datatable-border-color);
+    border-radius: var(--vt-datatable-border-radius);
+    overflow: hidden;
+}
+
+.vt-datatable-header,
+.vt-datatable-footer {
+    padding: var(--vt-datatable-header-padding);
+}
+
+.vt-datatable-header {
+    border-bottom: 1px solid var(--vt-datatable-header-border-color);
+}
+
+.vt-datatable-footer {
+    border-top: 1px solid var(--vt-datatable-header-border-color);
+}
+
+.vt-datatable-table-container {
+    min-width: 0;
+    overflow: auto;
+}
+
+.vt-datatable-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font: inherit;
+    color: inherit;
+}
+
+/* ---- the head ---- */
+
+.vt-datatable-header-cell {
+    padding: var(--vt-datatable-header-cell-padding);
+    font-weight: var(--vt-datatable-header-cell-font-weight);
+    text-align: start;
+    white-space: nowrap;
+    color: var(--vt-datatable-header-cell-color);
+    background: var(--vt-datatable-header-cell-background);
+    border-bottom: 1px solid var(--vt-datatable-header-cell-border-color);
+}
+
+.vt-datatable-header-cell-sorted {
+    color: var(--vt-datatable-header-cell-sorted-color);
+}
+
+/* A head that scrolls under nothing: rows would show through a translucent
+   content background, so a stuck head takes the opaque overlay one. */
+.vt-datatable-scrollable .vt-datatable-thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.vt-datatable-scrollable .vt-datatable-header-cell {
+    background: var(--vt-datatable-header-cell-sticky-background);
+}
+
+.vt-datatable-sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-datatable-header-cell-gap);
+    margin: -0.25rem -0.375rem;
+    padding: 0.25rem 0.375rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    cursor: pointer;
+}
+
+.vt-datatable-sort-button:hover {
+    color: var(--vt-datatable-header-cell-hover-color);
+    background: var(--vt-datatable-header-cell-hover-background);
+}
+
+.vt-datatable-sort-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 0;
+}
+
+.vt-datatable-sort-icon {
+    flex: none;
+    color: var(--vt-datatable-sort-icon-color);
+}
+
+.vt-datatable-sort-icon-active {
+    color: var(--vt-datatable-sort-icon-active-color);
+}
+
+/* ---- the body ---- */
+
+.vt-datatable-body-cell {
+    padding: var(--vt-datatable-body-cell-padding);
+    text-align: start;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--vt-datatable-body-cell-border-color);
+}
+
+.vt-datatable-tbody > tr:last-child > td {
+    border-bottom: 0;
+}
+
+.vt-datatable-sm .vt-datatable-body-cell,
+.vt-datatable-sm .vt-datatable-header-cell {
+    padding: var(--vt-datatable-body-cell-sm-padding);
+}
+
+.vt-datatable-lg .vt-datatable-body-cell,
+.vt-datatable-lg .vt-datatable-header-cell {
+    padding: var(--vt-datatable-body-cell-lg-padding);
+}
+
+.vt-datatable-align-center {
+    text-align: center;
+}
+
+.vt-datatable-align-right {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-datatable-row {
+    color: var(--vt-datatable-row-color);
+    background: var(--vt-datatable-row-background);
+    transition: background-color var(--vt-datatable-transition-duration);
+}
+
+.vt-datatable-striped .vt-datatable-row:nth-child(even) {
+    background: var(--vt-datatable-row-striped-background);
+}
+
+/* Hover outranks the stripe, or every other row stops answering the pointer. */
+.vt-datatable-striped .vt-datatable-row-hoverable:nth-child(even):hover {
+    background: var(--vt-datatable-row-hover-background);
+}
+
+.vt-datatable-row-hoverable:hover {
+    background: var(--vt-datatable-row-hover-background);
+}
+
+.vt-datatable-gridlines .vt-datatable-header-cell,
+.vt-datatable-gridlines .vt-datatable-body-cell {
+    border-inline-end: 1px solid var(--vt-datatable-body-cell-border-color);
+}
+
+.vt-datatable-gridlines tr > :last-child {
+    border-inline-end: 0;
+}
+
+.vt-datatable-empty-cell {
+    padding: var(--vt-datatable-empty-padding);
+    color: var(--vt-datatable-empty-color);
+    text-align: center;
+}

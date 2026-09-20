@@ -23,6 +23,7 @@ export * from './confirmpopup';
 export * from './contextmenu';
 export * from './cropper';
 export * from './datagrid';
+export * from './datatable';
 export * from './dataview';
 export * from './datepicker';
 export * from './daterange';

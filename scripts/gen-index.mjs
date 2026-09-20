@@ -73,8 +73,13 @@ for (const dir of componentDirs) {
     }
     // One part under a second name: `const FormErrors = FormSummary;`
     for (const [, alias, of] of source.matchAll(/^const (\w+) = (\w+);$/gm)) if (locals.has(of)) locals.add(alias);
+    // A re-export may rename what it exports (`Column as DataTableColumn`),
+    // and it is the exported name that gets registered.
     for (const [, list] of source.matchAll(/^export \{([^}]*)\};$/gm)) {
-        for (const name of list.split(',').map((n) => n.trim())) if (locals.has(name)) componentNames.add(name);
+        for (const entry of list.split(',').map((n) => n.trim())) {
+            const [local, exported = local] = entry.split(/\s+as\s+/).map((n) => n.trim());
+            if (locals.has(local)) componentNames.add(exported);
+        }
     }
     // A component built from an SFC and carrying its parts: `export const Editor = …`.
     if (new RegExp(`^export const ${dir} =`, 'm').test(source)) componentNames.add(dir);
