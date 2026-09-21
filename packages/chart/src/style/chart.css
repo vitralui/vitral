@@ -650,22 +650,22 @@
     }
 }
 
-/* A series waiting its turn must not be drawn at full first: the fill mode
-   holds it at the start of its keyframes until its delay is up. */
-.vt-chart-animated .vt-chart-series {
-    animation-fill-mode: backwards;
-}
-
+/* A series waiting its turn must not be drawn at full first: `backwards` holds
+   it at the start of its keyframes until its delay is up. It is written into
+   every shorthand rather than once on the group, because `animation:` resets
+   the fill mode to `none` — stated separately it was being wiped by the very
+   rules it was meant to serve, and each staggered series appeared whole, blinked
+   out and only then grew. */
 .vt-chart-animated .vt-chart-series-line,
 .vt-chart-animated .vt-chart-series-points {
-    animation: vt-chart-reveal var(--vt-chart-animation-duration) var(--vt-chart-animation-easing);
+    animation: vt-chart-reveal var(--vt-chart-animation-duration) var(--vt-chart-animation-easing) backwards;
 }
 
 .vt-chart-animated .vt-chart-series-bar,
 .vt-chart-animated .vt-chart-series-bar-horizontal,
 .vt-chart-animated .vt-chart-series-candle {
     transform-origin: var(--vt-chart-origin, center bottom);
-    animation: vt-chart-rise var(--vt-chart-animation-duration) var(--vt-chart-animation-easing);
+    animation: vt-chart-rise var(--vt-chart-animation-duration) var(--vt-chart-animation-easing) backwards;
 }
 
 .vt-chart-animated .vt-chart-series-bar-horizontal {
@@ -677,7 +677,7 @@
 .vt-chart-animated .vt-chart-series-heatmap {
     transform-box: fill-box;
     transform-origin: center;
-    animation: vt-chart-pop var(--vt-chart-animation-duration) var(--vt-chart-animation-easing);
+    animation: vt-chart-pop var(--vt-chart-animation-duration) var(--vt-chart-animation-easing) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

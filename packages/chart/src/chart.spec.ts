@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../vue/test/a11y';
 import { createChart, type ChartConfig, type ChartHandle } from './chart';
 import { chartBus, groupChannel } from './engine/group';
+import css from './style/chart.css?raw';
 import type { ChartOptions, ChartSeries, ChartType } from './engine/types';
 
 // The framework-free renderer, driven directly: no component in sight.
@@ -815,5 +816,13 @@ describe('createChart', () => {
         svg().dispatchEvent(pointer('pointermove', last.pos, scene.plot.y + 20));
         await tick();
         expect(offsetOf()).toBeLessThan(last.pos);
+    });
+    it('holds every animated series at the start of its keyframes until its turn', () => {
+        // `animation:` resets the fill mode, so a `backwards` stated once on the
+        // group was wiped by the rules that needed it and each staggered series
+        // was painted whole, blinked out and only then grew.
+        const rules = css.split('}').filter((rule) => rule.includes('.vt-chart-animated') && /\banimation:(?!\s*none)/.test(rule));
+        expect(rules.length).toBeGreaterThan(0);
+        for (const rule of rules) expect(/animation:[^;]*\bbackwards\b/.test(rule), rule.trim()).toBe(true);
     });
 });
