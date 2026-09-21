@@ -102,14 +102,36 @@ function barView(context: ViewContext): Child {
         'div',
         part('bar'),
         h('span', mergeAttrs({ key: 'address' }, part('address'), { 'aria-label': words.address }), address),
+        formulaFieldView(context, context.editing ? context.editing.value : sheet.input(selection.active), words.formula)
+    );
+}
+
+/** The formula box, with the coloured copy of what is in it behind the caret. */
+function formulaFieldView(context: ViewContext, value: string, label: string): Child {
+    const { part, on } = context;
+    const coloured = formulaTextView(context, value);
+    // The two scroll as one, or a long formula's colours drift from its words.
+    const sync = (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        const text = input.parentElement?.querySelector<HTMLElement>('[data-vt-formula-text]');
+        if (text) text.scrollLeft = input.scrollLeft;
+    };
+    return h(
+        'div',
+        mergeAttrs({ key: 'field' }, part('formulaField')),
+        coloured,
         h(
             'input',
-            mergeAttrs({ key: 'formula' }, part('formula'), {
+            mergeAttrs({ key: 'formula' }, part('formula', { coloured: !!coloured }), {
                 type: 'text',
-                'aria-label': words.formula,
+                'aria-label': label,
                 readonly: context.config.readonly ? '' : undefined,
-                value: context.editing ? context.editing.value : sheet.input(selection.active),
-                onInput: (event: Event) => on.formulaInput((event.target as HTMLInputElement).value),
+                value,
+                onInput: (event: Event) => {
+                    on.formulaInput((event.target as HTMLInputElement).value);
+                    sync(event);
+                },
+                onScroll: sync,
                 onKeydown: on.formulaKeydown
             })
         )
@@ -303,23 +325,61 @@ function cellsView(context: ViewContext): Child {
 }
 
 /**
+ * Every reference in a formula with the colour it is drawn in. A rectangle
+ * mentioned twice keeps the colour it was given the first time, so the words
+ * in the bar and the outlines on the grid always agree — which is the whole
+ * point of colouring either of them.
+ */
+function colouredReferences(source: string) {
+    const colours = new Map<string, number>();
+    return formulaReferences(source).map((span) => {
+        const key = formatRange(span.range);
+        let colour = colours.get(key);
+        if (colour === undefined) {
+            colour = colours.size;
+            colours.set(key, colour);
+        }
+        return { ...span, key, colour };
+    });
+}
+
+/**
  * While a formula is being typed, every place it mentions is outlined where it
  * sits, each rectangle in its own colour — so `=B4*C4` says which B4 and which
- * C4 before it is committed, the way a spreadsheet has always done it. A
- * rectangle mentioned twice keeps the colour it was given the first time.
+ * C4 before it is committed, the way a spreadsheet has always done it.
  */
 function referenceViews(context: ViewContext): Child[] {
     const { editing, metrics, part } = context;
     if (!editing) return [];
-    const seen = new Set<string>();
+    const drawn = new Set<string>();
     const out: Child[] = [];
-    for (const span of formulaReferences(editing.value)) {
-        const key = formatRange(span.range);
-        if (seen.has(key)) continue;
-        out.push(h('div', mergeAttrs({ key: `ref-${key}` }, part('reference', { index: seen.size }), { style: boxStyle(rangeBox(metrics, span.range)) })));
-        seen.add(key);
+    for (const span of colouredReferences(editing.value)) {
+        if (drawn.has(span.key)) continue;
+        drawn.add(span.key);
+        out.push(h('div', mergeAttrs({ key: `ref-${span.key}` }, part('reference', { index: span.colour }), { style: boxStyle(rangeBox(metrics, span.range)) })));
     }
     return out;
+}
+
+/**
+ * The formula as coloured words, drawn behind the box it is typed into: an
+ * `<input>` cannot colour part of its own text, so the text is written again
+ * underneath in the same font and the same box, and the input above it is left
+ * transparent with only its caret showing.
+ */
+function formulaTextView(context: ViewContext, value: string): Child {
+    const { part } = context;
+    const spans = colouredReferences(value);
+    if (!spans.length) return null;
+    const out: Child[] = [];
+    let at = 0;
+    spans.forEach((span, i) => {
+        if (span.start > at) out.push(h('span', { key: `t${i}` }, value.slice(at, span.start)));
+        out.push(h('span', mergeAttrs({ key: `r${i}` }, part('referenceToken', { index: span.colour })), span.text));
+        at = span.end;
+    });
+    if (at < value.length) out.push(h('span', { key: 'tail' }, value.slice(at)));
+    return h('div', mergeAttrs({ key: 'text', 'aria-hidden': 'true', 'data-vt-formula-text': '' }, part('formulaText')), ...out);
 }
 
 function editorView(context: ViewContext): Child {

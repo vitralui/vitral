@@ -188,6 +188,35 @@ describe('a spreadsheet with no framework in it', () => {
         expect(references()).toHaveLength(0);
     });
 
+    it('colours the formula in the bar to match the rectangles on the grid', async () => {
+        const { grid, formula, references, element } = mount();
+        const tokens = () => Array.from(element.querySelectorAll<HTMLElement>('.vt-spreadsheet-reference-token'));
+        // Nothing to colour until something is being typed.
+        expect(tokens()).toHaveLength(0);
+
+        formula().value = '=B2*C2';
+        formula().dispatchEvent(new Event('input', { bubbles: true }));
+        expect(tokens().map((t) => t.textContent)).toEqual(['B2', 'C2']);
+        // The words carry the colour their rectangle is outlined in, which is
+        // the only thing that makes either colour mean anything.
+        const colourOf = (className: string, el: Element) => [...el.classList].find((c) => c.startsWith(className))!.slice(className.length);
+        expect(tokens().map((t) => colourOf('vt-spreadsheet-reference-text-', t))).toEqual(['1', '2']);
+        expect(references().map((r) => colourOf('vt-spreadsheet-reference-', r))).toEqual(['1', '2']);
+
+        // The box goes transparent only while there is a copy behind it to show.
+        expect(formula().classList.contains('vt-spreadsheet-formula-coloured')).toBe(true);
+        formula().value = 'plain text';
+        formula().dispatchEvent(new Event('input', { bubbles: true }));
+        expect(tokens()).toHaveLength(0);
+        expect(formula().classList.contains('vt-spreadsheet-formula-coloured')).toBe(false);
+
+        // What is not a reference keeps the words around it.
+        formula().value = '=SUM(A1:A3)+1';
+        formula().dispatchEvent(new Event('input', { bubbles: true }));
+        expect(element.querySelector('.vt-spreadsheet-formula-text')!.textContent).toBe('=SUM(A1:A3)+1');
+        void grid;
+    });
+
     it('gives an edit up on Escape, and keeps what was there', () => {
         const { grid, editor, handle } = mount();
         key(grid(), 'F2');

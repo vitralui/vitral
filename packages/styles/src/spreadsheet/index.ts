@@ -29,7 +29,13 @@ export const spreadsheetStyle = defineStyle({
         buttonIcon: 'vt-spreadsheet-button-icon',
         bar: 'vt-spreadsheet-bar',
         address: 'vt-spreadsheet-address',
-        formula: 'vt-spreadsheet-formula',
+        /** Holds the box and the coloured copy of what is in it. */
+        formulaField: 'vt-spreadsheet-formula-field',
+        formula: (s: { coloured?: boolean }) => ['vt-spreadsheet-formula', { 'vt-spreadsheet-formula-coloured': s.coloured }],
+        /** The formula written again behind the caret, so its references can be coloured. */
+        formulaText: 'vt-spreadsheet-formula-text',
+        /** One reference inside that copy, in the colour its rectangle is outlined in. */
+        referenceToken: (s: { index?: number }) => ['vt-spreadsheet-reference-token', `vt-spreadsheet-reference-text-${((s.index ?? 0) % REFERENCE_COLOURS) + 1}`],
         grid: 'vt-spreadsheet-grid',
         corner: 'vt-spreadsheet-corner',
         columns: 'vt-spreadsheet-columns',

@@ -55,7 +55,11 @@ const stats = computed(() => [
 
 const features = [
     { icon: 'sliders', title: 'Design tokens', body: 'Primitive, semantic and component layers, compiled to CSS variables. Change the primary colour and everything follows.' },
-    { icon: 'check', title: 'Accessible by default', body: 'Each component follows its WAI-ARIA pattern and ships with a spec that runs axe and drives the keyboard.' },
+    {
+        icon: 'check',
+        title: 'Built to the ARIA patterns',
+        body: 'Each component follows its WAI-ARIA pattern and ships with a spec that runs axe and drives the keyboard. Text contrast is measured across every preset and both schemes, so a theme cannot quietly become unreadable.'
+    },
     { icon: 'pencil', title: 'Yours to override', body: 'Reach any element with pass-through, retoken one instance, or go unstyled and bring your own CSS.' },
     { icon: 'star', title: 'A predictable API', body: 'The same props, slots and events everywhere: size, variant, invalid, fluid. Learning one component covers most of the next.' },
     { icon: 'moon', title: 'Light and dark', body: 'Both schemes come out of the same preset, and follow the operating system unless the reader says otherwise.' },

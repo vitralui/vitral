@@ -33,6 +33,13 @@ export default {
     // The outlines over what a formula being typed is reading. They are the
     // chart palette, picked apart for contrast rather than for a series: no two
     // next to each other read as the same colour at two pixels wide.
+    // The box a formula is typed into, shared by the coloured copy behind it.
+    formula: {
+        padding: '0.125rem 0.375rem',
+        borderColor: '{content.borderColor}',
+        borderRadius: '{borderRadius.sm}',
+        lineHeight: '1.5'
+    },
     reference: {
         borderWidth: '2px',
         fillOpacity: '0.1',

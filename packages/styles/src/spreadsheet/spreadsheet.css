@@ -117,10 +117,86 @@
     font-variant-numeric: tabular-nums;
 }
 
-.vt-spreadsheet-formula {
+/* ---- the formula box ----
+   An <input> cannot colour part of its own text, so the formula is written a
+   second time underneath in the same font and the same box, its references
+   coloured, and the input above is left transparent with only its caret
+   showing. The two share every measurement that decides where a character
+   lands: get one of them wrong and the colours slide off the words. */
+
+.vt-spreadsheet-formula-field {
+    position: relative;
+    display: flex;
     flex: 1 1 auto;
     min-width: 0;
+}
+
+.vt-spreadsheet-formula,
+.vt-spreadsheet-formula-text {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: var(--vt-spreadsheet-formula-padding);
+    border: 1px solid var(--vt-spreadsheet-formula-border-color);
+    border-radius: var(--vt-spreadsheet-formula-border-radius);
     font-family: var(--vt-font-family-mono, ui-monospace, monospace);
+    font-size: inherit;
+    line-height: var(--vt-spreadsheet-formula-line-height);
+    letter-spacing: normal;
+    white-space: pre;
+}
+
+.vt-spreadsheet-formula {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    color: inherit;
+}
+
+.vt-spreadsheet-formula:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+/* Only while there is something coloured to show through it. */
+.vt-spreadsheet-formula-coloured {
+    color: transparent;
+    caret-color: var(--vt-spreadsheet-cell-color);
+}
+
+.vt-spreadsheet-formula-text {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border-color: transparent;
+    color: var(--vt-spreadsheet-cell-color);
+}
+
+/* A reference in the words, in the colour its rectangle is outlined in. */
+.vt-spreadsheet-reference-token {
+    font-weight: 600;
+}
+
+.vt-spreadsheet-reference-text-1 {
+    color: var(--vt-spreadsheet-reference-1);
+}
+
+.vt-spreadsheet-reference-text-2 {
+    color: var(--vt-spreadsheet-reference-2);
+}
+
+.vt-spreadsheet-reference-text-3 {
+    color: var(--vt-spreadsheet-reference-3);
+}
+
+.vt-spreadsheet-reference-text-4 {
+    color: var(--vt-spreadsheet-reference-4);
+}
+
+.vt-spreadsheet-reference-text-5 {
+    color: var(--vt-spreadsheet-reference-5);
 }
 
 /* ---- the grid ---- */
