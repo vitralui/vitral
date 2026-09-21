@@ -97,6 +97,7 @@ export * from './Taskboard';
 export * from './Terminal';
 export * from './Textarea';
 export * from './TieredMenu';
+export * from './TimePicker';
 export * from './Timeline';
 export * from './Toast';
 export * from './ToggleButton';

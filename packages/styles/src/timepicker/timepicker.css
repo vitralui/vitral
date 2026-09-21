@@ -1,0 +1,49 @@
+/* A text box that takes typed times, and a list of them under it. The box and
+   its button are the shared `.vt-field` chrome; what is here is the list. */
+
+.vt-timepicker-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: var(--vt-timepicker-list-height);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.vt-timepicker-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: var(--vt-timepicker-panel-min-width);
+    padding: var(--vt-list-padding);
+}
+
+.vt-timepicker-panel-inline {
+    position: static;
+    box-shadow: none;
+}
+
+.vt-timepicker-option {
+    padding: var(--vt-list-option-padding);
+    border-radius: var(--vt-list-option-border-radius);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+/* The row the arrows are on, which is not the same as the row chosen. */
+.vt-timepicker-option-active {
+    background: var(--vt-list-option-focus-background);
+    color: var(--vt-list-option-focus-color);
+}
+
+.vt-timepicker-option-selected {
+    background: var(--vt-list-option-selected-background);
+    color: var(--vt-list-option-selected-color);
+    font-weight: 600;
+}
+
+.vt-timepicker-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--vt-overlay-select-border-color);
+}

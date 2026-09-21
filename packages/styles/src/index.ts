@@ -98,6 +98,7 @@ export * from './terminal';
 export * from './textarea';
 export * from './tieredmenu';
 export * from './timeline';
+export * from './timepicker';
 export * from './toast';
 export * from './togglebutton';
 export * from './toggleswitch';

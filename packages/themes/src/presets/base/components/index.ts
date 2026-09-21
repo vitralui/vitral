@@ -97,6 +97,7 @@ import terminal from './terminal';
 import textarea from './textarea';
 import tieredmenu from './tieredmenu';
 import timeline from './timeline';
+import timepicker from './timepicker';
 import toast from './toast';
 import togglebutton from './togglebutton';
 import toggleswitch from './toggleswitch';
@@ -208,6 +209,7 @@ export const components = {
     textarea,
     tieredmenu,
     timeline,
+    timepicker,
     toast,
     togglebutton,
     toggleswitch,

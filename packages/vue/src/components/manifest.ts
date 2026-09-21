@@ -177,6 +177,7 @@ export const componentNames = [
     'Terminal',
     'Textarea',
     'TieredMenu',
+    'TimePicker',
     'Timeline',
     'Toast',
     'ToggleButton',

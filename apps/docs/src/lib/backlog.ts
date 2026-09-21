@@ -28,6 +28,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'ToggleSwitch', group: 'Form' },
     { vitral: 'Slider', group: 'Form' },
     { vitral: 'DatePicker', group: 'Form' },
+    { vitral: 'TimePicker', group: 'Form' },
     { vitral: 'AutoComplete', group: 'Form', note: 'The editable combobox: suggestions as you type, over the same list behaviour Select already has.' },
     { vitral: 'MultiSelect', group: 'Form', note: 'Select with checkboxes, a chip display and select-all.' },
     { vitral: 'InputPassword', group: 'Form', note: 'A text box with a reveal toggle and a strength meter.' },
