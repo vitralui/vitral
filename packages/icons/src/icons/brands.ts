@@ -50,7 +50,10 @@ export const x: IconDef = {
     name: 'x',
     category,
     tags: ['social', 'twitter', 'post', 'share'],
-    body: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 8l8 8M16 8l-8 8"/>'
+    // The glyph's own silhouette — flat-cut ends and a waist where the bars
+    // pass — not two crossed strokes. Drawn as an X in a box it was the close
+    // button wearing a badge, which is the one thing this mark must not be.
+    body: '<path d="M3 3h4.8l4.2 5.7L16.2 3H21l-6.6 9 6.6 9h-4.8L12 15.3 7.8 21H3l6.6-9z"/>'
 };
 
 export const pinterest: IconDef = {
