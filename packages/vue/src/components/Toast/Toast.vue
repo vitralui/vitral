@@ -144,7 +144,7 @@ defineExpose({ add, remove, clear });
                         </div>
                         <button v-if="entry.message.closable !== false" type="button" :aria-label="locale.aria.close" v-bind="part('closeButton')" @click="close(entry)">
                             <slot name="closeicon">
-                                <Icon icon="x" />
+                                <Icon icon="close" />
                             </slot>
                         </button>
                     </template>

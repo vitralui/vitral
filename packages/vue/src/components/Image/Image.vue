@@ -159,7 +159,7 @@ defineExpose({ show, hide });
                             <button type="button" :aria-label="locale.aria.rotateRight" v-bind="part('action')" @click="rotate(1)"><Icon icon="refresh" /></button>
                             <button type="button" :aria-label="locale.aria.zoomOut" :disabled="scale <= minZoom" v-bind="part('action')" @click="zoom(-1)"><Icon icon="zoomOut" /></button>
                             <button type="button" :aria-label="locale.aria.zoomIn" :disabled="scale >= maxZoom" v-bind="part('action')" @click="zoom(1)"><Icon icon="zoomIn" /></button>
-                            <button type="button" :aria-label="locale.aria.close" v-bind="part('action')" @click="hide"><Icon icon="x" /></button>
+                            <button type="button" :aria-label="locale.aria.close" v-bind="part('action')" @click="hide"><Icon icon="close" /></button>
                         </div>
                         <slot name="preview" :style="previewStyle" :preview-callback="hide">
                             <img

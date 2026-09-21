@@ -68,7 +68,7 @@ function attachmentView(context: ViewContext, attachment: ChatAttachment, index:
                       'aria-label': formatMessage(locale.chat.removeAttachment, { name: attachment.name }),
                       onClick: () => on.detach(attachment, index)
                   }),
-                  icon('x')
+                  icon('close')
               )
             : null
     ];

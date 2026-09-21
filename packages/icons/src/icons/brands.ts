@@ -54,8 +54,8 @@ export const telegram: IconDef = {
     body: '<path d="M21 4L2.8 10.9l5.4 1.9L21 4 10.9 14.1 21 4z"/><path d="M8.2 12.8L10.9 21l3.2-4.6M8.2 12.8V19l2.7-2"/>'
 };
 
-export const xTwitter: IconDef = {
-    name: 'xTwitter',
+export const x: IconDef = {
+    name: 'x',
     category,
     tags: ['social', 'twitter', 'post', 'share'],
     body: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 8l8 8M16 8l-8 8"/>'

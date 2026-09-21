@@ -380,7 +380,7 @@ const quoted = (expr: string) =>
         .filter((v) => IDENT.test(v));
 
 /**
- * Icon names asked for in a file: `icon="x"` and `*-icon="x"` / `*Icon="x"`
+ * Icon names asked for in a file: `icon="close"` and `*-icon="close"` / `*Icon="x"`
  * attributes (static values whole, bound values by their string literals), and
  * `icon: …` / `somethingIcon: …` properties in script.
  */

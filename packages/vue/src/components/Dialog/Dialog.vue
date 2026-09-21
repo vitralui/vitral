@@ -104,7 +104,7 @@ defineExpose({ close, toggleMaximize, maximized });
                             </button>
                             <button v-if="closable" type="button" :aria-label="locale.aria.close" v-bind="part('closeButton')" @click="close">
                                 <slot name="closeicon">
-                                    <Icon icon="x" />
+                                    <Icon icon="close" />
                                 </slot>
                             </button>
                         </div>

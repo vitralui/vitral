@@ -25,7 +25,11 @@ export const flask: IconDef = { name: 'flask', category, tags: ['chemistry', 'la
 export const testTube: IconDef = { name: 'testTube', category, tags: ['lab', 'sample', 'chemistry'], body: '<path d="M14.5 2v17.5a2.5 2.5 0 0 1-5 0V2M8 2h8M9.5 12h5"/>' };
 export const testTubes: IconDef = { name: 'testTubes', category, tags: ['lab', 'samples', 'research'], body: '<path d="M9 2v17.5a2.5 2.5 0 0 1-5 0V2M20 2v17.5a2.5 2.5 0 0 1-5 0V2M3 2h7M14 2h7M4 12h5M15 16h5"/>' };
 export const atom: IconDef = { name: 'atom', category, tags: ['physics', 'science', 'nuclear'], body: '<circle cx="12" cy="12" r="1"/><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M7 3.34A10 4 60 0 0 17 20.66 10 4 60 0 0 7 3.34M17 3.34A10 4 -60 0 0 7 20.66 10 4 -60 0 0 17 3.34"/>' };
-export const globeStand: IconDef = { name: 'globeStand', category, tags: ['geography', 'world', 'earth'], body: '<circle cx="12" cy="9" r="6"/><path d="M4.2 13.8A9 9 0 0 0 19 5.8M12 18v4M8 22h8M6 9h12M12 3a9 9 0 0 1 0 12"/>' };
+// A globe with its equator and meridian, on a stand it actually touches. The
+// old one had a radius-9 arc drawn across a radius-6 globe, so a line swept
+// clear of the sphere and out the other side, and the stem began three units
+// below where the globe ended.
+export const globeStand: IconDef = { name: 'globeStand', category, tags: ['geography', 'world', 'earth'], body: '<circle cx="12" cy="10" r="7"/><path d="M5 10h14M12 3a3.5 7 0 0 0 0 14a3.5 7 0 0 0 0-14M12 17v3M8.5 20h7"/>' };
 export const certificate: IconDef = { name: 'certificate', category, tags: ['diploma', 'award', 'achievement'], body: '<path d="M12 18H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v11a2 2 0 0 1-1 1.7M6 7h12M6 11h5"/><circle cx="17" cy="13.5" r="3"/><path d="M15 16v6l2-1.5 2 1.5v-6"/>' };
 export const chalkboard: IconDef = { name: 'chalkboard', category, tags: ['blackboard', 'classroom', 'teach'], body: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M6 21l2-4M18 21l-2-4M6 13l3-3 2.5 2L15 8M15 17h4"/>' };
 export const presentation: IconDef = { name: 'presentation', category, tags: ['slides', 'talk', 'lecture'], body: '<path d="M2 3h20M3 3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3M12 16v2M8 22l4-4 4 4M8 11l3-3 2 2 3-3"/>' };

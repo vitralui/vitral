@@ -169,7 +169,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), add: (value: string) => com
                         @click.stop="take(index, $event)"
                     >
                         <slot name="removeicon" :value="tag" :index="index">
-                            <Icon :icon="removeIcon ?? 'x'" />
+                            <Icon :icon="removeIcon ?? 'close'" />
                         </slot>
                     </button>
                 </slot>

@@ -78,7 +78,7 @@ defineExpose({ close });
                         </div>
                         <button v-if="showCloseIcon" type="button" :aria-label="locale.aria.close" v-bind="part('closeButton')" @click="close">
                             <slot name="closeicon">
-                                <Icon icon="x" />
+                                <Icon icon="close" />
                             </slot>
                         </button>
                     </div>

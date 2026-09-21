@@ -230,7 +230,7 @@ defineExpose({ upload, clear, choose, files, uploadedFiles: uploaded });
             <Button
                 v-if="showCancelButton && !auto"
                 :label="cancelLabel ?? locale.cancel"
-                icon="x"
+                icon="close"
                 severity="secondary"
                 :disabled="disabled || !files.length || uploading"
                 :unstyled="unstyled"
@@ -281,7 +281,7 @@ defineExpose({ upload, clear, choose, files, uploadedFiles: uploaded });
                         <Tag v-else :value="locale.pending" severity="warn" :unstyled="unstyled" />
                         <Button
                             :id="`${id}-remove-${i}`"
-                            icon="x"
+                            icon="close"
                             variant="text"
                             severity="danger"
                             :aria-label="locale.aria.removeItem"

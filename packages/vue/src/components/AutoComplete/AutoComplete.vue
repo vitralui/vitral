@@ -350,7 +350,7 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
         />
         <Icon v-if="loading" icon="spinner" spin v-bind="part('loader')" />
         <button v-if="showClear && hasValue && editable" type="button" tabindex="-1" :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
-            <Icon icon="x" />
+            <Icon icon="close" />
         </button>
         <button
             v-if="dropdown"

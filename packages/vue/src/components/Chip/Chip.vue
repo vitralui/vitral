@@ -47,7 +47,7 @@ function onRemoveKeydown(event: KeyboardEvent) {
             @keydown="onRemoveKeydown"
         >
             <slot name="removeicon">
-                <Icon :icon="removeIcon ?? 'x'" />
+                <Icon :icon="removeIcon ?? 'close'" />
             </slot>
         </button>
     </span>

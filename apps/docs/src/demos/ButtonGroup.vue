@@ -18,7 +18,7 @@ import DemoSection from '../DemoSection.vue';
         <ButtonGroup aria-label="Record">
             <Button label="Save" icon="check" />
             <Button label="Delete" icon="trash" />
-            <Button label="Cancel" icon="x" />
+            <Button label="Cancel" icon="close" />
         </ButtonGroup>
     </DemoSection>
     <DemoSection title="Outlined and secondary">

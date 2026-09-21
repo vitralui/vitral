@@ -34,7 +34,7 @@ const actions: MenuItem[] = [
     <DemoSection title="Circle and semi-circle">
         <div style="display: flex; gap: 12rem; align-items: center; padding: 6rem 7rem">
             <SpeedDial :model="actions" type="circle" :radius="80" aria-label="Actions (circle)" severity="help" />
-            <SpeedDial :model="actions" type="semi-circle" direction="up" :radius="90" hide-icon="x" aria-label="Actions (semi-circle)" severity="success" />
+            <SpeedDial :model="actions" type="semi-circle" direction="up" :radius="90" hide-icon="close" aria-label="Actions (semi-circle)" severity="success" />
         </div>
     </DemoSection>
     <DemoSection title="Quarter circle">

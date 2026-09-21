@@ -125,7 +125,7 @@ const details = ref(true);
                 <div class="details">
                     <header class="page-bar">
                         <h4>Details</h4>
-                        <Button icon="x" variant="text" severity="secondary" size="small" aria-label="Close details" @click="close" />
+                        <Button icon="close" variant="text" severity="secondary" size="small" aria-label="Close details" @click="close" />
                     </header>
                     <dl>
                         <dt>Name</dt>

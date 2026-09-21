@@ -184,7 +184,7 @@ const Body: FunctionalComponent = () => {
                       'aria-controls': inDrawer.value ? undefined : navId,
                       onClick: toggle
                   }),
-                  [h(IconComponent, { icon: inDrawer.value ? 'x' : 'sidebar' })]
+                  [h(IconComponent, { icon: inDrawer.value ? 'close' : 'sidebar' })]
               )
             : null;
     return [

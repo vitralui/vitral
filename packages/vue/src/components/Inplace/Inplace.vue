@@ -70,7 +70,7 @@ function onContentKeydown(event: KeyboardEvent) {
         </div>
         <div v-else ref="contentRef" tabindex="-1" v-bind="part('content')" @keydown="onContentKeydown">
             <slot name="content" :close-callback="close" />
-            <Button v-if="closable" icon="x" variant="text" severity="secondary" :aria-label="locale.close" :unstyled="unstyled" v-bind="part('close')" @click="close" />
+            <Button v-if="closable" icon="close" variant="text" severity="secondary" :aria-label="locale.close" :unstyled="unstyled" v-bind="part('close')" @click="close" />
         </div>
     </div>
 </template>

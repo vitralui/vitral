@@ -1,10 +1,10 @@
 import { isMirrored } from './direction';
 import {
     arrowDown, arrowLeft, arrowLeftRight, arrowRight, arrowUp, arrowUpDown, bell, calendar, check, chevronDown, chevronLeft, chevronRight, chevronsDown,
-    chevronsLeft, chevronsRight, chevronsUp, chevronUp, circle, clock, copy, download, error, externalLink, eye, eyeOff, file,
+    chevronsLeft, chevronsRight, chevronsUp, chevronUp, circle, clock, close, copy, download, error, externalLink, eye, eyeOff, file,
     filter, folder, folderOpen, grip, home, image, info, lock, maximize, menu, minus, moon, moreHorizontal, moreVertical, move,
     pause, pencil, play, plus, refresh, restore, rotateLeft, rotateRight, search, selection, sidebar, sliders, sort, spinner, star, starFill,
-    success, sun, terminal, trash, upload, user, warning, x, zoomIn, zoomOut
+    success, sun, terminal, trash, upload, user, warning, zoomIn, zoomOut
 } from './icons/index';
 import { ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from './types';
 
@@ -17,7 +17,7 @@ import { ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from './types';
  */
 export const baseIcons: readonly IconDef[] = [
     chevronDown, chevronUp, chevronLeft, chevronRight, chevronsLeft, chevronsRight, chevronsUp, chevronsDown,
-    check, minus, plus, x, search, calendar, clock, info, warning, error, success, spinner,
+    check, minus, plus, close, search, calendar, clock, info, warning, error, success, spinner,
     arrowUp, arrowDown, arrowLeft, arrowRight, arrowLeftRight, arrowUpDown, sort, filter, menu, moreHorizontal, moreVertical, eye, eyeOff,
     home, folder, folderOpen, file, star, starFill, trash, pencil, copy, externalLink, upload, download, user,
     sliders, bell, sun, moon, grip, sidebar, refresh, circle, maximize, restore, zoomIn, zoomOut, rotateLeft,

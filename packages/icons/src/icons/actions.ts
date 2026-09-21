@@ -8,7 +8,7 @@ export const check: IconDef = { name: 'check', category, tags: ['done', 'tick', 
 export const checkCheck: IconDef = { name: 'checkCheck', category, tags: ['read', 'double tick', 'done all'], body: '<path d="M1.5 12.5l5 5L17 7M12 16.5l1 1L22.5 7"/>' };
 export const minus: IconDef = { name: 'minus', category, tags: ['subtract', 'remove', 'dash'], body: '<path d="M5 12h14"/>' };
 export const plus: IconDef = { name: 'plus', category, tags: ['add', 'new', 'create'], body: '<path d="M12 5v14M5 12h14"/>' };
-export const x: IconDef = { name: 'x', category, tags: ['close', 'cancel', 'remove', 'dismiss'], body: '<path d="M6 6l12 12M18 6L6 18"/>' };
+export const close: IconDef = { name: 'close', category, tags: ['x', 'cancel', 'remove', 'dismiss'], body: '<path d="M6 6l12 12M18 6L6 18"/>' };
 export const search: IconDef = { name: 'search', category, tags: ['find', 'magnifier', 'lookup'], body: '<circle cx="11" cy="11" r="7"/><path d="M16 16l4.5 4.5"/>' };
 export const zoomIn: IconDef = { name: 'zoomIn', category, tags: ['magnify', 'enlarge', 'plus'], body: '<circle cx="11" cy="11" r="7"/><path d="M16 16l4.5 4.5M8 11h6M11 8v6"/>' };
 export const zoomOut: IconDef = { name: 'zoomOut', category, tags: ['magnify', 'reduce', 'minus'], body: '<circle cx="11" cy="11" r="7"/><path d="M16 16l4.5 4.5M8 11h6"/>' };
@@ -64,7 +64,7 @@ export const alertCircle: IconDef = { name: 'alertCircle', category, tags: ['exc
 export const alertOctagon: IconDef = { name: 'alertOctagon', category, tags: ['stop', 'danger', 'exclamation'], body: '<path d="M8.17 2.76L15.83 2.76L21.24 8.17L21.24 15.83L15.83 21.24L8.17 21.24L2.76 15.83L2.76 8.17z"/><path d="M12 7.5v5.5M12 16.5h.01"/>' };
 export const ban: IconDef = { name: 'ban', category, tags: ['forbidden', 'blocked', 'prohibited', 'not allowed'], body: '<circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/>' };
 export const checkSquare: IconDef = { name: 'checkSquare', category, tags: ['checkbox', 'checked', 'done'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12.5l2.5 2.5L16 9.5"/>' };
-export const xSquare: IconDef = { name: 'xSquare', category, tags: ['close', 'cancel', 'checkbox'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/>' };
+export const closeSquare: IconDef = { name: 'closeSquare', category, tags: ['close', 'cancel', 'checkbox'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/>' };
 export const plusSquare: IconDef = { name: 'plusSquare', category, tags: ['add', 'new', 'expand'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>' };
 export const minusSquare: IconDef = { name: 'minusSquare', category, tags: ['collapse', 'remove'], body: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8"/>' };
 export const radioOn: IconDef = { name: 'radioOn', category, tags: ['radio', 'selected', 'option', 'dot'], body: '<circle cx="12" cy="12" r="10"/><circle fill="currentColor" cx="12" cy="12" r="4"/>' };

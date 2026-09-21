@@ -25,7 +25,7 @@ const locked = ref(false);
     </DemoSection>
     <DemoSection title="Icons and labels">
         <ToggleButton v-model="starred" on-label="Starred" off-label="Star" on-icon="star" off-icon="star" aria-label="Star" />
-        <ToggleButton v-model="locked" on-label="On" off-label="Off" on-icon="check" off-icon="x" aria-label="Lock editing" />
+        <ToggleButton v-model="locked" on-label="On" off-label="Off" on-icon="check" off-icon="close" aria-label="Lock editing" />
     </DemoSection>
     <DemoSection title="Sizes and states">
         <ToggleButton :model-value="true" on-label="Small" off-label="Small" size="small" />

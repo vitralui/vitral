@@ -136,7 +136,7 @@ defineExpose({ go });
                     v-bind="fullScreen ? part('fullscreen') : {}"
                 >
                     <button v-if="fullScreen" type="button" :aria-label="locale.aria.close" v-bind="part('close')" @click="visible = false">
-                        <Icon icon="x" />
+                        <Icon icon="close" />
                     </button>
                     <section
                         aria-roledescription="carousel"
