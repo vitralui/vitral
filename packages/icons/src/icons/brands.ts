@@ -11,6 +11,12 @@ import type { IconDef } from '../types';
 const category = 'brands';
 
 // ---- social
+//
+// WhatsApp, Telegram and Threads are deliberately absent: their marks are
+// illustration rather than geometry — a handset inside a bubble, a paper plane
+// with a fold, a knotted loop — and at 24 units with a 2-unit stroke every
+// version of them read as a blot rather than as the thing. A mark nobody
+// recognises is worse than no mark.
 
 export const linkedin: IconDef = {
     name: 'linkedin',
@@ -40,32 +46,11 @@ export const youtube: IconDef = {
     body: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.3 9.2l5.4 2.8-5.4 2.8z"/>'
 };
 
-export const whatsapp: IconDef = {
-    name: 'whatsapp',
-    category,
-    tags: ['social', 'chat', 'messaging', 'meta'],
-    body: '<path d="M3.2 20.8l1.4-4.2A8.6 8.6 0 1 1 7.8 19.6z"/><path d="M9 9.6c0 3 2.4 5.4 5.4 5.4l.9-1.4-1.9-.9-.9.9a5.2 5.2 0 0 1-1.8-1.8l.9-.9-.9-1.9z"/>'
-};
-
-export const telegram: IconDef = {
-    name: 'telegram',
-    category,
-    tags: ['social', 'chat', 'messaging'],
-    body: '<path d="M21 4L2.8 10.9l5.4 1.9L21 4 10.9 14.1 21 4z"/><path d="M8.2 12.8L10.9 21l3.2-4.6M8.2 12.8V19l2.7-2"/>'
-};
-
 export const x: IconDef = {
     name: 'x',
     category,
     tags: ['social', 'twitter', 'post', 'share'],
     body: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 8l8 8M16 8l-8 8"/>'
-};
-
-export const threads: IconDef = {
-    name: 'threads',
-    category,
-    tags: ['social', 'meta', 'posts'],
-    body: '<path d="M16 8.4A4.6 4.6 0 0 0 12 6.5C8.5 6.5 6.5 9 6.5 12s2 5.5 5.5 5.5c3 0 4.6-1.6 4.6-3.4 0-2-1.8-3-4-3-1.7 0-2.9.8-2.9 2 0 1 .9 1.7 2 1.7 1.7 0 2.6-1.4 2.6-3.6"/><path d="M12 3a9 9 0 1 0 0 18"/>'
 };
 
 export const pinterest: IconDef = {
