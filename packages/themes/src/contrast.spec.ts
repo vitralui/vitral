@@ -82,8 +82,20 @@ const TEXT: Pair[] = [
  */
 const FOCUS: Pair[] = [{ fg: '--vt-focus-ring-color', bg: '--vt-content-background', need: 3, what: 'the focus ring against a surface' }];
 
-/** The one boundary still below the bar; see the test that records it. */
+/** The boundary that says where a control is. */
 const EDGES: Pair[] = [{ fg: '--vt-form-field-border-color', bg: '--vt-form-field-background', need: 3, what: "a field's own edge" }];
+
+/**
+ * A surface's edge is not a control's. 1.4.11 does not ask a card to reach 3:1,
+ * and holding it there would make every container shout as loudly as the fields
+ * inside it — but leaving it at the hairline it used to be, once the fields were
+ * darkened, read as one of them having been forgotten. It sits between: quieter
+ * than a control, loud enough to belong to the same drawing.
+ */
+const SURFACES: Pair[] = [
+    { fg: '--vt-content-border-color', bg: '--vt-content-background', need: 1.7, what: "a card's edge" },
+    { fg: '--vt-overlay-popover-border-color', bg: '--vt-overlay-popover-background', need: 1.7, what: "a popover's edge" }
+];
 
 function ratios(preset: Preset, pairs: Pair[]) {
     const { light, dark } = compileTheme(preset);
@@ -128,6 +140,17 @@ describe('WCAG contrast, over every preset and both schemes', () => {
         // heavier than the criterion asks for.
         it(`${name} draws a field edge at the ratio 1.4.11 asks for`, () => {
             expect(failing(preset, EDGES)).toEqual([]);
+        });
+
+        // Not a WCAG rule — a house one. The two kinds of edge have to stay on
+        // speaking terms, or the darker fields look like a change nobody
+        // finished.
+        it(`${name} keeps a surface edge quieter than a control's, but in the same drawing`, () => {
+            expect(failing(preset, SURFACES)).toEqual([]);
+            for (const surface of ratios(preset, SURFACES)) {
+                const control = ratios(preset, EDGES).find((e) => e.scheme === surface.scheme)!;
+                expect(surface.ratio, `${surface.scheme} ${surface.what}`).toBeLessThan(control.ratio + 0.6);
+            }
         });
     }
 });

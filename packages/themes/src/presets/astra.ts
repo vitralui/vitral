@@ -87,7 +87,7 @@ export const Astra = definePreset(Base, {
                 surface: slate,
                 primary: severityDark('primary'),
                 app: { background: '#0b1020' },
-                content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: '{surface.700}' },
+                content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
                 formField: {
                     background: '#0b1020',
                     hoverBackground: '#0b1020',
@@ -98,9 +98,9 @@ export const Astra = definePreset(Base, {
                     focusShadow: '0 0 0 4px color-mix(in srgb, {primary.color} 28%, transparent)'
                 },
                 overlay: {
-                    select: { background: '{surface.900}', borderColor: '{surface.700}' },
-                    popover: { background: '{surface.900}', borderColor: '{surface.700}' },
-                    modal: { background: '{surface.900}', borderColor: '{surface.700}' }
+                    select: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                    popover: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                    modal: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' }
                 },
                 list: { option: { selectedIndicator: '{primary.color}' } }
             }

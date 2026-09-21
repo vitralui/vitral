@@ -70,7 +70,7 @@ export const Avalonia = definePreset(Base, {
                 },
                 highlight: { background: 'rgba(0, 0, 0, 0.037)', focusBackground: 'rgba(0, 0, 0, 0.056)', color: 'rgba(0, 0, 0, 0.894)', focusColor: 'rgba(0, 0, 0, 0.894)' },
                 text: { color: 'rgba(0, 0, 0, 0.894)', hoverColor: '#000000', mutedColor: 'rgba(0, 0, 0, 0.62)', hoverMutedColor: 'rgba(0, 0, 0, 0.894)' },
-                content: { background: 'rgba(255, 255, 255, 0.7)', hoverBackground: 'rgba(0, 0, 0, 0.037)', borderColor: 'rgba(0, 0, 0, 0.0578)' },
+                content: { background: 'rgba(255, 255, 255, 0.7)', hoverBackground: 'rgba(0, 0, 0, 0.037)', borderColor: 'rgba(0, 0, 0, 0.26)' },
                 formField: {
                     background: 'rgba(255, 255, 255, 0.7)',
                     hoverBackground: 'rgba(249, 249, 249, 0.5)',
@@ -90,9 +90,9 @@ export const Avalonia = definePreset(Base, {
                     focusShadow: 'inset 0 -2px 0 0 {primary.color}'
                 },
                 overlay: {
-                    select: { background: '#f9f9f9', borderColor: 'rgba(0, 0, 0, 0.0578)' },
-                    popover: { background: '#f9f9f9', borderColor: 'rgba(0, 0, 0, 0.0578)' },
-                    modal: { background: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.0578)' }
+                    select: { background: '#f9f9f9', borderColor: 'rgba(0, 0, 0, 0.26)' },
+                    popover: { background: '#f9f9f9', borderColor: 'rgba(0, 0, 0, 0.26)' },
+                    modal: { background: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.26)' }
                 },
                 list: {
                     option: {
@@ -134,7 +134,7 @@ export const Avalonia = definePreset(Base, {
                 },
                 highlight: { background: 'rgba(255, 255, 255, 0.061)', focusBackground: 'rgba(255, 255, 255, 0.084)', color: '#ffffff', focusColor: '#ffffff' },
                 text: { color: '#ffffff', hoverColor: '#ffffff', mutedColor: 'rgba(255, 255, 255, 0.786)', hoverMutedColor: '#ffffff' },
-                content: { background: 'rgba(255, 255, 255, 0.051)', hoverBackground: 'rgba(255, 255, 255, 0.061)', borderColor: 'rgba(255, 255, 255, 0.0698)' },
+                content: { background: 'rgba(255, 255, 255, 0.051)', hoverBackground: 'rgba(255, 255, 255, 0.061)', borderColor: 'rgba(255, 255, 255, 0.17)' },
                 formField: {
                     background: 'rgba(255, 255, 255, 0.061)',
                     hoverBackground: 'rgba(255, 255, 255, 0.084)',
@@ -154,9 +154,11 @@ export const Avalonia = definePreset(Base, {
                     focusShadow: 'inset 0 -2px 0 0 {primary.color}'
                 },
                 overlay: {
-                    select: { background: '#2c2c2c', borderColor: 'rgba(0, 0, 0, 0.2)' },
-                    popover: { background: '#2c2c2c', borderColor: 'rgba(0, 0, 0, 0.2)' },
-                    modal: { background: '#2b2b2b', borderColor: 'rgba(255, 255, 255, 0.0698)' }
+                    // Black over a dark panel is not an edge; in this scheme the
+                    // light that separates things comes from above, not below.
+                    select: { background: '#2c2c2c', borderColor: 'rgba(255, 255, 255, 0.17)' },
+                    popover: { background: '#2c2c2c', borderColor: 'rgba(255, 255, 255, 0.17)' },
+                    modal: { background: '#2b2b2b', borderColor: 'rgba(255, 255, 255, 0.17)' }
                 },
                 list: {
                     option: {

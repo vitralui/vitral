@@ -67,8 +67,8 @@ export const Simple = definePreset(Base, {
                 highlight: { background: 'color-mix(in srgb, #119eda 35%, transparent)', focusBackground: 'color-mix(in srgb, #119eda 48%, transparent)', color: '#ffffff', focusColor: '#ffffff' },
                 text: { color: '#dedede', hoverColor: '#ffffff', mutedColor: '#999999', hoverMutedColor: '#bbbbbb' },
                 formField: { background: '#1e1e1e', borderColor: '#6a6a6a', hoverBorderColor: '#808080', shadow: 'none', focusShadow: 'none', color: '#dedede' },
-                content: { background: '#282828', borderColor: '#505050' },
-                overlay: { select: { background: '#333333', borderColor: '#505050' }, popover: { background: '#333333', borderColor: '#505050' }, modal: { background: '#333333', borderColor: '#505050' } },
+                content: { background: '#282828', borderColor: '#5c5c5c' },
+                overlay: { select: { background: '#333333', borderColor: '#666666' }, popover: { background: '#333333', borderColor: '#666666' }, modal: { background: '#333333', borderColor: '#666666' } },
                 secondary: {
                     color: '#3f3f3f',
                     contrastColor: '#dedede',
