@@ -29,6 +29,7 @@ import {
     isComposite,
     loadRequest,
     modeOf,
+    linesOf,
     resolveRows,
     rowSelected,
     selectionKind,
@@ -388,6 +389,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         chooserButton(el) {
             chooserEl = el as HTMLElement | null;
         },
+        toggleGroup(key) {
+            const shut = models.collapsedGroups ?? [];
+            change({ collapsedGroups: shut.includes(key) ? shut.filter((k) => k !== key) : [...shut, key] });
+        },
         scrolled(event) {
             if (!current.group || echo) return;
             tableBus.publish(current.group, { kind: 'scroll', source: id, left: (event.currentTarget as HTMLElement).scrollLeft });
@@ -536,6 +541,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             models,
             columns,
             rows,
+            lines: linesOf(current, models, rows.page),
             filters: models.filters,
             locale: locale(),
             ids,

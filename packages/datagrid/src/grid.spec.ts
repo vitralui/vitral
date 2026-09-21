@@ -393,4 +393,48 @@ describe('its columns', () => {
         handle = null;
         expect(document.querySelector('.vt-datagrid-chooser-panel')).toBeNull();
     });
+
+    // Two teams, deliberately interleaved: gathering by value rather than by
+    // adjacency is the whole point, so the fixture must not already be sorted.
+    const staff = [
+        { id: 1, name: 'Ana Souza', city: 'Recife', age: 34 },
+        { id: 2, name: 'Bruno Lima', city: 'Lisboa', age: 28 },
+        { id: 3, name: 'Carla Mendes', city: 'Recife', age: 45 },
+        { id: 4, name: 'Diego Ferreira', city: 'Lisboa', age: 31 },
+        { id: 5, name: 'Élise Martin', city: 'Recife', age: 39 }
+    ];
+
+    it('gathers rows under a heading, and shuts one when its toggle is pressed', () => {
+        const { element } = mount({ value: staff, groupBy: 'city', paginator: false });
+        const headings = () => Array.from(element.querySelectorAll<HTMLElement>('.vt-datagrid-group-toggle'));
+        const names = () => Array.from(element.querySelectorAll('tbody tr:not(.vt-datagrid-group-row) td:first-child')).map((td) => td.textContent);
+
+        expect(headings().length).toBeGreaterThan(1);
+        // A heading carries its own count.
+        const first = headings()[0]!;
+        const counted = Number(first.querySelector('.vt-datagrid-group-count')!.textContent);
+        expect(counted).toBeGreaterThan(0);
+        expect(first.getAttribute('aria-expanded')).toBe('true');
+
+        const before = names().length;
+        first.click();
+        // Shut: the heading stays, its rows go.
+        expect(headings()[0]!.getAttribute('aria-expanded')).toBe('false');
+        expect(names().length).toBe(before - counted);
+
+        headings()[0]!.click();
+        expect(names().length).toBe(before);
+
+        // Recife's three are not next to each other in the data and are still
+        // one group, which is what makes grouping survive a sort on another column.
+        expect(headings().map((h) => h.querySelector('.vt-datagrid-group-count')!.textContent)).toEqual(['3', '2']);
+    });
+
+    it('keeps each row the index it had, so selection still means the same row', () => {
+        const { element } = mount({ value: staff, groupBy: 'city', paginator: false, selectionMode: 'multiple' });
+        const rows = () => Array.from(element.querySelectorAll<HTMLElement>('tbody tr:not(.vt-datagrid-group-row)'));
+        // A heading is not a row of data: it takes no tab stop and no selection.
+        expect(element.querySelectorAll('.vt-datagrid-group-row [type="checkbox"]')).toHaveLength(0);
+        expect(rows().length).toBeGreaterThan(0);
+    });
 });

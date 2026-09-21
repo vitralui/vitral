@@ -47,6 +47,15 @@ export interface ColumnLayoutLike {
 export interface DataGridProps extends BaseProps {
     /** The rows; with `lazy`, only the current page. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /**
+     * Gathers the rows by this field and puts a heading over each run, with a
+     * count and a toggle. Grouping happens after the query, so sorting and
+     * filtering still decide which rows there are; `v-model:collapsedGroups`
+     * holds which of them the reader has shut.
+     */
+    groupBy?: string;
+    /** What a group's heading says; the value itself by default. */
+    groupLabel?: (context: { value: unknown; count: number; rows: any[] }) => string;
     value?: any[];
     /** A field that identifies a row, for selection and row keys. */
     dataKey?: string;

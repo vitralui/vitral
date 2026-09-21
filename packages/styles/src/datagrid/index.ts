@@ -98,6 +98,13 @@ export const datagridStyle = defineStyle({
         checkbox: 'vt-datagrid-checkbox',
         checkboxInput: 'vt-datagrid-checkbox-input',
         checkboxIcon: 'vt-datagrid-checkbox-icon',
+        /** The heading over a run of rows that share the grouping field. */
+        groupRow: 'vt-datagrid-group-row',
+        groupCell: 'vt-datagrid-group-cell',
+        groupToggle: 'vt-datagrid-group-toggle',
+        groupIcon: (s: { collapsed?: boolean }) => ['vt-datagrid-group-icon', { 'vt-datagrid-group-icon-collapsed': s.collapsed }],
+        groupTitle: 'vt-datagrid-group-title',
+        groupCount: 'vt-datagrid-group-count',
         emptyRow: 'vt-datagrid-empty-row',
         emptyCell: 'vt-datagrid-empty-cell',
         tfoot: 'vt-datagrid-tfoot',

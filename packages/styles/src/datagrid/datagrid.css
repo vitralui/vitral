@@ -271,6 +271,68 @@
     text-align: center;
 }
 
+/* ---- groups ----
+   A heading over each run of rows that share the grouping field. It is a row of
+   the table like any other, so the table keeps its shape and a screen reader
+   keeps its bearings; the whole cell is the button that opens and shuts it. */
+
+.vt-datagrid-group-row > th {
+    padding: 0;
+    background: var(--vt-datagrid-group-background);
+    border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
+}
+
+.vt-datagrid-group-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: var(--vt-datagrid-group-padding);
+    border: 0;
+    background: transparent;
+    color: var(--vt-datagrid-group-color);
+    font: inherit;
+    font-weight: var(--vt-datagrid-group-font-weight);
+    text-align: start;
+    cursor: pointer;
+}
+
+.vt-datagrid-group-toggle:hover {
+    background: var(--vt-datagrid-row-hover-background);
+}
+
+.vt-datagrid-group-toggle:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: calc(var(--vt-focus-ring-width) * -1);
+}
+
+/* The chevron turns rather than swapping, so it is plain which way it goes. */
+.vt-datagrid-group-icon {
+    flex: none;
+    color: var(--vt-datagrid-group-icon-color);
+    transition: rotate var(--vt-datagrid-transition-duration);
+}
+
+.vt-datagrid-group-icon-collapsed {
+    rotate: -90deg;
+}
+
+.vt-datagrid-group-count {
+    margin-inline-start: auto;
+    padding: 0 0.375rem;
+    border-radius: 999px;
+    background: var(--vt-datagrid-group-count-background);
+    color: var(--vt-datagrid-group-count-color);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-datagrid-group-icon {
+        transition: none;
+    }
+}
+
 .vt-datagrid-empty-cell {
     padding: var(--vt-datagrid-body-cell-padding);
     color: var(--vt-text-muted-color);

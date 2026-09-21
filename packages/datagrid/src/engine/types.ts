@@ -146,9 +146,21 @@ export interface DataGridModels {
     filters: FilterMeta;
     selection: unknown;
     columnLayout: ColumnLayout;
+    /** The keys of the groups the reader has shut, when the grid is grouped. */
+    collapsedGroups: string[];
 }
 
 export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
+    /**
+     * Gathers the rows by this field and puts a heading over each run, with a
+     * count and a toggle. The grouping happens after the query, so sorting and
+     * filtering still decide which rows there are and what order they come in.
+     * Rows are gathered by value rather than by adjacency, so sorting by some
+     * other column keeps the groups together and sorts inside them.
+     */
+    groupBy?: string;
+    /** What a group's heading says; the value itself by default. */
+    groupLabel?: (context: { value: unknown; count: number; rows: T[] }) => string;
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
     columns?: DataGridColumn<T>[];

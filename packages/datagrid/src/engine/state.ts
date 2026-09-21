@@ -1,5 +1,7 @@
 import {
+    flattenGroups,
     getField,
+    groupRows,
     isBlankFilter,
     isSelected,
     orderColumns,
@@ -11,6 +13,7 @@ import {
     type CompositeFilter,
     type FilterConstraint,
     type FilterMeta,
+    type GroupedRow,
     type SortMeta
 } from '@vitral/core';
 import type { LoadRequest, Row, DataGridColumn, DataGridConfig, DataGridModels } from './types';
@@ -48,7 +51,8 @@ export const defaultModels = (): DataGridModels => ({
     multiSortMeta: [],
     filters: {},
     selection: null,
-    columnLayout: {}
+    columnLayout: {},
+    collapsedGroups: []
 });
 
 /** The columns as declared, before the reader's layout: hidden ones are already out. */
@@ -144,6 +148,28 @@ export function resolveRows<T>(config: DataGridConfig<T>, models: DataGridModels
     const processed = queryData(value, { ...request, first: undefined, rows: undefined });
     const page = config.paginator ? queryData(processed.items, { first: models.first, rows: models.rows }).items : processed.items;
     return { page, all: processed.items, total: processed.total, offset };
+}
+
+/**
+ * The page as the lines a grouped grid draws: a heading over each run of rows
+ * that share the grouping field, and the rows of a shut group left out. With
+ * no `groupBy` there is nothing to gather and the rows are handed back as they
+ * are, so the body renderer walks one list either way.
+ *
+ * Each row keeps the index it had on the page. That index is the row's identity
+ * to selection, to the keyboard and to every event the grid emits, and shifting
+ * it because a heading was inserted would break all three.
+ */
+export function linesOf<T>(config: DataGridConfig<T>, models: DataGridModels, page: T[]): GroupedRow<T>[] {
+    if (!config.groupBy) return page.map((row, index) => ({ kind: 'row', row, index }));
+    const groups = groupRows(page, config.groupBy);
+    return flattenGroups(groups, page, new Set(models.collapsedGroups ?? []));
+}
+
+/** What a group's heading says: what the template asked for, or the value itself. */
+export function groupTitle<T>(config: DataGridConfig<T>, group: { value: unknown; rows: T[] }): string {
+    if (config.groupLabel) return config.groupLabel({ value: group.value, count: group.rows.length, rows: group.rows });
+    return group.value === null || group.value === undefined || group.value === '' ? '—' : String(group.value);
 }
 
 /** Whether anything is being filtered, which decides which empty message is shown. */

@@ -1,7 +1,7 @@
-import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type Locale } from '@vitral/core';
+import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type GroupedRow, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
-import { cellText, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
+import { cellText, groupTitle, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { Content, PageContext, Row, DataGridColumn, DataGridConfig, DataGridModels } from '../engine/types';
 
 /**
@@ -17,6 +17,8 @@ export interface ViewContext<T = Row> {
     models: DataGridModels;
     columns: ResolvedColumn<T>[];
     rows: ResolvedRows<T>;
+    /** The page as the lines to draw: a heading over each run, or just the rows. */
+    lines: GroupedRow<T>[];
     filters: FilterMeta;
     locale: Locale;
     ids: { table: string; list: string; caption: string };
@@ -52,6 +54,8 @@ export interface DataGridActions<T = Row> {
     toggleAll: (event: Event) => void;
     rowClick: (row: T, index: number, event: MouseEvent) => void;
     rowKeydown: (event: KeyboardEvent, index: number) => void;
+    /** Opens or shuts one group of a grouped grid. */
+    toggleGroup: (key: string) => void;
     resizeStart: (column: ResolvedColumn<T>, event: PointerEvent) => void;
     resizeKey: (column: ResolvedColumn<T>, event: KeyboardEvent) => void;
     headerKeydown: (column: ResolvedColumn<T>, event: KeyboardEvent) => void;
@@ -365,7 +369,32 @@ function bodyView<T>(context: ViewContext<T>): Child {
     return h(
         'tbody',
         mergeAttrs({ key: 'tbody' }, part('tbody')),
-        rows.page.map((row, index) => {
+        context.lines.map((line) => {
+            // A heading over the run of rows that share the grouping field. It
+            // is a row of the table like any other, so the table keeps its
+            // shape and a screen reader keeps its bearings.
+            if (line.kind === 'group') {
+                const title = groupTitle(config, line.group);
+                return h(
+                    'tr',
+                    mergeAttrs({ key: `group-${line.group.key}` }, part('groupRow')),
+                    h(
+                        'th',
+                        mergeAttrs(part('groupCell'), { colspan: String(Math.max(1, columns.length)), scope: 'colgroup' }),
+                        h(
+                            'button',
+                            mergeAttrs({ type: 'button' }, part('groupToggle'), {
+                                'aria-expanded': line.collapsed ? 'false' : 'true',
+                                onClick: () => context.on.toggleGroup(line.group.key)
+                            }),
+                            iconView('chevronDown', part('groupIcon', { collapsed: line.collapsed })),
+                            h('span', part('groupTitle'), title),
+                            h('span', part('groupCount'), String(line.group.rows.length))
+                        )
+                    )
+                );
+            }
+            const { row, index } = line;
             const selected = context.selectionKind ? context.selected(row) : false;
             return h(
                 'tr',

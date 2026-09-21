@@ -61,6 +61,7 @@ const selection = defineModel<unknown>('selection');
 // The layout is a plain object an application can store and hand back: the
 // order, the widths, what is hidden and what is pinned.
 const columnLayout = defineModel<ColumnLayoutLike | null>('columnLayout');
+const collapsedGroups = defineModel<string[] | null>('collapsedGroups');
 const emit = defineEmits<DataGridEmits>();
 const slots = defineSlots<DataGridSlots>();
 
@@ -283,10 +284,13 @@ const models = (): Partial<DataGridModels> => ({
     multiSortMeta: (multiSortMeta.value as DataGridModels['multiSortMeta']) ?? [],
     filters: (filters.value ?? {}) as DataGridModels['filters'],
     selection: selection.value,
-    columnLayout: (columnLayout.value ?? {}) as DataGridModels['columnLayout']
+    columnLayout: (columnLayout.value ?? {}) as DataGridModels['columnLayout'],
+    collapsedGroups: collapsedGroups.value ?? []
 });
 
 const inputs = (): DataGridConfig => ({
+    groupBy: props.groupBy,
+    groupLabel: props.groupLabel,
     value: toRaw(props.value),
     columns: columns.value,
     dataKey: props.dataKey,
@@ -343,6 +347,7 @@ function published(state: DataGridModels) {
     filters.value = state.filters as DataGridFilterMeta;
     selection.value = state.selection;
     columnLayout.value = state.columnLayout as ColumnLayoutLike;
+    collapsedGroups.value = state.collapsedGroups;
     writing = false;
 }
 
@@ -423,7 +428,7 @@ watch(
 
 // The models: what the application changed, which is not what the table just published.
 watch(
-    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, filters.value, selection.value, columnLayout.value],
+    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, filters.value, selection.value, columnLayout.value, collapsedGroups.value],
     () => {
         if (writing || !table) return;
         const state = table.state();
@@ -436,6 +441,7 @@ watch(
         if (filters.value !== state.filters) next.filters = (filters.value ?? {}) as DataGridModels['filters'];
         if (selection.value !== state.selection) next.selection = selection.value;
         if (columnLayout.value && columnLayout.value !== state.columnLayout) next.columnLayout = columnLayout.value as DataGridModels['columnLayout'];
+        if (collapsedGroups.value && collapsedGroups.value !== state.collapsedGroups) next.collapsedGroups = collapsedGroups.value;
         if (Object.keys(next).length) push(next);
     },
     { deep: true }

@@ -49,6 +49,18 @@ export default {
         padding: '0.25rem 0.625rem',
         fontSize: '0.8125rem'
     },
+    // The heading over a run of rows gathered by a field.
+    group: {
+        background: '{content.hoverBackground}',
+        color: '{text.color}',
+        iconColor: '{text.mutedColor}',
+        padding: '0.5rem 0.75rem',
+        fontWeight: '600',
+        count: {
+            background: '{content.background}',
+            color: '{text.mutedColor}'
+        }
+    },
     row: {
         background: 'transparent',
         hoverBackground: '{list.option.focusBackground}',

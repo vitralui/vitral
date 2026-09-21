@@ -10,9 +10,9 @@ export const meta: DemoMeta = {
 </script>
 
 <script setup lang="ts">
-import { Column, createDataSource, DataGrid, Icon, InputText, Select, useVitral, type ColumnLayoutLike, type LoadOptions } from '@vitral/vue';
+import { Button, Column, createDataSource, DataGrid, Icon, InputText, Select, SelectButton, useVitral, type ColumnLayoutLike, type LoadOptions } from '@vitral/vue';
 import { queryData } from '@vitral/core';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import DemoSection from '../DemoSection.vue';
 
 type Status = 'Active' | 'Away' | 'Offline' | 'Blocked';
@@ -94,6 +94,22 @@ const filters = ref({
     status: { value: null as Status | null, matchMode: 'equals' }
 });
 const selected = ref<Person[]>([]);
+
+// ---- gathered by a field, the way a base is read
+const groupField = ref<'country' | 'status'>('country');
+const collapsed = ref<string[]>([]);
+const boardFilters = ref({ global: { value: null as string | null, matchMode: 'contains' } });
+const board = ref<HTMLElement | null>(null);
+const wide = ref(false);
+
+/** The browser's own full screen, so the grid gets the whole display and nothing else. */
+async function toggleWide() {
+    if (!document.fullscreenElement) await board.value?.requestFullscreen?.().catch(() => {});
+    else await document.exitFullscreen().catch(() => {});
+}
+const onFullscreen = () => (wide.value = !!document.fullscreenElement);
+onMounted(() => document.addEventListener('fullscreenchange', onFullscreen));
+onBeforeUnmount(() => document.removeEventListener('fullscreenchange', onFullscreen));
 
 // ---- 2: multiple sort, single selection ----------------------------------------
 
@@ -249,6 +265,51 @@ const remoteFilters = ref({ global: { value: null as string | null, matchMode: '
                 <Column field="country" header="Country" :width="140" />
                 <Column field="city" header="City" :width="150" />
                 <Column field="balance" header="Balance" align="right" :width="130">
+                    <template #body="{ data }">{{ money.format(data.balance) }}</template>
+                </Column>
+            </DataGrid>
+        </div>
+    </DemoSection>
+
+    <DemoSection
+        title="Grouped, the way a base is read"
+        description="`group-by` gathers the rows by a field and puts a heading over each run, with its count and a toggle. It happens after the query, so sorting and filtering still decide which rows there are — and the rows are gathered by value rather than by adjacency, so sorting by another column keeps each group together and sorts inside it. `v-model:collapsedGroups` is what the reader shut, which an application can store."
+    >
+        <div ref="board" class="demo-stack" style="width: 100%; background: var(--vt-content-background)">
+            <div class="demo-table-bar">
+                <SelectButton v-model="groupField" :options="[{ label: 'By country', value: 'country' }, { label: 'By status', value: 'status' }]" option-label="label" option-value="value" size="small" aria-label="Group by" />
+                <InputText v-model="boardFilters.global.value" placeholder="Search" aria-label="Search rows" size="small" clearable class="demo-table-search">
+                    <template #prefix><Icon icon="search" /></template>
+                </InputText>
+                <span class="demo-hint">{{ collapsed.length }} shut</span>
+                <Button :label="wide ? 'Close' : 'Full screen'" :icon="wide ? 'restore' : 'maximize'" severity="secondary" variant="outlined" size="small" @click="toggleWide" />
+            </div>
+            <DataGrid
+                v-model:filters="boardFilters"
+                v-model:collapsed-groups="collapsed"
+                :value="people"
+                :group-by="groupField"
+                :group-label="({ value, count }) => `${value} · ${count}`"
+                data-key="id"
+                caption="People by group"
+                :global-filter-fields="['name', 'city', 'country']"
+                sort-field="name"
+                :sort-order="1"
+                removable-sort
+                show-gridlines
+                scrollable
+                :scroll-height="wide ? 'calc(100vh - 8rem)' : '22rem'"
+                class="demo-table"
+            >
+                <Column field="name" header="Name" sortable />
+                <Column field="city" header="City" sortable />
+                <Column field="country" header="Country" sortable />
+                <Column field="status" header="Status" sortable>
+                    <template #body="{ data }">
+                        <span class="demo-status"><span :class="['demo-dot', `demo-dot-${data.status.toLowerCase()}`]" aria-hidden="true" />{{ data.status }}</span>
+                    </template>
+                </Column>
+                <Column field="balance" header="Balance" sortable align="right">
                     <template #body="{ data }">{{ money.format(data.balance) }}</template>
                 </Column>
             </DataGrid>
