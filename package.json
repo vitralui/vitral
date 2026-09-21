@@ -13,6 +13,7 @@
     "dev:playground": "pnpm --filter playground dev",
     "dev:nuxt": "pnpm --filter nuxt-playground dev",
     "gen": "node scripts/gen-index.mjs",
+    "icon": "node scripts/icon-preview.mjs",
     "test": "vitest run",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "check:nuxt": "node scripts/check-nuxt.mjs",

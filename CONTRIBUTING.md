@@ -1,5 +1,22 @@
 # Contributing
 
+## Icons
+
+An icon is a few dozen numbers, and the only thing that matters about them is
+the shape they make — which is the one thing the numbers do not tell you. The
+set's other checks (it parses, it uses no `transform`, it stays inside the
+24×24 box, its name resolves) all pass happily on a scribble. So look at it:
+
+```sh
+pnpm icon pickaxe bow bomb
+pnpm icon --all --category=brands
+pnpm icon --body '<circle cx="12" cy="12" r="8"/>'
+```
+
+It draws the path itself — curves and arcs sampled, not approximated by their
+ends — in the terminal. Anything added or changed under
+`packages/icons/src/icons` should be looked at this way before it is pushed.
+
 ## How the repository is laid out
 
 | Package                | Holds                                                                                        | Framework |
