@@ -117,8 +117,14 @@
     background: var(--vt-daterange-day-hover-background);
 }
 
+/* The hover rule above is more specific than this one — `:hover` and a `:not`
+   both count — so without naming hover here it would win the background while
+   leaving the colour behind, and an end under the pointer would be white text
+   on a pale grey. The date picker already says it this way; the range did not. */
 .vt-daterange-day-start .vt-daterange-day-label,
-.vt-daterange-day-end .vt-daterange-day-label {
+.vt-daterange-day-end .vt-daterange-day-label,
+.vt-daterange-day-start:not(.vt-daterange-day-disabled):hover .vt-daterange-day-label,
+.vt-daterange-day-end:not(.vt-daterange-day-disabled):hover .vt-daterange-day-label {
     color: var(--vt-daterange-end-color);
     background: var(--vt-daterange-end-background);
     font-weight: 600;

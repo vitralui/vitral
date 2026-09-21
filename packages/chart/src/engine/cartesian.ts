@@ -285,7 +285,14 @@ export function buildCartesian(input: SceneInput): ChartScene {
             right = Math.max(right, half);
         }
     }
-    if (!sparkline) top = Math.max(top, labelSize / 2 + 2);
+    if (!sparkline) {
+        top = Math.max(top, labelSize / 2 + 2);
+        // And the same room at the foot. A value label is centred on its tick,
+        // so the lowest one is half below the axis line; with no category
+        // labels under it — a price chart over its volume, say — there was
+        // nothing holding that half inside the drawing.
+        bottom = Math.max(bottom, labelSize / 2 + 2);
+    }
     // In a group, the plots line up: the widest axis in the group decides where
     // every plot starts and ends, so a price and its volume share a column.
     if (o.chart?.group && o.chart.id && !sparkline) {
@@ -889,10 +896,27 @@ export function buildCartesian(input: SceneInput): ChartScene {
         if (i >= 0) return cat(i);
         return typeof x === 'number' ? catScale(x) : null;
     };
-    const annotationLabel = (l: ChartAnnotationLabel | undefined, x: number, y: number, anchor: 'start' | 'middle' | 'end', baseline: 'auto' | 'middle' | 'hanging' = 'auto'): SceneAnnotation['label'] =>
+    /**
+     * An annotation's label. Left to itself it takes the annotation's own
+     * colour, so the chip over a green band is green: a label that says what a
+     * band means, in a colour the band does not use, reads as a third thing on
+     * the chart rather than as part of the one it belongs to.
+     */
+    const annotationLabel = (
+        l: ChartAnnotationLabel | undefined,
+        x: number,
+        y: number,
+        anchor: 'start' | 'middle' | 'end',
+        baseline: 'auto' | 'middle' | 'hanging' = 'auto',
+        own?: string
+    ): SceneAnnotation['label'] =>
         l?.text
-            ? { x: x + (l.offsetX ?? 0), y: y + (l.offsetY ?? 0), text: l.text, anchor: l.textAnchor ?? anchor, baseline, style: l.style, borderColor: l.borderColor, fill: l.style?.background }
+            ? { x: x + (l.offsetX ?? 0), y: y + (l.offsetY ?? 0), text: l.text, anchor: l.textAnchor ?? anchor, baseline, style: l.style, borderColor: l.borderColor, fill: l.style?.background ?? own }
             : undefined;
+
+    /** Annotations are read against the plot, so they stop at its edges. */
+    const inPlot = (value: number, axis: 'x' | 'y') =>
+        axis === 'x' ? Math.max(plot.x, Math.min(value, plot.x + plot.width)) : Math.max(plot.y, Math.min(value, plot.y + plot.height));
     for (const ya of o.annotations?.yaxis ?? []) {
         const a = Math.min(ya.yAxisIndex ?? 0, valScales.length - 1);
         const p1 = val(a, ya.y);
@@ -902,17 +926,18 @@ export function buildCartesian(input: SceneInput): ChartScene {
         const [x2, y2] = horizontal ? [p2, plot.y + plot.height] : [plot.x + plot.width * fraction(ya.width, 1), p2];
         const position = ya.label?.position ?? 'right';
         const lx = horizontal ? x1 : position === 'left' ? plot.x + 4 : position === 'center' ? plot.x + plot.width / 2 : plot.x + plot.width - 4;
+        const top = inPlot(Math.min(y1, y2), 'y');
         target.push({
             kind: range ? 'yrange' : 'yline',
-            x1: Math.min(x1, x2),
-            y1: Math.min(y1, y2),
-            x2: Math.max(x1, x2),
-            y2: Math.max(y1, y2),
+            x1: inPlot(Math.min(x1, x2), 'x'),
+            y1: top,
+            x2: inPlot(Math.max(x1, x2), 'x'),
+            y2: inPlot(Math.max(y1, y2), 'y'),
             color: ya.borderColor,
             fill: ya.fillColor,
             opacity: ya.opacity ?? 0.15,
             dash: ya.strokeDashArray ?? 4,
-            label: annotationLabel(ya.label, lx, Math.min(y1, y2) - 4, position === 'left' ? 'start' : position === 'center' ? 'middle' : 'end')
+            label: annotationLabel(ya.label, lx, top - 4, position === 'left' ? 'start' : position === 'center' ? 'middle' : 'end', 'auto', ya.fillColor ?? ya.borderColor)
         });
     }
     for (const xa of o.annotations?.xaxis ?? []) {
@@ -924,15 +949,15 @@ export function buildCartesian(input: SceneInput): ChartScene {
         const [x2, y2] = horizontal ? [plot.x + plot.width, p2] : [p2, plot.y + plot.height];
         target.push({
             kind: range ? 'xrange' : 'xline',
-            x1: Math.min(x1, x2),
-            y1: Math.min(y1, y2),
-            x2: Math.max(x1, x2),
-            y2: Math.max(y1, y2),
+            x1: inPlot(Math.min(x1, x2), 'x'),
+            y1: inPlot(Math.min(y1, y2), 'y'),
+            x2: inPlot(Math.max(x1, x2), 'x'),
+            y2: inPlot(Math.max(y1, y2), 'y'),
             color: xa.borderColor,
             fill: xa.fillColor,
             opacity: xa.opacity ?? 0.15,
             dash: xa.strokeDashArray ?? 4,
-            label: annotationLabel(xa.label, Math.max(x1, x2) - 4, plot.y + 4, 'end', 'hanging')
+            label: annotationLabel(xa.label, inPlot(Math.max(x1, x2), 'x') - 4, plot.y + 4, 'end', 'hanging', xa.fillColor ?? xa.borderColor)
         });
     }
     for (const pa of o.annotations?.points ?? []) {

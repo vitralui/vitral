@@ -172,10 +172,18 @@
     background: var(--vt-schedule-slot-weekend-background);
 }
 
-.vt-schedule-allday-cell:hover,
-.vt-schedule-slot:hover,
-.vt-schedule-month-cell:hover,
-.vt-schedule-timeline-slot:hover {
+/*
+ * A row's bars are drawn in a layer inside its first cell — they have to be, or
+ * the row would hold a child that `role="row"` does not allow — and the layer
+ * covers the whole row. `:hover` matches an element's ancestors, so pointing at
+ * a bar on the last day of a row lit the cell on the first, several columns
+ * away from the pointer. The layer itself takes no pointer, so empty space
+ * already found the right cell; this is the bars.
+ */
+.vt-schedule-allday-cell:hover:not(:has(> [data-vt-layer]:hover)),
+.vt-schedule-slot:hover:not(:has(> [data-vt-layer]:hover)),
+.vt-schedule-month-cell:hover:not(:has(> [data-vt-layer]:hover)),
+.vt-schedule-timeline-slot:hover:not(:has(> [data-vt-layer]:hover)) {
     background-color: var(--vt-schedule-slot-hover-background);
 }
 

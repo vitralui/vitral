@@ -130,14 +130,34 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
     const list = scene.annotations[layer];
     if (!list.length) return null;
     const lineStyle = (a: SceneAnnotation) => ({ stroke: a.color, strokeDasharray: a.dash ? String(a.dash) : undefined });
-    const labelBox = (a: SceneAnnotation) => {
+    /**
+     * The chip and where its words go. The chip is kept inside the plot: a
+     * band at the very top put its label half above the chart, and one at the
+     * end put it half outside. The words follow the chip once it has moved, so
+     * they are placed from the box rather than from the anchor it started at.
+     */
+    const labelLayout = (a: SceneAnnotation) => {
         const l = a.label!;
         const size = parseFloat(l.style?.fontSize ?? '') || 11;
         const width = l.text.length * size * 0.6 + 10;
         const height = size + 6;
-        const x = l.anchor === 'start' ? l.x - 5 : l.anchor === 'end' ? l.x - width + 5 : l.x - width / 2;
-        const y = l.baseline === 'hanging' ? l.y - 3 : l.y - height + 3;
-        return { x: round(x), y: round(y), width: round(width), height: round(height), rx: 3, style: { fill: l.fill, stroke: l.borderColor } };
+        const wanted = {
+            x: l.anchor === 'start' ? l.x - 5 : l.anchor === 'end' ? l.x - width + 5 : l.x - width / 2,
+            y: l.baseline === 'hanging' ? l.y - 3 : l.y - height + 3
+        };
+        const p = scene.plot;
+        const x = Math.max(p.x, Math.min(wanted.x, p.x + p.width - width));
+        const y = Math.max(p.y, Math.min(wanted.y, p.y + p.height - height));
+        return {
+            box: { x: round(x), y: round(y), width: round(width), height: round(height), rx: 3, style: { fill: l.fill, stroke: l.borderColor } },
+            text: {
+                x: round(x + width / 2),
+                y: round(y + height / 2),
+                'text-anchor': 'middle',
+                'dominant-baseline': 'central',
+                style: { fontSize: l.style?.fontSize, fontWeight: l.style?.fontWeight as string | undefined, fontFamily: l.style?.fontFamily, fill: l.style?.color }
+            }
+        };
     };
     return s(
         'g',
@@ -153,7 +173,12 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
                 'g',
                 { key: i, ...part('annotation', { kind: a.kind }) },
                 shape,
-                a.label ? [s('rect', { ...part('annotationLabelBox'), ...labelBox(a) }), s('text', { ...part('annotationLabel'), ...textAttrs(a.label) }, a.label.text)] : null
+                a.label
+                    ? (() => {
+                          const { box, text } = labelLayout(a);
+                          return [s('rect', { ...part('annotationLabelBox'), ...box }), s('text', { ...part('annotationLabel'), ...text }, a.label!.text)];
+                      })()
+                    : null
             );
         })
     );
@@ -175,7 +200,12 @@ export function marksView(c: ViewContext): Child[] {
     const gradientId = (series: number) => `${id}-fill-${series}`;
     const areaFill = (fill: SceneFill, series: number) => (fill.gradient ? `url(#${gradientId(series)})` : fill.color);
     const isHover = (series: number, column: number) => state.column === column && (state.hoverSeries < 0 || state.hoverSeries === series);
-    const origin = scene.horizontal ? 'left center' : 'center bottom';
+    // A `transform-origin` on an SVG element with no `transform-box` is read
+    // against the viewport, not the element — so `center bottom` was the bottom
+    // of the whole drawing, below the axis and its labels, and bars grew up
+    // through the axis line from somewhere underneath it. The baseline is the
+    // plot's own edge, so it is given in pixels and there is nothing to guess.
+    const origin = scene.horizontal ? `${round(scene.plot.x)}px 0` : `0 ${round(scene.plot.y + scene.plot.height)}px`;
 
     const column = state.column;
     const hoverMarkers =

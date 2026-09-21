@@ -42,11 +42,20 @@
     background: var(--vt-floatlabel-active-background);
 }
 
+/* `in` parks the lifted label inside the field rather than on its edge, so the
+   field has to give it room: what is typed is pushed below it. The room is
+   there whether or not the label has lifted, because taking it away again the
+   moment the field emptied would make the text jump under the caret. */
+.vt-floatlabel-in .vt-field-input {
+    padding-top: var(--vt-floatlabel-in-padding-top);
+    padding-bottom: var(--vt-floatlabel-in-padding-bottom);
+}
+
 .vt-floatlabel-in:focus-within > label,
 .vt-floatlabel-in.vt-floatlabel-filled > label,
 .vt-floatlabel-in:has(.vt-field-input:not(:placeholder-shown)) > label,
 .vt-floatlabel-in:has([data-vt-filled='true']) > label {
-    top: 0.5rem;
+    top: var(--vt-floatlabel-in-top);
     transform: none;
 }
 

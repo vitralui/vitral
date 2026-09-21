@@ -81,7 +81,7 @@ const bandedOptions: ChartOptions = {
     annotations: {
         position: 'back',
         yaxis: [
-            { y: 0, y2: 400, fillColor: 'var(--vt-chart-3)', opacity: 0.1, label: { text: 'Quiet', position: 'left' } },
+            { y: 200, y2: 400, fillColor: 'var(--vt-chart-3)', opacity: 0.1, label: { text: 'Quiet', position: 'left' } },
             { y: 700, y2: 1000, fillColor: 'var(--vt-chart-6)', opacity: 0.1, label: { text: 'Busy', position: 'left' } }
         ],
         xaxis: [{ x: 'Jul', x2: 'Sep', fillColor: 'var(--vt-chart-5)', opacity: 0.12, label: { text: 'Campaign' } }]
@@ -367,9 +367,11 @@ const priceOptions = computed<ChartOptions>(() => ({
     // Three lines read straight off the session, so they travel with it.
     annotations: {
         yaxis: [
+            // Dashed, so a line read off the session is never mistaken for one
+            // the data drew; the chips take each line's own colour.
             { y: session.value.prevClose, borderColor: 'var(--vt-chart-8)', strokeDashArray: 4, label: { text: `Prev close ${money(session.value.prevClose)}`, position: 'left' } },
-            { y: session.value.high, borderColor: 'var(--vt-chart-3)', strokeDashArray: 0, label: { text: `Session high ${money(session.value.high)}` } },
-            { y: session.value.low, borderColor: 'var(--vt-chart-6)', strokeDashArray: 0, label: { text: `Session low ${money(session.value.low)}`, position: 'left' } }
+            { y: session.value.high, borderColor: 'var(--vt-chart-3)', strokeDashArray: 4, label: { text: `High ${money(session.value.high)}` } },
+            { y: session.value.low, borderColor: 'var(--vt-chart-6)', strokeDashArray: 4, label: { text: `Low ${money(session.value.low)}`, position: 'left' } }
         ]
     }
 }));

@@ -44,10 +44,26 @@
     background: var(--vt-selectbutton-item-hover-background);
 }
 
+/*
+ * The separator is a border on the item, and a solid border paints over the
+ * background beneath it — so a pressed item was a hairline of the group's grey
+ * down its leading edge, and the next item's separator ran down its trailing
+ * one. The fill ended up two pixels narrower than the space it occupies, which
+ * reads as a smaller button rather than as a thinner one.
+ *
+ * Both separators are made transparent instead of removed: the border still
+ * takes its pixel, so nothing shifts sideways when the pressed item changes,
+ * and the fill shows through it.
+ */
 .vt-selectbutton-item-checked,
 .vt-selectbutton-item-checked:not(:disabled):hover {
     color: var(--vt-selectbutton-item-checked-color);
     background: var(--vt-selectbutton-item-checked-background);
+}
+
+.vt-selectbutton-item-checked + .vt-selectbutton-item,
+.vt-selectbutton-item-checked {
+    border-inline-start-color: transparent;
 }
 
 .vt-selectbutton-item-checked:not(:disabled):hover {

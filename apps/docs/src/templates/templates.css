@@ -921,8 +921,19 @@
     color: var(--vt-text-muted-color);
 }
 
-/* A search that gives up its text when the rail folds to icons. */
+/* A search that gives up its text when the rail folds to icons.
+
+   The button already spans the rail, but a button centres what is in it, so
+   the icon, the words and the shortcut sat together in the middle and read as
+   a pill rather than as a field. They are laid out the way a search box lays
+   them out instead: the prompt at the start, the shortcut against the far
+   edge. */
+.tp-aside-search .vt-button {
+    justify-content: flex-start;
+}
+
 .tp-aside-search kbd {
+    margin-inline-start: auto;
     padding: 0.0625rem 0.25rem;
     font-family: inherit;
     font-size: 0.6875rem;

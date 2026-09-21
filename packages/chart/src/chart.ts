@@ -1321,13 +1321,19 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         else if (sc.radar) plotNodes = radarView(ctx);
         else plotNodes = marksView(ctx);
 
-        // A point sitting on the first or last category is half outside the plot
-        // by design, so the clip is let out by the widest marker rather than by
-        // a fixed six pixels that sliced the bigger ones in half.
-        let plotBleed = 6;
+        // How far marks may paint past the plot. A point sitting on the first or
+        // last category is half outside it by design, and a thick line on the
+        // edge would be shaved without a little room — but a bar or a box has
+        // no reason to reach over the axis, and a fixed allowance let every
+        // chart do it whether it needed to or not.
+        let plotBleed = 1;
         for (const m of sc.marks) {
-            const markers = m.kind === 'line' || m.kind === 'points' ? m.markers : [];
-            for (const marker of markers) plotBleed = Math.max(plotBleed, marker.size / 2 + marker.strokeWidth + 2);
+            if (m.kind === 'line') {
+                plotBleed = Math.max(plotBleed, m.width / 2);
+                for (const marker of m.markers) plotBleed = Math.max(plotBleed, marker.size / 2 + marker.strokeWidth + 2);
+            } else if (m.kind === 'points') {
+                for (const marker of m.markers) plotBleed = Math.max(plotBleed, marker.size / 2 + marker.strokeWidth + 2);
+            }
         }
 
         const svg = s(

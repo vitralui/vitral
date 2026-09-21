@@ -78,6 +78,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
         <textarea
             ref="inputRef"
             v-bind="mergeProps(controlAttrs, part('input'))"
+            :style="props.resize ? { resize: props.resize } : undefined"
             :value="model ?? ''"
             :rows="rows"
             :disabled="disabled"

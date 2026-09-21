@@ -18,7 +18,12 @@
 .vt-textarea-input {
     display: block;
     box-sizing: border-box;
-    min-height: 0;
+    /*
+     * A floor, or dragging the grip upwards squashes the box past its own text
+     * and the first line is cut in half. A multi-line field never becomes
+     * shorter than a single-line one.
+     */
+    min-height: var(--vt-control-min-height);
     line-height: inherit;
     padding-inline: var(--vt-form-field-padding-x);
     resize: var(--vt-textarea-resize);

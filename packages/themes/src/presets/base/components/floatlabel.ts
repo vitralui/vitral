@@ -8,6 +8,11 @@ export default {
         activeFontSize: '0.75rem',
         transitionDuration: '{transitionDuration}',
         positionX: '{formField.paddingX}',
-        activeBackground: '{formField.background}'
+        activeBackground: '{formField.background}',
+        // The `in` variant keeps the lifted label inside the field, so the
+        // field has to make room for it above what is typed.
+        inTop: '0.5rem',
+        inPaddingTop: '1.25rem',
+        inPaddingBottom: '0.375rem'
     }
 };
