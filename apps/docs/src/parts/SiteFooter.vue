@@ -26,7 +26,9 @@ const explore = computed(() => [
 </script>
 
 <template>
-    <footer class="footer">
+    <!-- eMAG 1.6: the four keys every Brazilian public site shares. The footer
+         takes focus so the key has somewhere to land. -->
+    <footer class="footer" tabindex="-1" accesskey="4">
         <div class="footer-inner">
             <div class="footer-about">
                 <div class="brand"><span class="brand-mark" aria-hidden="true" />Vitral</div>

@@ -51,7 +51,10 @@ export const Astra = definePreset(Base, {
             sm: { fontSize: '0.8125rem', paddingX: '0.75rem', paddingY: '0.375rem' },
             lg: { fontSize: '1rem', paddingX: '1rem', paddingY: '0.75rem' }
         },
-        focusRing: { width: '2px', style: 'solid', color: '{primary.400}', offset: '2px' },
+        // 400 read at 2.72:1 against a white field, under the 3:1 that 1.4.11
+        // asks of a focus indicator — and a focus ring is how someone on the
+        // keyboard knows where they are. 500 is the same hue, one step down.
+        focusRing: { width: '2px', style: 'solid', color: '{primary.500}', offset: '2px' },
         list: {
             padding: '0.375rem',
             gap: '2px',

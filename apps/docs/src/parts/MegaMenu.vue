@@ -175,7 +175,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div ref="root" class="mega">
-        <nav class="top-nav" aria-label="Sections">
+        <nav class="top-nav" aria-label="Sections" accesskey="2">
             <template v-for="panel in panels" :key="panel.key">
                 <button type="button" :class="{ 'is-active': panel.active(), on: open === panel.key }" :aria-expanded="open === panel.key" @click="toggle(panel.key)">
                     {{ panel.label }}

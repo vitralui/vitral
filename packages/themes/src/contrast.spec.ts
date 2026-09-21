@@ -67,10 +67,10 @@ const TEXT: Pair[] = [
  * cards — are deliberately not here; the criterion is about identifying a
  * control, not about every line on the page.
  */
-const NON_TEXT: Pair[] = [
-    { fg: '--vt-form-field-border-color', bg: '--vt-form-field-background', need: 3, what: "a field's own edge" },
-    { fg: '--vt-focus-ring-color', bg: '--vt-content-background', need: 3, what: 'the focus ring against a surface' }
-];
+const FOCUS: Pair[] = [{ fg: '--vt-focus-ring-color', bg: '--vt-content-background', need: 3, what: 'the focus ring against a surface' }];
+
+/** The one boundary still below the bar; see the test that records it. */
+const EDGES: Pair[] = [{ fg: '--vt-form-field-border-color', bg: '--vt-form-field-background', need: 3, what: "a field's own edge" }];
 
 function ratios(preset: Preset, pairs: Pair[]) {
     const { light, dark } = compileTheme(preset);
@@ -102,21 +102,24 @@ describe('WCAG contrast, over every preset and both schemes', () => {
         it(`${name} reads words at the ratio 1.4.3 asks for`, () => {
             expect(failing(preset, TEXT)).toEqual([]);
         });
+
+        // A focus ring is not decoration: it is how someone working from the
+        // keyboard knows where they are, so 1.4.11 applies to it plainly.
+        it(`${name} shows focus at the ratio 1.4.11 asks for`, () => {
+            expect(failing(preset, FOCUS)).toEqual([]);
+        });
     }
 
     /**
-     * The edge of a field is below 3:1 in every preset — between 1.14 and 2.07
-     * depending on the one — and Astra's focus ring is 2.72 against a light
-     * surface. Raising them changes how every preset looks, so it is a decision
-     * rather than a fix, and this records where they stand until it is made. It
-     * fails the moment one gets worse.
+     * The edge of a field is still below 3:1 in every preset — between 1.14 and
+     * 2.07 depending on the one. Reaching it means a border two or three shades
+     * darker in all six, which changes how each of them looks, so it is a
+     * decision rather than a fix. This records where they stand until that
+     * decision is made, and fails the moment one gets worse.
      */
-    it('records how far the non-text boundaries are from 1.4.11', () => {
+    it('records how far a field edge still is from 1.4.11', () => {
         const worst = Object.fromEntries(
-            Object.entries(presets).map(([name, preset]) => [
-                name,
-                Math.min(...ratios(preset, NON_TEXT).map((r) => Number(r.ratio.toFixed(2))))
-            ])
+            Object.entries(presets).map(([name, preset]) => [name, Math.min(...ratios(preset, EDGES).map((r) => Number(r.ratio.toFixed(2))))])
         );
         expect(worst).toEqual({ Base: 1.48, Prism: 1.48, Ink: 1.27, Avalonia: 1.14, Simple: 2.07, Astra: 1.23 });
     });

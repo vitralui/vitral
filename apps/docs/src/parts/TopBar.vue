@@ -22,7 +22,7 @@ const theme = useTheme();
             <MegaMenu v-model:search="search" />
 
             <div class="top-actions">
-                <button class="search-btn" type="button" @click="search = true">
+                <button class="search-btn" type="button" accesskey="3" @click="search = true">
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                         <circle cx="7" cy="7" r="4.25" />
                         <path d="M10.2 10.2l3.3 3.3" />

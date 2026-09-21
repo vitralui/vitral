@@ -100,7 +100,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
         <!-- `display: contents`, so it is a place to send focus and nothing to
              the layout. -->
-        <div id="content" tabindex="-1" class="content-target">
+        <div id="content" tabindex="-1" accesskey="1" class="content-target">
 
         <NotFound v-if="route.name === 'not-found' || missing" />
         <Home v-else-if="route.name === 'home'" />
