@@ -90,7 +90,7 @@ watch(hex, (value) => (hexText.value = value));
 
 const pureHue = computed(() => `#${hsbToHex({ h: hsb.value.h, s: 100, b: 100 })}`);
 const areaHandle = computed(() => ({ left: `${hsb.value.s}%`, top: `${100 - hsb.value.b}%`, background: `#${hex.value}` }));
-const hueHandle = computed(() => ({ left: `${(hsb.value.h / 360) * 100}%`, background: pureHue.value }));
+const hueHandle = computed(() => ({ '--vt-colorpicker-at': hsb.value.h / 360, background: pureHue.value }));
 const shown = computed(() => ({ h: Math.round(hsb.value.h), s: Math.round(hsb.value.s), b: Math.round(hsb.value.b) }));
 const areaText = computed(() => formatMessage(locale.value.aria.saturationBrightnessValue, { s: shown.value.s, b: shown.value.b }));
 const interactive = computed(() => !props.disabled);
@@ -325,7 +325,7 @@ defineExpose({ show, hide });
                     >
                         <!-- The colour from nothing to itself, over the chequer that shows through. -->
                         <span v-bind="part('alphaTrack')" :style="{ background: `linear-gradient(to right, transparent, #${hex})` }" />
-                        <span v-bind="part('handle')" :style="{ left: `${alphaValue * 100}%`, background: css }" />
+                        <span v-bind="part('handle')" :style="{ '--vt-colorpicker-at': alphaValue, background: css }" />
                     </div>
                     <div v-if="showInput" v-bind="part('footer')">
                         <span v-bind="part('preview')" :style="{ '--vt-colorpicker-color': css }" aria-hidden="true" />

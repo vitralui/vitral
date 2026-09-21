@@ -147,4 +147,18 @@ describe('ColorPicker', () => {
         await press(hue, 'ArrowRight');
         expect(String(plain.value.value)).toHaveLength(6);
     });
+
+    it('keeps a slider handle inside its track at either end', async () => {
+        mountPicker({ inline: true, alpha: true, modelValue: '#ff0000' });
+        await nextTick();
+        const sliders = ['.vt-colorpicker-hue', '.vt-colorpicker-alpha'];
+        for (const slider of sliders) {
+            const handle = document.querySelector<HTMLElement>(`${slider} .vt-colorpicker-handle`)!;
+            const style = handle.getAttribute('style') ?? '';
+            // A fraction, not a length: the travel is the track less the
+            // handle, so at either end half of it is not hanging outside.
+            expect(style, slider).toMatch(/--vt-colorpicker-at:\s*[\d.]+/);
+            expect(style, slider).not.toMatch(/left:/);
+        }
+    });
 });

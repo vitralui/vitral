@@ -100,12 +100,18 @@
     position: relative;
 }
 
+/*
+ * The colour sits inside the border — `inset: 0` is the padding box — so it
+ * needs the border's *inner* radius, not the outer one it would inherit. With
+ * the outer radius its corners curve away from the border's own, and the
+ * chequer underneath shows through at all four of them.
+ */
 .vt-colorpicker-preview::after,
 .vt-colorpicker-swatch::after {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: inherit;
+    border-radius: calc(var(--vt-colorpicker-swatch-border-radius) - 1px);
     background: var(--vt-colorpicker-color, transparent);
 }
 
@@ -143,8 +149,16 @@
     pointer-events: none;
 }
 
-.vt-colorpicker-hue .vt-colorpicker-handle {
+/*
+ * A one-dimensional slider's travel is the track less the handle: placed at a
+ * plain percentage, the handle is centred on the track's edge at either end
+ * and half of it hangs outside. `--vt-colorpicker-at` is the position as a
+ * fraction, so the arithmetic can be done here in one place.
+ */
+.vt-colorpicker-hue .vt-colorpicker-handle,
+.vt-colorpicker-alpha .vt-colorpicker-handle {
     top: 50%;
+    left: calc(var(--vt-colorpicker-at, 0) * (100% - var(--vt-colorpicker-handle-size)) + var(--vt-colorpicker-handle-size) / 2);
 }
 
 .vt-colorpicker-area:focus-visible .vt-colorpicker-handle,
