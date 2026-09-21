@@ -18,6 +18,7 @@ export const iconCategories = [
     { id: 'transport', label: 'Transport' },
     { id: 'time', label: 'Time & calendar' },
     { id: 'weather', label: 'Weather & nature' },
+    { id: 'brands', label: 'Brands & social' },
     { id: 'security', label: 'Security' },
     { id: 'health', label: 'Health & medical' },
     { id: 'buildings', label: 'Home & buildings' },
