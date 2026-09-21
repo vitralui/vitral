@@ -50,4 +50,20 @@ describe('the icon preview', () => {
     it('says nothing about a body with nothing in it', () => {
         expect(ink(preview('', 12))).toBe(0);
     });
+
+    it('reflects a smooth curve off the command before it, not off an older one', () => {
+        // `s` takes its first control point from the previous curve; after a
+        // line or an arc there is none, and the spec says to use the current
+        // point. Keeping a stale one from further back sends the curve
+        // somewhere the path never goes — which is how a good icon looked
+        // broken until this was fixed.
+        const straight = preview('<path d="M4 20C8 4 16 4 20 20"/>', 24);
+        const afterLine = preview('<path d="M2 12h2M4 20S12 4 20 20"/>', 24);
+        const rows = (a: string) => a.split('\n');
+        // The smooth curve must stay in the lower half, where its own points
+        // are; reflecting an old control point threw it to the top.
+        const top = rows(afterLine).slice(0, 8).join('');
+        expect(top.replace(/ /g, '')).toBe('');
+        expect(rows(straight)).toHaveLength(24);
+    });
 });

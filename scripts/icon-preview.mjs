@@ -126,16 +126,20 @@ function flatten(d) {
             [x, y] = abs(nums[0], nums[1]);
             [sx, sy] = [x, y];
             line = [[x, y]];
+            prev = null;
             cmd = rel ? 'l' : 'L';
         } else if (up === 'L') {
             [x, y] = abs(nums[0], nums[1]);
             line.push([x, y]);
+            prev = null;
         } else if (up === 'H') {
             x = rel ? x + nums[0] : nums[0];
             line.push([x, y]);
+            prev = null;
         } else if (up === 'V') {
             y = rel ? y + nums[0] : nums[0];
             line.push([x, y]);
+            prev = null;
         } else if (up === 'C' || up === 'S') {
             const c1 = up === 'C' ? abs(nums[0], nums[1]) : prev ? [2 * x - prev[0], 2 * y - prev[1]] : [x, y];
             const c2 = up === 'C' ? abs(nums[2], nums[3]) : abs(nums[0], nums[1]);
@@ -153,6 +157,7 @@ function flatten(d) {
             const end = abs(nums[5], nums[6]);
             line.push(...arc(x, y, nums[0], nums[1], nums[2], nums[3], nums[4], end[0], end[1]));
             [x, y] = end;
+            prev = null;
         }
         // The numbers were consumed above, so `i` already points past them; a
         // run of coordinates with no command between them repeats this one.

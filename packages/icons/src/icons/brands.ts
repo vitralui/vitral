@@ -12,11 +12,10 @@ const category = 'brands';
 
 // ---- social
 //
-// WhatsApp, Telegram and Threads are deliberately absent: their marks are
-// illustration rather than geometry — a handset inside a bubble, a paper plane
-// with a fold, a knotted loop — and at 24 units with a 2-unit stroke every
-// version of them read as a blot rather than as the thing. A mark nobody
-// recognises is worse than no mark.
+// Telegram and Threads are deliberately absent: a paper plane with its fold and
+// a knotted loop are illustration rather than geometry, and at 24 units with a
+// 2-unit stroke every version of them read as a blot rather than as the thing.
+// A mark nobody recognises is worse than no mark.
 
 export const linkedin: IconDef = {
     name: 'linkedin',
@@ -44,6 +43,13 @@ export const youtube: IconDef = {
     category,
     tags: ['social', 'video', 'channel'],
     body: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.3 9.2l5.4 2.8-5.4 2.8z"/>'
+};
+
+export const whatsapp: IconDef = {
+    name: 'whatsapp',
+    category,
+    tags: ['social', 'chat', 'messaging', 'meta'],
+    body: '<path d="M3 21l1.5-4.4A8.8 8.8 0 1 1 7.6 19.6z"/><path d="M8.9 10.4c.2-.5.5-.5.7-.5h.6c.2 0 .5 0 .7.5l.8 2c.1.2 0 .4-.1.6l-.6.7c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.1 1 2 1.3 2.3 1.5.3.1.5 0 .6-.1l.8-.9c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.4.4 0 .2 0 .9-.3 1.3"/>'
 };
 
 export const x: IconDef = {
@@ -88,21 +94,21 @@ export const discord: IconDef = {
     name: 'discord',
     category,
     tags: ['social', 'chat', 'community', 'games'],
-    body: '<path d="M8.5 5.5A13 13 0 0 1 12 5c1.2 0 2.4.2 3.5.5L17 4c2 .8 3.4 2.2 4 4 .7 2.5.7 5 0 7.5-.6 1.8-2 3.2-4 4l-1.2-2M8.5 5.5L7 4C5 4.8 3.6 6.2 3 8c-.7 2.5-.7 5 0 7.5.6 1.8 2 3.2 4 4l1.2-2"/><path d="M9.5 12.5v.01M14.5 12.5v.01M8.2 16.4a9 9 0 0 0 7.6 0"/>'
+    body: '<path d="M9 5.6C6.1 5.9 4 6.9 3 8.3c-1.3 1.9-1.6 6.4-.8 9.1.6 2 2.3 3.3 4.6 3.9l1.3-2.2c2.5.8 5.3.8 7.8 0l1.3 2.2c2.3-.6 4-1.9 4.6-3.9.8-2.7.5-7.2-.8-9.1-1-1.4-3.1-2.4-6-2.7l-.7 1.4c-1.4-.2-2.9-.2-4.3 0z"/><ellipse cx="9" cy="13.4" rx="1.3" ry="1.7"/><ellipse cx="15" cy="13.4" rx="1.3" ry="1.7"/>'
 };
 
 export const mastodon: IconDef = {
     name: 'mastodon',
     category,
     tags: ['social', 'fediverse', 'posts'],
-    body: '<path d="M18.5 14.5c-1.8.6-4 .9-6.5.9s-4.7-.3-6.5-.9"/><path d="M5 14.5C4 12.5 4 9 4.5 7 5 5 7 3.5 12 3.5S19 5 19.5 7c.5 2 .5 5.5-.5 7.5"/><path d="M8 12V9a2 2 0 0 1 4 0v3M12 9a2 2 0 0 1 4 0v3"/><path d="M7 17.5c1.5 1.7 3.4 2.3 5.5 2.3 1.5 0 3-.3 4-.8"/>'
+    body: '<path d="M12 3c-4.5 0-7 1.2-8 3-.7 1.3-1 3.7-1 7.3 0 3.4.3 5.6 1.2 6.6.9 1 2.6 1.3 4.3 1.3 1.1 0 2.2-.1 3-.3l-.1-1.4c-.7.1-1.6.2-2.5.2-1.5 0-2.7-.3-3.2-.9-.3-.4-.5-1-.5-1.9 2 .6 4.4.9 6.8.9 4 0 8-1.4 8-5.6 0-3.6-.3-6-1-7.3-1-1.8-3.5-3-8-3z"/><path d="M8 13.2V9.6a2 2 0 0 1 4 0v3.6M12 9.6a2 2 0 0 1 4 0v3.6"/>'
 };
 
 export const bluesky: IconDef = {
     name: 'bluesky',
     category,
     tags: ['social', 'posts', 'butterfly'],
-    body: '<path d="M12 11.5C10 7.5 6.5 4.5 4.5 4.5c-1.4 0-2 1-2 2.5 0 1.8.8 5.5 1.6 6.6.8 1 2.2 1.4 4 1.4 1.2 0 2.6.3 3.9 2.5 1.3-2.2 2.7-2.5 3.9-2.5 1.8 0 3.2-.4 4-1.4.8-1.1 1.6-4.8 1.6-6.6 0-1.5-.6-2.5-2-2.5-2 0-5.5 3-7.5 7z"/>'
+    body: '<path d="M12 12.4C9.8 8.2 6.4 5 4.3 5 3 5 2.4 5.9 2.4 7.4c0 1.4.5 4.4 1.2 5.6.8 1.3 2.3 1.8 4.2 1.8 1 0 2.9.2 4.2 2.6 1.3-2.4 3.2-2.6 4.2-2.6 1.9 0 3.4-.5 4.2-1.8.7-1.2 1.2-4.2 1.2-5.6C21.6 5.9 21 5 19.7 5c-2.1 0-5.5 3.2-7.7 7.4z"/>'
 };
 
 // ---- development
@@ -132,7 +138,7 @@ export const nodejs: IconDef = {
     name: 'nodejs',
     category,
     tags: ['node', 'server', 'javascript', 'runtime'],
-    body: '<path d="M12 2.5l8.5 4.75v9.5L12 21.5l-8.5-4.75v-9.5z"/><path d="M9.5 14.5c0 1.2 1 2 2.5 2s2.5-.8 2.5-2-1-1.6-2.5-1.9-2.5-.7-2.5-1.9 1-2 2.5-2 2.5.8 2.5 2"/>'
+    body: '<path d="M12 2.2l8.5 4.9v9.8L12 21.8l-8.5-4.9V7.1z"/><path d="M9.6 15.4V8.8l4.8 6.4V8.8"/>'
 };
 
 export const vuejs: IconDef = {
@@ -169,7 +175,7 @@ export const apple: IconDef = {
     name: 'apple',
     category,
     tags: ['ios', 'macos', 'sign in', 'store'],
-    body: '<path d="M16.2 12.6c0-2.3 1.9-3.4 2-3.4-1.1-1.6-2.8-1.8-3.4-1.9-1.4-.1-2.8.9-3.6.9s-1.9-.8-3.1-.8c-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.7c1.3 0 2.1-1.2 2.9-2.3-.9-.5-2.3-1.6-2.3-3.8z"/><path d="M14.2 5.6c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.1 1.8-1 2.9 1.1 0 2.2-.6 2.8-1.4z"/>'
+    body: '<path d="M12 9c-.9-1.1-1.9-1.8-3.3-1.8C6 7.2 3.9 9.4 3.9 12.8c0 3.9 2.6 8 4.6 8 1 0 1.6-.6 3.5-.6s2.5.6 3.5.6c2 0 4.6-4.1 4.6-8 0-3.4-2.1-5.6-4.8-5.6-1.4 0-2.4.7-3.3 1.8z"/><path d="M12.2 7.2c-.2-2 1.3-3.8 3.3-4 .2 2-1.3 3.8-3.3 4z"/>'
 };
 
 export const google: IconDef = {
