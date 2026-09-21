@@ -29,7 +29,12 @@ export const base = import.meta.env.BASE_URL.replace(/\/$/, '');
  * a link is not bounced through a redirect on every one.
  */
 export function href(path: string): string {
-    return path === '/' ? `${base}/` : `${base}${path}/`;
+    if (path === '/') return `${base}/`;
+    // The slash belongs to the page, not to the whole link: `#streaming/` is a
+    // fragment nothing on the page is named, so the jump never happened.
+    const hash = path.indexOf('#');
+    if (hash < 0) return `${base}${path}/`;
+    return `${base}${path.slice(0, hash)}/${path.slice(hash)}`;
 }
 
 const retired = /^\/themes(\/|$)/;
@@ -81,10 +86,33 @@ function parse(path: string): Route {
 
 export const route = computed(() => parse(current.value));
 
-export function navigate(path: string): void {
-    if (current.value === path) return;
-    history.pushState(null, '', href(path));
+/**
+ * Brings the named part of the page into view. A page that is already on
+ * screen can be jumped to at once; one that is about to be drawn has to be
+ * waited for, so it is tried again for a few frames before giving up.
+ */
+function jumpTo(id: string, tries = 10): void {
+    const target = document.getElementById(id);
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+    if (tries > 0) requestAnimationFrame(() => jumpTo(id, tries - 1));
+}
+
+export function navigate(path: string, hash = ''): void {
+    if (current.value === path) {
+        // Same page: only the fragment moved, so the address bar is corrected
+        // and the page is scrolled. Returning early here is what stopped a
+        // sidebar link from going anywhere.
+        if (!hash) return;
+        history.pushState(null, '', href(path) + hash);
+        jumpTo(hash.slice(1));
+        return;
+    }
+    history.pushState(null, '', href(path) + hash);
     current.value = path;
+    if (hash) jumpTo(hash.slice(1));
 }
 
 /**
@@ -102,6 +130,6 @@ export function interceptLinks(): void {
         const destination = new URL(link.href);
         if (destination.origin !== location.origin || !destination.pathname.startsWith(base || '/')) return;
         event.preventDefault();
-        navigate(pathOf(destination));
+        navigate(pathOf(destination), destination.hash);
     });
 }
