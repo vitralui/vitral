@@ -34,6 +34,19 @@ export function applyDarkModeTo(root: Element, dark: boolean, selector?: string 
 }
 
 /**
+ * Puts the stronger borders on an element, or takes them off. The selector is
+ * read the same way `darkModeSelector` is, so either a class or an attribute
+ * works; `'system'` has no meaning here and is treated as nothing to set.
+ */
+export function applyBordersTo(root: Element, strong: boolean, selector?: string | false): void {
+    const target = parseDarkModeSelector(selector);
+    if (!target) return;
+    if (target.kind === 'class') root.classList.toggle(target.name, strong);
+    else if (strong) root.setAttribute(target.name, target.value);
+    else root.removeAttribute(target.name);
+}
+
+/**
  * The attributes `<html>` needs for this scheme, for a server that already
  * knows which one to send (from a cookie, a session, the user's account).
  * Spread them onto the element: `<html {...colorSchemeAttrs(dark)}>`.

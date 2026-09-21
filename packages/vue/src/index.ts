@@ -22,7 +22,7 @@ export { Base, Prism, Ink, Avalonia, Simple, Astra, definePreset, palette, dt, u
 // The scheme, for a server that renders it: what `<html>` must carry, and the script that decides before the first paint.
 export { colorSchemeAttrs, colorSchemeScript, parseDarkModeSelector, applyDarkModeTo } from '@vitral/themes';
 export type { ColorSchemeScriptOptions, DarkModeTarget } from '@vitral/themes';
-export type { ColorScheme, Palette, Preset, ThemeOptions } from '@vitral/themes';
+export type { BorderStrength, ColorScheme, Palette, Preset, ThemeOptions } from '@vitral/themes';
 export { en, ptBR, FilterMatchMode, FilterService, createDataSource, formatMessage } from '@vitral/core';
 export type { DataSource, Direction, LoadOptions, LoadResult, Locale, SortMeta, TreeNode } from '@vitral/core';
 // Validation: the rules and the schema adapters the Form parts take.

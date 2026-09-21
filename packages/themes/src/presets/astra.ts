@@ -22,6 +22,22 @@ const slate = {
 };
 
 export const Astra = definePreset(Base, {
+    // Astra's fields sit on a near-white surface with an edge two shades lighter
+    // than Base's, and its dark fields are darker than the panel behind them.
+    strongBorders: {
+        colorScheme: {
+            light: { formField: { borderColor: 'color-mix(in srgb, {text.color} 42%, {surface.200})' } },
+            dark: {
+                formField: { borderColor: 'color-mix(in srgb, {text.color} 18%, {surface.700})' },
+                content: { borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                overlay: {
+                    select: { borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                    popover: { borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                    modal: { borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' }
+                }
+            }
+        }
+    },
     primitive: {
         borderRadius: { none: '0', xs: '4px', sm: '6px', md: '10px', lg: '14px', xl: '18px', pill: '999px' }
     },
@@ -76,7 +92,7 @@ export const Astra = definePreset(Base, {
                 highlight: { background: '{primary.50}', focusBackground: '{primary.100}', color: '{primary.700}', focusColor: '{primary.800}' },
                 app: { background: '{surface.50}' },
                 formField: {
-                    borderColor: 'color-mix(in srgb, {text.color} 42%, {surface.200})',
+                    borderColor: '{surface.200}',
                     hoverBorderColor: '{primary.300}',
                     filledBackground: '{surface.100}',
                     focusShadow: '0 0 0 4px color-mix(in srgb, {primary.color} 18%, transparent)'
@@ -87,20 +103,20 @@ export const Astra = definePreset(Base, {
                 surface: slate,
                 primary: severityDark('primary'),
                 app: { background: '#0b1020' },
-                content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
+                content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: '{surface.700}' },
                 formField: {
                     background: '#0b1020',
                     hoverBackground: '#0b1020',
                     focusBackground: '#0b1020',
-                    borderColor: 'color-mix(in srgb, {text.color} 18%, {surface.700})',
+                    borderColor: '{surface.700}',
                     hoverBorderColor: '{primary.400}',
                     filledBackground: '{surface.800}',
                     focusShadow: '0 0 0 4px color-mix(in srgb, {primary.color} 28%, transparent)'
                 },
                 overlay: {
-                    select: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
-                    popover: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' },
-                    modal: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})' }
+                    select: { background: '{surface.900}', borderColor: '{surface.700}' },
+                    popover: { background: '{surface.900}', borderColor: '{surface.700}' },
+                    modal: { background: '{surface.900}', borderColor: '{surface.700}' }
                 },
                 list: { option: { selectedIndicator: '{primary.color}' } }
             }

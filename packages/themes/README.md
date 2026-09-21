@@ -18,9 +18,16 @@ export const Brand = definePreset(Prism, {
 });
 ```
 
+A fourth, optional layer is **strongBorders**: the edges a preset draws when
+asked to meet [WCAG
+1.4.11](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast). The
+presets are drawn with quieter borders than the criterion wants, so both sets
+compile — the stronger one into a block behind `[data-vt-borders="strong"]` —
+and `borders: 'strong'` chooses between them without recompiling anything.
+
 `createThemeManager()` runs a theme without any framework: it compiles the
-preset into one `<style>` element, applies the dark selector and tells
-subscribers when either changes. The presets are **Prism** (default in the
+preset into one `<style>` element, applies the dark and border selectors, and
+tells subscribers when any of them change. The presets are **Prism** (default in the
 docs), **Ink**, **Avalonia**, **Simple** and **Astra**. Compiled CSS for a page
 that wants the look without the JavaScript is at `@vitral/themes/css/prism.css`.
 

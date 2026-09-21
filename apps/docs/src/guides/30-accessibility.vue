@@ -22,6 +22,14 @@ const spec = `it('is a combobox that answers the keyboard', async () => {
     expect(trigger.attributes('aria-expanded')).toBe('true');
     expect(trigger.attributes('aria-activedescendant')).toBe(optionId(0));
 });`;
+
+const borders = `app.use(Vitral, {
+    theme: { preset: Ink, borders: 'strong' }
+});
+
+// or at runtime, from anywhere:
+const { setBorders } = useTheme();
+setBorders('strong');`;
 </script>
 
 <template>
@@ -48,6 +56,22 @@ const spec = `it('is a combobox that answers the keyboard', async () => {
         <li>Anything that animates stops under <code>prefers-reduced-motion: reduce</code>.</li>
         <li>Toasts are live regions (polite, or an alert for a danger), and a <code>life</code> pauses while the card is hovered or focused.</li>
     </ul>
+
+    <h2>Contrast, and the one switch it needs</h2>
+    <p>
+        Text, focus rings and disabled states meet
+        <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum" target="_blank" rel="noreferrer">1.4.3</a> and
+        <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast" target="_blank" rel="noreferrer">1.4.11</a> in every preset and both schemes, and a test measures it
+        rather than trusting the eye: the theme is compiled, each <code>var()</code> chain is followed to a real colour, translucent surfaces are composited over what is behind
+        them, and the ratio is computed. A preset that drifts under the bar fails the build.
+    </p>
+    <p>
+        One thing is deliberately not on by default. 1.4.11 also asks the <em>border of a field</em> to reach 3:1 against the field, and these presets are drawn with quieter
+        edges than that — a line that suggests where a control is rather than outlining it. Both sets ship in the stylesheet; <code>borders: 'strong'</code> switches to the ones
+        that meet the criterion, and because it is a mark on <code>&lt;html&gt;</code> and not a recompile it can be flipped at runtime.
+    </p>
+    <CodeBlock :code="borders" lang="ts" />
+    <p>The theme menu at the top of this page has the same switch, so every example on the site can be read either way.</p>
 
     <h2>Unstyled changes none of it</h2>
     <p>

@@ -11,7 +11,7 @@ import {
     type ZIndexConfig
 } from '@vitral/core';
 import { registerIcons, type IconDef } from '@vitral/icons';
-import { createThemeManager, Ink, type ColorScheme, type Preset, type ThemeManager, type ThemeOptions } from '@vitral/themes';
+import { createThemeManager, Ink, type BorderStrength, type ColorScheme, type Preset, type ThemeManager, type ThemeOptions } from '@vitral/themes';
 import { inject, reactive, type InjectionKey } from 'vue';
 import type { GlobalPassThrough, InputVariant } from '../base/types';
 import type { ConfirmEvents, DialogEvents, ToastEvents } from './services';
@@ -22,6 +22,12 @@ export interface VitralThemeConfig {
     options?: ThemeOptions;
     /** The starting scheme; `'system'` follows the OS. */
     colorScheme?: ColorScheme;
+    /**
+     * `'strong'` draws the borders that meet WCAG 1.4.11 instead of the preset's
+     * quieter default. Both are in the stylesheet either way, so
+     * `theme.setBorders()` switches between them without recompiling.
+     */
+    borders?: BorderStrength;
     /** Remember the user's scheme across visits under this localStorage key. */
     storageKey?: string | false;
 }
@@ -99,6 +105,7 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
               ...themeConfig.options,
               cssLayer: themeConfig.options?.cssLayer ?? config.cssLayer,
               colorScheme: themeConfig.colorScheme,
+              borders: themeConfig.borders,
               storageKey: themeConfig.storageKey,
               nonce: config.csp.nonce
           })

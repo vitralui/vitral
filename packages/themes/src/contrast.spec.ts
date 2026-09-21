@@ -82,13 +82,17 @@ const TEXT: Pair[] = [
  */
 const FOCUS: Pair[] = [{ fg: '--vt-focus-ring-color', bg: '--vt-content-background', need: 3, what: 'the focus ring against a surface' }];
 
-/** The boundary that says where a control is. */
+/**
+ * The boundary that says where a control is — only once `borders: 'strong'` has
+ * been asked for. The quiet default is a look, not a claim: a preset draws the
+ * edge it wants and an application that has to meet 1.4.11 turns this set on.
+ */
 const EDGES: Pair[] = [{ fg: '--vt-form-field-border-color', bg: '--vt-form-field-background', need: 3, what: "a field's own edge" }];
 
 /**
  * A surface's edge is not a control's. 1.4.11 does not ask a card to reach 3:1,
  * and holding it there would make every container shout as loudly as the fields
- * inside it — but leaving it at the hairline it used to be, once the fields were
+ * inside it — but leaving it at the hairline it was, once the fields were
  * darkened, read as one of them having been forgotten. It sits between: quieter
  * than a control, loud enough to belong to the same drawing.
  */
@@ -97,10 +101,16 @@ const SURFACES: Pair[] = [
     { fg: '--vt-overlay-popover-border-color', bg: '--vt-overlay-popover-background', need: 1.7, what: "a popover's edge" }
 ];
 
-function ratios(preset: Preset, pairs: Pair[]) {
-    const { light, dark } = compileTheme(preset);
-    // The dark map holds only what dark changes, so it is read over the light one.
-    const schemes = { light, dark: { ...light, ...dark } };
+function ratios(preset: Preset, pairs: Pair[], borders: 'soft' | 'strong' = 'soft') {
+    const { light, dark, strongLight, strongDark } = compileTheme(preset);
+    const strong = borders === 'strong';
+    // The dark map holds only what dark changes, so it is read over the light
+    // one; the strong sets go on last, in the same order, because that is the
+    // order the cascade puts them in.
+    const schemes = {
+        light: strong ? { ...light, ...strongLight } : light,
+        dark: strong ? { ...light, ...dark, ...strongLight, ...strongDark } : { ...light, ...dark }
+    };
     const out: { scheme: string; what: string; ratio: number; need: number }[] = [];
     for (const [scheme, vars] of Object.entries(schemes)) {
         const page = resolve(vars, '--vt-app-background') ?? '#ffffff';
@@ -117,8 +127,8 @@ function ratios(preset: Preset, pairs: Pair[]) {
     return out;
 }
 
-const failing = (preset: Preset, pairs: Pair[]) =>
-    ratios(preset, pairs)
+const failing = (preset: Preset, pairs: Pair[], borders: 'soft' | 'strong' = 'soft') =>
+    ratios(preset, pairs, borders)
         .filter((r) => r.ratio < r.need)
         .map((r) => `${r.scheme}: ${r.what} is ${r.ratio.toFixed(2)}:1, needs ${r.need}:1`);
 
@@ -134,22 +144,35 @@ describe('WCAG contrast, over every preset and both schemes', () => {
             expect(failing(preset, FOCUS)).toEqual([]);
         });
 
-        // 1.4.11 again: the boundary that says where the control is. These sat
-        // between 1.14 and 2.07 until the borders were darkened by the least
+        // 1.4.11 again: the boundary that says where the control is. Under the
+        // quiet default these sit between 1.14 and 2.07, which is the look the
+        // presets were drawn with; `borders: 'strong'` darkens them by the least
         // that clears the bar — the palette's next shade would have been 4.8,
         // heavier than the criterion asks for.
-        it(`${name} draws a field edge at the ratio 1.4.11 asks for`, () => {
-            expect(failing(preset, EDGES)).toEqual([]);
+        it(`${name} draws a field edge at the ratio 1.4.11 asks for, once the strong borders are on`, () => {
+            expect(failing(preset, EDGES, 'strong')).toEqual([]);
         });
 
         // Not a WCAG rule — a house one. The two kinds of edge have to stay on
-        // speaking terms, or the darker fields look like a change nobody
+        // speaking terms, or the darkened fields look like a change nobody
         // finished.
         it(`${name} keeps a surface edge quieter than a control's, but in the same drawing`, () => {
-            expect(failing(preset, SURFACES)).toEqual([]);
-            for (const surface of ratios(preset, SURFACES)) {
-                const control = ratios(preset, EDGES).find((e) => e.scheme === surface.scheme)!;
+            expect(failing(preset, SURFACES, 'strong')).toEqual([]);
+            for (const surface of ratios(preset, SURFACES, 'strong')) {
+                const control = ratios(preset, EDGES, 'strong').find((e) => e.scheme === surface.scheme)!;
                 expect(surface.ratio, `${surface.scheme} ${surface.what}`).toBeLessThan(control.ratio + 0.6);
+            }
+        });
+
+        // The point of the switch: off, the preset looks the way it was drawn.
+        // A strong set that quietly leaked into the default would take the
+        // choice away, and one that changed nothing would be a dead option.
+        it(`${name} leaves its own quieter edges alone until asked`, () => {
+            const soft = ratios(preset, EDGES);
+            const strong = ratios(preset, EDGES, 'strong');
+            for (const [i, edge] of soft.entries()) {
+                expect(edge.ratio, `${edge.scheme} ${edge.what}`).toBeLessThan(3);
+                expect(strong[i]!.ratio, `${edge.scheme} ${edge.what}`).toBeGreaterThan(edge.ratio);
             }
         });
     }

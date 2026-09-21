@@ -41,12 +41,26 @@ export const Brand = definePreset(Prism, {
 
 const runtime = `import { useTheme } from '@vitral/vue';
 
-const { setPreset, setColorScheme, toggleDark, setPrimary, setSurface, isDark } = useTheme();
+const { setPreset, setColorScheme, toggleDark, setPrimary, setSurface, setBorders, isDark } = useTheme();
 
 setPrimary('{emerald}');          // a palette reference
 setPrimary('#7c3aed');            // or a hex value, and the shades are derived
 setSurface({ dark: '{slate}' });  // the greys, per scheme
-setColorScheme('system');         // light, dark, or whatever the OS says`;
+setColorScheme('system');         // light, dark, or whatever the OS says
+setBorders('strong');             // the edges that meet WCAG 1.4.11`;
+
+const borders = `export const Brand = definePreset(Ink, {
+    semantic: { colorScheme: { light: { formField: { borderColor: '{surface.200}' } } } },
+    // Only what changes when the stronger edges are asked for.
+    strongBorders: {
+        colorScheme: {
+            light: { formField: { borderColor: 'color-mix(in srgb, {text.color} 40%, {surface.200})' } },
+            dark: { formField: { borderColor: 'color-mix(in srgb, {text.color} 26%, {surface.800})' } }
+        }
+    }
+});
+
+app.use(Vitral, { theme: { preset: Brand, borders: 'strong' } });`;
 
 const dt = `<!-- one instance, one token -->
 <Button label="Square" :dt="{ button: { borderRadius: '0' } }" />
@@ -87,6 +101,16 @@ const dt = `<!-- one instance, one token -->
 
     <h2>At runtime</h2>
     <CodeBlock :code="runtime" label="useTheme.ts" lang="ts" />
+
+    <h2>Two sets of edges</h2>
+    <p>
+        A preset draws its borders the way it wants to look, which in most of them is quieter than
+        <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast" target="_blank" rel="noreferrer">WCAG 1.4.11</a> asks of a control's boundary. The stronger set
+        lives in the preset under <code>strongBorders</code>, compiles into a block of its own, and is chosen with <code>borders: 'strong'</code> when the plugin is installed or
+        <code>setBorders</code> afterwards. Nothing is recompiled either way — it is an attribute on <code>&lt;html&gt;</code>, so the switch is instant and a preset of your own
+        can carry its own pair.
+    </p>
+    <CodeBlock :code="borders" label="theme.ts" lang="ts" />
 
     <h2>One instance at a time</h2>
     <p>

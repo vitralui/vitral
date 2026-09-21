@@ -165,13 +165,8 @@ export const semantic: TokenTree = {
                 filledBackground: '{surface.100}',
                 filledHoverBackground: '{surface.100}',
                 filledFocusBackground: '{surface.0}',
-                // WCAG 1.4.11: a field's edge is what says where the field is, so it
-                // needs 3:1 against the field. The palette steps either side of that
-                // are 2.56 and 4.83, so it is the smaller step darkened just past the
-                // bar rather than the next shade, which would be heavier than the
-                // criterion asks for.
-                borderColor: 'color-mix(in srgb, {text.color} 36%, {surface.300})',
-                hoverBorderColor: '{surface.500}',
+                borderColor: '{surface.300}',
+                hoverBorderColor: '{surface.400}',
                 focusBorderColor: '{primary.color}',
                 invalidBorderColor: '{danger.color}',
                 color: '{surface.900}',
@@ -183,16 +178,11 @@ export const semantic: TokenTree = {
                 focusShadow: '0 0 0 3px color-mix(in srgb, {primary.color} 20%, transparent)'
             },
             text: { color: '{surface.900}', hoverColor: '{surface.950}', mutedColor: '{surface.500}', hoverMutedColor: '{surface.700}' },
-                // A surface's edge is not a control's: 1.4.11 does not ask it to
-                // reach 3:1, and holding it there would make every card shout as
-                // loudly as the fields inside it. It is lifted to about 2:1 so the
-                // two read as a hierarchy — container quieter, control louder —
-                // rather than as one of them having been forgotten.
-            content: { background: '{surface.0}', hoverBackground: '{surface.100}', borderColor: 'color-mix(in srgb, {text.color} 22%, {surface.200})', color: '{text.color}', hoverColor: '{text.hoverColor}' },
+            content: { background: '{surface.0}', hoverBackground: '{surface.100}', borderColor: '{surface.200}', color: '{text.color}', hoverColor: '{text.hoverColor}' },
             overlay: {
-                select: { background: '{surface.0}', borderColor: 'color-mix(in srgb, {text.color} 22%, {surface.200})', color: '{text.color}' },
-                popover: { background: '{surface.0}', borderColor: 'color-mix(in srgb, {text.color} 22%, {surface.200})', color: '{text.color}' },
-                modal: { background: '{surface.0}', borderColor: 'color-mix(in srgb, {text.color} 22%, {surface.200})', color: '{text.color}' }
+                select: { background: '{surface.0}', borderColor: '{surface.200}', color: '{text.color}' },
+                popover: { background: '{surface.0}', borderColor: '{surface.200}', color: '{text.color}' },
+                modal: { background: '{surface.0}', borderColor: '{surface.200}', color: '{text.color}' }
             },
             list: {
                 option: {
@@ -270,7 +260,7 @@ export const semantic: TokenTree = {
                 filledBackground: '{surface.800}',
                 filledHoverBackground: '{surface.800}',
                 filledFocusBackground: '{surface.800}',
-                borderColor: 'color-mix(in srgb, {text.color} 8%, {surface.600})',
+                borderColor: '{surface.600}',
                 hoverBorderColor: '{surface.500}',
                 focusBorderColor: '{primary.color}',
                 invalidBorderColor: '{danger.color}',
@@ -283,11 +273,11 @@ export const semantic: TokenTree = {
                 focusShadow: '0 0 0 3px color-mix(in srgb, {primary.color} 25%, transparent)'
             },
             text: { color: '{surface.0}', hoverColor: '{surface.0}', mutedColor: '{surface.400}', hoverMutedColor: '{surface.300}' },
-            content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})', color: '{text.color}', hoverColor: '{text.hoverColor}' },
+            content: { background: '{surface.900}', hoverBackground: '{surface.800}', borderColor: '{surface.700}', color: '{text.color}', hoverColor: '{text.hoverColor}' },
             overlay: {
-                select: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})', color: '{text.color}' },
-                popover: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})', color: '{text.color}' },
-                modal: { background: '{surface.900}', borderColor: 'color-mix(in srgb, {text.color} 6%, {surface.700})', color: '{text.color}' }
+                select: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' },
+                popover: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' },
+                modal: { background: '{surface.900}', borderColor: '{surface.700}', color: '{text.color}' }
             },
             list: {
                 option: {

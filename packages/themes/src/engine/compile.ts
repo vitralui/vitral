@@ -86,12 +86,36 @@ export interface CompiledTheme {
     light: Record<string, string>;
     /** The properties the dark scheme overrides. */
     dark: Record<string, string>;
+    /** The properties the stronger borders override, in the light scheme. */
+    strongLight: Record<string, string>;
+    /** The properties the stronger borders override on top of the dark scheme. */
+    strongDark: Record<string, string>;
+}
+
+/** `.vt-dark` and `[data-vt-borders="strong"]` become `:root.vt-dark`, `:root[…]`, `:root.vt-dark[…]`. */
+function scoped(...selectors: string[]): string {
+    const attached = selectors.filter((s) => s.startsWith('.') || s.startsWith('['));
+    if (attached.length !== selectors.length) return selectors.join('');
+    return `:root${attached.join('')}`;
 }
 
 function darkBlock(selector: string, body: string): string {
     if (selector === 'system') return `@media (prefers-color-scheme: dark) {\n:root {${body}\n  color-scheme: dark;\n}\n}\n`;
-    const scoped = selector.startsWith('.') || selector.startsWith('[') ? `:root${selector}` : selector;
-    return `${scoped} {${body}\n  color-scheme: dark;\n}\n`;
+    return `${scoped(selector)} {${body}\n  color-scheme: dark;\n}\n`;
+}
+
+/**
+ * The stronger edges, in their own block so they cost nothing until asked for.
+ * The dark half has to carry both selectors at once — a reader can be in the
+ * dark scheme and want the stronger borders — and under `darkModeSelector:
+ * 'system'` that is the media query with the border selector inside it.
+ */
+function borderBlocks(selector: string, darkModeSelector: string | false, light: Entry[], dark: Entry[], body: (e: Entry[]) => string): string {
+    let css = light.length > 0 ? `${scoped(selector)} {${body(light)}\n}\n` : '';
+    if (dark.length === 0 || !darkModeSelector) return css;
+    if (darkModeSelector === 'system') css += `@media (prefers-color-scheme: dark) {\n${scoped(selector)} {${body(dark)}\n}\n}\n`;
+    else css += `${scoped(darkModeSelector, selector)} {${body(dark)}\n}\n`;
+    return css;
 }
 
 /**
@@ -101,7 +125,7 @@ function darkBlock(selector: string, body: string): string {
  * block on some inner element would leave every derived token still light.
  */
 export function compileTheme(preset: Preset, options: ThemeOptions = {}): CompiledTheme {
-    const { prefix, darkModeSelector, cssLayer } = { ...defaultThemeOptions, ...options };
+    const { prefix, darkModeSelector, cssLayer, borderSelector } = { ...defaultThemeOptions, ...options };
     const base: Entry[] = [];
     const light: Entry[] = [];
     const dark: Entry[] = [];
@@ -109,9 +133,21 @@ export function compileTheme(preset: Preset, options: ThemeOptions = {}): Compil
     walk(preset.semantic, [], prefix, base, light, dark);
     for (const [name, tokens] of Object.entries(preset.components ?? {})) walk(tokens, [name], prefix, base, light, dark);
 
+    const strongBase: Entry[] = [];
+    const strongLight: Entry[] = [];
+    const strongDark: Entry[] = [];
+    if (borderSelector) walk(preset.strongBorders, [], prefix, strongBase, strongLight, strongDark);
+
     const body = (entries: Entry[]) => entries.map(([n, v]) => `\n  ${n}: ${v};`).join('');
     let css = `:root {${body(base)}${body(light)}\n  color-scheme: light;\n}\n`;
     if (darkModeSelector && dark.length > 0) css += darkBlock(darkModeSelector, body(dark));
+    if (borderSelector) css += borderBlocks(borderSelector, darkModeSelector, [...strongBase, ...strongLight], strongDark, body);
     if (cssLayer) css = `@layer ${cssLayer} {\n${css}}\n`;
-    return { css, light: Object.fromEntries([...base, ...light]), dark: Object.fromEntries(dark) };
+    return {
+        css,
+        light: Object.fromEntries([...base, ...light]),
+        dark: Object.fromEntries(dark),
+        strongLight: Object.fromEntries([...strongBase, ...strongLight]),
+        strongDark: Object.fromEntries(strongDark)
+    };
 }

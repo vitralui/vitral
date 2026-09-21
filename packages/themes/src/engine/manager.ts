@@ -1,19 +1,26 @@
 import { isClient } from '@vitral/core';
 import { compileTheme } from './compile';
 import { definePreset } from './preset';
-import { applyDarkModeTo, type ColorScheme } from './scheme';
-import { defaultThemeOptions, type Preset, type ThemeOptions } from './types';
+import { applyBordersTo, applyDarkModeTo, type ColorScheme } from './scheme';
+import { defaultThemeOptions, type BorderStrength, type Preset, type ThemeOptions } from './types';
 
 export interface ThemeState {
     preset: Preset;
     colorScheme: ColorScheme;
     /** The scheme actually showing: `colorScheme` with `'system'` resolved. */
     dark: boolean;
+    borders: BorderStrength;
 }
 
 export interface ThemeManagerOptions extends ThemeOptions {
     preset: Preset;
     colorScheme?: ColorScheme;
+    /**
+     * Which set of edges to draw. `'soft'`, the default, is the preset's own
+     * look; `'strong'` switches to the borders that meet WCAG 1.4.11, for an
+     * application that has to.
+     */
+    borders?: BorderStrength;
     /** Nonce for the injected `<style>`, under a strict Content-Security-Policy. */
     nonce?: string;
     /** Remember the chosen scheme in localStorage under this key. Off by default. */
@@ -30,6 +37,7 @@ export interface ThemeManager {
     extendPreset(partial: Preset): void;
     setColorScheme(scheme: ColorScheme): void;
     toggleDark(): void;
+    setBorders(borders: BorderStrength): void;
     subscribe(listener: (state: ThemeState) => void): () => void;
     /** Injects the stylesheet and starts following the system scheme. Safe to call on the server, where it does nothing. */
     mount(): void;
@@ -49,17 +57,19 @@ export function createThemeManager(init: ThemeManagerOptions): ThemeManager {
     const options: Required<ThemeOptions> = {
         prefix: init.prefix ?? defaultThemeOptions.prefix,
         darkModeSelector: init.darkModeSelector ?? defaultThemeOptions.darkModeSelector,
-        cssLayer: init.cssLayer ?? defaultThemeOptions.cssLayer
+        cssLayer: init.cssLayer ?? defaultThemeOptions.cssLayer,
+        borderSelector: init.borderSelector ?? defaultThemeOptions.borderSelector
     };
     let preset = init.preset;
     let colorScheme: ColorScheme = readStored(init.storageKey) ?? init.colorScheme ?? 'system';
+    let borders: BorderStrength = init.borders ?? 'soft';
     const listeners = new Set<(state: ThemeState) => void>();
     let styleEl: HTMLStyleElement | null = null;
     let media: MediaQueryList | null = null;
 
     const systemDark = () => (isClient && typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)').matches : false);
     const isDark = () => colorScheme === 'dark' || (colorScheme === 'system' && systemDark());
-    const state = (): ThemeState => ({ preset, colorScheme, dark: isDark() });
+    const state = (): ThemeState => ({ preset, colorScheme, dark: isDark(), borders });
     const css = () => compileTheme(preset, options).css;
 
     const notify = () => {
@@ -70,6 +80,7 @@ export function createThemeManager(init: ThemeManagerOptions): ThemeManager {
     const applyScheme = () => {
         if (!isClient) return;
         applyDarkModeTo(document.documentElement, isDark(), options.darkModeSelector);
+        applyBordersTo(document.documentElement, borders === 'strong', options.borderSelector);
     };
 
     const writeStyle = () => {
@@ -105,6 +116,13 @@ export function createThemeManager(init: ThemeManagerOptions): ThemeManager {
         },
         toggleDark() {
             this.setColorScheme(isDark() ? 'light' : 'dark');
+        },
+        setBorders(next) {
+            // Both sets are already in the stylesheet, so this is a mark on
+            // `<html>` and not a recompile.
+            borders = next;
+            applyScheme();
+            notify();
         },
         subscribe(listener) {
             listeners.add(listener);

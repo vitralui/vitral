@@ -41,6 +41,19 @@ describe('compileTheme', () => {
         expect(varName('button.root.borderRadius', 'x')).toBe('--x-button-border-radius');
     });
 
+    it('puts the stronger borders in a block of their own, behind both selectors at once', () => {
+        const preset = { semantic: { a: '1' }, strongBorders: { colorScheme: { light: { a: '2' }, dark: { a: '3' } } } };
+        const css = compileTheme(preset).css;
+        // Light: the border selector alone. Dark: both, on the same element,
+        // because a reader can want the dark scheme and the stronger edges.
+        expect(css).toContain(':root[data-vt-borders="strong"] {\n  --vt-a: 2;');
+        expect(css).toContain(':root.vt-dark[data-vt-borders="strong"] {\n  --vt-a: 3;');
+        // Under `system` the media query wraps it instead.
+        expect(compileTheme(preset, { darkModeSelector: 'system' }).css).toContain('@media (prefers-color-scheme: dark) {\n:root[data-vt-borders="strong"]');
+        // And `false` keeps them out of the stylesheet altogether.
+        expect(compileTheme(preset, { borderSelector: false }).css).not.toContain('--vt-a: 2');
+    });
+
     it('compiles every shipped preset, leaving no reference unresolved', () => {
         for (const preset of [Prism, Ink, Avalonia, Simple, Astra]) {
             const { css } = compileTheme(preset);
@@ -147,6 +160,24 @@ describe('theme manager', () => {
         expect(seen).toEqual([true]);
         manager.destroy();
         expect(document.head.querySelector('style[data-vitral-theme]')).toBeNull();
+    });
+
+    it('switches border strength with a mark on <html>, not a recompile', () => {
+        const manager = createThemeManager({ preset: Prism, colorScheme: 'light' });
+        manager.mount();
+        const stylesheet = document.head.querySelector('style[data-vitral-theme]')!.textContent;
+        expect(document.documentElement.hasAttribute('data-vt-borders')).toBe(false);
+        expect(manager.getState().borders).toBe('soft');
+
+        manager.setBorders('strong');
+        expect(document.documentElement.getAttribute('data-vt-borders')).toBe('strong');
+        expect(manager.getState().borders).toBe('strong');
+        // Both sets were compiled up front, so nothing was rewritten.
+        expect(document.head.querySelector('style[data-vitral-theme]')!.textContent).toBe(stylesheet);
+
+        manager.setBorders('soft');
+        expect(document.documentElement.hasAttribute('data-vt-borders')).toBe(false);
+        manager.destroy();
     });
 });
 

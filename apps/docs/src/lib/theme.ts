@@ -1,4 +1,4 @@
-import { en, ptBR, useDirection, useLocale, useTheme, useVitral, type Direction, type Preset } from '@vitral/vue';
+import { en, ptBR, useDirection, useLocale, useTheme, useVitral, type BorderStrength, type Direction, type Preset } from '@vitral/vue';
 import { ref, watch } from 'vue';
 import { themes } from './presets';
 
@@ -78,6 +78,17 @@ export const direction = ref<Direction>(
     (pinnedDirection ?? remembered(DIRECTION_KEY, (value) => value === 'ltr' || value === 'rtl', 'ltr')) as Direction
 );
 
+/**
+ * Whether the site is drawing the stronger edges. Remembered like the rest, and
+ * pinnable with `?borders=strong` so a screenshot of the difference can be
+ * linked to. It is a setting and not the default because the presets were drawn
+ * with quieter borders; an application that has to meet WCAG 1.4.11 turns it on.
+ */
+const BORDERS_KEY = 'vitral-docs-borders';
+const pinnedBorders = params.get('borders') === 'strong' ? 'strong' : params.get('borders') === 'soft' ? 'soft' : null;
+
+export const borders = ref<BorderStrength>((pinnedBorders ?? remembered(BORDERS_KEY, (value) => value === 'soft' || value === 'strong', 'soft')) as BorderStrength);
+
 let controls: ReturnType<typeof useTheme> | null = null;
 
 /** Called once, from the shell, where an injection context exists. */
@@ -95,6 +106,15 @@ export function installThemeSwitcher() {
     });
 
     watch(localeId, (id) => setLocale(id === 'pt-BR' ? ptBR : en));
+
+    watch(
+        borders,
+        (value) => {
+            controls!.setBorders(value);
+            if (!pinnedBorders) remember(BORDERS_KEY, value);
+        },
+        { immediate: true }
+    );
 
     // The layout follows the `dir` attribute, so that is what is set; the
     // configuration follows it for the popups teleported out of the page and
