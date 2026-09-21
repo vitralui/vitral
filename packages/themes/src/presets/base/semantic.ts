@@ -165,8 +165,13 @@ export const semantic: TokenTree = {
                 filledBackground: '{surface.100}',
                 filledHoverBackground: '{surface.100}',
                 filledFocusBackground: '{surface.0}',
-                borderColor: '{surface.300}',
-                hoverBorderColor: '{surface.400}',
+                // WCAG 1.4.11: a field's edge is what says where the field is, so it
+                // needs 3:1 against the field. The palette steps either side of that
+                // are 2.56 and 4.83, so it is the smaller step darkened just past the
+                // bar rather than the next shade, which would be heavier than the
+                // criterion asks for.
+                borderColor: 'color-mix(in srgb, {text.color} 36%, {surface.300})',
+                hoverBorderColor: '{surface.500}',
                 focusBorderColor: '{primary.color}',
                 invalidBorderColor: '{danger.color}',
                 color: '{surface.900}',
@@ -260,7 +265,7 @@ export const semantic: TokenTree = {
                 filledBackground: '{surface.800}',
                 filledHoverBackground: '{surface.800}',
                 filledFocusBackground: '{surface.800}',
-                borderColor: '{surface.600}',
+                borderColor: 'color-mix(in srgb, {text.color} 8%, {surface.600})',
                 hoverBorderColor: '{surface.500}',
                 focusBorderColor: '{primary.color}',
                 invalidBorderColor: '{danger.color}',

@@ -76,7 +76,7 @@ export const Astra = definePreset(Base, {
                 highlight: { background: '{primary.50}', focusBackground: '{primary.100}', color: '{primary.700}', focusColor: '{primary.800}' },
                 app: { background: '{surface.50}' },
                 formField: {
-                    borderColor: '{surface.200}',
+                    borderColor: 'color-mix(in srgb, {text.color} 42%, {surface.200})',
                     hoverBorderColor: '{primary.300}',
                     filledBackground: '{surface.100}',
                     focusShadow: '0 0 0 4px color-mix(in srgb, {primary.color} 18%, transparent)'
@@ -92,7 +92,7 @@ export const Astra = definePreset(Base, {
                     background: '#0b1020',
                     hoverBackground: '#0b1020',
                     focusBackground: '#0b1020',
-                    borderColor: '{surface.700}',
+                    borderColor: 'color-mix(in srgb, {text.color} 18%, {surface.700})',
                     hoverBorderColor: '{primary.400}',
                     filledBackground: '{surface.800}',
                     focusShadow: '0 0 0 4px color-mix(in srgb, {primary.color} 28%, transparent)'

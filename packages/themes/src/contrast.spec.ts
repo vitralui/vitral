@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contrastRatio, parseColor, toHex } from './engine/color';
+import { contrastRatio, mix, parseColor, toHex } from './engine/color';
 import { compileTheme } from './engine/compile';
 import { Astra, Avalonia, Base, Ink, Prism, Simple } from './index';
 import type { Preset } from './engine/types';
@@ -21,13 +21,26 @@ import type { Preset } from './engine/types';
 
 const presets: Record<string, Preset> = { Base, Prism, Ink, Avalonia, Simple, Astra };
 
-/** Follows `var(--x)` until a colour turns up. */
-function resolve(vars: Record<string, string>, name: string, depth = 0): string | null {
-    const value = vars[name];
+/** A single `color-mix(in srgb, A p%, B)`, worked out the way a browser would. */
+function evaluateMix(value: string, vars: Record<string, string>, depth: number): string | null {
+    const m = value.match(/^color-mix\(\s*in\s+srgb\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*(.+?)\s*\)$/i);
+    if (!m) return null;
+    const a = resolveValue(m[1]!, vars, depth + 1);
+    const b = resolveValue(m[3]!, vars, depth + 1);
+    return a && b ? mix(a, b, Number(m[2]) / 100) : null;
+}
+
+function resolveValue(value: string, vars: Record<string, string>, depth: number): string | null {
     if (!value || depth > 12) return null;
     const indirect = value.match(/^var\((--[a-z0-9-]+)\)$/i);
     if (indirect) return resolve(vars, indirect[1]!, depth + 1);
+    if (/^color-mix\(/i.test(value)) return evaluateMix(value, vars, depth);
     return /^(#|rgb|hsl)/i.test(value) ? value : null;
+}
+
+/** Follows `var(--x)` — and any `color-mix` on the way — until a colour turns up. */
+function resolve(vars: Record<string, string>, name: string, depth = 0): string | null {
+    return resolveValue(vars[name] ?? '', vars, depth);
 }
 
 /** A translucent colour laid over an opaque one, which is what the eye is given. */
@@ -108,19 +121,13 @@ describe('WCAG contrast, over every preset and both schemes', () => {
         it(`${name} shows focus at the ratio 1.4.11 asks for`, () => {
             expect(failing(preset, FOCUS)).toEqual([]);
         });
-    }
 
-    /**
-     * The edge of a field is still below 3:1 in every preset — between 1.14 and
-     * 2.07 depending on the one. Reaching it means a border two or three shades
-     * darker in all six, which changes how each of them looks, so it is a
-     * decision rather than a fix. This records where they stand until that
-     * decision is made, and fails the moment one gets worse.
-     */
-    it('records how far a field edge still is from 1.4.11', () => {
-        const worst = Object.fromEntries(
-            Object.entries(presets).map(([name, preset]) => [name, Math.min(...ratios(preset, EDGES).map((r) => Number(r.ratio.toFixed(2))))])
-        );
-        expect(worst).toEqual({ Base: 1.48, Prism: 1.48, Ink: 1.27, Avalonia: 1.14, Simple: 2.07, Astra: 1.23 });
-    });
+        // 1.4.11 again: the boundary that says where the control is. These sat
+        // between 1.14 and 2.07 until the borders were darkened by the least
+        // that clears the bar — the palette's next shade would have been 4.8,
+        // heavier than the criterion asks for.
+        it(`${name} draws a field edge at the ratio 1.4.11 asks for`, () => {
+            expect(failing(preset, EDGES)).toEqual([]);
+        });
+    }
 });

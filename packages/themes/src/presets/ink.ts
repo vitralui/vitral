@@ -64,7 +64,7 @@ export const Ink = definePreset(Base, {
                 highlight: { background: '{surface.100}', focusBackground: '{surface.200}', color: '{surface.900}', focusColor: '{surface.950}' },
                 content: { background: '{surface.0}', hoverBackground: '{surface.50}', borderColor: '{surface.200}' },
                 formField: {
-                    borderColor: '{surface.200}',
+                    borderColor: 'color-mix(in srgb, {text.color} 40%, {surface.200})',
                     hoverBorderColor: '{surface.300}',
                     focusBorderColor: '{surface.200}',
                     filledBackground: '{surface.100}',
@@ -103,7 +103,7 @@ export const Ink = definePreset(Base, {
                 content: { background: '{surface.950}', hoverBackground: '{surface.900}', borderColor: '{surface.800}' },
                 formField: {
                     background: '{surface.950}',
-                    borderColor: '{surface.800}',
+                    borderColor: 'color-mix(in srgb, {text.color} 26%, {surface.800})',
                     hoverBorderColor: '{surface.700}',
                     focusBorderColor: '{surface.800}',
                     filledBackground: '{surface.900}',

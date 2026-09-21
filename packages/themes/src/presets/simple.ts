@@ -42,7 +42,7 @@ export const Simple = definePreset(Base, {
                 primary: { color: '#086f9e', hoverColor: '#0b86bd', activeColor: '#065a80', borderColor: '#086f9e', hoverBorderColor: '#0b86bd', subtleColor: '#086f9e' },
                 highlight: { background: 'color-mix(in srgb, #119eda 28%, transparent)', focusBackground: 'color-mix(in srgb, #119eda 40%, transparent)', color: '#000000', focusColor: '#000000' },
                 text: { color: '#000000', hoverColor: '#000000', mutedColor: '#5a5a5a', hoverMutedColor: '#333333' },
-                formField: { borderColor: '#aaaaaa', hoverBorderColor: '#686868', shadow: 'none', focusShadow: 'none', color: '#000000' },
+                formField: { borderColor: '#929292', hoverBorderColor: '#686868', shadow: 'none', focusShadow: 'none', color: '#000000' },
                 content: { borderColor: '#aaaaaa' },
                 overlay: { select: { borderColor: '#888888' }, popover: { borderColor: '#888888' }, modal: { borderColor: '#888888' } },
                 list: { option: { focusBackground: 'color-mix(in srgb, #119eda 16%, transparent)' } },
@@ -66,7 +66,7 @@ export const Simple = definePreset(Base, {
                 primary: { color: '#3fb4e8', contrastColor: '#000000', hoverColor: '#6cc6ee', activeColor: '#99d8f3', borderColor: '#3fb4e8', hoverBorderColor: '#6cc6ee', subtleColor: '#6cc6ee' },
                 highlight: { background: 'color-mix(in srgb, #119eda 35%, transparent)', focusBackground: 'color-mix(in srgb, #119eda 48%, transparent)', color: '#ffffff', focusColor: '#ffffff' },
                 text: { color: '#dedede', hoverColor: '#ffffff', mutedColor: '#999999', hoverMutedColor: '#bbbbbb' },
-                formField: { background: '#1e1e1e', borderColor: '#505050', hoverBorderColor: '#808080', shadow: 'none', focusShadow: 'none', color: '#dedede' },
+                formField: { background: '#1e1e1e', borderColor: '#6a6a6a', hoverBorderColor: '#808080', shadow: 'none', focusShadow: 'none', color: '#dedede' },
                 content: { background: '#282828', borderColor: '#505050' },
                 overlay: { select: { background: '#333333', borderColor: '#505050' }, popover: { background: '#333333', borderColor: '#505050' }, modal: { background: '#333333', borderColor: '#505050' } },
                 secondary: {
