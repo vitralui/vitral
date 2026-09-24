@@ -134,7 +134,10 @@
     box-shadow: inset 0 0 0 1px var(--vt-daterange-today-border-color);
 }
 
-.vt-daterange-day-other-month .vt-daterange-day-label {
+/* Not on an end: an end is filled, and a neighbouring month's quiet grey on
+   that fill was an end the reader could barely read — the rule came later than
+   the ends' and matched as strongly, so it won the colour. */
+.vt-daterange-day-other-month:not(.vt-daterange-day-start):not(.vt-daterange-day-end) .vt-daterange-day-label {
     color: var(--vt-daterange-other-month-color);
 }
 
