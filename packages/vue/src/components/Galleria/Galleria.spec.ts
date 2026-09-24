@@ -37,6 +37,21 @@ function mountGalleria(props: Record<string, unknown> = {}) {
 }
 
 describe('Galleria', () => {
+    it('fetches the pictures one press away before they are asked for', async () => {
+        mountGalleria({ numVisible: 3 });
+        await nextTick();
+        // Drawn out of sight and out of the accessibility tree: the neighbours
+        // either side (circular, so the last one too) and every thumbnail in view.
+        const ahead = document.querySelector('[inert][aria-hidden="true"]');
+        const sources = Array.from(ahead?.querySelectorAll('img') ?? []).map((img) => img.getAttribute('src'));
+        expect(sources.sort()).toEqual(['b.jpg', 'c.jpg', 'e.jpg']);
+    });
+
+    it('draws no row of thumbnails when there is nothing to draw in them', () => {
+        mountVt(defineComponent(() => () => h(Galleria, { value: photos, ariaLabel: 'Trip photos' }, { item: ({ item }: { item: (typeof photos)[0] }) => h('img', { src: item.src, alt: item.alt }) })));
+        expect(document.querySelector('ul[aria-label="Thumbnails"]')).toBeNull();
+    });
+
     it('shows one item as a named slide, with a window of thumbnails as one tab stop', () => {
         const { slide, thumbs } = mountGalleria();
         expect(document.querySelector('section')!.getAttribute('aria-label')).toBe('Trip photos');

@@ -3,6 +3,7 @@ import { formatMessage, rovingMove } from '@vitral/core';
 import { galleriaStyle, transitionName } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useMediaLoading } from '../../base/useMediaLoading';
 import { useSwipe } from '../../base/useSwipe';
 import { useModal } from '../../composables/useModal';
 import Icon from '../Icon/Icon.vue';
@@ -40,6 +41,8 @@ const stageId = `${id}-stage`;
 const maskRef = ref<HTMLElement | null>(null);
 const dialogRef = ref<HTMLElement | null>(null);
 const thumbEls: (HTMLElement | null)[] = [];
+const rootRef = ref<HTMLElement | null>(null);
+useMediaLoading(rootRef);
 
 // With a preset the item is keyed, so the two overlap and the one arriving can
 // be animated against the one leaving. Without one it is the same element
@@ -61,6 +64,21 @@ function go(index: number) {
     if (props.circular) activeIndex.value = (index + count.value) % count.value;
     else activeIndex.value = Math.max(0, Math.min(index, count.value - 1));
 }
+
+/**
+ * The items the reader can reach in one press — either side of the shown one,
+ * and every one whose thumbnail is in view — drawn out of sight so their
+ * pictures are fetched before they are asked for, the way a slider library
+ * preloads its neighbours. Without it a picture only started loading on the
+ * press that asked for it, and the old one stayed up until it arrived, so the
+ * press seemed to have done nothing.
+ */
+const neighbours = computed(() => {
+    if (count.value < 2) return [];
+    const around = [current.value + 1, current.value - 1].map((index) => (props.circular ? (index + count.value) % count.value : index));
+    const thumbnails = props.showThumbnails ? windowItems.value.map((entry) => entry.index) : [];
+    return [...new Set([...around, ...thumbnails])].filter((index) => index >= 0 && index < count.value && index !== current.value);
+});
 
 const canPrev = computed(() => props.circular || current.value > 0);
 const canNext = computed(() => props.circular || current.value < count.value - 1);
@@ -139,6 +157,7 @@ defineExpose({ go });
                         <Icon icon="close" />
                     </button>
                     <section
+                        ref="rootRef"
                         aria-roledescription="carousel"
                         :aria-label="ariaLabel"
                         v-bind="part('root', { position: thumbnailsPosition })"
@@ -186,6 +205,11 @@ defineExpose({ go });
                                 </div>
                             </div>
                             </Transition>
+                            <div v-if="neighbours.length" aria-hidden="true" inert style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); pointer-events: none">
+                                <template v-for="index in neighbours" :key="index">
+                                    <slot name="item" :item="value[index]" :index="index" />
+                                </template>
+                            </div>
                             <template v-if="showItemNavigators && count > 1">
                                 <button type="button" :aria-label="locale.aria.previous" :disabled="!canPrev" v-bind="part('navigator', { side: 'prev' })" @click="go(current - 1)">
                                     <Icon icon="chevronLeft" />
@@ -209,7 +233,9 @@ defineExpose({ go });
                                 </button>
                             </li>
                         </ul>
-                        <div v-if="showThumbnails && count > 1" v-bind="part('thumbnails')">
+                        <!-- Without a thumbnail slot there is nothing to draw in them: a row of empty
+                             buttons, one of them lit, is not a way through the pictures. -->
+                        <div v-if="showThumbnails && $slots.thumbnail && count > 1" v-bind="part('thumbnails')">
                             <button v-if="showThumbnailNavigators" type="button" :aria-label="locale.aria.previous" :disabled="!canPrev" v-bind="part('thumbnailNavigator')" @click="go(current - 1)">
                                 <Icon icon="chevronLeft" />
                             </button>

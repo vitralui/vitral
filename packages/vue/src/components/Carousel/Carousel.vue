@@ -3,6 +3,7 @@ import { carouselFirst, carouselPageCount, carouselStep, formatMessage, isClient
 import { carouselStyle, transitionName } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useMediaLoading } from '../../base/useMediaLoading';
 import { useSwipe } from '../../base/useSwipe';
 import Icon from '../Icon/Icon.vue';
 import type { CarouselProps, CarouselSlots } from './types';
@@ -84,6 +85,22 @@ const trackStyle = computed(() => {
 const itemStyle = computed(() => (stacked.value ? undefined : vertical.value ? { height: `${share.value}%` } : { width: `${share.value}%` }));
 const isVisible = (index: number) => index >= first.value && index < first.value + layout.value.numVisible;
 
+const rootRef = ref<HTMLElement | null>(null);
+useMediaLoading(rootRef);
+
+/**
+ * Stacked, only the shown item is drawn, so the next one's picture would only
+ * start loading when it was asked for. Its neighbours are drawn out of sight
+ * instead, so they are fetched ahead, the way a slider library preloads them.
+ * A strip draws every item already and needs none of this.
+ */
+const neighbours = computed(() => {
+    const count = props.value.length;
+    if (!stacked.value || count < 2) return [];
+    const around = [first.value + 1, first.value - 1].map((index) => (props.circular ? (index + count) % count : index));
+    return [...new Set(around)].filter((index) => index >= 0 && index < count && index !== first.value);
+});
+
 watch(pages, (count) => {
     if (page.value >= count) page.value = Math.max(0, count - 1);
 });
@@ -119,6 +136,7 @@ function onFocusout(event: FocusEvent) {
 
 <template>
     <section
+        ref="rootRef"
         aria-roledescription="carousel"
         :aria-label="ariaLabel"
         v-bind="part('root', { orientation, stacked: stacked })"
@@ -154,6 +172,11 @@ function onFocusout(event: FocusEvent) {
                             <slot name="item" :data="item" :index="first" />
                         </div>
                     </TransitionGroup>
+                    <div v-if="neighbours.length" aria-hidden="true" inert style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); pointer-events: none">
+                        <template v-for="index in neighbours" :key="index">
+                            <slot name="item" :data="value[index]" :index="index" />
+                        </template>
+                    </div>
                     <div
                         v-for="(item, index) in stacked ? [] : value"
                         :key="index"

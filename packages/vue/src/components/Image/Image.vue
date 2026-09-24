@@ -2,6 +2,7 @@
 import { imageStyle } from '@vitral/styles';
 import { computed, mergeProps, ref, useAttrs, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useMediaLoading } from '../../base/useMediaLoading';
 import { useModal } from '../../composables/useModal';
 import Icon from '../Icon/Icon.vue';
 import type { ImageEmits, ImageProps, ImageSlots } from './types';
@@ -27,6 +28,8 @@ const scale = ref(1);
 const rotation = ref(0);
 const pan = ref({ x: 0, y: 0 });
 const maskRef = ref<HTMLElement | null>(null);
+const rootRef = ref<HTMLElement | null>(null);
+useMediaLoading(rootRef);
 const dialogRef = ref<HTMLElement | null>(null);
 
 const rootAttrs = computed(() => ({ class: attrs.class, style: attrs.style }));
@@ -131,7 +134,7 @@ defineExpose({ show, hide });
 </script>
 
 <template>
-    <span v-bind="mergeProps(rootAttrs, part('root'))">
+    <span ref="rootRef" v-bind="mergeProps(rootAttrs, part('root'))">
         <slot name="image" :error-callback="(e: Event) => emit('error', e)">
             <button v-if="preview" type="button" aria-haspopup="dialog" :aria-label="alt ? `${locale.aria.preview}: ${alt}` : locale.aria.preview" v-bind="part('trigger')" @click="show">
                 <img :src="src" alt="" :width="width" :height="height" v-bind="mergeProps(imageAttrs, part('image'))" @error="emit('error', $event)" />
