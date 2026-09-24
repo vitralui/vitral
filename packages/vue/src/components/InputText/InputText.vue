@@ -65,7 +65,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
             :aria-invalid="invalid ? 'true' : undefined"
             @input="onInput"
         />
-        <button v-if="showClear" type="button" tabindex="-1" :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
+        <button v-if="clearable" :style="!showClear ? { visibility: 'hidden' } : undefined" type="button" tabindex="-1" :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
             <Icon icon="close" />
         </button>
         <span v-if="$slots.suffix" v-bind="part('suffix')"><slot name="suffix" /></span>

@@ -46,6 +46,14 @@ describe('InputText', () => {
         expect(document.activeElement).toBe(wrapper.get('input').element);
     });
 
+    it('keeps room for the clear button while empty, so the field does not grow when a value arrives', async () => {
+        const wrapper = mountVt(InputText, { props: { clearable: true, modelValue: '' } });
+        const clear = wrapper.get('button');
+        expect((clear.element as HTMLElement).style.visibility).toBe('hidden');
+        await wrapper.setProps({ modelValue: 'abc' });
+        expect((clear.element as HTMLElement).style.visibility).toBe('');
+    });
+
     it('has no accessibility violations when labelled', async () => {
         const wrapper = mountVt(
             defineComponent(() => () => [h('label', { for: 'email' }, 'Email'), h(InputText, { id: 'email', clearable: true, modelValue: 'a@b.c' }, { prefix: () => '@' })])

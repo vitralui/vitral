@@ -305,7 +305,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
         >
             <slot name="value" :value="model" :option="chosenOption" :placeholder="placeholder">{{ hasValue ? labelOf(chosenOption) : placeholder || ' ' }}</slot>
         </button>
-        <button v-if="showClear && hasValue && !disabled" type="button" tabindex="-1" data-vt-clear :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
+        <button v-if="showClear" :style="!hasValue || disabled ? { visibility: 'hidden' } : undefined" type="button" tabindex="-1" data-vt-clear :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
             <Icon icon="close" />
         </button>
         <span v-bind="part('dropdown')" aria-hidden="true">

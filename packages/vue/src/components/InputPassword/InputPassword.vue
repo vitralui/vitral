@@ -114,7 +114,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
             @focus="onFocus"
             @blur="onBlur"
         />
-        <button v-if="showClear" type="button" tabindex="-1" :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
+        <button v-if="clearable" :style="!showClear ? { visibility: 'hidden' } : undefined" type="button" tabindex="-1" :aria-label="locale.clear" v-bind="part('clear')" @click="clear">
             <Icon icon="close" />
         </button>
         <button
