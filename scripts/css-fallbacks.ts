@@ -42,6 +42,10 @@ export function cssFallbacks(): Plugin {
             } catch {
                 return null;
             }
+            // A file loaded here rather than by Vite is not watched by it when it
+            // lies outside the app — every component's stylesheet does — so an
+            // edit to one was never picked up until the server restarted.
+            this.addWatchFile(file);
             if (!css.includes('@container') && !css.includes('color-mix(') && !PREFIXED.some((name) => css.includes(`${name}:`))) return null;
             const out = webkitPrefixes(colorMixFallbacks(containerFallbacks(css)));
             return query?.split('&').includes('raw') ? `export default ${JSON.stringify(out)};` : out;
