@@ -1,6 +1,6 @@
 {
   "name": "@vitral/dom",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The DOM layer Vitral's framework-free packages render with: a small keyed patcher, part classes with pass-through, and pointer drags.",
   "keywords": [
     "vitral",

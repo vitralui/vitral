@@ -1,6 +1,6 @@
 {
   "name": "@vitral/editor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-free rich text editor for Vitral: the toolbar, the panels and the content area over @vitral/core's editor engine, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

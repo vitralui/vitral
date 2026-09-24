@@ -1,6 +1,6 @@
 {
   "name": "@vitral/forms",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-free form state and validation for Vitral: nested paths, field arrays, built-in rules, async validation and structural resolvers for schema libraries.",
   "keywords": [
     "vitral",

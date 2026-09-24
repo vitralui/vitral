@@ -1,6 +1,6 @@
 {
   "name": "@vitral/icons",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-agnostic SVG icons for Vitral: an outline set on a 24\u00d724 grid, one named export per icon.",
   "keywords": [
     "vitral",

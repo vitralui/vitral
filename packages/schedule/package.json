@@ -1,6 +1,6 @@
 {
   "name": "@vitral/schedule",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-free calendar and scheduler for Vitral: the engine (views, periods, recurrence, layout) and a DOM renderer with the keyboard, the pointer gestures and accessibility, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",
