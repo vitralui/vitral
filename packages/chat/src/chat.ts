@@ -2,7 +2,7 @@ import { en, isClient, loadStyle, type Locale } from '@vitral/core';
 import { createOverlay } from '@vitral/controls';
 import { createRoot, h, iconNode, mergeAttrs, partResolver, type Child, type VElement } from '@vitral/dom';
 // Aliased: this module has a `send` of its own, and a bare `x` reads as a variable.
-import { getIcon, messageSquare as messageSquareIcon, paperclip as paperclipIcon, registerIcons, send as sendIcon, x as closeIcon } from '@vitral/icons';
+import { close as closeIcon, getIcon, messageSquare as messageSquareIcon, paperclip as paperclipIcon, registerIcons, send as sendIcon } from '@vitral/icons';
 import { baseStyle, chatStyle } from '@vitral/styles';
 import { announcementOf, messageKeyTarget, showsAvatars } from './engine/state';
 import type { ChatAttachment, ChatConfig, ChatMessage, ChatVariant } from './engine/types';

@@ -1,3 +1,7 @@
+// Set aside for now: kept out of the published set until the brand marks are
+// settled. Move this file back to `src/icons/` and add `brands` to
+// `src/categories.ts` to bring them back; `pnpm gen` rebuilds the index.
+//
 // Brands: the marks people look for in a share row, a sign-in button or a
 // stack badge. Drawn to this set's own rules — the 24×24 grid, 2-unit round
 // strokes, no fill — rather than traced from anyone's artwork, so they sit
@@ -6,7 +10,7 @@
 // A logo is its owner's trademark. These are recognisable outline marks for
 // interface use; they are not the official artwork, and a brand's own
 // guidelines still say where and how its mark may be shown.
-import type { IconDef } from '../types';
+import type { IconDef } from '../src/types';
 
 const category = 'brands';
 
