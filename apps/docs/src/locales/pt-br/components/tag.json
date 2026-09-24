@@ -1,0 +1,8 @@
+{
+    "description": "Um rótulo curto para um status ou uma categoria, em todas as severidades, com um botão de remover opcional.",
+    "sections": {
+        "Severities": { "title": "Severidades" },
+        "Icons and shape": { "title": "Ícones e formato" },
+        "Removable": { "title": "Removível", "description": "Vá com Tab até um botão de remover e pressione Delete." }
+    }
+}

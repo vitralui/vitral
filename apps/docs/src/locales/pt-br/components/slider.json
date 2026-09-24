@@ -1,0 +1,9 @@
+{
+    "description": "Escolha um valor, ou um intervalo, arrastando ao longo de uma trilha ou pelo teclado.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Range": { "title": "Intervalo", "description": "v-model é [start, end]. Um só nome cobre as duas alças, que são diferenciadas como mínimo e máximo." },
+        "Vertical": { "title": "Vertical", "description": "O mínimo fica embaixo; Up e Right aumentam." },
+        "Disabled": { "title": "Desabilitado" }
+    }
+}

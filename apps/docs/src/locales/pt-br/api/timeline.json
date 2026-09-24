@@ -1,0 +1,14 @@
+{
+    "props": {
+        "value": "Os eventos, em ordem.",
+        "align": "De que lado fica o conteúdo: `left`, `right` ou `alternate` na vertical; `top`, `bottom` ou `alternate` na horizontal.",
+        "layout": "Eventos descendo a página (o padrão) ou atravessando-a.",
+        "dataKey": "Um campo que identifica um evento."
+    },
+    "slots": {
+        "content": "O conteúdo de um evento.",
+        "opposite": "O que fica do outro lado do eixo em relação ao conteúdo: uma data, por exemplo.",
+        "marker": "Substitui o marcador.",
+        "connector": "Substitui a linha até o próximo evento."
+    }
+}

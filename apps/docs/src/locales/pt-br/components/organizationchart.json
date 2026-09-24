@@ -1,0 +1,6 @@
+{
+    "description": "Uma árvore desenhada como gráfico, com nós que se recolhem e abrem, podem ser selecionados e aceitam um template por tipo de nó.",
+    "sections": {
+        "Selectable and collapsible": { "title": "Selecionável e recolhível" }
+    }
+}

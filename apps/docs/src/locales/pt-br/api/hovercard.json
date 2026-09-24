@@ -1,0 +1,12 @@
+{
+    "props": {
+        "openDelay": "Milissegundos em que o ponteiro (ou o foco do teclado) repousa antes de o card abrir. O padrão é 700.",
+        "closeDelay": "Milissegundos depois que o ponteiro sai antes de fechar. O padrão é 300.",
+        "placement": "Onde abre em relação ao gatilho. O padrão é `'bottom'`.",
+        "offset": "Distância até o gatilho, em pixels. O padrão é 8."
+    },
+    "slots": {
+        "trigger": "O que abre o card, normalmente um link, que continua funcionando por si.",
+        "default": "O conteúdo do card: uma prévia daquilo para onde o gatilho aponta."
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "description": "Uma grade de células iguais que calcula as linhas ou as colunas pelo número de filhos.",
+    "sections": {
+        "Square, from the children": { "title": "Quadrada, a partir dos filhos", "description": "Nem linhas nem colunas: a grade é o menor quadrado que comporta todos os filhos. Adicione alguns e veja-a crescer." },
+        "Columns given, rows worked out": { "title": "Colunas dadas, linhas calculadas", "description": "columns=\"4\" com dez filhos resulta em três linhas, cada uma da altura da célula mais alta." },
+        "FirstColumn": { "title": "FirstColumn", "description": "Um mês: sete colunas, e first-column definido como o dia da semana em que o mês começa." }
+    }
+}

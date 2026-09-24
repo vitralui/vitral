@@ -1,0 +1,7 @@
+{
+    "description": "Uma prévia do destino de um link, mostrada enquanto o ponteiro repousa sobre ele ou o foco chega nele.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Placement and delays": { "title": "Posicionamento e atrasos" }
+    }
+}

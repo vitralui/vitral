@@ -1,0 +1,8 @@
+{
+    "props": {
+        "size": "Largura e altura: um comprimento CSS, ou pixels. O padrão é o token `size` (2rem).",
+        "strokeWidth": "Espessura do traço, em unidades de um anel de 32 unidades, ou seja, pixels no tamanho padrão. O padrão é 3.",
+        "value": "0–100 desenha um anel determinado; omita-o para o arco girando.",
+        "animationDuration": "Uma volta do arco indeterminado, como um tempo CSS."
+    }
+}

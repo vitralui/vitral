@@ -1,0 +1,24 @@
+{
+    "props": {
+        "readonly": "O texto pode ser lido, selecionado e copiado, não alterado.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "maxLength": "O máximo de caracteres que o texto pode ter; digitar e colar param aí.",
+        "autofocus": "Dá foco ao texto, com o cursor no fim, ao montar.",
+        "colors": "Nomes de cores da paleta que os seletores de cor e de destaque oferecem, em ordem. O padrão é a paleta inteira.",
+        "historyDelay": "Milissegundos dentro dos quais digitação seguida conta como um só passo de desfazer. O padrão é 500.",
+        "slashMenu": "O menu que uma `/` abre no início de uma palavra: `true` para os blocos que o editor conhece, os comandos a oferecer, ou `false` para nenhum. O padrão é true.",
+        "blockMenu": "A alça ao lado do bloco em que está o cursor: `true` para as ações de sempre, as ações a oferecer, ou `false` para nenhuma. O padrão é true.",
+        "toolbar": "A barra de ferramentas: `false` para nenhuma, ou grupos de nomes de itens, como em `[['bold', 'italic'], ['link']]`. O slot `toolbar` a substitui por completo.",
+        "bubbleMenu": "Uma barra de ferramentas flutuante sobre o texto selecionado; `true` para os botões padrão, ou os itens a mostrar.",
+        "showCount": "Mostra a contagem de palavras e caracteres abaixo do texto. Ligado por padrão quando há `maxLength`.",
+        "showWordCount": "Mostra a contagem de palavras ao lado da de caracteres. O padrão é true."
+    },
+    "emits": {
+        "text-change": "O conteúdo mudou.",
+        "load": "O editor está pronto; `instance` é o editor sem framework por trás do componente."
+    },
+    "slots": {
+        "toolbar": "Substitui a barra de ferramentas. Monte uma com `EditorToolbar`, `EditorButton` e as outras partes.",
+        "footer": "Substitui o conteúdo do rodapé (a contagem)."
+    }
+}

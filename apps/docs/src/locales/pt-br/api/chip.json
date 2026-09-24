@@ -1,0 +1,7 @@
+{
+    "props": {
+        "image": "Uma imagem mostrada antes do rótulo: um rosto, um logo.",
+        "imageAlt": "O texto alternativo da imagem. Vazio a marca como decorativa, o que ela é ao lado de um rótulo.",
+        "removable": "Adiciona um botão de remover, chamado “Remove <label>”."
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "props": {
+        "dockOrder": "A ordem em que as bordas se acoplam. Cada borda ocupa uma faixa inteira do espaço ainda livre, então as primeiras ficam com os cantos. O padrão, `['top', 'bottom', 'left', 'right']`, faz topo e base ocuparem toda a largura; ponha `left`/`right` primeiro para laterais de altura total. Um array ou uma lista como `'left,right'`; as bordas omitidas seguem na ordem padrão.",
+        "spacing": "Espaço entre as regiões acopladas e o preenchimento. O padrão é o token `dockpanel.spacing`."
+    },
+    "slots": {
+        "default": "O preenchimento: o que as bordas acopladas deixam."
+    }
+}

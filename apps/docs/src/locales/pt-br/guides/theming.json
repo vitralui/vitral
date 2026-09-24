@@ -1,0 +1,32 @@
+{
+    "title": "Temas",
+    "description": "Três camadas de tokens compiladas em variáveis CSS, e as quatro maneiras de mudar um token.",
+    "intro": "Um tema é dado. Um <strong>preset</strong> é uma árvore de tokens em três camadas, e o motor a compila em variáveis CSS com o prefixo <code>--vt-</code>. Nada renderiza de novo quando ele muda: as variáveis são reescritas e o navegador repinta.",
+    "layers": {
+        "title": "As três camadas",
+        "text": "Um valor entre chaves é uma <em>referência</em>, e sobrevive à compilação como tal: <code>'{primary.color}'</code> vira <code>var(--vt-primary-color)</code>, e não a cor que guarda no momento. É isso que faz um único <code>setPrimary()</code> recolorir de uma vez todos os botões, tags, anéis de foco e séries de gráfico."
+    },
+    "naming": {
+        "title": "Nomes",
+        "component": "O nome de token de um componente é o seu nome em minúsculas, sem hífens: <code>ToggleSwitch</code> → <code>toggleswitch</code>.",
+        "root": "Um segmento <code>root</code> é descartado: <code>button.root.paddingX</code> → <code>--vt-button-padding-x</code>.",
+        "scheme": "Tudo o que muda de um esquema para o outro vai em <code>colorScheme: { light, dark }</code>, em qualquer profundidade."
+    },
+    "extend": {
+        "title": "Estendendo um preset",
+        "text": "<code>definePreset</code> faz um merge profundo sobre uma base, então um preset de marca declara só as suas diferenças. <code>palette('#7c3aed')</code> deriva os onze tons a partir de uma cor."
+    },
+    "runtime": "Em tempo de execução",
+    "borders": {
+        "title": "Dois conjuntos de bordas",
+        "text": "Um preset desenha as bordas do jeito que quer parecer, o que na maioria deles é mais discreto do que o <a href=\"https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast\" target=\"_blank\" rel=\"noreferrer\">WCAG 1.4.11</a> pede do contorno de um controle. O conjunto mais forte vive no preset, em <code>strongBorders</code>, compila num bloco próprio e é escolhido com <code>borders: 'strong'</code> na instalação do plugin, ou com <code>setBorders</code> depois. Nada é recompilado em nenhum dos casos — é um atributo no <code>&lt;html&gt;</code>, então a troca é instantânea, e um preset seu pode trazer o próprio par."
+    },
+    "instance": {
+        "title": "Uma instância por vez",
+        "text": "<code>dt</code> escreve os mesmos tokens no elemento raiz de um componente, então um único controle pode ser diferente sem um preset só para ele. Abaixo disso, variáveis CSS comuns funcionam como sempre funcionaram."
+    },
+    "cascade": {
+        "title": "Escopo e cascata",
+        "text": "O CSS dos componentes é injetado uma vez por componente, na ordem do documento, e pode ser envolvido numa cascade layer com a opção <code>cssLayer</code>. Com ela, qualquer regra da aplicação vence só pela especificidade, e o <code>!important</code> fica fora da sua folha de estilos."
+    }
+}

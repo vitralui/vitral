@@ -1,0 +1,8 @@
+{
+    "description": "Um select para opções aninhadas, uma coluna por nível, que abre cada grupo ao lado do anterior.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Uneven depth": { "title": "Profundidade irregular" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

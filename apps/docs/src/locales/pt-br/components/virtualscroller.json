@@ -1,0 +1,8 @@
+{
+    "description": "Renderiza só os itens perto da viewport, então cem mil linhas custam o mesmo que uma tela cheia, com carregamento sob demanda.",
+    "sections": {
+        "A hundred thousand rows": { "title": "Cem mil linhas" },
+        "Horizontal": { "title": "Horizontal" },
+        "Lazy": { "title": "Sob demanda" }
+    }
+}

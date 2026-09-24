@@ -4,36 +4,17 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'Breadcrumb',
     category: 'Menu',
-    description:
-        'Where the page sits in a hierarchy. It is the WAI-ARIA breadcrumb: a navigation landmark named by the locale around an ordered list, the last item marked aria-current="page", and the separators hidden from assistive technology.'
+    description: 'Where the page sits in a hierarchy: a trail of links with the current page last and separators in between.'
 };
 </script>
 
 <script setup lang="ts">
-import { Breadcrumb, type BreadcrumbItem } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
-
-const home: BreadcrumbItem = { url: '#' };
-const trail: BreadcrumbItem[] = [
-    { label: 'Electronics', url: '#' },
-    { label: 'Computers', url: '#' },
-    { label: 'Laptops', url: '#' },
-    { label: 'Vitral 14' }
-];
-const folders: BreadcrumbItem[] = [
-    { label: 'Documents', icon: 'folder', url: '#' },
-    { label: 'Projects', icon: 'folder', url: '#' },
-    { label: 'README.md', icon: 'file' }
-];
+import CustomSeparator from './Breadcrumb/CustomSeparator.vue';
+import WithHome from './Breadcrumb/WithHome.vue';
 </script>
 
 <template>
-    <DemoSection title="With a home item">
-        <Breadcrumb :home="home" :model="trail" />
-    </DemoSection>
-    <DemoSection title="Icons and a custom separator">
-        <Breadcrumb :model="folders">
-            <template #separator>/</template>
-        </Breadcrumb>
-    </DemoSection>
+    <DemoSection title="With a home item"><WithHome /></DemoSection>
+    <DemoSection title="Icons and a custom separator"><CustomSeparator /></DemoSection>
 </template>

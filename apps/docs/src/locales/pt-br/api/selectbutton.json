@@ -1,0 +1,11 @@
+{
+    "props": {
+        "optionLabel": "Campo (caminho com pontos) com o texto de uma opção. Sem ele, as opções são mostradas como estão.",
+        "optionValue": "Campo com o valor que o v-model recebe. Sem ele, a opção inteira é o valor.",
+        "optionIcon": "Campo com o ícone de uma opção.",
+        "multiple": "Várias opções ao mesmo tempo; o v-model passa a ser um array.",
+        "allowEmpty": "Permite pressionar de novo a opção pressionada para limpá-la. O padrão é true.",
+        "dataKey": "Compara valores de objeto por este campo em vez de pela estrutura.",
+        "label": "Dá nome ao grupo; sem ele, nomeie-o com `aria-label` ou `aria-labelledby`."
+    }
+}

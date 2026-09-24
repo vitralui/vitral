@@ -1,0 +1,36 @@
+{
+    "summary": "Um painel administrativo de SaaS: KPIs e gráficos de receita, uma tabela de clientes e configurações.",
+    "description": "O back office de um produto por assinatura. A visão geral abre com quatro KPIs e suas tendências, depois receita, distribuição por plano e conversões; a tabela de clientes busca, filtra, ordena, seleciona e pagina; as configurações reúnem um formulário de perfil, chaves de notificação e cobrança.",
+    "tags": ["Admin", "Gráficos", "Tabela"],
+    "features": [
+        "Blocos de KPI com sparklines e variações",
+        "Gráficos de área, de barras e de rosca que tiram suas cores do tema",
+        "Uma tabela de clientes com busca global, filtro por plano, ordenação, seleção e páginas",
+        "Configurações em abas: um formulário de perfil, chaves de notificação, uso e planos",
+        "Uma marca que troca de workspace e um menu da conta no pé da sidebar",
+        "Uma sidebar embutida que se recolhe em ícones em telas estreitas"
+    ],
+    "faq": [
+        {
+            "question": "A tabela pode carregar de uma API?",
+            "answer": "Sim. O DataGrid aceita uma fonte de dados ou roda em modo lazy: ordenação, filtragem e paginação ficam a cargo do seu servidor, e o markup continua o mesmo."
+        },
+        {
+            "question": "Por que os gráficos mudam de cor com o tema?",
+            "answer": "Eles leem os tokens --vt-chart-N, que todo preset define para os dois esquemas. Nada no template nomeia uma cor."
+        },
+        {
+            "question": "Como a sidebar se comporta num celular?",
+            "answer": "O shell observa a própria largura e recolhe a Sidebar em ícones abaixo de 960px, então toda tela fica a um toque de distância, sem drawer."
+        },
+        {
+            "question": "É o mesmo que o antigo dashboard Analytics?",
+            "answer": "Ele o substitui: a mesma ideia, com gráficos de verdade, mais telas e um layout que responde à sua largura."
+        }
+    ],
+    "screens": {
+        "overview": { "name": "Visão geral", "summary": "KPIs, gráficos de receita e de cadastros, distribuição por plano e atividade" },
+        "customers": { "name": "Clientes", "summary": "Uma tabela de clientes com busca, filtros e paginação" },
+        "settings": { "name": "Configurações", "summary": "Perfil, notificações e cobrança em abas" }
+    }
+}

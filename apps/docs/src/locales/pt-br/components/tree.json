@@ -1,0 +1,9 @@
+{
+    "description": "Dados hierárquicos com ramos que abrem e fecham, seleção por clique ou checkbox, um filtro e filhos carregados sob demanda.",
+    "sections": {
+        "Single selection, custom content": { "title": "Seleção única, conteúdo personalizado", "description": "O slot padrão desenha cada nó: aqui, o tamanho ao lado do nome." },
+        "Checkboxes": { "title": "Checkboxes", "description": "Marcar um ramo marca tudo abaixo dele; um ramo com só alguns dos filhos marcados fica misto (aria-checked=\"mixed\"). Ísland está desabilitada." },
+        "Filter": { "title": "Filtro", "description": "As correspondências ficam, com os ramos que levam a elas abertos. “evora” encontra Évora." },
+        "Lazy children": { "title": "Filhos sob demanda", "description": "Cada região é um ramo (`leaf: false`) ainda sem filhos; abri-lo emite `node-expand`, e a aplicação os carrega." }
+    }
+}

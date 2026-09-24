@@ -1,0 +1,10 @@
+{
+    "props": {
+        "for": "O `id` do controle que este rótulo nomeia.",
+        "required": "Mostra uma marca de obrigatório. O próprio controle ainda precisa dizer que é obrigatório (`required`, `aria-required`).",
+        "disabled": "Esmaece o rótulo. Lido do controle quando omitido."
+    },
+    "slots": {
+        "required": "Substitui a marca de obrigatório."
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "description": "Quanto de uma tarefa já foi feito, numa barra fina, com valor ou indeterminada.",
+    "sections": {
+        "Determinate": { "title": "Determinado" },
+        "Label": { "title": "Rótulo", "description": "`unit` acompanha o valor e vira o texto falado dele; `show-value` desligado o esconde; o slot o substitui." },
+        "Indeterminate": { "title": "Indeterminado", "description": "Um trabalho de duração desconhecida; nenhum valor é anunciado." }
+    }
+}

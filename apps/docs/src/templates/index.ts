@@ -1,4 +1,5 @@
-import { templateCategoryOrder, type TemplateMeta } from './types';
+import { catalog, t } from '../lib/i18n';
+import { templateCategoryOrder, type TemplateMeta, type TemplateScreen } from './types';
 import './templates.css';
 
 export type { TemplateCategory, TemplateMeta, TemplateScreen } from './types';
@@ -23,4 +24,27 @@ export const templateCategories = templateCategoryOrder
 
 export function templateOf(id: string) {
     return templates.find((entry) => entry.id === id);
+}
+
+/**
+ * What a template's page says about it, in the page's language, from
+ * `locales/<lang>/templates/<id>.json`. The name is the product's and stays;
+ * the lists are translated whole or not at all, so a page never mixes them.
+ *
+ *     { "summary": "…", "description": "…", "tags": [], "features": [], "faq": [{ "question": "…", "answer": "…" }],
+ *       "screens": { "overview": { "name": "…", "summary": "…" } } }
+ */
+export function templateText(entry: TemplateMeta) {
+    const text = catalog(`templates/${entry.id}`) as
+        | Partial<Pick<TemplateMeta, 'summary' | 'description' | 'tags' | 'features' | 'faq'>> & { screens?: Record<string, { name?: string; summary?: string }> }
+        | undefined;
+    return {
+        category: t(entry.category),
+        summary: text?.summary ?? entry.summary,
+        description: text?.description ?? entry.description,
+        tags: text?.tags ?? entry.tags,
+        features: text?.features ?? entry.features,
+        faq: text?.faq ?? entry.faq,
+        screen: (screen: TemplateScreen) => ({ name: text?.screens?.[screen.id]?.name ?? screen.name, summary: text?.screens?.[screen.id]?.summary ?? screen.summary })
+    };
 }

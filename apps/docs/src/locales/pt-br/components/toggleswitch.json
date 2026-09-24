@@ -1,0 +1,8 @@
+{
+    "description": "Um interruptor de ligar e desligar sobre um checkbox nativo, com cabeçalho acima e conteúdo de ligado/desligado ao lado.",
+    "sections": {
+        "Header and state": { "title": "Cabeçalho e estado", "description": "Com `show-state-label`, o On/Off do locale aparece ao lado do switch." },
+        "Custom content": { "title": "Conteúdo personalizado", "description": "Um conteúdo exibido ao lado do switch para cada estado. O segundo switch não tem cabeçalho, então recebe nome com aria-label." },
+        "States": { "title": "Estados" }
+    }
+}

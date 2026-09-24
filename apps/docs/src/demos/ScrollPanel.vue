@@ -4,24 +4,15 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'ScrollPanel',
     category: 'Panel',
-    description:
-        'A scroll container with the theme’s own thin bars. Scrolling stays native (wheel, touch and keyboard, since the content is a focusable region) and only the bars are drawn.'
+    description: "A scroll container with the theme's own thin bars, over native scrolling."
 };
 </script>
 
 <script setup lang="ts">
-import { ScrollPanel } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
-
-const paragraphs = Array.from({ length: 8 }, (_, i) => `Paragraph ${i + 1}. Vitral draws the scrollbars of this panel with the theme's tokens, while the browser keeps doing the scrolling, so the wheel, touch, and the arrow and page keys all work as they do anywhere else.`);
+import VerticalAndHorizontal from './ScrollPanel/VerticalAndHorizontal.vue';
 </script>
 
 <template>
-    <DemoSection title="Vertical and horizontal">
-        <ScrollPanel aria-label="Notes" style="width: 100%; max-width: 28rem; height: 14rem; border: 1px solid var(--vt-content-border-color); border-radius: 8px">
-            <div style="padding: 1rem; width: 40rem">
-                <p v-for="p in paragraphs" :key="p" style="margin: 0 0 0.75rem">{{ p }}</p>
-            </div>
-        </ScrollPanel>
-    </DemoSection>
+    <DemoSection title="Vertical and horizontal"><VerticalAndHorizontal /></DemoSection>
 </template>

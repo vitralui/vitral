@@ -1,0 +1,17 @@
+{
+    "props": {
+        "label": "O texto do comando principal.",
+        "model": "Os comandos do menu, como em `<Menu>`.",
+        "dropdownIcon": "O ícone do botão do menu. O padrão é uma seta.",
+        "loading": "Mostra um spinner no botão principal e o desabilita.",
+        "menuButtonLabel": "Dá nome ao botão do menu. O padrão é o \"More options\" do locale.",
+        "appendTo": "Onde o menu é renderizado: `'body'` (o padrão), `'self'`, ou um seletor."
+    },
+    "emits": {
+        "click": "O botão principal foi pressionado."
+    },
+    "slots": {
+        "default": "O conteúdo do botão principal.",
+        "item": "Um item do menu, como o slot `item` de `<Menu>`."
+    }
+}

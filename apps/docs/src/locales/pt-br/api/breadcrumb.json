@@ -1,0 +1,10 @@
+{
+    "props": {
+        "model": "O caminho, a raiz primeiro; o último item é a página atual.",
+        "home": "Um item antes do caminho. Mostra o ícone de início quando não tem rótulo nem ícone."
+    },
+    "slots": {
+        "item": "O conteúdo de um item: seu ícone e rótulo. O link ou botão em volta permanece.",
+        "separator": "Substitui a seta entre os itens."
+    }
+}

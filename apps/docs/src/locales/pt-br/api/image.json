@@ -1,0 +1,15 @@
+{
+    "props": {
+        "alt": "O texto alternativo da imagem. Também dá nome à prévia.",
+        "preview": "Abre um visualizador com zoom e rotação quando a imagem é pressionada.",
+        "previewSrc": "Uma imagem maior para o visualizador. O padrão é `src`.",
+        "zoomStep": "Quanto cada passo de zoom muda a escala. O padrão é 0.25.",
+        "minZoom": "O padrão é 0.5.",
+        "maxZoom": "O padrão é 3."
+    },
+    "slots": {
+        "image": "Substitui a imagem, por exemplo por um <picture>.",
+        "preview": "Substitui a imagem no visualizador.",
+        "indicator": "Substitui o indicador de hover."
+    }
+}

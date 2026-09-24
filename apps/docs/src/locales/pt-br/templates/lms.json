@@ -1,0 +1,37 @@
+{
+    "summary": "Uma plataforma de ensino: cursos, uma videoaula, um calendário de aulas e notas.",
+    "description": "O lado do aluno numa escola on-line. Retome de onde parou, navegue pelo catálogo e filtre-o, acompanhe uma aula com sua ementa, anotações e discussão, veja aulas e prazos num calendário e acompanhe as notas num boletim.",
+    "tags": ["Educação", "Vídeo", "Calendário"],
+    "features": [
+        "Um card de continuar estudando e o progresso de cada curso em andamento",
+        "Um catálogo de cursos com filtros por área e busca",
+        "Uma página de aula com a ementa num accordion, controle de conclusão, anotações e discussão",
+        "Um calendário com aulas recorrentes e prazos de dia inteiro, nas visões de mês, semana e agenda",
+        "Notas com média ponderada, um gráfico por curso e um boletim ordenável",
+        "Suporte e feedback numa lista mais discreta, no pé da mesma sidebar"
+    ],
+    "faq": [
+        {
+            "question": "O vídeo toca?",
+            "answer": "O player é um placeholder com um botão de play, para que o template não dependa de nenhuma biblioteca de mídia. Coloque o seu player na caixa .tp-video."
+        },
+        {
+            "question": "Os alunos podem mover eventos no calendário?",
+            "answer": "O Schedule permite arrastar e mover pelo teclado; aqui isso está desligado, porque a grade de aulas não é do aluno para mudar. Adicione editable e trate event-change para permitir."
+        },
+        {
+            "question": "Como o progresso da aula é guardado?",
+            "answer": "Numa cópia reativa da ementa. Marcar uma aula como concluída a marca como feita, atualiza o knob do curso e passa para a próxima."
+        },
+        {
+            "question": "O boletim é acessível?",
+            "answer": "É uma tabela de verdade, com caption e cabeçalhos de coluna ordenáveis; cada barra de nota traz um rótulo, além do número ao lado."
+        }
+    ],
+    "screens": {
+        "courses": { "name": "Cursos", "summary": "Continuar estudando e um catálogo de cursos filtrável" },
+        "lesson": { "name": "Aula", "summary": "Uma videoaula com a ementa, o progresso e as anotações" },
+        "calendar": { "name": "Calendário", "summary": "Aulas e prazos no Schedule" },
+        "grades": { "name": "Notas", "summary": "Notas por curso, uma média e um boletim em tabela" }
+    }
+}

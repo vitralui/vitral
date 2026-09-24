@@ -1,0 +1,6 @@
+{
+    "description": "O menu que um clique com o botão direito ou a tecla de menu de contexto abre, no ponteiro ou sob o elemento focado, com submenus.",
+    "sections": {
+        "On an element": { "title": "Sobre um elemento" }
+    }
+}

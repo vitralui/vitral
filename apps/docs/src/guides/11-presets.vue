@@ -9,10 +9,11 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T, t } from '../lib/i18n';
 import { href } from '../lib/router';
 import { Button, Tag } from '@vitral/vue';
 import CodeBlock from '../parts/CodeBlock.vue';
-import { themes } from '../lib/presets';
+import { themes, themeText } from '../lib/presets';
 import { presetId } from '../lib/theme';
 
 const own = `import { definePreset, palette, Base } from '@vitral/vue';
@@ -28,24 +29,29 @@ export const House = definePreset(Base, {
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         Four presets ship. Each is a complete theme, with every component's tokens in both schemes, each is a starting point for <code>definePreset</code>, and every
         <a :href="href('/templates')">template</a> on this site can be previewed in any of them, because a theme is easier to judge at work than on a swatch. A fifth is an object: see
         <a :href="href('/docs/theming')">theming</a>.
-    </p>
+    </T>
 
     <template v-for="theme in themes" :key="theme.id">
         <h2>{{ theme.name }}</h2>
-        <p>{{ theme.description }}</p>
+        <p>{{ themeText(theme).description }}</p>
         <p>
-            <Tag v-for="trait in theme.traits" :key="trait" :value="trait" severity="secondary" style="margin-right: 0.25rem" />
+            <Tag v-for="trait in themeText(theme).traits" :key="trait" :value="trait" severity="secondary" style="margin-right: 0.25rem" />
         </p>
         <p>
-            <Button :label="presetId === theme.id ? 'In use' : `Use ${theme.name}`" size="small" :severity="presetId === theme.id ? 'secondary' : 'primary'" @click="presetId = theme.id" />
-            <Button as="a" :href="href('/templates')" label="See it on the templates" size="small" variant="text" severity="secondary" />
+            <Button
+                :label="presetId === theme.id ? t('In use') : t('Use {name}', { name: theme.name })"
+                size="small"
+                :severity="presetId === theme.id ? 'secondary' : 'primary'"
+                @click="presetId = theme.id"
+            />
+            <Button as="a" :href="href('/templates')" :label="t('See it on the templates')" size="small" variant="text" severity="secondary" />
         </p>
     </template>
 
-    <h2>Starting from nothing</h2>
+    <T k="own" as="h2">Starting from nothing</T>
     <CodeBlock :code="own" label="house.ts" lang="ts" />
 </template>

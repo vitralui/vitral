@@ -1,0 +1,12 @@
+{
+    "description": "Uma planilha com motor de fórmulas próprio e sem dependências: referências A1, sessenta e três funções e recálculo só do que mudou.",
+    "sections": {
+        "Default": { "title": "Padrão", "description": "Digite nela, arraste a alça no canto da seleção para preencher e veja os totais acompanharem. Comece uma fórmula — `=B2*C2` — e cada célula que ela lê fica contornada onde está." },
+        "What comes back": { "title": "O que volta", "description": "`v-model` é o que foi digitado, indexado por A1 — as fórmulas são fórmulas, e não o resultado delas." },
+        "Formulas": { "title": "Fórmulas", "description": "Sessenta e três: SUM, AVERAGE, MIN, MAX, COUNT e COUNTIF, IF e IFERROR, as de texto, INDEX, MATCH e VLOOKUP, e as datas como os dias em que toda planilha conta." },
+        "When a formula cannot answer": { "title": "Quando uma fórmula não tem resposta", "description": "Um erro é um valor: ele atravessa a aritmética, e `IFERROR` o captura." },
+        "The toolbar": { "title": "A barra de ferramentas", "description": "`toolbar` recebe grupos de nomes de itens, ou `false` para nenhum; o slot `toolbar` substitui a barra por peças suas. Toda ferramenta age sobre o retângulo selecionado, e as que ficam pressionadas refletem a célula onde está o cursor." },
+        "Read only": { "title": "Somente leitura", "description": "`readonly` mantém o teclado e a seleção, e tira a digitação e a alça de preenchimento." },
+        "Where the keyboard is": { "title": "Onde está o teclado", "description": "`selection-change` diz qual célula, ou qual retângulo, toda vez que ela se move." }
+    }
+}

@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T } from '../lib/i18n';
 import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
@@ -66,91 +67,91 @@ pnpm build`;
 </script>
 
 <template>
-    <h2>Install</h2>
+    <T k="install.title" as="h2">Install</T>
     <CodeBlock :code="install" label="terminal" lang="bash" />
-    <p>Vue 3.5 or newer is the only peer dependency. The other <code>@vitral/*</code> packages come with it.</p>
+    <T k="install.text">Vue 3.5 or newer is the only peer dependency. The other <code>@vitral/*</code> packages come with it.</T>
 
-    <h2>Register the plugin</h2>
+    <T k="plugin.title" as="h2">Register the plugin</T>
     <CodeBlock :code="plugin" label="main.ts" lang="ts" />
-    <p>
+    <T k="plugin.text">
         There is no stylesheet to import. The plugin injects the theme as CSS variables, and each component injects its own CSS the first time it renders, so a page only carries
         the components it uses.
-    </p>
+    </T>
 
-    <h3>Options</h3>
+    <T k="options.title" as="h3">Options</T>
     <div class="api-scroll">
         <table class="api-table">
             <thead>
                 <tr>
-                    <th>Option</th>
-                    <th>Type</th>
-                    <th>Description</th>
+                    <T k="options.option" as="th">Option</T>
+                    <T k="options.type" as="th">Type</T>
+                    <T k="options.description" as="th">Description</T>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>theme</td>
                     <td class="type">{ preset, colorScheme, storageKey, options } | 'none'</td>
-                    <td class="doc">The preset and the scheme. <code>'none'</code> injects nothing: bring your own variables, or go unstyled.</td>
+                    <T k="options.theme" as="td" class="doc">The preset and the scheme. <code>'none'</code> injects nothing: bring your own variables, or go unstyled.</T>
                 </tr>
                 <tr>
                     <td>locale</td>
                     <td class="type">Locale</td>
-                    <td class="doc"><code>en</code> and <code>ptBR</code> ship; a locale is a plain object, so a third is a literal.</td>
+                    <T k="options.locale" as="td" class="doc"><code>en</code> and <code>ptBR</code> ship; a locale is a plain object, so a third is a literal.</T>
                 </tr>
                 <tr>
                     <td>inputVariant</td>
                     <td class="type">'outlined' | 'filled'</td>
-                    <td class="doc">The default look of every field. Reactive: change it at runtime and the page follows.</td>
+                    <T k="options.inputVariant" as="td" class="doc">The default look of every field. Reactive: change it at runtime and the page follows.</T>
                 </tr>
                 <tr>
                     <td>unstyled</td>
                     <td class="type">boolean</td>
-                    <td class="doc">Drop every built-in class, everywhere. See <a :href="href('/docs/unstyled')">unstyled mode</a>.</td>
+                    <T k="options.unstyled" as="td" class="doc">Drop every built-in class, everywhere. See <a :href="href('/docs/unstyled')">unstyled mode</a>.</T>
                 </tr>
                 <tr>
                     <td>pt</td>
                     <td class="type">GlobalPassThrough</td>
-                    <td class="doc">Pass-through for every instance of a component, keyed by name. See <a :href="href('/docs/pass-through')">pass-through</a>.</td>
+                    <T k="options.pt" as="td" class="doc">Pass-through for every instance of a component, keyed by name. See <a :href="href('/docs/pass-through')">pass-through</a>.</T>
                 </tr>
                 <tr>
                     <td>cssLayer</td>
                     <td class="type">string | false</td>
-                    <td class="doc">Wrap component CSS in <code>@layer</code>, so application CSS wins without <code>!important</code>.</td>
+                    <T k="options.cssLayer" as="td" class="doc">Wrap component CSS in <code>@layer</code>, so application CSS wins without <code>!important</code>.</T>
                 </tr>
                 <tr>
                     <td>zIndex</td>
                     <td class="type">Partial&lt;ZIndexConfig&gt;</td>
-                    <td class="doc">The stacking floors for modals, overlays, menus and tooltips.</td>
+                    <T k="options.zIndex" as="td" class="doc">The stacking floors for modals, overlays, menus and tooltips.</T>
                 </tr>
                 <tr>
                     <td>csp</td>
                     <td class="type">{ nonce?: string }</td>
-                    <td class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</td>
+                    <T k="options.csp" as="td" class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</T>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <h2>Without import lines</h2>
-    <p>
+    <T k="autoImport.title" as="h2">Without import lines</T>
+    <T k="autoImport.text">
         In Nuxt the <a :href="href('/docs/server-rendering')">module</a> does this for you. In a plain Vite application, the same lists are behind
         <code>@vitral/vue/resolver</code>, for unplugin-vue-components and unplugin-auto-import:
-    </p>
+    </T>
     <CodeBlock :code="autoImport" label="vite.config.ts" lang="ts" />
-    <p><code>VitralResolver({ prefix: 'Vt' })</code> answers to <code>&lt;VtButton&gt;</code> instead, and leaves every other name to your own components.</p>
+    <T k="autoImport.prefix"><code>VitralResolver({ prefix: 'Vt' })</code> answers to <code>&lt;VtButton&gt;</code> instead, and leaves every other name to your own components.</T>
 
-    <h2>Two components at the root</h2>
-    <p>
+    <T k="root.title" as="h2">Two components at the root</T>
+    <T k="root.text">
         <code>useToast()</code> and <code>useConfirm()</code> send events, so the components that show them have to be on the page. Put them once, near the root, where they
         outlive the views that call them.
-    </p>
+    </T>
     <CodeBlock :code="services" label="App.vue" lang="vue" />
 
-    <h2>Without JavaScript</h2>
-    <p>A page that only wants the look can take the compiled theme and the components' CSS as two files.</p>
+    <T k="noJs.title" as="h2">Without JavaScript</T>
+    <T k="noJs.text">A page that only wants the look can take the compiled theme and the components' CSS as two files.</T>
     <CodeBlock :code="noJs" label="index.html" lang="vue" />
 
-    <h2>Working on Vitral itself</h2>
+    <T k="dev" as="h2">Working on Vitral itself</T>
     <CodeBlock :code="dev" label="terminal" lang="bash" />
 </template>

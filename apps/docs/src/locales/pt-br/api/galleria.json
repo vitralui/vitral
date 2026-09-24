@@ -1,0 +1,15 @@
+{
+    "props": {
+        "numVisible": "Miniaturas mostradas de uma vez. O padrão é 3.",
+        "fullScreen": "Mostra num modal sobre a página, aberto com `v-model:visible`.",
+        "showThumbnails": "O padrão é true.",
+        "showItemNavigators": "Botões de anterior e próximo sobre o item.",
+        "showThumbnailNavigators": "Botões de anterior e próximo ao lado das miniaturas. O padrão é true.",
+        "showIndicators": "Pontos abaixo do item.",
+        "circular": "Dá a volta: o último item é seguido pelo primeiro. Ligado por padrão — uma galeria que para de repente no fim faz o leitor voltar por tudo o que acabou de ver para chegar à outra ponta.",
+        "autoPlay": "Passa pelos itens sozinha; vem com um botão de pausa.",
+        "transitionInterval": "Milissegundos entre itens durante a reprodução. O padrão é 4000.",
+        "transition": "Como um item dá lugar ao próximo: `'fade'`, `'slide'`, `'push'`, `'cover'`, `'zoom'`, `'flip'`, ou `'none'`, que é o padrão — uma galeria navegada depressa fica melhor trocando na hora.",
+        "ariaLabel": "Dá nome à galeria."
+    }
+}

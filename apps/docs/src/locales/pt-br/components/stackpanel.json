@@ -1,0 +1,8 @@
+{
+    "description": "Organiza os filhos numa única linha, empilhados ou lado a lado, com espaçamento uniforme entre eles.",
+    "sections": {
+        "Vertical": { "title": "Vertical", "description": "O padrão. Os filhos se empilham de cima para baixo e se esticam até a largura do painel; o espaço entre eles é o token stackpanel.spacing." },
+        "Orientation, spacing and alignment": { "title": "Orientação, espaçamento e alinhamento", "description": "A moldura tracejada é o painel. Align move os filhos na direção transversal à linha; justify os distribui ao longo dela." },
+        "Wrap": { "title": "Quebra", "description": "Uma pilha horizontal com wrap passa para mais linhas em vez de transbordar." }
+    }
+}

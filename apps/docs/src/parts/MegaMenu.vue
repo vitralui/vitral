@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Button, Drawer, Icon } from '@vitral/vue';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { categoryName } from '../demo';
 import { sections } from '../lib/catalog';
-import { guideSections } from '../lib/guides';
+import { guideSections, sectionName } from '../lib/guides';
+import { t } from '../lib/i18n';
 import { route, href } from '../lib/router';
-import { addons } from '../lib/addons';
+import { addons, addonTitle } from '../lib/addons';
 import { chartEntries } from '../lib/charts';
-import { templateCategories, templates } from '../templates';
+import { direction } from '../lib/theme';
+import { templateCategories, templates, templateText } from '../templates';
 
 /**
  * The bar's menus: a panel per section, anchored under the item that opened it
@@ -19,6 +22,13 @@ import { templateCategories, templates } from '../templates';
 type Panel = 'components' | 'addons' | 'templates' | 'docs';
 
 const open = ref<Panel | null>(null);
+
+// A panel is placed from the side the bar starts on; when the page turns
+// over, that side moves, so the panel and the drawer close.
+watch(direction, () => {
+    open.value = null;
+    drawer.value = false;
+});
 const offset = ref(0);
 const root = ref<HTMLElement | null>(null);
 
@@ -42,23 +52,24 @@ const addonRoutes = new Set(addons.map((addon) => addon.component));
  * know it is an addon), then how to use it, then whole applications built from
  * it. Icons is a shortcut beside them rather than a panel of its own.
  */
-const panels: { key: Panel; label: string; active: () => boolean }[] = [
-    { key: 'components', label: 'Components', active: () => route.value.name === 'component' && !addonRoutes.has(route.value.id) },
+const panels = computed<{ key: Panel; label: string; active: () => boolean }[]>(() => [
+    { key: 'components', label: t('Components'), active: () => route.value.name === 'components' || (route.value.name === 'component' && !addonRoutes.has(route.value.id)) },
     { key: 'addons', label: 'Addons', active: () => route.value.name === 'charts' || (route.value.name === 'component' && addonRoutes.has(route.value.id)) },
-    { key: 'docs', label: 'Documentation', active: () => route.value.name === 'doc' },
+    { key: 'docs', label: t('Documentation'), active: () => route.value.name === 'doc' },
     { key: 'templates', label: 'Templates', active: () => route.value.name === 'template' || route.value.name === 'templates' }
-];
+]);
 
 const drawer = ref(false);
 const search = defineModel<boolean>('search', { default: false });
 
-const shortcuts = computed(() => [{ label: 'Icons', to: '/icons', note: 'The icon set, searchable', icon: 'star', active: route.value.name === 'icons' }]);
+const shortcuts = computed(() => [{ label: t('Icons'), to: '/icons', note: t('The icon set, searchable'), icon: 'star', active: route.value.name === 'icons' }]);
 
 /** What the addons panel lists: the packages, and where each is shown off. */
 const addonLinks = computed(() =>
     addons.map((addon) => ({
         ...addon,
-        note: addon.id === 'chart' ? `${chartEntries.length} kinds, drawn live` : addon.note,
+        title: addonTitle(addon),
+        note: addon.id === 'chart' ? t('{count} kinds, drawn live', { count: chartEntries.length }) : t(addon.note),
         active: addon.to === '/charts' ? route.value.name === 'charts' : route.value.id === addon.component
     }))
 );
@@ -175,7 +186,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div ref="root" class="mega">
-        <nav class="top-nav" aria-label="Sections" accesskey="2">
+        <nav class="top-nav" :aria-label="t('Sections')" accesskey="2">
             <template v-for="panel in panels" :key="panel.key">
                 <button type="button" :class="{ 'is-active': panel.active(), on: open === panel.key }" :aria-expanded="open === panel.key" @click="toggle(panel.key)">
                     {{ panel.label }}
@@ -189,12 +200,12 @@ onBeforeUnmount(() => {
                         <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-item">
                             <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
                             <span>
-                                <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
-                                <em>{{ categoryNotes[group.category] }}</em>
+                                <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small></b>
+                                <em>{{ t(categoryNotes[group.category]!) }}</em>
                             </span>
                         </a>
                     </div>
-                    <a :href="href('/components/button')" class="mega-foot">Browse all {{ componentCount }} components <Icon icon="arrowRight" /></a>
+                    <a :href="href('/components')" class="mega-foot">{{ t('Browse all {count} components', { count: componentCount }) }} <Icon icon="arrowRight" /></a>
                 </template>
 
                 <template v-else-if="panel.key === 'addons'">
@@ -212,17 +223,17 @@ onBeforeUnmount(() => {
                 <template v-else-if="panel.key === 'templates'">
                     <div class="mega-columns">
                         <div v-for="group in templateCategories" :key="group.category" class="mega-group">
-                            <span class="mega-group-title">{{ group.category }}</span>
+                            <span class="mega-group-title">{{ t(group.category) }}</span>
                             <a v-for="entry in group.items" :key="entry.id" :href="href(`/templates/${entry.id}`)" class="mega-item">
                                 <span class="mega-icon"><Icon :icon="entry.icon" /></span>
                                 <span>
                                     <b>{{ entry.name }}</b>
-                                    <em>{{ entry.summary }}</em>
+                                    <em>{{ templateText(entry).summary }}</em>
                                 </span>
                             </a>
                         </div>
                     </div>
-                    <a :href="href('/templates')" class="mega-foot">All {{ templates.length }} templates, with live previews <Icon icon="arrowRight" /></a>
+                    <a :href="href('/templates')" class="mega-foot">{{ t('All {count} templates, with live previews', { count: templates.length }) }} <Icon icon="arrowRight" /></a>
                 </template>
 
                 <template v-else>
@@ -230,17 +241,17 @@ onBeforeUnmount(() => {
                         <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-item">
                             <span class="mega-icon"><Icon icon="file" /></span>
                             <span>
-                                <b>{{ group.section }}</b>
-                                <em>{{ guideNotes[group.section] }}</em>
+                                <b>{{ sectionName(group.section) }}</b>
+                                <em>{{ t(guideNotes[group.section]!) }}</em>
                             </span>
                         </a>
                     </div>
-                    <a :href="href('/docs/introduction')" class="mega-foot">Start at the introduction <Icon icon="arrowRight" /></a>
+                    <a :href="href('/docs/introduction')" class="mega-foot">{{ t('Start at the introduction') }} <Icon icon="arrowRight" /></a>
                 </template>
                 </div>
             </template>
 
-            <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">Icons</a>
+            <a :href="href('/icons')" :class="{ 'is-active': route.name === 'icons' }" :aria-current="route.name === 'icons' ? 'page' : undefined">{{ t('Icons') }}</a>
         </nav>
 
         <Button
@@ -248,19 +259,19 @@ onBeforeUnmount(() => {
             icon="menu"
             variant="text"
             severity="secondary"
-            aria-label="Sections"
+            :aria-label="t('Sections')"
             aria-haspopup="dialog"
             :aria-expanded="drawer"
             @click="drawer = true"
         />
 
-        <Drawer v-model:visible="drawer" header="Sections" position="left" class="mega-drawer">
+        <Drawer v-model:visible="drawer" :header="t('Sections')" position="left" class="mega-drawer">
             <button type="button" class="mega-drawer-search" @click="openSearch">
                 <Icon icon="search" />
-                Search the documentation
+                {{ t('Search the documentation') }}
             </button>
 
-            <nav aria-label="Sections">
+            <nav :aria-label="t('Sections')">
                 <a v-for="item in shortcuts" :key="item.to" :href="href(item.to)" class="mega-drawer-link" :aria-current="item.active ? 'page' : undefined" @click="leave">
                     <span class="mega-icon"><Icon :icon="item.icon" /></span>
                     <span>
@@ -269,16 +280,16 @@ onBeforeUnmount(() => {
                     </span>
                 </a>
 
-                <h2>Components <small>{{ componentCount }}</small></h2>
+                <h2>{{ t('Components') }} <small>{{ componentCount }}</small></h2>
                 <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
                     <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
                     <span>
-                        <b>{{ group.category }} <small>{{ group.items.length }}</small></b>
-                        <em>{{ categoryNotes[group.category] }}</em>
+                        <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small></b>
+                        <em>{{ t(categoryNotes[group.category]!) }}</em>
                     </span>
                 </a>
 
-                <h2>Addons <small>{{ addonLinks.length }}</small></h2>
+                <h2>{{ t('Addons') }} <small>{{ addonLinks.length }}</small></h2>
                 <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
                     <span class="mega-icon"><Icon :icon="addon.icon" /></span>
                     <span>
@@ -287,12 +298,12 @@ onBeforeUnmount(() => {
                     </span>
                 </a>
 
-                <h2>Documentation</h2>
+                <h2>{{ t('Documentation') }}</h2>
                 <a v-for="group in guideSections" :key="group.section" :href="href(`/docs/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
                     <span class="mega-icon"><Icon icon="file" /></span>
                     <span>
-                        <b>{{ group.section }}</b>
-                        <em>{{ guideNotes[group.section] }}</em>
+                        <b>{{ sectionName(group.section) }}</b>
+                        <em>{{ t(guideNotes[group.section]!) }}</em>
                     </span>
                 </a>
 
@@ -301,7 +312,7 @@ onBeforeUnmount(() => {
                     <span class="mega-icon"><Icon :icon="entry.icon" /></span>
                     <span>
                         <b>{{ entry.name }}</b>
-                        <em>{{ entry.summary }}</em>
+                        <em>{{ templateText(entry).summary }}</em>
                     </span>
                 </a>
 

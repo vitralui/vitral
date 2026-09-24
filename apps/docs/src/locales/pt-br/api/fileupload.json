@@ -1,0 +1,27 @@
+{
+    "props": {
+        "mode": "`advanced` (o padrão): uma área de soltar, uma fila e botões de envio. `basic`: um botão.",
+        "name": "O nome do campo de formulário com que os arquivos são enviados. O padrão é `'files[]'`.",
+        "url": "Para onde os arquivos são enviados. Omita-o com `customUpload`.",
+        "accept": "O atributo `accept`: `image/*`, `.pdf`… Arquivos que não combinam são recusados com uma mensagem.",
+        "maxFileSize": "Em bytes. Arquivos maiores são recusados com uma mensagem.",
+        "fileLimit": "Quantos arquivos podem ser enfileirados e enviados no total.",
+        "auto": "Envia assim que os arquivos são escolhidos.",
+        "customUpload": "Emite `uploader` com os arquivos em vez de enviá-los.",
+        "requestPerFile": "Envia cada arquivo numa requisição própria, cada um com sua barra de progresso; um arquivo sai da fila assim que sua requisição dá certo. Por padrão todos os arquivos da fila vão numa só requisição.",
+        "showUploadButton": "O padrão é true.",
+        "showCancelButton": "O padrão é true.",
+        "invalidFileTypeMessage": "`{name}`, `{types}`. O padrão vem do locale.",
+        "invalidFileSizeMessage": "`{name}`, `{size}`. O padrão vem do locale.",
+        "invalidFileLimitMessage": "`{limit}`. O padrão vem do locale."
+    },
+    "emits": {
+        "progress": "`progress` é o do envio inteiro; com `requestPerFile`, `file` e `fileProgress` dizem qual requisição avançou.",
+        "uploader": "Com `customUpload`: envie estes arquivos você mesmo."
+    },
+    "slots": {
+        "header": "Conteúdo extra na barra de ferramentas.",
+        "content": "Substitui a fila.",
+        "empty": "Mostrado enquanto a fila está vazia."
+    }
+}

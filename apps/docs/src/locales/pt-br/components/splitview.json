@@ -1,0 +1,7 @@
+{
+    "description": "Um painel ao lado do conteúdo, inline ou em overlay, que pode se reduzir a uma faixa de ícones quando fechado.",
+    "sections": {
+        "NavigationView shell": { "title": "Estrutura de NavigationView", "description": "O hambúrguer abre e fecha o painel. Troque o modo de exibição para comparar: nos modos compactos, o painel fechado mantém os ícones." },
+        "Inline, on the right": { "title": "Inline, à direita", "description": "Um painel de detalhes: display-mode=\"inline\" placement=\"right\", aberto. Fechá-lo dá à lista a largura inteira." }
+    }
+}

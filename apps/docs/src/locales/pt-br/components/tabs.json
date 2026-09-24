@@ -1,0 +1,8 @@
+{
+    "description": "Vistas que dividem um mesmo lugar na página, trocadas por uma lista de abas.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Vertical": { "title": "Vertical" },
+        "Manual activation": { "title": "Ativação manual", "description": "Com `select-on-focus` desligado, as setas só movem o foco; Enter ou Espaço selecionam." }
+    }
+}

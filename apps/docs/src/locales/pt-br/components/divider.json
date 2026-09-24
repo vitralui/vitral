@@ -1,0 +1,8 @@
+{
+    "description": "Uma linha horizontal ou vertical entre conteúdos, sólida, tracejada ou pontilhada, com um conteúdo opcional encaixado nela.",
+    "sections": {
+        "Types": { "title": "Tipos" },
+        "Content": { "title": "Conteúdo" },
+        "Vertical": { "title": "Vertical" }
+    }
+}

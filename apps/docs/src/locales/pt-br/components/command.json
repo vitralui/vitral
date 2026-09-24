@@ -1,0 +1,7 @@
+{
+    "description": "Um campo de busca sobre uma lista de comandos que filtra enquanto você digita, inline ou como uma paleta modal aberta por um atalho.",
+    "sections": {
+        "Inline": { "title": "Inline" },
+        "Palette": { "title": "Paleta" }
+    }
+}

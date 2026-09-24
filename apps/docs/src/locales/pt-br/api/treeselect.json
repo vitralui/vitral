@@ -1,0 +1,16 @@
+{
+    "props": {
+        "options": "A árvore de onde escolher.",
+        "selectionMode": "`'single'` (o padrão) fecha ao escolher; `'multiple'` e `'checkbox'` ficam abertos.",
+        "display": "Como a escolha é mostrada: uma lista separada por vírgulas (o padrão) ou chips.",
+        "maxSelectedLabels": "Acima desse número, o campo diz quantos foram escolhidos em vez de nomeá-los.",
+        "selectedItemsLabel": "O que ele diz nesse caso. `{count}`; o padrão é a mensagem de seleção do locale.",
+        "filter": "Adiciona uma caixa de busca acima da árvore.",
+        "filterBy": "Campos do nó a buscar, como lista ou separados por vírgula. O padrão é `label`.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "slots": {
+        "value": "O conteúdo do campo.",
+        "option": "O conteúdo de um nó na árvore."
+    }
+}

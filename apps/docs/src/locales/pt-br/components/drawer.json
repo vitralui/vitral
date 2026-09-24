@@ -1,0 +1,6 @@
+{
+    "description": "Um painel que desliza de uma borda da viewport, ou a cobre inteira, com o mesmo comportamento modal do Dialog.",
+    "sections": {
+        "Positions": { "title": "Posições" }
+    }
+}

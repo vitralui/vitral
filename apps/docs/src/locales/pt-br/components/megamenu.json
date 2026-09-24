@@ -1,0 +1,7 @@
+{
+    "description": "Uma barra de menu cujos itens abrem painéis largos de links agrupados em colunas, como a barra superior deste site.",
+    "sections": {
+        "Horizontal": { "title": "Horizontal" },
+        "Vertical": { "title": "Vertical" }
+    }
+}

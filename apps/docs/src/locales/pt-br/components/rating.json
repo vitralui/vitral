@@ -1,0 +1,11 @@
+{
+    "description": "Estrelas para avaliar, em passos inteiros ou em metades e quartos, limpas ao escolher de novo a mesma estrela.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Half stars": { "title": "Meias estrelas", "description": "Um step de 0.5. Pressione a metade esquerda de uma estrela para a metade, a direita para a inteira; as setas andam pelo step." },
+        "Quarters": { "title": "Quartos", "description": "Qualquer step divide a estrela: a cheia é desenhada sobre a vazia e recortada na fração, então não há glifo pela metade para manter." },
+        "An average, read-only": { "title": "Uma média, somente leitura", "description": "Para o que uma avaliação mais serve: um número que não é uma estrela inteira e que nunca foi escolhido por este leitor." },
+        "More stars, other icons": { "title": "Mais estrelas, outros ícones" },
+        "Read-only and disabled": { "title": "Somente leitura e desabilitado" }
+    }
+}

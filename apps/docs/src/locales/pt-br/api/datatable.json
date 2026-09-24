@@ -1,0 +1,15 @@
+{
+    "props": {
+        "value": "As linhas, já em mãos. Esta tabela não busca, pagina nem filtra.",
+        "dataKey": "O campo que identifica uma linha, usado como sua chave. Na falta dele, a posição.",
+        "caption": "Mostrado acima do cabeçalho, para leitores de tela; use o slot `header` para algo visível.",
+        "stripedRows": "Uma linha sim, outra não, com fundo tingido.",
+        "showGridlines": "Uma linha entre as colunas além de entre as linhas.",
+        "rowHover": "As linhas se destacam sob o ponteiro. Vale a pena quando uma linha é um link ou abre algo.",
+        "scrollHeight": "Dá à tabela uma área rolável própria com esta altura e fixa o cabeçalho no topo dela.",
+        "emptyMessage": "O que dizer quando não há linhas; o slot `empty` tem prioridade."
+    },
+    "slots": {
+        "default": "Os `<Column>`s. Qualquer outro conteúdo aqui é ignorado."
+    }
+}

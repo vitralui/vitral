@@ -1,0 +1,23 @@
+{
+    "props": {
+        "dateFormat": "Um padrão de `formatDate` (`yyyy yy MMMM MMM MM M dd d`); o padrão é o `dateFormat` do locale.",
+        "minDate": "O primeiro dia selecionável.",
+        "maxDate": "O último dia selecionável.",
+        "disabledDates": "Dias que não podem ser escolhidos.",
+        "disabledDays": "Dias da semana que não podem ser escolhidos, 0 = domingo.",
+        "showTodayButton": "Um botão no rodapé que seleciona hoje.",
+        "showClearButton": "Um botão no rodapé que esvazia o valor.",
+        "firstDayOfWeek": "0 = domingo; o padrão é o `firstDayOfWeek` do locale.",
+        "inline": "Mostra o calendário no lugar, sem caixa de texto nem popup.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "dateSelect": "Um dia foi escolhido no calendário, ou digitado e confirmado."
+    },
+    "slots": {
+        "date": "O conteúdo da célula de um dia.",
+        "footer": "Conteúdo extra no rodapé do calendário.",
+        "dropdownicon": "O ícone do botão do calendário."
+    }
+}

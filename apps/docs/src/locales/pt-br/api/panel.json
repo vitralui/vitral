@@ -1,0 +1,11 @@
+{
+    "props": {
+        "header": "O texto do cabeçalho.",
+        "toggleable": "Faz do cabeçalho um botão que mostra e oculta o conteúdo.",
+        "toggleIcon": "Substitui a seta. A seta vira quando aberto; um ícone personalizado fica como está."
+    },
+    "slots": {
+        "header": "Substitui o texto de `header`. Fica dentro do botão de alternar quando toggleable, então não pode conter controles próprios.",
+        "icons": "Ações no fim do cabeçalho; ficam fora do botão de alternar."
+    }
+}

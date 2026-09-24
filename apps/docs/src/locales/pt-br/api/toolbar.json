@@ -1,0 +1,5 @@
+{
+    "props": {
+        "roving": "O teclado de barra de ferramentas do APG: uma só parada de tabulação para a barra inteira, com Esquerda/Direita (e Home/End) movendo entre os controles. Desligado por padrão, porque uma barra com um campo de texto precisa dessas teclas dentro do campo."
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "description": "Texto rico com motor próprio e sem dependências: títulos, listas, tabelas, imagens, links e atalhos de Markdown, ligado como HTML sanitizado.",
+    "sections": {
+        "Default": { "title": "Padrão" },
+        "Custom toolbar": { "title": "Barra de ferramentas personalizada", "description": "`toolbar` recebe grupos de nomes de itens; o slot `toolbar` substitui a barra por peças suas." },
+        "Slash menu and block actions": { "title": "Menu de barra e ações de bloco", "description": "Digite `/` no começo de uma palavra e os blocos são oferecidos, filtrados enquanto você digita; Enter ou um clique insere um. Ao lado do bloco em que está o cursor há uma alça, que abre duplicar, mover, transformar em texto e excluir. `slash-menu` e `block-menu` recebem entradas suas, ou `false` para nenhuma." },
+        "Bubble toolbar": { "title": "Barra de ferramentas flutuante", "description": "`bubble-menu` mostra uma barra de ferramentas sobre o texto selecionado; com `:toolbar=\"false\"`, ela é a única." },
+        "Read only": { "title": "Somente leitura" },
+        "With count and limit": { "title": "Com contagem e limite", "description": "`max-length` interrompe a digitação e a colagem no limite; a contagem descreve o texto." },
+        "HTML and JSON output": { "title": "Saída em HTML e JSON" },
+        "Composed from parts": { "title": "Composto por partes", "description": "`Editor.Root`, `Editor.Toolbar`, `Editor.Button`, `Editor.Content`, `Editor.BubbleMenu`, `Editor.Footer` e `Editor.Count`, também exportados como `EditorRoot`, `EditorToolbar`… compartilham um só editor; `useEditor()` chega até ele a partir dos seus próprios componentes." }
+    }
+}

@@ -1,3 +1,5 @@
+import { t } from './i18n';
+
 /**
  * The addons: the parts of Vitral written as plain TypeScript, which draw
  * themselves, so a React, an Angular or a no-framework page gets the same
@@ -93,3 +95,11 @@ export const addons: AddonEntry[] = [
         component: 'form'
     }
 ];
+
+/**
+ * An addon's name in a menu. The addons are named after their components, and
+ * a component's name is not translated; only the charts are a page of the site.
+ */
+export function addonTitle(addon: AddonEntry): string {
+    return addon.id === 'chart' ? t(addon.title) : addon.title;
+}

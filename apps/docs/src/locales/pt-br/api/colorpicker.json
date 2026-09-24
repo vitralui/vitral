@@ -1,0 +1,13 @@
+{
+    "props": {
+        "inline": "Mostra o painel no lugar, sem uma amostra para abri-lo.",
+        "format": "O que o v-model guarda: `'ff0000'` (o padrão), `{ r, g, b }` ou `{ h, s, b }`.",
+        "defaultColor": "A cor em que o painel começa enquanto o valor está vazio. O padrão é `'ff0000'`.",
+        "showInput": "Mostra uma caixa de texto para o valor hex abaixo da área. O padrão é true.",
+        "alpha": "Oferece um controle de opacidade e leva a opacidade no valor: oito dígitos hex, ou um `a` junto aos canais. Desligado por padrão, então um seletor a que só se pediu uma cor continua devolvendo uma.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "change": "A cor foi alterada pelo leitor: uma tecla, o fim de um arrasto ou um valor hex digitado."
+    }
+}

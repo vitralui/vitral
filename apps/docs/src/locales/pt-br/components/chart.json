@@ -1,0 +1,102 @@
+{
+    "description": "Gráficos em SVG sem dependências, mais de vinte tipos a partir de um objeto de opções, com tooltips, legendas, zoom e grupos sincronizados, legíveis pelo teclado.",
+    "sections": {
+        "Lines": {
+            "description": "Dois eixos y, cada um medindo a sua série; uma segunda linha tracejada, com marcadores. Chegue à área de plotagem com Tab e use as setas."
+        },
+        "Stacked area": {
+            "description": "As áreas se empilham, com preenchimento em gradiente; os rótulos dos eixos usam o preset compacto, e o tooltip, um template próprio. Clique num item da legenda para ocultar uma série."
+        },
+        "Bars and columns": {
+            "description": "Os mesmos dados agrupados, empilhados (com totais), empilhados até 100% e na horizontal. Só a ponta que cresce de uma barra é arredondada."
+        },
+        "Lollipop": {
+            "description": "Barras com a maior parte da tinta removida, para muitas categorias com pequenas diferenças."
+        },
+        "Scatter and bubbles": {
+            "description": "Um eixo x numérico, arrastar para dar zoom nos dois eixos (numa tela de toque, pare e depois arraste) e uma anotação em y. As bolhas mapeiam o valor para a área, não para o raio."
+        },
+        "Heat map": {
+            "description": "Uma cor em cinco passos: “mais da mesma cor” dispensa legenda."
+        },
+        "Waterfall": {
+            "description": "Barras que flutuam: cada uma começa onde o total acumulado parou, então o gráfico mostra como um número foi de um total a outro. `plotOptions.waterfall.totals` indica as colunas que voltam a zero."
+        },
+        "Range bar and range area": {
+            "description": "Um ponto `[low, high]` em vez de um único número: a barra vai de um ao outro, e a área preenche o espaço entre eles. Uma linha ao lado da faixa é uma segunda série."
+        },
+        "Histogram and box plot": {
+            "description": "Duas maneiras de mostrar uma dispersão. O histograma recebe as leituras brutas e as agrupa em faixas por conta própria; o box plot recebe os cinco números — mínimo, quartis, mediana, máximo — por categoria."
+        },
+        "Funnel": {
+            "description": "Etapas de um processo, cada uma tão larga quanto a sua fatia da primeira, para que a queda se leia como uma rampa. `{percent}` está no formatador do rótulo porque é a fatia que se procura num funil."
+        },
+        "Stream": {
+            "description": "Uma área empilhada flutuando sobre uma linha de base própria: as camadas dividem o movimento, em vez de a de baixo carregá-lo sozinha. `plotOptions.stream.offset` escolhe como."
+        },
+        "Bullet": {
+            "description": "Uma medida, a sua meta e as faixas em que ela cai — o trabalho de um medidor numa tira que cabe numa linha de tabela. O traço é a meta que o ponto carrega."
+        },
+        "Treemap and sunburst": {
+            "description": "Duas maneiras de desenhar uma hierarquia. O treemap a encaixa em caixas cujas áreas são os valores; o sunburst a dispõe em anéis, um nível por anel, para que cada fatia fique junto da sua família."
+        },
+        "A tree of any depth": {
+            "title": "Uma árvore de qualquer profundidade",
+            "description": "Um ponto que indica um `parent` monta a árvore por conta própria, em vez dos dois níveis que uma lista de séries dá."
+        },
+        "Radial bars and a gauge": {
+            "description": "Anéis lidos contra as próprias trilhas, e um número contra o seu máximo, com a leitura no meio. `plotOptions.radialBar.min` e `max` definem o que significa um anel completo."
+        },
+        "Calendar": {
+            "description": "Um ano de dias como uma grade de semanas. Uma linha de 365 pontos mostra a tendência; isto mostra o dia."
+        },
+        "Synced charts, trading": {
+            "title": "Gráficos sincronizados, trading",
+            "description": "Um preço e o seu volume num só grupo: compartilham a mira, o tooltip e o zoom. Arraste sobre qualquer um para dar zoom nos dois; Shift e arrastar desloca. Inicie o feed e o último candle passa a ser o que ainda está sendo negociado — o fechamento se move a cada tick, a máxima e a mínima só se alargam —, e as três linhas da sessão, lidas desse candle, andam com ele. Como os dados são interpolados em vez de substituídos, um tick é um movimento, e não um salto."
+        },
+        "Brush": {
+            "description": "A faixa de baixo é um brush: arraste a janela dele, ou arraste uma nova, e o gráfico de cima acompanha, reescalando o eixo y ao que mostra."
+        },
+        "Pie and donut": {
+            "description": "O centro mostra o total, ou a fatia em foco; um clique (ou Enter) destaca uma fatia."
+        },
+        "Radar": {
+            "description": "Uma teia de linhas finas para comparar dois perfis, e faixas sombreadas para um só."
+        },
+        "Sparklines": {
+            "description": "`chart.sparkline.enabled`: só as marcas, para um bloco de estatística."
+        },
+        "Options are data": {
+            "title": "Opções são dados",
+            "description": "Edite o JSON: cada opção aqui é um dado simples, que é o que um editor visual vai escrever. Estreite a janela para menos de 520px e a entrada responsiva deita as barras."
+        },
+        "Custom tooltip and no data": {
+            "title": "Tooltip personalizado e sem dados",
+            "description": "O slot do tooltip substitui a leitura; um gráfico sem nada para desenhar diz isso."
+        },
+        "New numbers arrive by moving": {
+            "title": "Números novos chegam se movendo",
+            "description": "Aperte o botão. As barras viajam até as novas alturas em vez de simplesmente aparecerem nelas, então dá para ver para que lado cada uma foi — os valores são interpolados e a imagem é redesenhada a cada quadro, e é por isso que linhas, áreas e fatias também se movem. `chart.animations.dynamicAnimation` define o ritmo ou desliga a animação, e uma mudança que adiciona ou remove uma série simplesmente desenha, já que não há por onde se mover."
+        },
+        "How a chart moves": {
+            "title": "Como um gráfico se move",
+            "description": "`chart.animations` define a forma do movimento e se as séries chegam juntas ou uma atrás da outra. A mesma curva de easing conduz o primeiro desenho e todas as mudanças depois dele, então um gráfico se move de um jeito só. Nada disso roda para quem tem o sistema pedindo movimento reduzido."
+        },
+        "The key as a readout": {
+            "title": "A legenda como leitura",
+            "description": "`legend.value` põe um número ao lado do nome de cada série — o total, onde terminou, o maior ou o menor valor —, então a pergunta que costuma vir ao lado de uma legenda é respondida nela. Esta mostra a última leitura de cada linha."
+        },
+        "Bands behind the marks": {
+            "title": "Faixas atrás das marcas",
+            "description": "Anotações com `fillColor` sombreiam um intervalo em vez de desenhar uma linha: duas faixas em y dizendo o que conta como calmo e como movimentado, e uma faixa em x sobre os meses em que uma campanha rodou. `position: 'back'` as coloca por baixo dos dados, onde fica um fundo."
+        },
+        "The whole column, or just what is under the pointer": {
+            "title": "A coluna inteira, ou só o que está sob o ponteiro",
+            "description": "À esquerda, o tooltip é compartilhado: lista todas as séries na categoria e destaca a que está sendo apontada, para que o painel responda tanto “como estas se comparam” quanto “onde estou”. À direita, `tooltip.intersect` pede uma única leitura, que aparece quando o ponteiro está de fato sobre uma barra."
+        },
+        "Using the chart without a framework": {
+            "title": "Usando o gráfico sem framework",
+            "description": "O gráfico é o @vitral/chart, que não tem framework nenhum dentro; <Chart> é uma camada fina em volta dele. createChart(element, { type, series, options }) desenha em qualquer elemento e devolve um handle: update, on, zoomX, exportSvg, destroy. Este aqui é montado numa <div> simples pelo módulo abaixo."
+        }
+    }
+}

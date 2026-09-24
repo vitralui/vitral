@@ -1,0 +1,16 @@
+{
+    "props": {
+        "optionLabel": "Campo (caminho com pontos) com o texto de uma opção. Sem ele, as opções são mostradas como estão.",
+        "optionValue": "Campo com o valor que o v-model recebe. Sem ele, a opção inteira é o valor.",
+        "optionGroupLabel": "Transforma `options` em grupos: este campo é o rótulo de cada grupo…",
+        "optionGroupChildren": "…e este, as suas opções. O padrão é `items`.",
+        "dataKey": "Compara valores de objeto por este campo em vez de pela estrutura.",
+        "multiple": "O v-model passa a ser um array, e a lista aceita seleção múltipla.",
+        "checkmark": "Marca as opções selecionadas com um visto, além do destaque.",
+        "filter": "Adiciona uma caixa de busca acima da lista.",
+        "filterFields": "Campos a buscar em vez do rótulo.",
+        "filterMatchMode": "Qualquer modo de comparação registrado; por padrão, `contains` sem distinguir acentos nem maiúsculas.",
+        "scrollHeight": "A altura máxima da lista antes de rolar.",
+        "selectOnFocus": "No modo simples, mover com as setas também seleciona, como numa list box nativa. Desligado, as setas só movem e Enter ou Espaço selecionam."
+    }
+}

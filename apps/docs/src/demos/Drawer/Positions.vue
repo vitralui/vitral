@@ -1,0 +1,46 @@
+<script setup lang="ts">
+import { Button, Drawer } from '@vitral/vue';
+import { ref } from 'vue';
+
+type Position = 'left' | 'right' | 'top' | 'bottom' | 'full';
+
+const visible = ref(false);
+const position = ref<Position>('left');
+const positions: Position[] = ['left', 'right', 'top', 'bottom', 'full'];
+const links = ['Inbox', 'Drafts', 'Sent', 'Archive', 'Trash'];
+
+function open(where: Position) {
+    position.value = where;
+    visible.value = true;
+}
+</script>
+
+<template>
+    <Button v-for="p in positions" :key="p" :label="p" severity="secondary" :icon="p === 'full' ? 'maximize' : 'sidebar'" @click="open(p)" />
+    <Drawer v-model:visible="visible" header="Mail" :position="position">
+        <nav aria-label="Folders" style="display: flex; flex-direction: column; gap: 2px">
+            <a v-for="link in links" :key="link" href="#" class="demo-drawer-link" @click.prevent="visible = false">{{ link }}</a>
+        </nav>
+        <template #footer>
+            <Button label="Compose" icon="pencil" fluid @click="visible = false" />
+        </template>
+    </Drawer>
+</template>
+
+<style scoped>
+.demo-drawer-link {
+    padding: var(--vt-navigation-item-padding);
+    border-radius: var(--vt-navigation-item-border-radius);
+    color: var(--vt-navigation-item-color);
+    text-decoration: none;
+}
+
+.demo-drawer-link:hover {
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.demo-drawer-link:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -2px;
+}
+</style>

@@ -1,0 +1,34 @@
+{
+    "summary": "Gestão de projetos: um quadro kanban, uma linha do tempo da equipe e a carga de trabalho.",
+    "description": "Uma pequena equipe lançando um app. O quadro move cards entre colunas com limite de WIP, filtra por pessoa e prioridade e cria tarefas a partir de qualquer coluna; a linha do tempo distribui as mesmas tarefas por pessoa ao longo das semanas; a página da equipe mostra a carga de trabalho e convida pessoas.",
+    "tags": ["Kanban", "Linha do tempo", "Equipe"],
+    "features": [
+        "Um Taskboard com limites de WIP, arrastar e soltar, e movimentos completos pelo teclado",
+        "Filtros por pessoa e prioridade que mantêm os cards ocultos no lugar",
+        "Um diálogo de nova tarefa a partir da barra de ferramentas ou de qualquer coluna",
+        "Uma linha do tempo de recursos no Schedule: arraste uma barra para movê-la ou reatribuí-la",
+        "Cards da equipe com barras de carga de trabalho e um formulário de convite",
+        "Uma sidebar que flutua fora da página, com as três visões do quadro numa sublista abaixo dele"
+    ],
+    "faq": [
+        {
+            "question": "Dá para mover os cards sem mouse?",
+            "answer": "Sim. Foque um card, pressione Espaço para pegá-lo, mova-o com as setas e pressione Espaço de novo; o movimento é anunciado."
+        },
+        {
+            "question": "O quadro e a linha do tempo usam os mesmos dados?",
+            "answer": "Usam. Os dois leem a mesma lista de tarefas, então um card criado no quadro aparece na linha do tempo, e uma barra movida na linha do tempo muda o responsável no quadro."
+        },
+        { "question": "O que acontece no limite de WIP?", "answer": "O Taskboard marca a coluna e recusa o que passar do limite, emitindo drop-refused para que você possa explicar o motivo." },
+        {
+            "question": "Por que a sidebar guarda visões sob “Board”?",
+            "answer": "Porque o quadro é três lugares, não um. A sublista e os botões do próprio quadro definem a mesma visão em data.ts, então, seja qual for o caminho, a sidebar marca onde você está."
+        },
+        { "question": "Como adiciono swimlanes?", "answer": "Passe lanes e um lane-field ao Taskboard — por exemplo, uma raia por pessoa." }
+    ],
+    "screens": {
+        "board": { "name": "Quadro", "summary": "Um quadro kanban com limites de WIP, filtros e novas tarefas" },
+        "timeline": { "name": "Linha do tempo", "summary": "As tarefas de cada pessoa ao longo de duas semanas, no Schedule" },
+        "team": { "name": "Equipe", "summary": "Pessoas, carga de trabalho e um formulário de convite" }
+    }
+}

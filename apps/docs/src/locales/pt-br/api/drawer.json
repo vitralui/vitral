@@ -1,0 +1,18 @@
+{
+    "props": {
+        "header": "O título; ele dá nome ao drawer. Sem ele, nomeie-o com `aria-label` ou `aria-labelledby`.",
+        "position": "A borda de onde ele desliza, ou `'full'` para cobrir a viewport. O padrão é `'left'`.",
+        "modal": "Escurece e bloqueia a página, prende o foco e trava a rolagem. O padrão é true.",
+        "dismissable": "Fecha com um clique na máscara. O padrão é true.",
+        "closeOnEscape": "O padrão é true.",
+        "showCloseIcon": "Mostra o botão de fechar. O padrão é true.",
+        "blockScroll": "Trava a rolagem da página mesmo quando o drawer não é modal.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "after-hide": "Depois da animação de fechar, quando o drawer já saiu da página."
+    },
+    "slots": {
+        "header": "Substitui o texto do título; ele continua dando nome ao drawer."
+    }
+}

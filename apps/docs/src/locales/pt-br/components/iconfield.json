@@ -1,0 +1,8 @@
+{
+    "description": "Um ícone dentro de um campo, no início ou no fim, com o texto afastado dele.",
+    "sections": {
+        "Start and end": { "title": "Início e fim" },
+        "Both, with a meaningful icon": { "title": "Os dois, com um ícone que significa algo" },
+        "Other fields": { "title": "Outros campos" }
+    }
+}

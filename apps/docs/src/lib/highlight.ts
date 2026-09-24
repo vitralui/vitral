@@ -85,3 +85,23 @@ export function langOf(label: string): Lang {
     if (/\.md$|^md$|markdown/i.test(label)) return 'md';
     return 'vue';
 }
+
+/**
+ * The same, one string per line, for a block that numbers its lines and wraps
+ * them. A token that runs over a line break — a block comment, a template
+ * string — is closed at the end of each line and opened again on the next, so
+ * every line is whole HTML on its own. The spans are never nested, which is
+ * what keeps this a matter of remembering one class.
+ */
+export function highlightLines(source: string, lang: Lang = 'vue'): string[] {
+    const lines: string[] = [];
+    let open: string | null = null;
+    for (const raw of highlight(source, lang).split('\n')) {
+        let line = open ? `<span class="${open}">${raw}` : raw;
+        // Whatever span is left open at the end of this line carries on into the next.
+        for (const match of raw.matchAll(/<span class="([^"]+)">|<\/span>/g)) open = match[1] ?? null;
+        if (open) line += '</span>';
+        lines.push(line);
+    }
+    return lines;
+}

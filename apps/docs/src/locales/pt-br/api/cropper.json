@@ -1,0 +1,25 @@
+{
+    "props": {
+        "src": "A imagem. Qualquer coisa que um `<img>` aceite, incluindo uma URL de dados ou de objeto.",
+        "alt": "Descreve a imagem, não o controle. Sem ele a imagem é decorativa.",
+        "aspect": "Trava o recorte numa proporção: `1`, `'16:9'`, ou null para deixá-lo livre.",
+        "aspects": "Proporções a oferecer na barra de ferramentas. Omita-o e nenhum seletor é desenhado.",
+        "shape": "`'circle'` mascara o recorte e a prévia, e trava a proporção em 1.",
+        "handles": "Desenha as oito alças de redimensionamento. O padrão é true para um retângulo e false para um círculo.",
+        "rotatable": "Oferece os giros de um quarto de volta e os espelhamentos.",
+        "zoomable": "Oferece um controle deslizante de zoom.",
+        "grid": "Desenha os terços sobre o recorte enquanto ele é movido. Ligado por padrão num retângulo e desligado num círculo, onde a regra dos terços não significa nada: a guia serve para compor um quadro, e um recorte redondo não tem cantos para onde compor.",
+        "minWidth": "O menor recorte, nos pixels da própria imagem.",
+        "height": "A altura do palco: um número é em pixels.",
+        "previewSize": "O tamanho da prévia ao vivo, em pixels. Zero não desenha nenhuma."
+    },
+    "emits": {
+        "load": "A imagem carregou e seu tamanho natural é conhecido.",
+        "change": "Um arrasto do recorte ou de uma alça terminou.",
+        "update:modelValue": "O recorte, à medida que muda."
+    },
+    "slots": {
+        "toolbar": "Substitui a barra de ferramentas.",
+        "preview": "Ao lado da prévia, ou no lugar dela."
+    }
+}

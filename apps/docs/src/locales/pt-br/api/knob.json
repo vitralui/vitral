@@ -1,0 +1,17 @@
+{
+    "props": {
+        "min": "O padrão é 0.",
+        "max": "O padrão é 100.",
+        "step": "O padrão é 1.",
+        "size": "A largura e a altura do dial, em pixels. O padrão é 100.",
+        "strokeWidth": "A espessura do arco, em pixels. O padrão é 14.",
+        "showValue": "Mostra o valor no meio. O padrão é true.",
+        "valueTemplate": "Como o valor é escrito, no meio e para as tecnologias assistivas: `'{value}%'`. O padrão é `'{value}'`.",
+        "valueColor": "Sobrepõe a cor do arco do valor.",
+        "rangeColor": "Sobrepõe a cor da trilha.",
+        "textColor": "Sobrepõe a cor do texto."
+    },
+    "emits": {
+        "change": "O valor foi alterado pelo leitor: um arrasto terminou ou uma tecla foi pressionada."
+    }
+}

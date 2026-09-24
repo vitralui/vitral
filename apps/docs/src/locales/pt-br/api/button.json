@@ -1,0 +1,6 @@
+{
+    "props": {
+        "loading": "Mostra um spinner, desabilita o botão e o marca como ocupado.",
+        "as": "Renderiza como outro elemento ou componente (`'a'`, `RouterLink`), mantendo a aparência e o comportamento do botão."
+    }
+}

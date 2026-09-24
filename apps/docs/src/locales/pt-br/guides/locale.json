@@ -1,0 +1,22 @@
+{
+    "title": "Locale",
+    "description": "Tudo o que um componente diz vem de um único objeto, e números e datas também são lidos com ele.",
+    "intro": "Um componente nunca guarda uma string. Tudo o que ele diz (“Limpar”, “Nenhum resultado”, os nomes dos meses, o resumo da paginação, o nome do botão de fechar) vem do locale da configuração, e a configuração é reativa, então mudá-la muda a página.",
+    "setting": {
+        "title": "Definindo um",
+        "ship": "<code>en</code> e <code>ptBR</code> vêm prontos.",
+        "then": "e abra um <a href=\"/components/datepicker\">DatePicker</a> ou um <a href=\"/components/datagrid\">DataGrid</a>."
+    },
+    "runtime": "Em tempo de execução",
+    "own": {
+        "title": "Um locale só seu",
+        "text": "Um locale é um objeto simples, então um terceiro é só um literal: espalhe <code>en</code> e escreva as diferenças."
+    },
+    "more": {
+        "title": "Mais do que strings",
+        "numbers": "<strong>Números</strong> são formatados <em>e lidos</em> conforme o locale: um <code>InputNumber</code> em pt-BR lê “1.234,56” como 1234.56.",
+        "dates": "<strong>Datas</strong> usam os nomes de dias e meses do locale, o seu primeiro dia da semana e o seu formato de data, nos dois sentidos.",
+        "filtering": "<strong>Filtros</strong> ignoram acentos e maiúsculas, então “São” encontra “sao” e “Sao” encontra “São”.",
+        "messages": "<strong>Mensagens</strong> com placeholders passam por <code>formatMessage</code>, como em <code>'{first} to {last} of {total}'</code>."
+    }
+}

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Icon } from '@vitral/vue';
 import { computed } from 'vue';
-import { addons } from '../lib/addons';
+import { addons, addonTitle } from '../lib/addons';
 import { apiOf } from '../lib/api';
-import { entryOf } from '../lib/catalog';
+import { entryOf, sectionText } from '../lib/catalog';
+import { t } from '../lib/i18n';
 import { href, route } from '../lib/router';
 import { slugify } from '../lib/section';
 import { sectionSources } from '../lib/source';
@@ -30,7 +31,7 @@ interface Route {
 const linksFor = (component: string): Route[] => {
     const entry = entryOf(component);
     if (!entry) return [];
-    const sections = [...sectionSources(entry.file).keys()].map((title) => ({ id: slugify(title), label: title }));
+    const sections = [...sectionSources(entry.file).keys()].map((title) => ({ id: slugify(title), label: sectionText(entry, title).title }));
     const api = apiOf(entry.file)?.props.length ? [{ id: 'api', label: 'API' }] : [];
     return [...sections.slice(0, MOST), ...api];
 };
@@ -53,22 +54,22 @@ const panels = computed(() =>
 
 <template>
     <div class="addon-nav">
-        <h2>Addons</h2>
+        <h2>{{ t('Addons') }}</h2>
         <details v-for="addon in panels" :key="addon.id" class="addon" :open="addon.current">
             <summary class="addon-summary">
                 <Icon :icon="addon.icon" class="addon-icon" />
-                <span class="addon-title">{{ addon.title }}</span>
+                <span class="addon-title">{{ addonTitle(addon) }}</span>
                 <Icon icon="chevronDown" class="addon-chevron" />
             </summary>
             <ul class="addon-routes">
                 <li v-if="addon.to !== addon.page">
-                    <a :href="href(addon.to)" class="addon-route">{{ addon.title === 'Charts' ? 'Every kind, live' : 'Overview' }}</a>
+                    <a :href="href(addon.to)" class="addon-route">{{ addon.title === 'Charts' ? t('Every kind, live') : t('Overview') }}</a>
                 </li>
                 <li v-for="link in addon.routes" :key="link.id">
                     <a :href="href(`${addon.page}#${link.id}`)" class="addon-route">{{ link.label }}</a>
                 </li>
                 <li v-if="addon.rest">
-                    <a :href="href(addon.page)" class="addon-route addon-route-more">{{ addon.rest }} more <Icon icon="arrowRight" /></a>
+                    <a :href="href(addon.page)" class="addon-route addon-route-more">{{ t('{count} more', { count: addon.rest }) }} <Icon icon="arrowRight" /></a>
                 </li>
             </ul>
         </details>

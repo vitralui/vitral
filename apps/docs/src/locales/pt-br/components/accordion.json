@@ -1,0 +1,8 @@
+{
+    "description": "Seções empilhadas que abrem e fecham, uma por vez ou várias ao mesmo tempo, com cabeçalhos que seguem o accordion do WAI-ARIA.",
+    "sections": {
+        "One open at a time": { "title": "Uma aberta por vez" },
+        "Multiple": { "title": "Várias" },
+        "Custom icons": { "title": "Ícones personalizados" }
+    }
+}

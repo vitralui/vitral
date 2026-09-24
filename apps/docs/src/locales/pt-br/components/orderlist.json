@@ -1,0 +1,6 @@
+{
+    "description": "Uma lista que o leitor põe em ordem, com botões, pelo teclado ou arrastando e soltando.",
+    "sections": {
+        "Basic": { "title": "Básico" }
+    }
+}

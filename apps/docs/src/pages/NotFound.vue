@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Button } from '@vitral/vue';
+import { computed } from 'vue';
+import { t } from '../lib/i18n';
 import { base, href, route } from '../lib/router';
 
 /**
@@ -10,29 +12,29 @@ import { base, href, route } from '../lib/router';
  * `scripts/prerender.mjs` writes this page as `404.html`, which is what a
  * static host serves for an unknown path.
  */
-const suggestions = [
-    { label: 'Components', to: '/components/button', note: 'The whole set, by category' },
-    { label: 'Documentation', to: '/docs/introduction', note: 'Installing, theming, customising' },
-    { label: 'Templates', to: '/templates', note: 'Whole applications, live' },
-    { label: 'Icons', to: '/icons', note: 'The icon set, searchable' }
-];
+const suggestions = computed(() => [
+    { label: t('Components'), to: '/components', note: t('The whole set, by category') },
+    { label: t('Documentation'), to: '/docs/introduction', note: t('Installing, theming, customising') },
+    { label: 'Templates', to: '/templates', note: t('Whole applications, live') },
+    { label: t('Icons'), to: '/icons', note: t('The icon set, searchable') }
+]);
 </script>
 
 <template>
     <main class="notfound">
         <p class="notfound-code">404</p>
-        <h1>This page does not exist</h1>
+        <h1>{{ t('This page does not exist') }}</h1>
         <p class="notfound-lead">
             <template v-if="route.path !== '/'">
-                Nothing is published at <code>{{ base }}{{ route.path }}</code
+                {{ t('Nothing is published at') }} <code>{{ base }}{{ route.path }}</code
                 >.
             </template>
-            The link may be out of date, or the address may have a typo in it.
+            {{ t('The link may be out of date, or the address may have a typo in it.') }}
         </p>
 
         <div class="notfound-actions">
-            <Button label="Go to the start" as="a" :href="href('/')" />
-            <Button label="Browse the components" severity="secondary" variant="outlined" as="a" :href="href('/components/button')" />
+            <Button :label="t('Go to the start')" as="a" :href="href('/')" />
+            <Button :label="t('Browse the components')" severity="secondary" variant="outlined" as="a" :href="href('/components')" />
         </div>
 
         <ul class="notfound-links">

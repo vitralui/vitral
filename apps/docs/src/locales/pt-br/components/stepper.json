@@ -1,0 +1,7 @@
+{
+    "description": "Passos e seus painéis, na horizontal ou na vertical, com um modo linear opcional que deixa os passos seguintes fora de alcance.",
+    "sections": {
+        "Linear": { "title": "Linear" },
+        "Vertical": { "title": "Vertical" }
+    }
+}

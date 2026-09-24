@@ -1,0 +1,34 @@
+{
+    "title": "Direção do texto",
+    "description": "Da esquerda para a direita, a menos que você diga o contrário: um atributo vira de uma vez o layout, o teclado e os ícones que querem dizer “próximo”.",
+    "intro": "Árabe, hebraico, persa e urdu se leem da direita para a esquerda, e o mesmo vale para tudo o que é diagramado para eles: a barra lateral começa à direita, um chevron que quer dizer “próximo” aponta para a esquerda e a seta para a direita anda para trás. O Vitral é da esquerda para a direita por padrão e se vira com um atributo, porque o navegador já sabe fazer quase tudo isso.",
+    "dir": {
+        "title": "Defina <code>dir</code>",
+        "layout": "Isso é todo o layout. Todas as folhas de estilos da biblioteca são escritas em propriedades lógicas — <code>padding-inline-start</code>, <code>inset-inline-end</code>, <code>border-inline-start</code> — então as caixas, os paddings, as bordas e os cantos seguem o <code>dir</code> sem uma segunda folha de estilos para distribuir nem uma etapa de build para rodar. Não existe <code>vitral.rtl.css</code>, e não há nada para manter em sincronia.",
+        "mount": "Defina-o no elemento em que a aplicação é montada, e não apenas a propriedade CSS <code>direction</code>: o <code>dir</code> é o que os componentes medem para descobrir qual seta anda para a frente, e é por ele que os ícones se orientam."
+    },
+    "config": {
+        "title": "Informe a configuração também",
+        "popup": "Um popup é teleportado para o <code>&lt;body&gt;</code>, fora de qualquer <code>dir</code> que a sua aplicação tenha, então abriria do lado errado. A biblioteca dá a cada um a direção daquilo a que ele pertence, e recorre a esta configuração para os que pertencem à página e não a uma âncora — um diálogo, um toast. É também o que o servidor assume, onde não há layout para medir.",
+        "nuxt": "No Nuxt, o módulo coloca o <code>dir</code> no <code>&lt;html&gt;</code> durante a renderização, então a página já chega do lado certo em vez de se virar na hidratação."
+    },
+    "part": {
+        "title": "Parte de uma página",
+        "text": "Uma direção não é uma decisão da aplicação inteira; é uma propriedade de um trecho de texto. Aninhe-a onde ela pertence:",
+        "behaves": "Os componentes leem a direção em que de fato estão diagramados, então um painel da direita para a esquerda dentro de uma página da esquerda para a direita se comporta bem, teclado incluído."
+    },
+    "keyboard": {
+        "title": "O teclado",
+        "text": "Lendo da direita para a esquerda, a esquerda é para a frente. Todo componente que se move com as setas já sabe disso: as abas, os menus, a menubar, a toolbar, o stepper, o rating, o splitter, o carrossel, o quadro de tarefas, a agenda e os gráficos trocam Esquerda por Direita, e um deslizar de dedo inverte junto. Os overlays também se invertem — um menu que abre para o fim do seu gatilho abre para a esquerda."
+    },
+    "icons": {
+        "title": "Ícones",
+        "text": "Um ícone que indica uma direção tem de se virar; um ícone que indica um lado não pode. <code>chevronRight</code> num botão “próximo” indica o sentido em que o leitor avança, então é espelhado; <code>alignLeft</code> indica a esquerda do parágrafo em qualquer idioma, então não é. O conjunto responde por si, e você pode discordar dele:",
+        "media": "Os controles de mídia (<code>play</code>, <code>rewind</code>, <code>fastForward</code>) ficam de fora de propósito, porque uma linha do tempo corre da esquerda para a direita em todo lugar, e o mesmo vale para a rotação, que ou é no sentido horário ou não é. Um ícone seu diz qual é o caso:",
+        "css": "A inversão é CSS guiado pelo <code>dir</code>, não script: não custa nada, é igual no servidor e acompanha um <code>dir</code> alterado em tempo de execução sem que nada renderize de novo. <code>renderSvg(def, {}, { direction: 'rtl' })</code> faz o mesmo para um ícone desenhado fora de um componente."
+    },
+    "runtime": {
+        "title": "Em tempo de execução",
+        "text": "<code>useDirection()</code> é o handle reativo: a direção configurada, se ela é da direita para a esquerda, e um setter que todo componente segue — o mesmo formato do <a href=\"/docs/locale\">useLocale()</a>, que você normalmente vai mudar no mesmo momento. Mover o layout continua sendo trabalho do atributo <code>dir</code>."
+    }
+}

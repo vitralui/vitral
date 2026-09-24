@@ -1,0 +1,8 @@
+{
+    "description": "Uma exibição que vira o seu editor quando ativada, e volta a ser exibição ao terminar.",
+    "sections": {
+        "Editable text": { "title": "Texto editável" },
+        "Lazy content": { "title": "Conteúdo sob demanda" },
+        "Disabled": { "title": "Desabilitado" }
+    }
+}

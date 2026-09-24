@@ -1,0 +1,7 @@
+{
+    "description": "Uma lista de comandos e links, inline ou como popup, com grupos e separadores.",
+    "sections": {
+        "Inline, with groups": { "title": "Inline, com grupos" },
+        "Popup": { "title": "Popup" }
+    }
+}

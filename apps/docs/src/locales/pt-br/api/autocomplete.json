@@ -1,0 +1,28 @@
+{
+    "props": {
+        "suggestions": "O que a lista oferece para a consulta atual; a aplicação o define em resposta a `complete`.",
+        "optionLabel": "Campo (caminho com pontos) com o texto de uma sugestão. Sem ele, as sugestões são mostradas como estão.",
+        "optionGroupLabel": "Transforma `suggestions` em grupos: este campo é o rótulo de cada grupo…",
+        "optionGroupChildren": "…e este, as suas sugestões. O padrão é `items`.",
+        "dataKey": "Compara valores de objeto por este campo em vez de pela estrutura.",
+        "multiple": "O v-model passa a ser um array, mostrado como chips no campo.",
+        "dropdown": "Adiciona um botão que pede a lista inteira.",
+        "dropdownMode": "O que o botão pede: todas as sugestões (`'blank'`, o padrão) ou as que combinam com o texto atual.",
+        "forceSelection": "Só uma sugestão escolhida pode ficar na caixa; outro texto é apagado quando ela perde o foco.",
+        "delay": "Milissegundos a esperar depois da digitação antes de pedir. O padrão é 300.",
+        "minLength": "Caracteres a digitar antes de pedir. O padrão é 1.",
+        "completeOnFocus": "Pede assim que a caixa recebe o foco.",
+        "autoOptionFocus": "Põe o foco na primeira sugestão quando a lista abre, para que Enter a escolha.",
+        "showClear": "Mostra um botão de limpar enquanto houver valor.",
+        "loading": "Mostra um spinner, para enquanto a aplicação busca.",
+        "showEmptyMessage": "Avisa quando nada combina, em vez de manter a lista fechada. O padrão é true.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "complete": "Pede à aplicação as sugestões que combinam com `query`."
+    },
+    "slots": {
+        "chip": "O conteúdo de um chip no modo múltiplo."
+    }
+}

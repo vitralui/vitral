@@ -1,0 +1,59 @@
+{
+    "title": "Formulários e validação",
+    "description": "Estado de formulário, regras e validação por schema num pacote próprio: `@vitral/forms` não tem dependências nem framework, então os mesmos valores, erros e fluxo de envio funcionam no Vue, em outro framework ou em nenhum. Adaptadores para Zod, Yup, Valibot, Superstruct, ArkType e qualquer outra coisa que implemente Standard Schema.",
+    "intro": "<code>@vitral/forms</code> é a camada de formulários como um pacote próprio: valores, estado de tocado e de alterado, erros, envio, arrays de campos e caminhos aninhados, sem dependências e sem framework. O <a href=\"/components/form\">componente Form</a> é um binding fino sobre ele, então tudo nesta página vale igual no Vue, em outro framework ou em nenhum.",
+    "standalone": {
+        "title": "Sem framework",
+        "text": "O formulário é um objeto no qual você se inscreve. Ele cuida dos valores e dos erros; você cuida da marcação e decide o que fazer quando o estado muda. É isso que o torna reutilizável: um binding para React, uma store do Svelte ou uma página escrita à mão ficam todos sobre a mesma API."
+    },
+    "rules": {
+        "title": "Regras",
+        "text": "Regras são verificações por campo, declaradas num só lugar. Elas rodam no gatilho para o qual o formulário está configurado — <code>submit</code> por padrão, e depois a cada input quando o campo já foi validado uma vez, então um erro some assim que é corrigido. As mensagens vêm do locale, então um formulário em português fala português sem que ninguém precise pedir duas vezes."
+    },
+    "schema": {
+        "title": "Validadores de schema",
+        "text": "Um resolver valida o formulário inteiro numa só chamada, que é para isso que serve uma biblioteca de schema. Cada adaptador é escrito sobre a menor forma que a sua biblioteca expõe — <code>safeParse</code>, <code>validate</code>, <code>~standard</code> — então <code>@vitral/forms</code> não depende de nenhuma delas, e nenhuma entra no bundle a menos que você a importe. Regras, <code>validate</code> e um resolver podem ser usados ao mesmo tempo: os erros são mesclados por caminho.",
+        "function": "E quando a verificação cabe em poucas linhas, em vez de um schema:"
+    },
+    "adapters": {
+        "title": "Do que cada adaptador precisa",
+        "adapter": "Adaptador",
+        "library": "Biblioteca",
+        "calls": "O que ele chama",
+        "transforms": "As transformações chegam aos valores enviados",
+        "yes": "Sim",
+        "no": "Não",
+        "zod": {
+            "library": "Zod 3 e 4",
+            "calls": "<code>safeParse</code>, e <code>safeParseAsync</code> quando o schema tem refinamentos assíncronos"
+        },
+        "yup": {
+            "calls": "<code>validate</code>, chamado com <code>abortEarly: false</code>",
+            "transforms": "Sim, o valor após o cast"
+        },
+        "valibot": {
+            "calls": "<code>~standard</code>, ou o <code>safeParse</code> que você entregar"
+        },
+        "superstruct": {
+            "calls": "<code>validate</code>, que retorna <code>[error, value]</code>",
+            "transforms": "Com <code>coerce</code>"
+        },
+        "standard": {
+            "library": "ArkType, Effect Schema, qualquer coisa com <code>~standard</code>"
+        },
+        "function": {
+            "library": "a sua própria função",
+            "calls": "nada"
+        },
+        "text": "Todo adaptador é assíncrono do ponto de vista do formulário, e uma validação substituída por outra mais nova é abortada pelo <code>signal</code> que recebe. O caminho de um problema é lido do jeito que cada biblioteca o informa — uma string com pontos, um array de chaves, uma lista de segmentos — e achatado para <code>address.city</code>, que é o caminho sob o qual um campo é registrado."
+    },
+    "server": {
+        "title": "Erros vindos do servidor",
+        "text": "A resposta de um servidor também é validação. <code>normalizeErrors</code> a recebe no formato em que chegar e a achata em caminhos; <code>setErrors</code> a coloca no formulário, e esses caminhos contam como validados, então as mensagens aparecem na hora."
+    },
+    "vue": {
+        "title": "Num formulário Vue",
+        "text": "No Vue, o mesmo resolver vai no <code>Form.Root</code>, e os campos se ligam sozinhos: um controle dentro de um <code>Form.Field</code> recebe o seu valor, o seu nome, o seu estado de inválido e as relações entre o rótulo, a dica e a mensagem de erro.",
+        "page": "A <a href=\"/components/form\">página do componente Form</a> mostra isso funcionando, com arrays de campos, verificações assíncronas e um resumo que recebe o foco depois de um envio que falhou."
+    }
+}

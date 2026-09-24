@@ -1,0 +1,9 @@
+{
+    "props": {
+        "stars": "Quantas estrelas. O padrão é 5.",
+        "step": "A menor mudança: `1` estrelas inteiras, `0.5` metades, `0.25` quartos. Uma avaliação de estrelas inteiras é um grupo de radios de estrelas, que é o que ela é; uma fracionária é um slider, porque meia estrela não é uma opção numa lista, é uma posição numa escala.",
+        "clearable": "Um clique na estrela escolhida limpa a avaliação, e as setas podem chegar a zero. O padrão é true.",
+        "onIcon": "O ícone de uma estrela escolhida. O padrão é uma estrela preenchida.",
+        "offIcon": "O ícone de uma estrela não escolhida. O padrão é uma estrela de contorno."
+    }
+}

@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
 import { categoryOrder, type DemoMeta } from '../demo';
+import { catalog, lookup } from './i18n';
 
 export interface CatalogEntry {
     id: string;
@@ -24,4 +25,27 @@ export const sections = categoryOrder
 
 export function entryOf(id: string) {
     return entries.find((entry) => entry.id === id);
+}
+
+/**
+ * A component's title and description in the page's language, from
+ * `locales/<lang>/components/<id>.json`:
+ *
+ *     { "title": "…", "description": "…", "sections": { "Severities": { "title": "…", "description": "…" } } }
+ */
+export function entryText(entry: CatalogEntry): { title: string; description?: string } {
+    const file = `components/${entry.id}`;
+    return { title: lookup(file, 'title') ?? entry.meta.title, description: lookup(file, 'description') ?? entry.meta.description };
+}
+
+/**
+ * A demo section's heading and description in the page's language. It is found
+ * by its English title, which stays its anchor and the key its markup is read by.
+ */
+export function sectionText(entry: CatalogEntry | undefined, title: string, description?: string): { title: string; description?: string } {
+    if (!entry) return { title, description };
+    // Not a dotted lookup: a title may have a dot in it.
+    const sections = catalog(`components/${entry.id}`)?.sections as Record<string, { title?: string; description?: string }> | undefined;
+    const text = sections?.[title];
+    return { title: text?.title ?? title, description: text?.description ?? description };
 }

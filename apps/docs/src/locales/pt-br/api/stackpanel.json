@@ -1,0 +1,10 @@
+{
+    "props": {
+        "orientation": "Filhos um abaixo do outro (o padrão) ou lado a lado.",
+        "spacing": "Espaço entre os filhos: um número de pixels ou qualquer comprimento CSS. O padrão é o token `stackpanel.spacing`.",
+        "align": "Alinhamento no eixo transversal (`align-items`): `start`, `center`, `end`, `baseline`, ou `stretch`, o padrão.",
+        "justify": "Distribuição no eixo principal (`justify-content`): `start`, `center`, `end`, `space-between`…",
+        "wrap": "Deixa os filhos passarem para outra linha quando falta espaço.",
+        "as": "O elemento ou componente a renderizar: `'ul'` para uma lista, `'nav'`, `'form'`."
+    }
+}

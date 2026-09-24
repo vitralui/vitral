@@ -1,0 +1,9 @@
+{
+    "props": {
+        "group": "Responde só às chamadas de `useConfirm().require()` enviadas com o mesmo `group` e um `target`.",
+        "placement": "Onde abre em relação ao alvo. O padrão é `'bottom'`."
+    },
+    "slots": {
+        "message": "Substitui a mensagem; ela continua descrevendo o popup."
+    }
+}

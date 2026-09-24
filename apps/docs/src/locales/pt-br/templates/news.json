@@ -1,0 +1,29 @@
+{
+    "summary": "Um site de notícias: uma primeira página, uma página de matéria e editorias paginadas.",
+    "description": "Um jornal diário com uma hierarquia clara: a manchete e os principais destaques acima da dobra, fileiras de editorias abaixo e uma coluna de mais lidas. As matérias trazem assinatura, tempo de leitura, uma foto com legenda, citações em destaque e notícias relacionadas; cada editoria pagina o seu arquivo.",
+    "tags": ["Notícias", "Editorial", "Conteúdo"],
+    "features": [
+        "Uma primeira página com manchete, principais destaques, fileiras de editorias e uma lista de mais lidas",
+        "Links de editoria no cabeçalho que abrem uma mesma tela de editoria no estado certo",
+        "Uma página de matéria com assinatura, tempo de leitura, ações de compartilhar e salvar, e uma citação em destaque",
+        "Um arquivo por editoria com uma matéria principal, uma chave de ordenação e páginas",
+        "Uma inscrição na newsletter e um card de leitura limitada"
+    ],
+    "faq": [
+        {
+            "question": "De onde vem o texto da matéria?",
+            "answer": "No template, está escrito direto no código. Numa aplicação, viria do seu CMS como HTML ou blocos — a classe tp-prose estiliza parágrafos, títulos e citações."
+        },
+        { "question": "As fotos estão incluídas?", "answer": "São carregadas do picsum.photos por id, como placeholders. Troque o helper photo() pelas URLs das suas próprias imagens." },
+        {
+            "question": "Como as notícias ficam acessíveis?",
+            "answer": "Cada chamada é um único botão com a manchete como nome, a página usa títulos de verdade e em ordem, e as imagens decorativas têm texto alternativo vazio."
+        },
+        { "question": "O cabeçalho comporta mais editorias?", "answer": "Sim. Abaixo de 720px os links vão para um menu, então a lista pode crescer sem quebrar a barra." }
+    ],
+    "screens": {
+        "front": { "name": "Primeira página", "summary": "A manchete, os principais destaques, as editorias e as mais lidas" },
+        "article": { "name": "Matéria", "summary": "Título, assinatura, foto, texto e notícias relacionadas" },
+        "section": { "name": "Editoria", "summary": "As notícias de uma editoria, ordenáveis e paginadas" }
+    }
+}

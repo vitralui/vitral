@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T } from '../lib/i18n';
 import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
@@ -49,66 +50,66 @@ registerIcons([{ name: 'nextStage', body: '<path d="M4 12h16M14 6l6 6-6 6"/>', m
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         Arabic, Hebrew, Persian and Urdu read right to left, and so does everything laid out for them: the sidebar starts on the right, a chevron that means “next” points left,
         and the Right arrow key moves backwards. Vitral is left to right by default and turns round on one attribute, because the browser already knows how to do most of it.
-    </p>
+    </T>
 
-    <h2>Set <code>dir</code></h2>
+    <T k="dir.title" as="h2">Set <code>dir</code></T>
     <CodeBlock :code="html" label="index.html" lang="vue" />
-    <p>
+    <T k="dir.layout">
         That is the whole of the layout. Every stylesheet in the library is written in logical properties — <code>padding-inline-start</code>, <code>inset-inline-end</code>,
         <code>border-inline-start</code> — so the boxes, the paddings, the borders and the corners follow <code>dir</code> without a second stylesheet to ship or a build step to
         run. There is no <code>vitral.rtl.css</code>, and there is nothing to keep in sync.
-    </p>
-    <p>
+    </T>
+    <T k="dir.mount">
         Set it on the element you mount in, not only the CSS <code>direction</code> property: <code>dir</code> is what the components measure when they work out which arrow key
         moves forward, and what the icons key off.
-    </p>
+    </T>
 
-    <h2>Tell the configuration too</h2>
+    <T k="config.title" as="h2">Tell the configuration too</T>
     <CodeBlock :code="app" label="main.ts" lang="ts" />
-    <p>
+    <T k="config.popup">
         A popup is teleported to <code>&lt;body&gt;</code>, outside whatever <code>dir</code> your application carries, so it would open the wrong way round. The library gives
         each one the direction of the thing it belongs to, and falls back to this setting for the ones that belong to the page rather than to an anchor — a dialog, a toast. It
         is also what the server assumes, where there is no layout to measure.
-    </p>
+    </T>
     <CodeBlock :code="nuxt" label="nuxt.config.ts" lang="ts" />
-    <p>In Nuxt the module puts <code>dir</code> on <code>&lt;html&gt;</code> as it renders, so the page arrives the right way round instead of turning over on hydration.</p>
+    <T k="config.nuxt">In Nuxt the module puts <code>dir</code> on <code>&lt;html&gt;</code> as it renders, so the page arrives the right way round instead of turning over on hydration.</T>
 
-    <h2>Part of a page</h2>
-    <p>A direction is not an application-wide decision; it is a property of a piece of text. Nest it where it belongs:</p>
+    <T k="part.title" as="h2">Part of a page</T>
+    <T k="part.text">A direction is not an application-wide decision; it is a property of a piece of text. Nest it where it belongs:</T>
     <CodeBlock :code="scoped" label="template" lang="vue" />
-    <p>Components read the direction they are actually laid out in, so a right-to-left panel inside a left-to-right page behaves, keyboard included.</p>
+    <T k="part.behaves">Components read the direction they are actually laid out in, so a right-to-left panel inside a left-to-right page behaves, keyboard included.</T>
 
-    <h2>The keyboard</h2>
-    <p>
+    <T k="keyboard.title" as="h2">The keyboard</T>
+    <T k="keyboard.text">
         Reading right to left, Left is forward. Every component that moves with the arrow keys already knows: the tabs, menus, menubar, toolbar, stepper, rating, splitter,
         carousel, task board, schedule and the charts all swap Left and Right, and a swipe goes the other way with them. Overlays flip with it too — a menu that opens to the
         end of its trigger opens to the left.
-    </p>
+    </T>
 
-    <h2>Icons</h2>
-    <p>
+    <T k="icons.title" as="h2">Icons</T>
+    <T k="icons.text">
         An icon that means a direction has to turn round; an icon that means a side must not. <code>chevronRight</code> on a “next” button means the way the reader is
         travelling, so it is mirrored; <code>alignLeft</code> means the left of the paragraph in every language, so it is not. The set answers for itself and you can overrule
         it:
-    </p>
+    </T>
     <CodeBlock :code="icon" label="template" lang="vue" />
-    <p>
+    <T k="icons.media">
         Media transport (<code>play</code>, <code>rewind</code>, <code>fastForward</code>) is deliberately left alone, because a timeline runs left to right everywhere, and so
         is rotation, which is clockwise or it is not. An icon of your own says which it is:
-    </p>
+    </T>
     <CodeBlock :code="own" label="icons.ts" lang="ts" />
-    <p>
+    <T k="icons.css">
         The flip is CSS keyed off <code>dir</code>, not script: it costs nothing, it is the same on the server, and it follows a <code>dir</code> changed at runtime without
         anything re-rendering. <code>renderSvg(def, {}, { direction: 'rtl' })</code> does the same for an icon drawn outside a component.
-    </p>
+    </T>
 
-    <h2>At runtime</h2>
+    <T k="runtime.title" as="h2">At runtime</T>
     <CodeBlock :code="runtime" label="ts" lang="ts" />
-    <p>
+    <T k="runtime.text">
         <code>useDirection()</code> is the reactive handle: the configured direction, whether it is right to left, and a setter that every component follows — the same shape as
         <a :href="href('/docs/locale')">useLocale()</a>, which you will usually be changing at the same moment. Moving the layout is still the <code>dir</code> attribute's job.
-    </p>
+    </T>
 </template>

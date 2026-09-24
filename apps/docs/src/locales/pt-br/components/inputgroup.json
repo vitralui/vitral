@@ -1,0 +1,8 @@
+{
+    "description": "Campos, botões e addons soldados num só controle, com cantos internos retos e uma única borda entre vizinhos.",
+    "sections": {
+        "Addons": { "title": "Addons" },
+        "With a button": { "title": "Com um botão" },
+        "A named range": { "title": "Um intervalo com nome", "description": "Dois controles, um nome: o grupo é anunciado como “Price range”." }
+    }
+}

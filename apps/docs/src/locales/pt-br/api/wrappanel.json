@@ -1,0 +1,8 @@
+{
+    "props": {
+        "orientation": "`horizontal` (o padrão) preenche linhas e quebra para baixo; `vertical` preenche colunas e precisa de uma altura em que quebrar.",
+        "itemWidth": "Todo filho recebe esta largura. Um número de pixels ou qualquer comprimento CSS.",
+        "itemHeight": "Todo filho recebe esta altura.",
+        "spacing": "Espaço entre os filhos e entre as linhas. O padrão é o token `wrappanel.spacing`."
+    }
+}

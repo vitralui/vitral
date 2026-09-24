@@ -1,0 +1,8 @@
+{
+    "description": "Navega pelas páginas de um conjunto de dados, com botões de primeira, anterior, numeradas, próxima e última, e escolha de linhas por página.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "120 registros, dez por página, com escolha do tamanho da página." },
+        "Current page report": { "title": "Relatório da página atual", "description": "O relatório segue o locale (`pageReport`); um template seu pode dizê-lo de outro jeito." },
+        "Start and end content": { "title": "Conteúdo no início e no fim" }
+    }
+}

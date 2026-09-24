@@ -1,0 +1,9 @@
+{
+    "props": {
+        "placement": "Onde abre em relação ao alvo; inverte quando não há espaço. O padrão é `'bottom-start'`.",
+        "dismissable": "Fecha com um clique fora. O padrão é true.",
+        "closeOnEscape": "O padrão é true.",
+        "offset": "Distância até o alvo, em pixels. O padrão é 8.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "props": {
+        "rows": "As trilhas de linha. Omitido, a grade tem uma linha que a preenche.",
+        "columns": "As trilhas de coluna. Omitido, a grade tem uma coluna que a preenche.",
+        "rowSpacing": "Espaço entre as linhas. O padrão é o token `grid.rowSpacing`.",
+        "columnSpacing": "Espaço entre as colunas. O padrão é o token `grid.columnSpacing`.",
+        "showGridLines": "Contorna a grade e cada célula: a ajuda para depurar."
+    }
+}

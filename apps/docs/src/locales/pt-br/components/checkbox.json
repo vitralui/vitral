@@ -1,0 +1,9 @@
+{
+    "description": "Um checkbox nativo sob uma caixa desenhada, ligado a um booleano ou a um array de valores, com estado misto.",
+    "sections": {
+        "Binary": { "title": "Binário" },
+        "Group and mixed state": { "title": "Grupo e estado misto", "description": "A caixa principal fica indeterminada enquanto só alguns dos ingredientes estão escolhidos." },
+        "Rich content": { "title": "Conteúdo rico" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

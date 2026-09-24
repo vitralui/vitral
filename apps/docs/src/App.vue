@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { Icon, ScrollTop } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { entryOf, sections } from './lib/catalog';
-import { guideOf, guideSections } from './lib/guides';
+import { categoryName } from './demo';
+import { entryOf, entryText, sections } from './lib/catalog';
+import { guideOf, guideSections, guideText, sectionName } from './lib/guides';
+import { t } from './lib/i18n';
 import { templateOf } from './templates';
 import { useDocumentHead } from './lib/head';
 import { route, href } from './lib/router';
 import { installThemeSwitcher } from './lib/theme';
 import ComponentPage from './pages/ComponentPage.vue';
+import ComponentsPage from './pages/ComponentsPage.vue';
 import DocPage from './pages/DocPage.vue';
 import Home from './pages/Home.vue';
 import ChartsPage from './pages/ChartsPage.vue';
@@ -95,7 +98,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <!-- WCAG 2.4.1: every page opens with the same bar and the same
              sidebar, so a keyboard needs a way past them to the thing it came
              for. Visible only once it has focus. -->
-        <a class="skip-link" href="#content">Skip to content</a>
+        <a class="skip-link" href="#content">{{ t('Skip to content') }}</a>
         <TopBar v-model:search="search" />
 
         <!-- `display: contents`, so it is a place to send focus and nothing to
@@ -104,30 +107,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
         <NotFound v-if="route.name === 'not-found' || missing" />
         <Home v-else-if="route.name === 'home'" />
+        <ComponentsPage v-else-if="route.name === 'components'" />
         <TemplatesPage v-else-if="route.name === 'templates'" />
         <TemplatePage v-else-if="route.name === 'template'" />
         <IconsPage v-else-if="route.name === 'icons'" />
         <ChartsPage v-else-if="route.name === 'charts'" />
 
         <div v-else class="docs">
-            <nav ref="pane" class="pane" :aria-label="isDocs ? 'Documentation' : 'Components'">
+            <nav ref="pane" class="pane" :aria-label="isDocs ? t('Documentation') : t('Components')">
                 <template v-if="isDocs">
                     <template v-for="group in guideSections" :key="group.section">
-                        <h2>{{ group.section }}</h2>
+                        <h2>{{ sectionName(group.section) }}</h2>
                         <a v-for="guide in group.items" :key="guide.id" :href="href(`/docs/${guide.id}`)" :aria-current="route.id === guide.id ? 'page' : undefined">
-                            {{ guide.meta.title }}
+                            {{ guideText(guide).title }}
                         </a>
                     </template>
-                    <h2>Components</h2>
-                    <a :href="href('/components/button')" class="pane-more">All components <Icon icon="arrowRight" /></a>
+                    <h2>{{ t('Components') }}</h2>
+                    <a :href="href('/components')" class="pane-more">{{ t('All components') }} <Icon icon="arrowRight" /></a>
                 </template>
 
                 <template v-else>
                     <AddonNav />
                     <template v-for="group in sections" :key="group.category">
-                        <h2>{{ group.category }}</h2>
+                        <h2>{{ categoryName(group.category) }}</h2>
                         <a v-for="entry in group.items" :key="entry.id" :href="href(`/components/${entry.id}`)" :aria-current="route.id === entry.id ? 'page' : undefined">
-                            {{ entry.meta.title }}
+                            {{ entryText(entry).title }}
                         </a>
                     </template>
                 </template>

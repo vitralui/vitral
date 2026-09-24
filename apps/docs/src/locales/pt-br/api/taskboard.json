@@ -1,0 +1,33 @@
+{
+    "props": {
+        "columns": "As colunas, em ordem. Sem `items`, cada uma leva seus próprios cards (`v-model:columns`).",
+        "items": "Os cards como uma lista plana (`v-model:items`); cada um indica sua coluna em `columnField`.",
+        "columnField": "O campo de um item plano com a chave da sua coluna. O padrão é `'column'`.",
+        "laneField": "O campo que põe um card numa raia; defina-o para dividir o quadro em raias.",
+        "lanes": "As raias, em ordem. Sem elas, as raias são os valores distintos de `laneField`, na ordem em que aparecem.",
+        "dataKey": "O campo que identifica um card. O padrão é `'id'`.",
+        "cardLabel": "O campo com o título de um card, mostrado pelo card padrão e usado nos anúncios. O padrão é `'title'`.",
+        "disabledField": "O campo que marca um card como desabilitado: nem clicável nem movível. O padrão é `'disabled'`.",
+        "lockedField": "O campo que marca um card como travado: clicável, mas não movível. O padrão é `'locked'`.",
+        "canDrop": "A última palavra sobre uma soltura. Devolva false para recusá-la.",
+        "dragdrop": "Os cards podem ser arrastados (ponteiro, toque ou teclado). O padrão é true.",
+        "reorderColumns": "As colunas podem ser reordenadas pela alça. O padrão é true.",
+        "collapsible": "As colunas (e raias) ganham um botão que as recolhe. O padrão é true.",
+        "autoScroll": "Rola o quadro e as colunas enquanto um card é arrastado perto das bordas. O padrão é true.",
+        "touchDelay": "Milissegundos que um dedo repousa num card antes de arrastá-lo, para que um deslize ainda role. O padrão é 250.",
+        "scrollHeight": "A altura da lista de cards de uma coluna; além dela, rola."
+    },
+    "emits": {
+        "update:columns": "As colunas depois que um card ou uma coluna se moveu num quadro aninhado, ou depois que uma coluna se moveu num quadro plano.",
+        "update:items": "A lista plana depois que um card se moveu."
+    },
+    "slots": {
+        "default": "As partes, escritas como filhos: `<Taskboard.Card>`, `<Taskboard.ColumnHeader>`…",
+        "card": "O conteúdo de um card.",
+        "column-header": "A área de título do cabeçalho de uma coluna.",
+        "column-footer": "Abaixo de uma coluna.",
+        "add-card": "No fim de cada célula: normalmente um botão \"adicionar card\".",
+        "lane-header": "A área de título do cabeçalho de uma raia.",
+        "empty": "Uma célula vazia."
+    }
+}

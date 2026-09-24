@@ -1,0 +1,8 @@
+{
+    "description": "Eventos sobre um eixo, descendo a página ou atravessando-a, com o conteúdo de um lado, do outro ou alternando.",
+    "sections": {
+        "Opposite content": { "title": "Conteúdo oposto" },
+        "Alternate, with icons": { "title": "Alternado, com ícones" },
+        "Horizontal": { "title": "Horizontal" }
+    }
+}

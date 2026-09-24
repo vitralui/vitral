@@ -1,0 +1,6 @@
+{
+    "title": "Presets",
+    "description": "Prism, Ink, Avalonia e Simple: o que cada um muda, e como começar um quinto.",
+    "intro": "Quatro presets vêm prontos. Cada um é um tema completo, com os tokens de todos os componentes nos dois esquemas de cores, cada um é um ponto de partida para <code>definePreset</code>, e todo <a href=\"/templates\">template</a> deste site pode ser visto em qualquer um deles, porque um tema se julga melhor trabalhando do que numa amostra. Um quinto é um objeto: veja <a href=\"/docs/theming\">temas</a>.",
+    "own": "Começando do zero"
+}

@@ -1,0 +1,13 @@
+{
+    "props": {
+        "min": "O padrão é 0.",
+        "max": "O padrão é 100.",
+        "labelPosition": "A legenda depois da trilha (o padrão) ou antes dela.",
+        "labelOrientation": "Como a legenda é disposta. O padrão é na horizontal, ou na vertical para um medidor vertical.",
+        "valueTemplate": "Como um valor é escrito, na legenda e para as tecnologias assistivas. `{value}` é uma porcentagem. O padrão é `'{value}%'`."
+    },
+    "slots": {
+        "label": "Substitui a legenda.",
+        "icon": "O ícone ou marcador de um item."
+    }
+}

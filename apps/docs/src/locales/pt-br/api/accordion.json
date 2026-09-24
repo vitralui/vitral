@@ -1,0 +1,9 @@
+{
+    "props": {
+        "multiple": "Permite vários painéis abertos ao mesmo tempo; `value` passa a ser um array.",
+        "lazy": "Renderiza o conteúdo de um painel só enquanto ele está aberto.",
+        "headingLevel": "O nível do título em que fica o botão de cada cabeçalho. O padrão é 3; ajuste-o à estrutura da página.",
+        "expandIcon": "Mostrado num painel fechado no lugar da seta.",
+        "collapseIcon": "Mostrado num painel aberto no lugar da seta."
+    }
+}

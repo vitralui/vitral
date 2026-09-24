@@ -1,0 +1,34 @@
+{
+    "props": {
+        "resources": "Linhas da visão de linha do tempo.",
+        "views": "As visões que o seletor oferece, em ordem. O padrão é mês, semana, dia e agenda, mais a linha do tempo quando há recursos.",
+        "toolbar": "Mostrado depois do título; defina como false para ocultar a barra de ferramentas embutida. O padrão é true.",
+        "timeZone": "O fuso em que o calendário é desenhado — um nome IANA como `'America/Sao_Paulo'`. Os eventos mantêm os instantes que receberam; só muda em que hora e em que dia são mostrados, e toda data que a agenda emite volta a ser um instante. Um evento de dia inteiro é uma data, não um instante, então fica onde foi posto.",
+        "timelineSlotDuration": "Minutos que cada coluna da linha do tempo abrange. O padrão é 60.",
+        "snapDuration": "Minutos que um arrasto ou uma tecla move. O padrão é 15.",
+        "minTime": "O primeiro horário mostrado, `'HH:mm'`. O padrão é `'00:00'`.",
+        "maxTime": "O último horário mostrado, `'HH:mm'`. O padrão é `'24:00'`.",
+        "scrollTime": "Até onde as visões de semana e dia abrem roladas. O padrão é `'08:00'`.",
+        "businessHours": "Sombreia o tempo fora dele; false não sombreia nada. O padrão é segunda a sexta, 09:00–17:00.",
+        "firstDayOfWeek": "0 = domingo; o padrão é o `firstDayOfWeek` do locale.",
+        "hour12": "Força um relógio de 12 ou 24 horas; o padrão vem do locale.",
+        "editable": "Os eventos podem ser arrastados e redimensionados. O padrão é true.",
+        "selectable": "É possível arrastar sobre horário vazio para escolher um intervalo (`select`). O padrão é true.",
+        "nowIndicator": "Uma linha no horário atual. O padrão é true.",
+        "defaultDuration": "Minutos que dura um evento com horário e sem fim. O padrão é 60.",
+        "agendaDays": "Dias que a agenda lista. O padrão é 7.",
+        "timelineDays": "Dias que a linha do tempo abrange. O padrão é 1.",
+        "maxEventsPerDay": "Eventos mostrados numa célula do mês antes de \"+N more\". O padrão é 3.",
+        "scrollHeight": "Altura da área rolável das visões de semana, dia e linha do tempo. O padrão é `'36rem'`."
+    },
+    "emits": {
+        "range-change": "O intervalo visível mudou: o momento de buscar seus eventos."
+    },
+    "slots": {
+        "default": "As partes, escritas como filhos: `<Schedule.Toolbar>`, `<Schedule.Event>`…",
+        "toolbar": "Substitui a barra de ferramentas inteira.",
+        "event": "O conteúdo de um evento.",
+        "resource": "O cabeçalho da linha de um recurso na linha do tempo.",
+        "empty": "A agenda sem nada nela."
+    }
+}

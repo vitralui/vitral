@@ -1,0 +1,7 @@
+{
+    "description": "Onde a página fica numa hierarquia: uma trilha de links com a página atual por último e separadores entre eles.",
+    "sections": {
+        "With a home item": { "title": "Com um item inicial" },
+        "Icons and a custom separator": { "title": "Ícones e um separador personalizado" }
+    }
+}

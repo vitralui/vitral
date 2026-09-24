@@ -1,0 +1,21 @@
+{
+    "title": "Modo sem estilo",
+    "description": "Fique com o comportamento e a acessibilidade, e descarte todas as classes.",
+    "intro": "<code>unstyled</code> remove as classes embutidas e mais nada. Os roles, os nomes, os estados, o focus trap, o teclado, o posicionamento dos overlays e o fechamento continuam todos lá: o que se perde é a aparência, e é justamente essa a ideia.",
+    "one": {
+        "title": "Uma instância",
+        "text": "<em>Acima</em> está o botão sem estilo vestido com estilos inline em vez de classes utilitárias, já que este site não traz Tailwind. O mecanismo é o mesmo nos dois casos."
+    },
+    "all": {
+        "title": "A aplicação inteira",
+        "text": "Definido globalmente, <code>unstyled</code> também deixa de injetar o CSS de cada componente, então a página não carrega nada dele. Um componente isolado ainda pode voltar atrás com <code>:unstyled=\"false\"</code>."
+    },
+    "kept": {
+        "title": "O que um componente ainda oferece",
+        "aria": "O padrão ARIA: roles, nomes, <code>aria-expanded</code>, <code>aria-selected</code>, <code>aria-activedescendant</code> e as relações entre eles.",
+        "keyboard": "O teclado: type-ahead, roving focus, Home/End, Escape, Tab para sair de um overlay.",
+        "overlay": "O comportamento dos overlays: posicionamento com inversão, a pilha de camadas, o bloqueio de rolagem, a devolução do foco.",
+        "data": "O comportamento dos dados: filtro, ordenação, paginação, seleção, expansão de árvores.",
+        "summary": "Ou seja: tudo o que é tedioso e fácil de errar, e nada do que é questão de gosto."
+    }
+}

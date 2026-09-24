@@ -1,0 +1,9 @@
+{
+    "description": "Uma caixa de número com botões de passo, limitada a um intervalo e formatada no locale, como decimal, moeda ou porcentagem.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Formats": { "title": "Formatos", "description": "Moeda, porcentagem, um sufixo e um número fixo de casas, cada um lido de volta corretamente quando digitado." },
+        "Spin buttons": { "title": "Botões de incremento", "description": "Stacked põe o de subir sobre o de descer no fim do campo; horizontal põe o menos e o mais um de cada lado. Segure um botão para continuar avançando." },
+        "Sizes, variants and states": { "title": "Tamanhos, variantes e estados" }
+    }
+}

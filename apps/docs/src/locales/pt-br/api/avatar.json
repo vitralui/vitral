@@ -1,0 +1,8 @@
+{
+    "props": {
+        "label": "Iniciais, ou qualquer texto curto. Ignorado quando `image` está definido.",
+        "image": "A origem de uma imagem. Ela preenche a caixa e é recortada nela.",
+        "alt": "O texto alternativo da imagem. Vazio, o padrão, a marca como decorativa, o que ela é quando há um nome ao lado.",
+        "shape": "`'square'` (o padrão) ou `'circle'`."
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "description": "Um contêiner para um único conteúdo: uma imagem de cabeçalho opcional, título e subtítulo, o conteúdo e um rodapé de ações.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Header, subtitle and footer": { "title": "Cabeçalho, subtítulo e rodapé" }
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "description": "Um véu sobre uma região, ou sobre a página inteira, enquanto ela está ocupada, deixando inerte o que fica por baixo e dizendo o porquê.",
+    "sections": {
+        "A region": { "title": "Uma região" },
+        "The whole page": { "title": "A página inteira" }
+    }
+}

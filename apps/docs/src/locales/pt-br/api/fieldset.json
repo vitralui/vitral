@@ -1,0 +1,9 @@
+{
+    "props": {
+        "legend": "O texto da legenda.",
+        "toggleable": "Faz da legenda um botão que mostra e oculta o grupo."
+    },
+    "slots": {
+        "legend": "Substitui o texto da legenda."
+    }
+}

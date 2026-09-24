@@ -1,0 +1,12 @@
+{
+    "props": {
+        "model": "Os itens; os `items` de um item abrem como submenu ao lado dele.",
+        "global": "Abre com um clique direito (ou Shift+F10) em qualquer lugar da página.",
+        "target": "Abre com um clique direito, Shift+F10 ou a tecla de menu de contexto neste elemento, ou no elemento que um seletor encontrar.",
+        "appendTo": "Onde é renderizado: `'body'` (o padrão) ou um seletor.",
+        "ariaLabel": "Dá nome ao menu."
+    },
+    "slots": {
+        "item": "O conteúdo de um item. O elemento menuitem em volta, com seu papel e teclado, permanece."
+    }
+}

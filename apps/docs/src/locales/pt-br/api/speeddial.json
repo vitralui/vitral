@@ -1,0 +1,20 @@
+{
+    "props": {
+        "model": "As ações; o `label` de cada item dá nome ao seu botão e aparece como tooltip.",
+        "direction": "Para onde as ações abrem. O padrão é `'up'`.",
+        "type": "Uma linha (o padrão), ou em volta de um círculo, de meio ou de um quarto de círculo.",
+        "radius": "O raio do círculo em pixels. O padrão é 20 por ação.",
+        "showIcon": "O ícone do botão enquanto fechado. O padrão é um mais.",
+        "hideIcon": "O ícone do botão enquanto aberto. Sem ele, o ícone de mostrar gira.",
+        "rotateAnimation": "Gira o ícone ao abrir. O padrão é true.",
+        "mask": "Escurece a página atrás das ações abertas.",
+        "transitionDelay": "Milissegundos entre o surgimento de uma ação e o da próxima. O padrão é 30.",
+        "hideOnClickOutside": "Fecha com um clique fora. O padrão é true.",
+        "ariaLabel": "Dá nome ao botão.",
+        "tooltipPlacement": "Onde aparecem os tooltips das ações. O padrão é o lado oposto à direção."
+    },
+    "slots": {
+        "item": "O conteúdo de uma ação.",
+        "icon": "O ícone do botão."
+    }
+}

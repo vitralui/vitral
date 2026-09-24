@@ -1,0 +1,14 @@
+{
+    "props": {
+        "length": "Quantos caracteres o código tem. O padrão é 4.",
+        "integerOnly": "Aceita só dígitos e pede o teclado numérico.",
+        "mask": "Oculta os caracteres como uma caixa de senha.",
+        "variant": "O padrão é o `inputVariant` do plugin."
+    },
+    "emits": {
+        "complete": "Todas as caixas têm um caractere."
+    },
+    "slots": {
+        "default": "Substitui uma caixa. Os eventos a conectam; `attrs` leva seu nome e estado."
+    }
+}

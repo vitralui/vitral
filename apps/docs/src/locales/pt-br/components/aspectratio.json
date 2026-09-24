@@ -1,0 +1,6 @@
+{
+    "description": "Uma caixa que mantém a proporção quando a largura muda, com o conteúdo recortado para preenchê-la.",
+    "sections": {
+        "Ratios": { "title": "Proporções" }
+    }
+}

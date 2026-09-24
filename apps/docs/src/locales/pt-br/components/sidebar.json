@@ -1,0 +1,7 @@
+{
+    "description": "A barra lateral recolhível da aplicação: navegação com sublistas, que se reduz aos ícones e vira uma gaveta em telas pequenas.",
+    "sections": {
+        "Collapsible to icons": { "title": "Recolhível aos ícones" },
+        "Off canvas": { "title": "Fora da tela" }
+    }
+}

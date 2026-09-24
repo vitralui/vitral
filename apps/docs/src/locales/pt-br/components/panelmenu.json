@@ -1,0 +1,7 @@
+{
+    "description": "Seções de navegação que se expandem no lugar, cada uma uma árvore dos seus itens, para uma barra lateral.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Several open": { "title": "Várias abertas" }
+    }
+}

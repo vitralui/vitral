@@ -1,0 +1,7 @@
+{
+    "description": "Um diálogo não modal ancorado ao que o abriu, que fecha com Escape, um clique fora ou saindo com Tab.",
+    "sections": {
+        "Share": { "title": "Compartilhar", "description": "Um flyout com um campo e um botão dentro." },
+        "Placement": { "title": "Posicionamento", "description": "`placement` escolhe o lado; ele inverte quando não há espaço." }
+    }
+}

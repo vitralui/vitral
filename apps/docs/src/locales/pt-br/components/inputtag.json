@@ -1,0 +1,9 @@
+{
+    "description": "Um campo cujo valor é uma lista de strings curtas, cada uma mostrada como uma tag removível, adicionadas com Enter, um separador ou uma colagem.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "Digite e pressione Enter, ou digite uma vírgula. Backspace numa caixa vazia remove a última tag." },
+        "Checked as they are added": { "title": "Verificadas ao serem adicionadas", "description": "`validate` recusa uma tag e deixa o texto na caixa para ser corrigido; `reject` diz o que aconteceu, para que o campo possa se explicar. Vários separadores são permitidos: este aceita vírgula, ponto e vírgula ou espaço." },
+        "A maximum": { "title": "Um máximo", "description": "`max` para a lista onde ela deve parar; o que é recusado é informado, em vez de descartado em silêncio." },
+        "Sizes and states": { "title": "Tamanhos e estados", "description": "A moldura do campo é a compartilhada: os mesmos tamanhos, variantes e estados inválido e desabilitado de qualquer outro input." }
+    }
+}

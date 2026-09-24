@@ -1,0 +1,16 @@
+{
+    "props": {
+        "value": "Os itens; com `lazy`, só os da página atual.",
+        "layout": "Qual template renderiza os itens: `list` (o padrão) ou `grid`.",
+        "dataKey": "Um campo que identifica um item.",
+        "sortField": "Ordena por este campo…",
+        "sortOrder": "…crescente (1) ou decrescente (-1).",
+        "rows": "Itens por página. O padrão é 12.",
+        "lazy": "Nada é calculado aqui: mudanças de página são emitidas (`page`) para a aplicação responder.",
+        "totalRecords": "O total de todas as páginas quando `lazy`."
+    },
+    "slots": {
+        "list": "Os itens da página, no layout de lista.",
+        "grid": "Os itens da página, no layout de grade. Os elementos do slot são as células da grade."
+    }
+}

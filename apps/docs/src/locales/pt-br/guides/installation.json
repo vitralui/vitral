@@ -1,0 +1,40 @@
+{
+    "title": "Instalação",
+    "description": "Um pacote, uma chamada de plugin, e o que faz cada uma das suas opções.",
+    "install": {
+        "title": "Instale",
+        "text": "Vue 3.5 ou mais recente é a única peer dependency. Os outros pacotes <code>@vitral/*</code> vêm junto."
+    },
+    "plugin": {
+        "title": "Registre o plugin",
+        "text": "Não há folha de estilos para importar. O plugin injeta o tema como variáveis CSS, e cada componente injeta o próprio CSS na primeira vez que renderiza, então uma página só carrega os componentes que usa."
+    },
+    "options": {
+        "title": "Opções",
+        "option": "Opção",
+        "type": "Tipo",
+        "description": "Descrição",
+        "theme": "O preset e o esquema de cores. <code>'none'</code> não injeta nada: traga as suas próprias variáveis, ou use o modo sem estilo.",
+        "locale": "<code>en</code> e <code>ptBR</code> vêm prontos; um locale é um objeto simples, então um terceiro é só um literal.",
+        "inputVariant": "A aparência padrão de todos os campos. Reativo: mude em tempo de execução e a página acompanha.",
+        "unstyled": "Remove todas as classes embutidas, em toda parte. Veja o <a href=\"/docs/unstyled\">modo sem estilo</a>.",
+        "pt": "Pass-through para todas as instâncias de um componente, pelo nome. Veja <a href=\"/docs/pass-through\">pass-through</a>.",
+        "cssLayer": "Envolve o CSS dos componentes em <code>@layer</code>, para que o CSS da aplicação vença sem <code>!important</code>.",
+        "zIndex": "Os patamares de empilhamento de modais, overlays, menus e tooltips.",
+        "csp": "O nonce colocado em cada <code>&lt;style&gt;</code> injetado, para uma Content-Security-Policy estrita."
+    },
+    "autoImport": {
+        "title": "Sem linhas de import",
+        "text": "No Nuxt, o <a href=\"/docs/server-rendering\">módulo</a> faz isso por você. Numa aplicação Vite comum, as mesmas listas ficam em <code>@vitral/vue/resolver</code>, para o unplugin-vue-components e o unplugin-auto-import:",
+        "prefix": "<code>VitralResolver({ prefix: 'Vt' })</code> responde a <code>&lt;VtButton&gt;</code>, e deixa todos os outros nomes para os seus próprios componentes."
+    },
+    "root": {
+        "title": "Dois componentes na raiz",
+        "text": "<code>useToast()</code> e <code>useConfirm()</code> emitem eventos, então os componentes que os exibem precisam estar na página. Coloque-os uma vez, perto da raiz, onde sobrevivem às views que os chamam."
+    },
+    "noJs": {
+        "title": "Sem JavaScript",
+        "text": "Uma página que só quer a aparência pode levar o tema compilado e o CSS dos componentes em dois arquivos."
+    },
+    "dev": "Trabalhando no próprio Vitral"
+}

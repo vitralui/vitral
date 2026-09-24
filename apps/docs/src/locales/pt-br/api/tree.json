@@ -1,0 +1,10 @@
+{
+    "props": {
+        "filter": "Adiciona uma caixa de busca; os resultados ficam visíveis com os ramos que levam a eles, expandidos.",
+        "filterBy": "Campos do nó a buscar, como lista ou separados por vírgula. O padrão é `label`.",
+        "scrollHeight": "A altura máxima da árvore antes de rolar."
+    },
+    "slots": {
+        "default": "O conteúdo de um nó, no lugar do seu rótulo."
+    }
+}

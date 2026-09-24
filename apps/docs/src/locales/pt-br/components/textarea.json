@@ -1,0 +1,9 @@
+{
+    "description": "Uma caixa de texto de várias linhas, com o mesmo acabamento de campo do InputText, que pode crescer com o conteúdo.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Auto resize": { "title": "Redimensionamento automático", "description": "Sem barra de rolagem e sem alça: a altura acompanha o texto." },
+        "Sizes, variants and states": { "title": "Tamanhos, variantes e estados" },
+        "Fluid": { "title": "Fluido" }
+    }
+}

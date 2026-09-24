@@ -1,0 +1,7 @@
+{
+    "description": "Linhas que se expandem em linhas, com ordenação que preserva o aninhamento e um filtro que mantém os ramos que levam às correspondências.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Filter and pages": { "title": "Filtro e páginas" }
+    }
+}

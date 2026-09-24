@@ -1,0 +1,8 @@
+{
+    "props": {
+        "shape": "`'rectangle'` (o padrão) ou `'circle'`, que também iguala largura e altura.",
+        "width": "Qualquer comprimento CSS. O padrão é a largura inteira do espaço em que está.",
+        "height": "Qualquer comprimento CSS. O padrão é uma linha.",
+        "animated": "O brilho que atravessa a caixa. Ligado por padrão, e desligado sob `prefers-reduced-motion`."
+    }
+}

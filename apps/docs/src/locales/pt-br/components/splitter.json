@@ -1,0 +1,8 @@
+{
+    "description": "Painéis com uma divisória entre cada par que os redimensiona, arrastando ou pelo teclado, respeitando o mínimo de cada painel.",
+    "sections": {
+        "Horizontal": { "title": "Horizontal", "description": "Três painéis, cada um com min-size 10. Os painéis mostram o próprio tamanho, vindo do evento resize." },
+        "Vertical": { "title": "Vertical", "description": "layout=\"vertical\" empilha os painéis; as setas passam a ser Up e Down." },
+        "Nested": { "title": "Aninhado", "description": "Um splitter dentro de um painel o preenche: um explorador ao lado de um editor, sobre um terminal." }
+    }
+}

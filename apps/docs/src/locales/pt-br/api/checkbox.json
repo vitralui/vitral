@@ -1,0 +1,13 @@
+{
+    "props": {
+        "value": "O valor que esta caixa adiciona a um v-model de array quando marcada. Omita-o (ou defina `binary`) e o v-model passa a ser booleano.",
+        "binary": "O v-model é um único valor marcado/desmarcado em vez de um array. Implícito quando não há `value`.",
+        "trueValue": "O valor que uma caixa binária marcada dá ao v-model. O padrão é true.",
+        "falseValue": "O valor que uma caixa binária desmarcada dá ao v-model. O padrão é false.",
+        "label": "O texto ao lado da caixa; o slot padrão aceita conteúdo mais rico. Qualquer um vira o seu `<label>`."
+    },
+    "slots": {
+        "default": "O conteúdo do rótulo.",
+        "icon": "Substitui o visto (e o traço do estado misto)."
+    }
+}

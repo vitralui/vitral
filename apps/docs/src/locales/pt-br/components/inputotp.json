@@ -1,0 +1,8 @@
+{
+    "description": "Uma caixa por caractere de um código de uso único, que avança enquanto você digita e se preenche de uma vez com colagem ou preenchimento automático.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Masked": { "title": "Mascarado" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

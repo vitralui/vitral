@@ -1,0 +1,30 @@
+{
+    "summary": "Internet banking: saldos das contas com gráficos, uma tabela de transações e um fluxo de transferência.",
+    "description": "Um app de banco pessoal. A visão geral mostra todas as contas, o patrimônio líquido e o fluxo de caixa, os orçamentos e os últimos pagamentos; as transações são filtradas por favorecido, categoria, conta e data; uma transferência passa por dados, revisão e um código de uso único, e aparece na tabela.",
+    "tags": ["Banco", "Gráficos", "Formulários"],
+    "features": [
+        "Cards de conta com um “ocultar saldos” de um clique para compartilhar a tela",
+        "Gráficos de patrimônio líquido e fluxo de caixa, e orçamentos que ficam vermelhos quando estouram",
+        "Uma tabela de transações filtrada por favorecido, categorias, conta e data",
+        "Uma transferência linear: lista de favorecidos, campo de moeda, agendamento, revisão, código de uso único",
+        "A transferência atualiza o saldo e aparece como uma transação pendente",
+        "Um só cabeçalho no topo: o botão de recolher, um breadcrumb e a sidebar logo abaixo"
+    ],
+    "faq": [
+        {
+            "question": "Os valores são formatados para outras moedas?",
+            "answer": "O InputNumber e os formatadores recebem uma moeda e um locale; troque USD e en-US em data.ts e no passo da transferência."
+        },
+        {
+            "question": "Como os filtros interagem com a tabela?",
+            "answer": "Eles calculam as linhas entregues ao DataGrid, que continua ordenando e paginando por cima. Para grandes volumes de dados, leve os mesmos filtros para a sua API e use o modo lazy."
+        },
+        { "question": "O código de uso único é seguro?", "answer": "É só interface. O InputOtp mascara os dígitos e aceita números; verificar o código é trabalho do seu servidor." },
+        { "question": "Posso mostrar valores positivos em verde sem depender da cor?", "answer": "Eles já trazem o sinal “+”; a cor é uma pista a mais, nunca a única." }
+    ],
+    "screens": {
+        "accounts": { "name": "Contas", "summary": "Saldos, patrimônio líquido, fluxo de caixa, orçamentos e atividade recente" },
+        "transactions": { "name": "Transações", "summary": "Uma tabela filtrável e ordenável com todos os pagamentos" },
+        "transfer": { "name": "Transferência", "summary": "Uma transferência em três passos com código de uso único" }
+    }
+}

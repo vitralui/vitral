@@ -1,0 +1,9 @@
+{
+    "description": "Uma caixa de texto em que se digita dentro de um padrão, como um telefone ou uma data, com os literais preenchidos para você.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Unmasked value": { "title": "Valor sem máscara" },
+        "Slot characters and optional parts": { "title": "Caracteres de posição e partes opcionais" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

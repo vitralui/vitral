@@ -1,0 +1,37 @@
+{
+    "title": "Como contribuir",
+    "description": "Do que um componente é feito, e onde fica cada peça.",
+    "intro": "Um componente são cinco peças, cada uma no seu lugar. Nenhuma é opcional, e a ordem é a ordem em que são escritas.",
+    "tokens": {
+        "title": "1. Tokens",
+        "text": "Uma árvore de tokens cujos valores apontam para a camada semântica (<code>'{formField.borderColor}'</code>, <code>'{control.minHeight}'</code>), e não para uma cor. Tudo o que muda de um esquema de cores para o outro vai em <code>colorScheme</code>. Cada token vira uma variável <code>--vt-toggleswitch-…</code>."
+    },
+    "style": {
+        "title": "2. Estilo",
+        "classes": "As classes são <code>vt-toggleswitch</code>, <code>vt-toggleswitch-&lt;part&gt;</code>, <code>vt-toggleswitch-&lt;modifier&gt;</code>.",
+        "vars": "O CSS lê apenas <code>var(--vt-…)</code>. Uma cor, um raio ou uma duração fixos no código são um bug.",
+        "chrome": "Construa sobre o visual compartilhado (<code>.vt-field</code>, <code>.vt-overlay</code>, <code>.vt-option</code>, <code>.vt-mask</code>) em vez de reestilizá-lo.",
+        "focus": "O foco pelo teclado mostra o anel de foco; tudo o que é animado para sob <code>prefers-reduced-motion</code>."
+    },
+    "component": {
+        "title": "3. O componente",
+        "text": "<code>v-bind=\"part(…)\"</code> em todo elemento é o que torna um componente tematizável, alcançável por pass-through e utilizável sem estilo. Um componente que envolve um controle nativo também usa <code>useSplitAttrs()</code> com <code>inheritAttrs: false</code>, para que <code>class</code> vista o wrapper enquanto <code>name</code>, <code>aria-describedby</code> e o resto chegam ao controle."
+    },
+    "demo": {
+        "title": "4. A demo",
+        "text": "Uma página em <code>apps/docs/src/demos/</code> que exporta <code>meta: DemoMeta</code> de um bloco <code>&lt;script&gt;</code> simples. Este site a encontra por glob e lê o mesmo arquivo de novo, como texto, para mostrar o código ao lado de cada exemplo, então um trecho não tem como se afastar do que documenta."
+    },
+    "barrels": {
+        "title": "5. Barrels",
+        "text": "<code>pnpm gen</code> escreve todas as listas de <code>index.ts</code>. Ninguém as edita à mão."
+    },
+    "conventions": {
+        "title": "Convenções que vale conhecer",
+        "model": "<code>v-model</code> via <code>defineModel()</code>; ids a partir do <code>useId()</code> do Vue.",
+        "text": "O texto vem do locale, nunca de um literal no template.",
+        "popups": "Popups usam <code>&lt;Teleport to=\"body\"&gt;</code>, a transição <code>vt-overlay</code> e <code>useOverlay()</code>; modais acrescentam <code>useFocusTrap()</code> e <code>lockScroll()</code>.",
+        "core": "Comportamento sem DOM (navegação, parsing, seleção) vai para <code>@vitral/core</code>, com um teste lá.",
+        "option": "Prefira uma opção a um componente novo: duas coisas que só diferem no que recusam são uma coisa só, com uma prop."
+    },
+    "checks": "Verificações"
+}

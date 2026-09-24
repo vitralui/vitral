@@ -1,0 +1,10 @@
+{
+    "props": {
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "clearable": "Mostra um botão de limpar enquanto houver texto."
+    },
+    "slots": {
+        "prefix": "Conteúdo dentro do campo, antes do texto: um ícone, um símbolo de moeda.",
+        "suffix": "Conteúdo dentro do campo, depois do texto: uma unidade, um botão."
+    }
+}

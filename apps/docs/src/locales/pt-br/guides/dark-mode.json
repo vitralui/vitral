@@ -1,0 +1,19 @@
+{
+    "title": "Esquemas de cores",
+    "description": "Claro, escuro e sistema: um ramo dentro do preset, não um segundo tema.",
+    "intro": "Um esquema de cores não é um segundo tema: é um ramo dentro do mesmo preset. Qualquer token pode levar um objeto <code>colorScheme</code>, e o compilador escreve os valores claros na raiz e os escuros sob o seletor do modo escuro.",
+    "choosing": {
+        "title": "Escolhendo um",
+        "pin": "<code>'light'</code> e <code>'dark'</code> fixam o esquema.",
+        "system": "<code>'system'</code> segue <code>prefers-color-scheme</code> e continua seguindo, então quem muda o tema do sistema operacional vê a página mudar junto.",
+        "storage": "<code>storageKey</code> guarda uma escolha explícita entre visitas; <code>false</code> a esquece, que é o que uma captura de tela pede."
+    },
+    "runtime": {
+        "title": "Trocando em tempo de execução",
+        "text": "<code>toggleDark()</code> alterna entre claro e escuro, deixando <code>'system'</code> para trás na primeira vez que é usado. A barra no topo deste site é exatamente essas três linhas."
+    },
+    "selector": {
+        "title": "O seletor",
+        "text": "Por padrão, o ramo escuro é escrito sob <code>.vt-dark</code> no elemento <code>&lt;html&gt;</code>. <code>darkModeSelector</code> aceita qualquer seletor de classe ou de atributo, como <code>[data-theme=\"dark\"]</code>, ou <code>'system'</code>, que emite os valores escuros dentro de uma media query <code>prefers-color-scheme</code>, para um site que nunca oferece a troca; <code>false</code> não emite esquema escuro nenhum."
+    }
+}

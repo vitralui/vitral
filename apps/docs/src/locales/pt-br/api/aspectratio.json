@@ -1,0 +1,8 @@
+{
+    "props": {
+        "ratio": "Largura sobre altura: `16 / 9`, `1`, `4 / 3`. O padrão é 1."
+    },
+    "slots": {
+        "default": "O que preenche a caixa: uma imagem, um vídeo, um mapa."
+    }
+}

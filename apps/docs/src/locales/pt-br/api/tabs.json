@@ -1,0 +1,7 @@
+{
+    "props": {
+        "orientation": "Abas acima dos painéis (o padrão) ou ao lado deles.",
+        "lazy": "Renderiza um painel só enquanto sua aba está selecionada.",
+        "selectOnFocus": "Seleciona uma aba assim que as setas chegam nela: a ativação automática do APG, e o padrão. Desligado, as setas só movem o foco e Enter/Espaço selecionam."
+    }
+}

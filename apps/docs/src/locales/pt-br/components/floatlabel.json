@@ -1,0 +1,8 @@
+{
+    "description": "Um label de verdade que começa dentro do campo e sai dele com o foco ou quando há valor; o IftaLabel o mantém dentro, acima do valor.",
+    "sections": {
+        "Variants": { "title": "Variantes", "description": "over (o padrão), in e on." },
+        "With a select": { "title": "Com um select", "description": "Um select não tem estado de placeholder para ser lido, então `filled` avisa o wrapper." },
+        "IftaLabel": { "title": "IftaLabel" }
+    }
+}

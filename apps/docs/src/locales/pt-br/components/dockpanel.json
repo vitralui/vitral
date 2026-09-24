@@ -1,0 +1,7 @@
+{
+    "description": "Encaixa regiões nas bordas de cima, de baixo, esquerda e direita e dá o que sobra ao preenchimento; a ordem decide quem fica com os cantos.",
+    "sections": {
+        "An application frame": { "title": "A moldura de uma aplicação", "description": "Uma barra de ferramentas, uma barra de status, uma árvore de arquivos e um painel de propriedades em volta de um editor." },
+        "Only what is there": { "title": "Só o que existe", "description": "Apenas um slot left e o preenchimento: nenhuma trilha e nenhum espaçamento para as bordas ausentes." }
+    }
+}

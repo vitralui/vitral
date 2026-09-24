@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T, t } from '../lib/i18n';
 import { base, href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
@@ -37,58 +38,57 @@ and write me a table of invoices with sorting, filtering and paging.`;
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         An assistant that has not read the documentation writes what it remembers of some other library: utility classes over the components, a stylesheet fighting the theme,
         icon imports that do not exist. None of that is a hard problem — it is a reading problem. So the build writes this site twice: once as the pages you are looking at, and
         once as Markdown, in the shape <a href="https://llmstxt.org" target="_blank" rel="noreferrer">llms.txt</a> describes.
-    </p>
+    </T>
 
-    <h2>What is published</h2>
-    <CodeBlock :code="files" label="on every build" lang="text" />
+    <T k="published.title" as="h2">What is published</T>
+    <CodeBlock :code="files" :label="t('on every build')" lang="text" />
+    <!-- The llms files are not pages, so their links stay outside the translated text: a page's link is given the language's prefix, a file's must not be. -->
     <p>
-        <a :href="`${base}/llms.txt`">llms.txt</a> is the index: the guides, every component and every template, each with the line that describes it, linking to the Markdown
-        rather than the page. <a :href="`${base}/llms-full.txt`">llms-full.txt</a> is the lot, concatenated, for a model with the context to hold it. And any page answers with
-        <code>.md</code> in place of its trailing slash, which is the cheapest thing to hand an agent that only needs one component.
+        <a :href="`${base}/llms.txt`">llms.txt</a> <T k="published.index" as="span">is the index: the guides, every component and every template, each with the line that describes it, linking to the Markdown rather than the page.</T> <a :href="`${base}/llms-full.txt`">llms-full.txt</a> <T k="published.full" as="span">is the lot, concatenated, for a model with the context to hold it. And any page answers with <code>.md</code> in place of its trailing slash, which is the cheapest thing to hand an agent that only needs one component.</T>
     </p>
-    <p>
+    <T k="published.generated">
         The Markdown is generated from the rendered page, so it carries the prose, the headings and the API tables — which are themselves read out of each component's
         <code>types.ts</code> at build time. A component's page also gets the source of its examples appended, because on the site those sit behind a button and an agent cannot
         press it.
-    </p>
+    </T>
 
-    <h2>Point an agent at it</h2>
-    <p>The whole of it is one line in a prompt:</p>
-    <CodeBlock :code="ask" label="a prompt" lang="text" />
-    <p>
+    <T k="point.title" as="h2">Point an agent at it</T>
+    <T k="point.text">The whole of it is one line in a prompt:</T>
+    <CodeBlock :code="ask" :label="t('a prompt')" lang="text" />
+    <T k="point.rules">
         For a project you work in every day, put the rules where the agent reads them — <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.cursor/rules</code>, or whatever
         your tool calls it. This is the short version worth pasting, and it is about the things a model gets wrong from habit rather than from ignorance:
-    </p>
+    </T>
     <CodeBlock :code="rules" label="AGENTS.md" lang="md" />
 
-    <h2>Why those rules</h2>
+    <T k="why.title" as="h2">Why those rules</T>
     <ul>
-        <li>
+        <T k="why.tokens" as="li">
             <strong>Tokens, not CSS.</strong> The look of every component is custom properties, which a <a :href="href('/docs/presets')">preset</a> sets and
             <a :href="href('/docs/theming')">the <code>dt</code> prop</a> overrides for one instance. A stylesheet written beside it works until the scheme changes.
-        </li>
-        <li>
+        </T>
+        <T k="why.passThrough" as="li">
             <strong><a :href="href('/docs/pass-through')">Pass-through</a> for markup.</strong> Every internal element is addressable by name, so an agent never has to wrap a
             component to reach inside it.
-        </li>
-        <li>
+        </T>
+        <T k="why.icons" as="li">
             <strong>Icons are registered names.</strong> The components resolve the set they use themselves; anything else is a named import, or one
             <code>registerIcons</code> call. A made-up name renders as a class, silently.
-        </li>
-        <li>
+        </T>
+        <T k="why.accessibility" as="li">
             <strong>The accessibility is already there.</strong> Each component follows its
             <a href="https://www.w3.org/WAI/ARIA/apg/patterns/" target="_blank" rel="noreferrer">WAI-ARIA APG pattern</a> and is tested against it, so added
             <code>role</code> and <code>aria-*</code> attributes usually break it rather than help.
-        </li>
+        </T>
     </ul>
 
-    <h2>Keeping it honest</h2>
-    <p>
+    <T k="honest.title" as="h2">Keeping it honest</T>
+    <T k="honest.text">
         Nothing here is written by hand, which is the point: the Markdown is the site, the API tables are the source, and both are rebuilt on every push. A page that goes out of
         date goes out of date in one place.
-    </p>
+    </T>
 </template>

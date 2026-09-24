@@ -6,7 +6,7 @@ import { expectNoA11yViolations } from '../../../packages/vue/test/a11y';
 import App from './App.vue';
 import { entries } from './lib/catalog';
 import { themes } from './lib/presets';
-import { presetId } from './lib/theme';
+import { direction, presetId } from './lib/theme';
 import { apiOf } from './lib/api';
 import { guides } from './lib/guides';
 import { sectionSources } from './lib/source';
@@ -187,6 +187,32 @@ describe('the site', () => {
         expect(wrapper.find('.footer').html()).not.toContain('/themes');
     });
 
+    it('opens the search across the bar, and puts the bar back when it closes', async () => {
+        const wrapper = mountSite('/');
+        await wrapper.find('.search-btn').trigger('click');
+        // The field is laid over the menus; the buttons after it stay.
+        expect(wrapper.find('.topbar').classes()).toContain('is-searching');
+        expect(wrapper.find('.top-actions').isVisible()).toBe(true);
+        const input = wrapper.find('.searchbar-input');
+        await input.setValue('datepicker');
+        expect(wrapper.findAll('.search-item').map((item) => item.text())).toEqual([expect.stringContaining('DatePicker')]);
+        await input.trigger('keydown', { key: 'Escape' });
+        await flushPromises();
+        expect(wrapper.find('.topbar').classes()).not.toContain('is-searching');
+    });
+
+    it('closes the menus when the page turns over to the other direction', async () => {
+        const wrapper = mountSite('/');
+        const button = wrapper.findAll('.top-nav button')[0]!;
+        await button.trigger('click');
+        expect(wrapper.find('.mega-panel').exists()).toBe(true);
+        direction.value = 'rtl';
+        await flushPromises();
+        expect(wrapper.find('.mega-panel').exists()).toBe(false);
+        direction.value = 'ltr';
+        await flushPromises();
+    });
+
     it('sends the retired theme pages, and the old fragment links, to where they live now', () => {
         for (const old of ['/themes', '/themes/ink']) {
             const wrapper = mountSite(old);
@@ -207,6 +233,33 @@ describe('the site', () => {
         expect(wrapper.find('.prose').text()).toContain('token');
     });
 
+    it('reads the same page in Portuguese under /pt-br, and links to the other language', async () => {
+        const wrapper = mountSite('/pt-br/docs/dark-mode');
+        await flushPromises();
+        expect(document.documentElement.lang).toBe('pt-BR');
+        expect(wrapper.find('.doc-head h1').text()).toBe('Esquemas de cores');
+        // Links stay in the language the reader is in.
+        expect(wrapper.find('.pane a[href="/pt-br/docs/theming/"]').exists()).toBe(true);
+        // The language menu offers the same page in each language, by its own name.
+        await wrapper.find('.lang-switch').trigger('click');
+        await flushPromises();
+        const english = document.querySelector<HTMLAnchorElement>('.lang-list a[hreflang="en"]')!;
+        expect(english.getAttribute('href')).toBe('/docs/dark-mode/');
+        expect(english.textContent).toContain('English');
+        expect(document.querySelector('.lang-list a[aria-current]')?.textContent).toContain('Português (Brasil)');
+        // Every version is announced to a search engine, the page itself included.
+        const alternates = [...document.head.querySelectorAll<HTMLLinkElement>('link[rel="alternate"][hreflang]')].map((tag) => tag.hreflang);
+        expect(alternates).toEqual(['en', 'pt-BR', 'x-default']);
+    });
+
+    it('lists every component at /components, rather than opening the first one', () => {
+        const wrapper = mountSite('/components');
+        expect(wrapper.find('.components-page h1').text()).toBe(`${entries.length} components`);
+        const links = wrapper.findAll('.components-card').map((link) => link.attributes('href'));
+        expect(links).toHaveLength(entries.length);
+        for (const entry of entries) expect(links).toContain(`/components/${entry.id}/`);
+    });
+
     it('lists every component in the pane', () => {
         const wrapper = mountSite('/components/button');
         const links = wrapper.findAll('.pane a').map((link) => link.attributes('href'));
@@ -217,7 +270,17 @@ describe('the site', () => {
         for (const entry of entries) {
             const sources = sectionSources(entry.file);
             expect(sources.size, `${entry.file} has no sections`).toBeGreaterThan(0);
-            for (const [title, code] of sources) expect(code.trim(), `${entry.file} › ${title}`).not.toBe('');
+            for (const [title, source] of sources) expect(source.code.trim(), `${entry.file} › ${title}`).not.toBe('');
+        }
+    });
+
+    it('keeps every example a component of its own, that runs where it is pasted', () => {
+        // An example file is what the reader copies: it may import the library,
+        // Vue and other packages, but nothing from the site around it.
+        const examples = import.meta.glob('./demos/*/*.vue', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+        for (const [path, source] of Object.entries(examples)) {
+            expect(source, path).toMatch(/<template>/);
+            expect(source.match(/from '\.[^']*'/g) ?? [], `${path} imports from the site`).toEqual([]);
         }
     });
 

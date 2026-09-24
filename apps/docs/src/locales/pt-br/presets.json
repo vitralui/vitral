@@ -1,0 +1,22 @@
+{
+    "prism": {
+        "origin": "nativo da web",
+        "description": "O visual nativo da web: primária azul, cantos de 6px, um halo de foco suave e uma sombra sob cada sobreposição. É o preset do qual todos os outros são uma diferença, e aquele para o qual os tokens de componente são desenhados primeiro.",
+        "traits": ["Primária azul", "Cantos de 6px", "Sombras suaves", "Anel de foco em halo"]
+    },
+    "ink": {
+        "origin": "tinta discreta sobre papel",
+        "description": "Cor reservada para o que tem significado: o botão primário é tinta sobre o branco e papel sobre o preto, as bordas são linhas finas e a única sombra é a que fica sob um popover. O anel de foco fica a dois pixels do controle, com a cor da página entre eles.",
+        "traits": ["Primária em tinta", "Bordas finas", "Anel de foco afastado", "Uma sombra, usada com parcimônia"]
+    },
+    "avalonia": {
+        "origin": "azul de destaque do desktop",
+        "description": "O visual de desktop: um destaque #0078d4, preenchimentos de controle que deixam a janela transparecer, uma linha de destaque de dois pixels sob a caixa de texto em foco, um anel de foco em dois tons e uma pílula de destaque na linha selecionada de uma lista.",
+        "traits": ["Azul de destaque", "Preenchimentos translúcidos", "Linha de destaque no foco", "Pílula de seleção"]
+    },
+    "simple": {
+        "origin": "ferramentas densas",
+        "description": "Para as telas que são lidas o dia inteiro: cantos retos, preenchimentos cinza nos controles com borda cinza média, um tamanho de texto compacto de 13px e transições totalmente desligadas, para que nada se mova enquanto você trabalha.",
+        "traits": ["Cantos retos", "Texto de 13px", "Sem sombras", "Sem animação"]
+    }
+}

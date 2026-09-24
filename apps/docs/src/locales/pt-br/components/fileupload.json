@@ -1,0 +1,7 @@
+{
+    "description": "Um input de arquivo desenhado como botão, área de soltar e fila, que verifica tipo, tamanho e quantidade, com progresso do envio.",
+    "sections": {
+        "Advanced": { "title": "Avançado" },
+        "Basic": { "title": "Básico" }
+    }
+}

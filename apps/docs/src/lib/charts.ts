@@ -1,4 +1,5 @@
 import type { ChartKind, ChartOptions, ChartSeries } from '@vitral/vue';
+import { lookup } from './i18n';
 
 /**
  * The chart gallery: every kind the engine draws, with the data and options it
@@ -440,3 +441,8 @@ export function snippetOf(entry: ChartEntry): string {
 }
 
 export const entryOfChart = (id: string) => chartEntries.find((entry) => entry.id === id);
+
+/** A gallery chart's name and note in the page's language, from `locales/<lang>/charts.json` → `charts.<id>`. */
+export function chartText(entry: ChartEntry): { name: string; note: string } {
+    return { name: lookup('charts', `charts.${entry.id}.name`) ?? entry.name, note: lookup('charts', `charts.${entry.id}.note`) ?? entry.note };
+}

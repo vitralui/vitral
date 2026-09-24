@@ -1,0 +1,11 @@
+{
+    "props": {
+        "options": "O nível superior; os grupos guardam o próximo nível num dos campos de `optionGroupChildren`.",
+        "optionLabel": "Campo (caminho com pontos) com o texto de uma opção escolhível.",
+        "optionValue": "Campo com o valor que o v-model recebe. Sem ele, a opção inteira é o valor.",
+        "optionGroupLabel": "Campo com o texto de um grupo.",
+        "optionGroupChildren": "O campo, ou os campos, um por nível, com os filhos de um grupo. O padrão é `items`.",
+        "dataKey": "Compara valores de objeto por este campo em vez de pela estrutura.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    }
+}

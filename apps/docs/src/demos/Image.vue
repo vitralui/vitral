@@ -4,21 +4,17 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'Image',
     category: 'Media',
-    description:
-        'An image, and, with `preview`, a viewer over the page: a modal dialog named by the image, with rotate and zoom buttons (and the + , − and R keys). Escape or a press on the veil closes it, and focus goes back to the image.'
+    description: 'An image that can open in a viewer over the page, with rotate and zoom.'
 };
 </script>
 
 <script setup lang="ts">
-import { Image } from '@vitral/vue';
 import DemoSection from '../DemoSection.vue';
+import BasicImage from './Image/BasicImage.vue';
+import Preview from './Image/Preview.vue';
 </script>
 
 <template>
-    <DemoSection title="Basic">
-        <Image src="https://picsum.photos/id/1043/320/200" alt="A lake between pine-covered hills" width="320" />
-    </DemoSection>
-    <DemoSection title="Preview">
-        <Image src="https://picsum.photos/id/1036/320/200" preview-src="https://picsum.photos/id/1036/1280/800" alt="Snowy mountains at dusk" width="320" preview />
-    </DemoSection>
+    <DemoSection title="Basic"><BasicImage /></DemoSection>
+    <DemoSection title="Preview"><Preview /></DemoSection>
 </template>

@@ -1,0 +1,9 @@
+{
+    "props": {
+        "model": "As seções; os `items` de cada seção formam sua árvore, em qualquer profundidade.",
+        "multiple": "Permite várias seções abertas ao mesmo tempo."
+    },
+    "slots": {
+        "item": "O conteúdo do cabeçalho de uma seção ou de um item."
+    }
+}

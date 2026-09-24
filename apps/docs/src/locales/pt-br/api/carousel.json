@@ -1,0 +1,14 @@
+{
+    "props": {
+        "numVisible": "Itens mostrados de uma vez. O padrão é 1.",
+        "numScroll": "Itens movidos por passo. O padrão é 1.",
+        "responsiveOptions": "Menos itens em telas menores.",
+        "verticalViewPortHeight": "A altura da área visível quando vertical. O padrão é `'20rem'`.",
+        "circular": "Dá a volta: o último item é seguido pelo primeiro. Ligado por padrão — uma galeria que para de repente no fim faz o leitor voltar por tudo o que acabou de ver para chegar à outra ponta.",
+        "autoplayInterval": "Milissegundos entre passos automáticos; 0 (o padrão) desliga.",
+        "showNavigators": "O padrão é true.",
+        "showIndicators": "O padrão é true.",
+        "ariaLabel": "Dá nome ao carrossel.",
+        "transition": "Como um slide dá lugar ao próximo. O padrão, `'slide'`, move a faixa inteira, o que permite ao carrossel mostrar vários de uma vez; todos os outros presets mostram um por vez e o animam no lugar, então só valem quando `numVisible` é 1."
+    }
+}

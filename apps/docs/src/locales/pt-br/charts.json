@@ -1,0 +1,98 @@
+{
+    "lead": "Um motor SVG, sem biblioteca de plotagem por baixo, guiado pelo objeto de opções que o ApexCharts tornou familiar. Tudo o que é visual é dado puro, então sobrevive a <code>JSON</code> e uma tela de configurações pode escrevê-lo. Cada gráfico recebe um nome a partir de um resumo gerado com os próprios dados, e sua área de plotagem recebe foco: as setas do teclado o leem ponto a ponto.",
+    "more": {
+        "zoom": "<b>Zoom e seleção.</b> Arraste sobre o gráfico para dar zoom, ou combine um gráfico com um gráfico de seleção que escolhe a janela.",
+        "synced": "<b>Grupos sincronizados.</b> Gráficos que compartilham um <code>group</code> movem o tooltip e a janela juntos.",
+        "tokens": "<b>Tema por tokens.</b> Cores, grade e tipografia vêm dos mesmos tokens dos componentes, no claro e no escuro.",
+        "vue": "<b>Sem Vue.</b> <code>@vitral/chart</code> se monta em qualquer elemento; o componente Vue é uma camada sobre ele."
+    },
+    "charts": {
+        "line": {
+            "note": "Um valor enquanto se move. O primeiro gráfico a que recorrer, e aquele que o leitor nunca precisa aprender a ler."
+        },
+        "line-multi": {
+            "note": "Duas ou três linhas comparam formas. Passando de quatro, o gráfico vira um nó e pequenos múltiplos se leem melhor."
+        },
+        "area": {
+            "note": "Um total ao longo do tempo, e do que ele é feito. Empilhado, a borda de cima é o total; sem empilhar, os preenchimentos se sobrepõem e enganam."
+        },
+        "range-area": {
+            "note": "A faixa entre um mínimo e um máximo, mês a mês: a margem de uma previsão, ou a variação do dia. Um preenchimento, duas bordas."
+        },
+        "stream": {
+            "note": "Uma área empilhada flutuando sobre uma linha de base própria. As faixas dividem o movimento em vez de a de baixo carregá-lo sozinha, e é isso que torna a forma legível."
+        },
+        "combined": {
+            "note": "Duas marcas num só gráfico: a quantidade em barras, a taxa em linha, cada uma em seu próprio eixo. Cada série diz a marca que quer."
+        },
+        "candlestick": {
+            "note": "Quatro números por período: abertura, máxima, mínima e fechamento. Cada ponto é uma tupla, nessa ordem."
+        },
+        "bar": {
+            "note": "Quantidades lado a lado. A linha de base tem de ser zero: uma barra diz o tamanho, e um eixo cortado mente sobre ele."
+        },
+        "bar-stacked": {
+            "note": "O total por categoria, dividido. Só a faixa de baixo é fácil de comparar entre categorias — ponha ali a série que importa."
+        },
+        "bar-full": {
+            "note": "Proporções em vez de quantidades: toda barra é cheia, então a composição fica comparável e o tamanho some."
+        },
+        "bar-horizontal": {
+            "note": "Nomes de categoria longos, ou muitos deles: os rótulos ganham o espaço de que precisam e ficam na horizontal."
+        },
+        "lollipop": {
+            "note": "Uma barra sem a tinta. A mesma comparação por uma fração do peso, para uma página com muitas delas."
+        },
+        "waterfall": {
+            "note": "Como um número foi de um total a outro. Cada barra começa onde a anterior parou; uma barra de total volta ao zero."
+        },
+        "range-bar": {
+            "note": "Uma barra entre dois números em vez de subir a partir do zero. Cada ponto é `[low, high]`, então se lê como um intervalo e não como uma quantidade."
+        },
+        "bullet": {
+            "note": "Uma medida, sua meta e as faixas em que cai: o trabalho de um medidor numa tira que cabe numa linha de tabela. O traço é a meta; as faixas são ruim, razoável e bom."
+        },
+        "scatter": {
+            "note": "Duas medidas uma contra a outra, um ponto por item. O que importa é a forma da nuvem, não um ponto qualquer."
+        },
+        "bubble": {
+            "note": "Uma dispersão com um terceiro número como área. Área, não raio: dobrar o raio desenharia quatro vezes a quantidade."
+        },
+        "heatmap": {
+            "note": "Uma grade em que a cor é o valor: duas categorias entram, uma medida sai. Bom para uma semana por hora."
+        },
+        "histogram": {
+            "note": "Leituras brutas entram, contagens saem: o próprio gráfico calcula as faixas. Passe uma lista simples de números, não categorias."
+        },
+        "box-plot": {
+            "note": "Cinco números por categoria — mínimo, quartis, mediana, máximo — para que duas distribuições se comparem sem que nenhuma se perca numa média."
+        },
+        "treemap": {
+            "note": "Partes de um total como áreas em vez de ângulos. Cabem muito mais partes do que numa pizza, e as caixas são dispostas de forma quadrada para que nenhuma vire uma lasca."
+        },
+        "calendar": {
+            "note": "Um ano de dias como uma grade de semanas. Uma linha de 365 pontos mostra a tendência; este mostra o dia, que é o que se procura num registro de atividade diária."
+        },
+        "radial-bar": {
+            "note": "Um anel por medida, dando a volta até onde vai sua parte do máximo. Três ou quatro de cada vez: cada um se lê contra o próprio trilho, não contra os outros."
+        },
+        "gauge": {
+            "note": "Um número contra o seu máximo, com a leitura no meio. O arco deixa a parte de baixo aberta, e é isso que o distingue de um anel à primeira vista."
+        },
+        "sunburst": {
+            "note": "Uma pizza de vários anéis, um por nível de uma árvore. Responde o que uma pizza não consegue — do que uma fatia é feita — sem sair do círculo."
+        },
+        "pie": {
+            "note": "Partes de um único total, num relance. Três ou quatro fatias; passando disso os ângulos deixam de ser legíveis e uma barra é mais gentil."
+        },
+        "donut": {
+            "note": "Uma pizza com o meio livre, que é onde vai o total. O furo é o que faz valer a pena usá-la."
+        },
+        "radar": {
+            "note": "Um perfil sobre as mesmas poucas medidas, para comparar dois ou três objetos pela forma e não pelo nível."
+        },
+        "funnel": {
+            "note": "As etapas de um processo, cada uma tão larga quanto sua parte da primeira. O que se procura nele é onde está a queda, por isso os rótulos trazem as porcentagens."
+        }
+    }
+}

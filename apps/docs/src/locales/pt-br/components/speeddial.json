@@ -1,0 +1,8 @@
+{
+    "description": "Um botão flutuante que abre suas ações em leque, em linha ou ao redor de um círculo.",
+    "sections": {
+        "Linear": { "title": "Linear" },
+        "Circle and semi-circle": { "title": "Círculo e semicírculo" },
+        "Quarter circle": { "title": "Quarto de círculo" }
+    }
+}

@@ -10,6 +10,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T } from '../lib/i18n';
 import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 
@@ -151,94 +152,115 @@ const values = ref({ email: '', password: '' });
         <Button type="submit" label="Create account" />
     </Form.Root>
 <\/template>`;
-
-const adapters = [
-    { name: 'zodResolver', library: 'Zod 3 and 4', needs: '`safeParse`, and `safeParseAsync` when the schema has async refinements', transforms: 'Yes' },
-    { name: 'yupResolver', library: 'Yup', needs: '`validate`, called with `abortEarly: false`', transforms: 'Yes, the cast value' },
-    { name: 'valibotResolver', library: 'Valibot', needs: '`~standard`, or the `safeParse` you hand it', transforms: 'Yes' },
-    { name: 'superstructResolver', library: 'Superstruct', needs: '`validate`, which returns `[error, value]`', transforms: 'With `coerce`' },
-    { name: 'standardSchemaResolver', library: 'ArkType, Effect Schema, anything with `~standard`', needs: '`~standard.validate`', transforms: 'Yes' },
-    { name: 'functionResolver', library: 'your own function', needs: 'nothing', transforms: 'No' }
-];
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         <code>@vitral/forms</code> is the form layer as a package of its own: values, touched and dirty state, errors, submission, field arrays and nested paths, with no
         dependencies and no framework in it. The <a :href="href('/components/form')">Form component</a> is a thin binding over it, so everything on this page is the same
         under Vue, under another framework, or under none.
-    </p>
+    </T>
 
-    <h2>Without a framework</h2>
-    <p>
+    <T k="standalone.title" as="h2">Without a framework</T>
+    <T k="standalone.text">
         The form is an object you subscribe to. It owns the values and the errors; you own the markup and decide what to do when the state changes. That is what makes it
         reusable: a React binding, a Svelte store or a hand-written page all sit on the same API.
-    </p>
+    </T>
     <CodeBlock :code="standalone" language="ts" />
 
-    <h2>Rules</h2>
-    <p>
+    <T k="rules.title" as="h2">Rules</T>
+    <T k="rules.text">
         Rules are per-field checks, declared in one place. They run on the trigger the form is configured for — <code>submit</code> by default, then on every input once a
         field has been validated once, so an error clears as it is fixed. Their messages come from the locale, so a form in Portuguese says so without being told twice.
-    </p>
+    </T>
     <CodeBlock :code="ruleList" language="ts" />
 
-    <h2>Schema validators</h2>
-    <p>
+    <T k="schema.title" as="h2">Schema validators</T>
+    <T k="schema.text">
         A resolver validates the whole form in one call, which is what a schema library is for. Each adapter is written against the smallest shape its library exposes —
         <code>safeParse</code>, <code>validate</code>, <code>~standard</code> — so <code>@vitral/forms</code> depends on none of them, and none of them is bundled unless you
         import it. Rules, <code>validate</code> and a resolver can be used at once: their errors are merged by path.
-    </p>
+    </T>
     <CodeBlock :code="zod" language="ts" />
     <CodeBlock :code="yup" language="ts" />
     <CodeBlock :code="valibot" language="ts" />
     <CodeBlock :code="superstruct" language="ts" />
     <CodeBlock :code="standard" language="ts" />
-    <p>And when the check is a few lines rather than a schema:</p>
+    <T k="schema.function">And when the check is a few lines rather than a schema:</T>
     <CodeBlock :code="fn" language="ts" />
 
-    <h2>What each adapter needs</h2>
+    <T k="adapters.title" as="h2">What each adapter needs</T>
     <div class="api-scroll">
         <table class="api-table">
             <thead>
                 <tr>
-                    <th>Adapter</th>
-                    <th>Library</th>
-                    <th>What it calls</th>
-                    <th>Transforms reach the submitted values</th>
+                    <T k="adapters.adapter" as="th">Adapter</T>
+                    <T k="adapters.library" as="th">Library</T>
+                    <T k="adapters.calls" as="th">What it calls</T>
+                    <T k="adapters.transforms" as="th">Transforms reach the submitted values</T>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in adapters" :key="row.name">
-                    <td><code>{{ row.name }}</code></td>
-                    <td class="doc">{{ row.library }}</td>
-                    <td class="doc">{{ row.needs }}</td>
-                    <td class="doc">{{ row.transforms }}</td>
+                <tr>
+                    <td><code>zodResolver</code></td>
+                    <T k="adapters.zod.library" as="td" class="doc">Zod 3 and 4</T>
+                    <T k="adapters.zod.calls" as="td" class="doc"><code>safeParse</code>, and <code>safeParseAsync</code> when the schema has async refinements</T>
+                    <T k="adapters.yes" as="td" class="doc">Yes</T>
+                </tr>
+                <tr>
+                    <td><code>yupResolver</code></td>
+                    <td class="doc">Yup</td>
+                    <T k="adapters.yup.calls" as="td" class="doc"><code>validate</code>, called with <code>abortEarly: false</code></T>
+                    <T k="adapters.yup.transforms" as="td" class="doc">Yes, the cast value</T>
+                </tr>
+                <tr>
+                    <td><code>valibotResolver</code></td>
+                    <td class="doc">Valibot</td>
+                    <T k="adapters.valibot.calls" as="td" class="doc"><code>~standard</code>, or the <code>safeParse</code> you hand it</T>
+                    <T k="adapters.yes" as="td" class="doc">Yes</T>
+                </tr>
+                <tr>
+                    <td><code>superstructResolver</code></td>
+                    <td class="doc">Superstruct</td>
+                    <T k="adapters.superstruct.calls" as="td" class="doc"><code>validate</code>, which returns <code>[error, value]</code></T>
+                    <T k="adapters.superstruct.transforms" as="td" class="doc">With <code>coerce</code></T>
+                </tr>
+                <tr>
+                    <td><code>standardSchemaResolver</code></td>
+                    <T k="adapters.standard.library" as="td" class="doc">ArkType, Effect Schema, anything with <code>~standard</code></T>
+                    <td class="doc"><code>~standard.validate</code></td>
+                    <T k="adapters.yes" as="td" class="doc">Yes</T>
+                </tr>
+                <tr>
+                    <td><code>functionResolver</code></td>
+                    <T k="adapters.function.library" as="td" class="doc">your own function</T>
+                    <T k="adapters.function.calls" as="td" class="doc">nothing</T>
+                    <T k="adapters.no" as="td" class="doc">No</T>
                 </tr>
             </tbody>
         </table>
     </div>
-    <p>
+    <T k="adapters.text">
         Every adapter is asynchronous as far as the form is concerned, and a validation that a newer one replaces is aborted through the <code>signal</code> it is given. An
         issue's path is read the way each library reports it — a dotted string, an array of keys, a list of segments — and flattened to <code>address.city</code>, which is
         the path a field is registered under.
-    </p>
+    </T>
 
-    <h2>Errors from a server</h2>
-    <p>
+    <T k="server.title" as="h2">Errors from a server</T>
+    <T k="server.text">
         A server's answer is validation too. <code>normalizeErrors</code> takes it in whatever shape it arrives and flattens it to paths; <code>setErrors</code> puts it on
         the form, and those paths count as validated, so the messages show at once.
-    </p>
+    </T>
     <CodeBlock :code="server" language="ts" />
 
-    <h2>In a Vue form</h2>
-    <p>
+    <T k="vue.title" as="h2">In a Vue form</T>
+    <T k="vue.text">
         Under Vue the same resolver goes on <code>Form.Root</code>, and the fields bind themselves: a control inside a <code>Form.Field</code> takes its value, its name, its
         invalid state and the relations between its label, hint and error message.
-    </p>
+    </T>
     <CodeBlock :code="vue" language="vue" />
-    <p>
+    <T k="vue.page">
         The <a :href="href('/components/form')">Form component page</a> shows it running, with field arrays, async checks and a summary that takes focus after a failed
         submit.
-    </p>
+    </T>
 </template>

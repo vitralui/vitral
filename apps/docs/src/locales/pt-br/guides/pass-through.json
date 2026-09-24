@@ -1,0 +1,22 @@
+{
+    "title": "Pass-through",
+    "description": "Alcance qualquer elemento de qualquer componente: atributos, classes ou uma função do estado daquela parte.",
+    "intro": "Todo elemento que um componente renderiza leva uma chamada: <code>v-bind=\"part('name', state)\"</code>. É essa chamada que junta as classes do tema, o pass-through de quem usa e o estado da parte, então qualquer coisa que o componente desenha pode ser alcançada sem fork, sem wrapper e sem seletor <code>:deep()</code>.",
+    "shapes": {
+        "title": "Três formas",
+        "text": "O atalho em string existe para CSS utilitário: <code>{ root: 'px-4 py-2 rounded bg-violet-600' }</code> é tudo o que quem usa Tailwind precisa escrever. A forma de função recebe <code>{ props, state, part }</code>, em que <code>state</code> é o que o componente passou para aquele elemento, como <code>{ selected, focused }</code> para uma opção."
+    },
+    "merge": {
+        "title": "Soma, não substitui",
+        "text": "As classes são concatenadas, os estilos mesclados e os listeners encadeados, então uma classe de pass-through fica ao lado da classe do tema em vez de apagá-la. Para começar do zero, veja o <a href=\"/docs/unstyled\">modo sem estilo</a>."
+    },
+    "live": "Ao vivo",
+    "global": {
+        "title": "Globalmente",
+        "text": "O mesmo objeto, com o nome do componente como chave, vale para todas as instâncias. É o gancho para um atributo de analytics ou uma regra da casa."
+    },
+    "parts": {
+        "title": "Quais partes existem",
+        "text": "As partes de um componente são as chaves do seu mapa de classes em <code>@vitral/styles</code>: <code>root</code> e, depois, o que mais ele desenhar, como <code>label</code>, <code>dropdown</code>, <code>overlay</code>, <code>option</code>. Elas também são os seus nomes de classe CSS, sem o prefixo <code>vt-</code>, então o inspetor do DOM é a referência."
+    }
+}

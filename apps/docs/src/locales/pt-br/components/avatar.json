@@ -1,0 +1,9 @@
+{
+    "description": "Um rosto, iniciais ou um ícone numa caixa fixa, em três tamanhos e com badge opcional; o AvatarGroup sobrepõe uma fileira deles.",
+    "sections": {
+        "Label, icon and image": { "title": "Rótulo, ícone e imagem" },
+        "Sizes": { "title": "Tamanhos" },
+        "Group": { "title": "Grupo", "description": "O grupo é uma lista chamada “Reviewers”; o último avatar conta os demais." },
+        "With a badge": { "title": "Com um badge" }
+    }
+}

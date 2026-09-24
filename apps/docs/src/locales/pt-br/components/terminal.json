@@ -1,0 +1,6 @@
+{
+    "description": "Um prompt e um log, para um console dentro de uma aplicação, com histórico de comandos.",
+    "sections": {
+        "Basic": { "title": "Básico" }
+    }
+}

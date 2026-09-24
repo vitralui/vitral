@@ -1,0 +1,11 @@
+{
+    "props": {
+        "blocked": "Bloqueia a região: ela fica velada, ocupada e fora do alcance do ponteiro e do teclado.",
+        "fullScreen": "Bloqueia a página inteira em vez da região envolvida.",
+        "label": "O que o véu diz às tecnologias assistivas enquanto bloqueia. O padrão é o \"Loading…\" do locale."
+    },
+    "slots": {
+        "default": "A região que pode ser bloqueada.",
+        "mask": "Mostrado sobre o véu: um spinner, uma mensagem."
+    }
+}

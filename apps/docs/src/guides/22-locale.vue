@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T, t } from '../lib/i18n';
 import { href } from '../lib/router';
 import CodeBlock from '../parts/CodeBlock.vue';
 import { localeId } from '../lib/theme';
@@ -34,31 +35,30 @@ const frFR = {
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         A component never holds a string. Everything it says (“Clear”, “No results”, the month names, the page report, the name of the close button) comes from the locale in
         the configuration, and the configuration is reactive, so changing it changes the page.
-    </p>
+    </T>
 
-    <h2>Setting one</h2>
+    <T k="setting.title" as="h2">Setting one</T>
     <CodeBlock :code="setup" label="main.ts" lang="ts" />
     <p>
-        <code>en</code> and <code>ptBR</code> ship. <Button label="Try pt-BR here" size="small" severity="secondary" @click="localeId = 'pt-BR'" />
-        <Button label="Back to English" size="small" variant="text" severity="secondary" @click="localeId = 'en'" /> then open a <a :href="href('/components/datepicker')">DatePicker</a>
-        or a <a :href="href('/components/datagrid')">DataGrid</a>.
+        <T k="setting.ship" as="span"><code>en</code> and <code>ptBR</code> ship.</T> <Button :label="t('Try pt-BR here')" size="small" severity="secondary" @click="localeId = 'pt-BR'" />
+        <Button :label="t('Back to English')" size="small" variant="text" severity="secondary" @click="localeId = 'en'" /> <T k="setting.then" as="span">then open a <a :href="href('/components/datepicker')">DatePicker</a> or a <a :href="href('/components/datagrid')">DataGrid</a>.</T>
     </p>
 
-    <h2>At runtime</h2>
+    <T k="runtime" as="h2">At runtime</T>
     <CodeBlock :code="runtime" label="Bar.vue" lang="ts" />
 
-    <h2>A locale of your own</h2>
-    <p>A locale is a plain object, so a third one is a literal: spread <code>en</code> and write the differences.</p>
+    <T k="own.title" as="h2">A locale of your own</T>
+    <T k="own.text">A locale is a plain object, so a third one is a literal: spread <code>en</code> and write the differences.</T>
     <CodeBlock :code="custom" label="fr.ts" lang="ts" />
 
-    <h2>More than strings</h2>
+    <T k="more.title" as="h2">More than strings</T>
     <ul>
-        <li><strong>Numbers</strong> are formatted <em>and parsed</em> by locale: an <code>InputNumber</code> in pt-BR reads “1.234,56” as 1234.56.</li>
-        <li><strong>Dates</strong> use the locale's day and month names, its first day of the week and its date format, in both directions.</li>
-        <li><strong>Filtering</strong> ignores accents and case, so “São” finds “sao” and “Sao” finds “São”.</li>
-        <li><strong>Messages</strong> with placeholders go through <code>formatMessage</code>, as in <code>'{first} to {last} of {total}'</code>.</li>
+        <T k="more.numbers" as="li"><strong>Numbers</strong> are formatted <em>and parsed</em> by locale: an <code>InputNumber</code> in pt-BR reads “1.234,56” as 1234.56.</T>
+        <T k="more.dates" as="li"><strong>Dates</strong> use the locale's day and month names, its first day of the week and its date format, in both directions.</T>
+        <T k="more.filtering" as="li"><strong>Filtering</strong> ignores accents and case, so “São” finds “sao” and “Sao” finds “São”.</T>
+        <T k="more.messages" as="li"><strong>Messages</strong> with placeholders go through <code>formatMessage</code>, as in <code>'{first} to {last} of {total}'</code>.</T>
     </ul>
 </template>

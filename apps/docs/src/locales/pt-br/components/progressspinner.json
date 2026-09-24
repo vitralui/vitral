@@ -1,0 +1,8 @@
+{
+    "description": "Um anel que gira enquanto algo está em andamento, ou se preenche no sentido horário até um valor.",
+    "sections": {
+        "Indeterminate": { "title": "Indeterminado", "description": "Três tamanhos e espessuras de traço." },
+        "Determinate": { "title": "Determinado", "description": "Um valor de 0 a 100 desenha a fração do anel correspondente a uma volta inteira, sobre uma trilha suave." },
+        "Colour": { "title": "Cor", "description": "Tokens por instância com `dt`." }
+    }
+}

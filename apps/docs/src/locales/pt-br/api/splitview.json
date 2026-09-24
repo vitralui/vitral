@@ -1,0 +1,10 @@
+{
+    "props": {
+        "displayMode": "- `inline`: o painel aberto empurra o conteúdo para o lado; fechado, some. - `overlay` (o padrão): o painel aberto flutua sobre o conteúdo e fecha com um clique fora ou Escape. - `compactInline`: como `inline`, mas fechado mantém uma faixa de largura `compactPaneLength`, espaço para ícones. - `compactOverlay`: a faixa fica ao lado do conteúdo, e o painel aberto flutua sobre ele.",
+        "placement": "O lado em que o painel fica. `left` é o lado inicial: segue a direção da escrita.",
+        "openPaneLength": "Largura do painel aberto: pixels, ou qualquer comprimento CSS.",
+        "compactPaneLength": "Largura do painel fechado nos modos compactos.",
+        "paneLabel": "O nome acessível do painel: ele é um `<aside>`, um landmark complementar.",
+        "paneId": "O id do painel, para o `aria-controls` de um botão de alternar. Gerado quando omitido; os slots o recebem de qualquer forma."
+    }
+}

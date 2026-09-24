@@ -1,0 +1,30 @@
+{
+    "title": "Acessibilidade",
+    "description": "Uma condição para um componente existir, não um marco no caminho até lá.",
+    "intro": "Um componente não está pronto enquanto a sua acessibilidade não funciona: o role, um nome acessível, cada estado e valor que se aplica, as relações que o ligam ao seu rótulo, à sua descrição e ao seu popup, e o comportamento de teclado do <a href=\"https://www.w3.org/WAI/ARIA/apg/patterns/\" target=\"_blank\" rel=\"noreferrer\">padrão WAI-ARIA APG</a> correspondente.",
+    "spec": {
+        "title": "O que todo teste faz",
+        "axe": "Roda o <strong>axe</strong> sobre os estados representativos e, num overlay, com ele fechado e aberto.",
+        "keyboard": "Conduz o <strong>teclado</strong> pelas teclas do padrão e verifica o que mudou.",
+        "aria": "Verifica os <strong>atributos ARIA</strong>, não só as classes: um teste que só vê classes não distingue uma div estilizada de um controle."
+    },
+    "practice": {
+        "title": "O que isso significa na prática",
+        "fields": "Os campos são controles de verdade: <code>&lt;label for&gt;</code>, <code>name</code> e <code>aria-describedby</code> chegam até eles sem props extras, porque os atributos que não são de classe passam para o controle, e não para o wrapper.",
+        "overlays": "Os overlays prendem o foco quando são modais, devolvem-no ao fechar e fecham com Escape ou com um clique fora. Só o de cima, então um diálogo sobre outro diálogo se comporta.",
+        "lists": "As listas aceitam type-ahead, Home/End e <code>aria-activedescendant</code>, em vez de mover o foco dentro de um popup.",
+        "toolbars": "Toolbars, listas de abas e grupos de rádio são uma única parada de tabulação, com movimento pelas setas, como o APG pede.",
+        "motion": "Tudo o que é animado para sob <code>prefers-reduced-motion: reduce</code>.",
+        "toasts": "Os toasts são live regions (polite, ou um alert para perigo), e um <code>life</code> fica em pausa enquanto o cartão está sob o ponteiro ou em foco."
+    },
+    "contrast": {
+        "title": "Contraste, e a única chave de que ele precisa",
+        "text": "Texto, anéis de foco e estados desabilitados atendem aos critérios <a href=\"https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum\" target=\"_blank\" rel=\"noreferrer\">1.4.3</a> e <a href=\"https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast\" target=\"_blank\" rel=\"noreferrer\">1.4.11</a> em todos os presets e nos dois esquemas de cores, e um teste mede isso em vez de confiar no olho: o tema é compilado, cada cadeia de <code>var()</code> é seguida até uma cor real, as superfícies translúcidas são compostas sobre o que está atrás delas, e a razão é calculada. Um preset que escorrega para baixo da linha quebra o build.",
+        "borders": "Uma coisa, de propósito, não vem ligada por padrão. O 1.4.11 também pede que a <em>borda de um campo</em> chegue a 3:1 contra o campo, e estes presets são desenhados com bordas mais discretas que isso — uma linha que sugere onde o controle está em vez de contorná-lo. Os dois conjuntos vêm na folha de estilos; <code>borders: 'strong'</code> passa para os que atendem ao critério e, como é uma marca no <code>&lt;html&gt;</code> e não uma recompilação, pode ser trocado em tempo de execução.",
+        "menu": "O menu de tema no topo desta página tem a mesma chave, então todos os exemplos do site podem ser lidos dos dois jeitos."
+    },
+    "unstyled": {
+        "title": "O modo sem estilo não muda nada disso",
+        "text": "O <a href=\"/docs/unstyled\">modo sem estilo</a> descarta as classes e mantém cada linha acima. Essa é a divisão sobre a qual a biblioteca foi construída: comportamento e semântica são o componente; a aparência é um tema."
+    }
+}

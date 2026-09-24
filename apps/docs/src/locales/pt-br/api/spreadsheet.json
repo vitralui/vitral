@@ -1,0 +1,17 @@
+{
+    "props": {
+        "modelValue": "As células, com chave em A1: `{ A1: 'Sales', B2: 42, B3: '=B2*2' }`. O que se guarda é o que foi digitado, então uma fórmula sobrevive à ida e volta.",
+        "rows": "Quantas linhas e colunas a grade oferece.",
+        "formats": "Formatos, por A1 ou por um retângulo: `{ 'B2:B9': { kind: 'currency' } }`.",
+        "columnWidths": "Larguras em pixels por letra de coluna; o redimensionamento feito pelo leitor também vai aqui.",
+        "rowHeights": "Alturas em pixels por número de linha, contado como uma pessoa conta.",
+        "toolbar": "A barra de ferramentas sobre a grade: `false` para nenhuma, ou grupos de nomes de itens. O slot `toolbar` substitui a barra por partes suas.",
+        "formulaBar": "A barra sobre a grade que mostra o endereço e a fórmula. Ligada por padrão.",
+        "currency": "A moeda em que uma célula formatada como dinheiro é escrita. O padrão vem do locale.",
+        "readonly": "Nada pode ser digitado nela.",
+        "ariaLabel": "Dá nome à grade, quando nenhum rótulo aponta para ela."
+    },
+    "slots": {
+        "toolbar": "Substitui a barra de ferramentas sobre a grade."
+    }
+}

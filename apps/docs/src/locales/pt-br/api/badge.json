@@ -1,0 +1,6 @@
+{
+    "props": {
+        "value": "Sem valor (nem conteúdo no slot) o badge é um ponto.",
+        "severity": "O padrão é `'primary'`."
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "props": {
+        "value": "O topo do organograma.",
+        "collapsible": "Os nós podem ser recolhidos."
+    },
+    "slots": {
+        "default": "O conteúdo de um nó; um slot com o nome do `type` de um nó tem prioridade."
+    }
+}

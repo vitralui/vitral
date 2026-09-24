@@ -1,0 +1,10 @@
+{
+    "props": {
+        "layout": "`horizontal` (o padrão) põe os painéis lado a lado; `vertical` os empilha e precisa de uma altura.",
+        "gutterSize": "Espessura do divisor em pixels. O padrão é o token `splitter.gutter.size`.",
+        "step": "Pontos percentuais que uma seta move um divisor."
+    },
+    "slots": {
+        "default": "`SplitterPanel`s; qualquer outra coisa é deixada de fora."
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "title": "Introdução",
+    "description": "O que é o Vitral e o que fica em cada pacote.",
+    "intro": "O Vitral é uma biblioteca de componentes para Vue 3 com design tokens em três camadas, presets, pass-through para qualquer parte, um modo sem estilo e composables para toasts e confirmações. A aparência é um parâmetro: os presets vão do nativo da web ao desktop, e o seu se apoia nos mesmos tokens.",
+    "scope": "O conjunto cobre os controles de que uma aplicação é feita, as peças maiores (gráficos, uma agenda, um quadro de tarefas, um editor de texto rico) e os painéis de layout de que toda tela de verdade precisa: <code>StackPanel</code>, <code>DockPanel</code>, <code>Grid</code> com dimensionamento em estrela, <code>SplitView</code> e <code>Splitter</code>.",
+    "name": "Em inglês, <em>vitral</em> se diz <em>stained glass</em>.",
+    "look": {
+        "title": "A aparência é um parâmetro",
+        "text": "Nada disso vem embutido. Um tema é uma árvore de tokens compilada em variáveis CSS, então os mesmos componentes aparecem como <a href=\"/docs/presets\">Prism</a>, <a href=\"/docs/presets\">Ink</a>, <a href=\"/docs/presets\">Avalonia</a> ou o que mais você definir, sem fork, sem rebuild e sem uma segunda biblioteca de componentes."
+    },
+    "usage": "Como é usar",
+    "packages": {
+        "title": "Os pacotes",
+        "package": "Pacote",
+        "holds": "O que contém",
+        "framework": "Framework",
+        "none": "Nenhum",
+        "core": "Focus trap, pilha de camadas descartáveis, posicionamento, z-index, navegação em listas e typeahead, a camada de dados (<code>FilterService</code>, <code>queryData</code>, <code>createDataSource</code>), árvores, cálculos de calendário, formatação e leitura de números, locales",
+        "themes": "O motor de tokens (<code>definePreset</code>, <code>palette</code>, <code>compileTheme</code>, <code>createThemeManager</code>) e os presets Prism, Ink, Avalonia e Simple",
+        "styles": "O CSS e o mapa de classes de cada componente, escritos sobre tokens, também distribuídos como um único <code>vitral.css</code>",
+        "icons": "Ícones SVG como dados",
+        "dom": "Aquilo com que os pacotes sem framework renderizam: um patcher com chaves, classes de parte com pass-through, um arrasto de ponteiro, uma rolagem automática e um ícone",
+        "controls": "O select, o menu e o painel ancorado de que esses pacotes precisam, sobre a mesma aritmética do core e com os mesmos estilos",
+        "chart": "Gráficos em SVG: o motor e <code>createChart()</code>, um renderizador com legenda, tooltip, barra de ferramentas, zoom, brush e teclado. O componente <code>&lt;Chart&gt;</code> o envolve",
+        "datagrid": "A tabela de dados: o motor (consulta, ordenação, filtro, páginas, seleção, o layout das colunas) e <code>createDataGrid()</code>, que desenha uma <code>&lt;table&gt;</code> de verdade",
+        "schedule": "O calendário e a agenda: o motor (visões, períodos, recorrência, layout) e <code>createSchedule()</code>, com o teclado e os gestos de ponteiro",
+        "taskboard": "O quadro de tarefas: o motor (colunas, raias, movimentos, limites de trabalho em andamento) e <code>createTaskboard()</code>, com um arrastar e soltar que o teclado também faz",
+        "editor": "A interface do editor de texto rico sobre o motor que está no core: <code>createTextEditor()</code>, a barra de ferramentas, os painéis, a barra flutuante, o menu de barra e a alça de bloco",
+        "spreadsheet": "A planilha: o motor (referências A1, fórmulas, o grafo de dependências que diz até onde uma edição chega) e <code>createSpreadsheet()</code>, uma grade virtualizada com o teclado que as planilhas sempre tiveram",
+        "forms": "Estado e validação de formulários: caminhos aninhados, arrays de campos, regras prontas, verificações assíncronas e resolvers para bibliotecas de schema",
+        "vue": "Componentes, composables, diretivas e o plugin",
+        "nuxt": "O módulo Nuxt: configuração a partir do <code>nuxt.config</code>, auto-imports, estilos renderizados no servidor, o esquema de cores num cookie",
+        "text": "Tudo o que não precisa de framework vive num pacote que não importa nenhum. É isso que deve baratear, mais adiante, um adaptador para React ou Angular: ele escreve a renderização e reaproveita o comportamento, a aparência e o contrato de marcação. Sete deles vão além: o gráfico, a tabela, a agenda, o quadro, o editor e a planilha se desenham sozinhos, e as regras do formulário não desenham nada — então <code>&lt;Chart&gt;</code> e companhia são wrappers, e uma página sem framework chama a mesma função que eles."
+    },
+    "agents": {
+        "title": "Para agentes de código",
+        "intro": "Esta documentação também é publicada em texto puro, no formato que o <a href=\"https://llmstxt.org\" target=\"_blank\" rel=\"noreferrer\">llmstxt.org</a> descreve, para que um assistente possa lê-la sem navegador:",
+        "index": "é o índice,",
+        "full": "reúne todas as páginas num arquivo só, e qualquer página vira Markdown ao se acrescentar <code>.md</code> à sua URL. O texto de um componente traz suas props, eventos e slots, lidos do código-fonte, e o código completo dos exemplos da sua página."
+    },
+    "next": {
+        "title": "Próximos passos",
+        "installation": "<a href=\"/docs/installation\">Instalação</a>: o plugin, suas opções, os auto-imports e o caminho sem JavaScript.",
+        "serverRendering": "<a href=\"/docs/server-rendering\">Renderização no servidor</a>: SSR e o módulo Nuxt.",
+        "theming": "<a href=\"/docs/theming\">Temas</a>: como um token vira uma variável CSS, e como mudar um.",
+        "presets": "<a href=\"/docs/presets\">Presets</a>: os temas que vêm prontos, e como começar o seu.",
+        "templates": "<a href=\"/templates\">Templates</a>: aplicações inteiras construídas com os componentes, para visualizar e copiar.",
+        "components": "<a href=\"/components\">Componentes</a>: o catálogo, com exemplos ao vivo e tabelas de API."
+    }
+}

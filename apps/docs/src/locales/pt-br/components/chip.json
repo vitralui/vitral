@@ -1,0 +1,8 @@
+{
+    "description": "Um elemento compacto para um filtro, um destinatário ou uma tag, com imagem, ícone e botão de remover opcionais.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Icon and image": { "title": "Ícone e imagem" },
+        "Removable": { "title": "Removível", "description": "Chegue a um botão de remover com Tab e pressione Delete." }
+    }
+}

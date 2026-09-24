@@ -1,0 +1,12 @@
+{
+    "description": "Um comando em oito severidades, quatro variantes e três tamanhos, com ícones, estado de carregamento, badge e renderização como link.",
+    "sections": {
+        "Severities": { "title": "Severidades", "description": "Preenchido é a variante padrão. `secondary` é o botão discreto de uma barra de ferramentas; `primary` é o que confirma." },
+        "Outlined": { "title": "Outlined" },
+        "Text": { "title": "Texto" },
+        "Icons": { "title": "Ícones" },
+        "Icons from anywhere": { "title": "Ícones de qualquer lugar", "description": "Um ícone importado, o componente de outra biblioteca ou markup SVG confiável. As classes de uma fonte de ícones também funcionam: `icon=\"fa-solid fa-user\"`, depois que a folha de estilos dela estiver na página." },
+        "Sizes and shape": { "title": "Tamanhos e formato" },
+        "States": { "title": "Estados", "description": "Carregando, o botão fica desabilitado e recebe aria-busy." }
+    }
+}

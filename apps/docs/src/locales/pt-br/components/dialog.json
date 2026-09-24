@@ -1,0 +1,10 @@
+{
+    "description": "Uma janela sobre a página, modal ou não, que leva o foco para dentro, o mantém ali e o devolve ao fechar.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "O cabeçalho dá nome ao diálogo; o rodapé é a faixa de botões." },
+        "Position": { "title": "Posição", "description": "O diálogo fica no centro, ao longo de uma borda ou num canto, e desliza a partir dali." },
+        "Maximizable": { "title": "Maximizável", "description": "Um botão faz o diálogo ocupar toda a viewport; o nome dele alterna entre Maximize e Restore." },
+        "Modeless": { "title": "Não modal", "description": "`modal: false` mantém a página utilizável: sem máscara, sem foco preso, sem bloqueio de rolagem. Escape continua fechando." },
+        "Overlays inside": { "title": "Overlays dentro", "description": "Abra o select e pressione Escape: o select fecha primeiro, e o diálogo fica." }
+    }
+}

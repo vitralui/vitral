@@ -1,0 +1,17 @@
+{
+    "props": {
+        "value": "As linhas, como nós de árvore cujo `data` as colunas leem.",
+        "sortField": "Ordena por este campo de `data`…",
+        "sortOrder": "…crescente (1) ou decrescente (-1).",
+        "removableSort": "Um terceiro clique numa coluna ordenada a tira da ordenação.",
+        "globalFilter": "Mantém as linhas (e os ramos que levam a elas) cujos `globalFilterFields` contêm este texto.",
+        "globalFilterFields": "Os campos de `data` em que `globalFilter` busca.",
+        "paginator": "Pagina as linhas de primeiro nível.",
+        "rows": "Linhas de primeiro nível por página. O padrão é 10.",
+        "scrollHeight": "Uma altura CSS; o cabeçalho fica visível.",
+        "caption": "Dá nome à tabela para as tecnologias assistivas. Ou nomeie-a com `aria-label`."
+    },
+    "slots": {
+        "default": "Os `<Column>`s, o mesmo componente que o DataGrid lê. `expander` marca a coluna com o botão de expandir."
+    }
+}

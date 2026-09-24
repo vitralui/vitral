@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from '../lib/i18n';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 /** "On this page": the headings a page declares, with the one in view marked. */
@@ -55,8 +56,8 @@ function go(event: MouseEvent, id: string) {
 
 <template>
     <aside v-if="items.length" class="toc">
-        <h2>On this page</h2>
-        <nav aria-label="On this page">
+        <h2>{{ t('On this page') }}</h2>
+        <nav :aria-label="t('On this page')">
             <a v-for="item in items" :key="item.id" :href="`#${item.id}`" :class="{ 'is-active': current === item.id }" @click="go($event, item.id)">{{ item.label }}</a>
         </nav>
     </aside>

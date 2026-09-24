@@ -1,0 +1,10 @@
+{
+    "description": "Uma hora do dia, digitada livremente ou escolhida numa lista, e guardada como minutos desde a meia-noite, e não como um Date.",
+    "sections": {
+        "Default": { "title": "Padrão", "description": "De meia em meia hora por padrão. A caixa mostra o horário do jeito que o locale o escreve; o valor por baixo é um número." },
+        "Typed, not chosen": { "title": "Digitado, não escolhido", "description": "Uma caixa de horário é um lugar onde as pessoas digitam. Experimente `9`, `930`, `9:30`, `9h30`, `21:30` ou `9 pm` — e depois saia da caixa. Algo que não indica horário nenhum a esvazia, em vez de tentar adivinhar." },
+        "Bounded, and stepped": { "title": "Com limites e com passo", "description": "`min-time` e `max-time` decidem o que a lista oferece e limitam o que é digitado; `step` decide o quão próximos ficam os horários. Page Up e Page Down movem o próprio valor em uma hora." },
+        "Twelve or twenty-four": { "title": "Doze ou vinte e quatro", "description": "`hour12` sobrescreve o que o locale teria escrito. A lista e a caixa sempre concordam, porque as duas são feitas do mesmo número." },
+        "Inline": { "title": "Inline", "description": "Sem a caixa de texto nem o popup." }
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "summary": "Um site de imóveis: busca com mapa, anúncios filtrados e a página de um imóvel com agendamento de visita.",
+    "description": "O site de uma imobiliária. Busque por região, tipo, orçamento e quartos, veja os resultados como pinos num mapa desenhado, refine-os com uma faixa de preço e então abra um imóvel para ver as fotos, simular o financiamento e escolher um horário na agenda do corretor.",
+    "tags": ["Imóveis", "Busca", "Agendamento"],
+    "features": [
+        "Um painel de busca cujos filtros são compartilhados com a tela de anúncios",
+        "Um mapa ilustrativo com pinos de preço ligados aos cards de resultado",
+        "Filtros com um slider de faixa de preço, checkboxes de tipo e uma escolha de quartos",
+        "Layouts em grade e em lista, com ordenação e páginas",
+        "A página de um imóvel com galeria, simulação de financiamento e uma semana agendável no Schedule"
+    ],
+    "faq": [
+        {
+            "question": "O mapa é de verdade?",
+            "answer": "Não — é desenhado com CSS, para que o template não dependa de nenhuma biblioteca de mapas. Os pinos são posicionados por porcentagens; troque o bloco pela sua biblioteca de mapas e mantenha os botões dos pinos."
+        },
+        {
+            "question": "Como funciona o agendamento de uma visita?",
+            "answer": "O Schedule roda no modo selecionável: arrastar sobre um horário livre (ou Shift com as setas) emite uma seleção, que abre um Dialog para confirmar."
+        },
+        { "question": "Os filtros são mantidos quando mudo de tela?", "answer": "Sim. Eles vivem num único objeto reativo compartilhado pelas telas de busca e de anúncios." },
+        {
+            "question": "A conta do financiamento está certa?",
+            "answer": "É a fórmula padrão de amortização sobre o preço menos a entrada, sem impostos nem seguro. Trate-a como uma demonstração."
+        }
+    ],
+    "screens": {
+        "search": { "name": "Busca", "summary": "Um painel de busca sobre um mapa desenhado, com pinos e imóveis em destaque" },
+        "listings": { "name": "Anúncios", "summary": "Filtros, ordenação e uma grade ou lista de imóveis" },
+        "property": { "name": "Imóvel", "summary": "Galeria, características, simulação de financiamento e agendamento de visita" }
+    }
+}

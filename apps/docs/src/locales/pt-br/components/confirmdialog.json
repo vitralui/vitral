@@ -1,0 +1,7 @@
+{
+    "description": "Uma pergunta modal antes de uma ação, aberta de qualquer lugar com useConfirm, que pode deixar a resposta segura como padrão.",
+    "sections": {
+        "Severity": { "title": "Severidade", "description": "O ícone e o botão de aceitar assumem a cor da severidade." },
+        "Without a header": { "title": "Sem cabeçalho", "description": "Os rótulos vêm do locale, e o diálogo se chama “Confirmation”." }
+    }
+}

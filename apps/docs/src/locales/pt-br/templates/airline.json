@@ -1,0 +1,32 @@
+{
+    "summary": "Um fluxo de reserva de voos: busca, resultados, escolha de assentos e um pagamento verificado.",
+    "description": "A jornada de reserva de uma companhia aérea, da primeira busca ao código da reserva. Escolha a rota, as datas e os passageiros, compare voos numa faixa de datas com filtros, escolha assentos num mapa da cabine com extras, depois revise o itinerário e pague com um código de uso único.",
+    "tags": ["Reservas", "Viagens", "Checkout"],
+    "features": [
+        "Um formulário de busca com seletores de cidade filtráveis, seletores de data e um popover de passageiros",
+        "Uma faixa de preços para os dias próximos, filtros e cards de voo ordenáveis",
+        "Um mapa de assentos acessível: cada assento é um botão de alternância com sua fileira, posição e estado",
+        "Bagagem e seguro-viagem, com o total atualizado a cada escolha",
+        "Uma revisão com a linha do tempo do itinerário e pagamento com código de uso único"
+    ],
+    "faq": [
+        {
+            "question": "Quem usa leitor de tela consegue escolher um assento?",
+            "answer": "Sim. Os assentos são botões agrupados por fileira, com nomes como “Assento 14C, corredor”, aria-pressed nos que você reservou e disabled nos já ocupados."
+        },
+        {
+            "question": "De onde vêm os voos?",
+            "answer": "De uma lista estática em data.ts. Troque-a pela sua API de busca; os cards só precisam de horários, duração, escalas e preço."
+        },
+        {
+            "question": "Como o progresso é mostrado?",
+            "answer": "Um Stepper sem painéis fica acima de cada tela da reserva, ligado à tela atual do template, para que o viajante possa voltar um passo."
+        }
+    ],
+    "screens": {
+        "search": { "name": "Busca", "summary": "Rota, datas, passageiros e cabine, com ofertas de destinos" },
+        "results": { "name": "Voos", "summary": "Uma faixa de datas, filtros e cards de voo" },
+        "seats": { "name": "Assentos", "summary": "Um mapa de assentos, bagagem e seguro" },
+        "summary": { "name": "Resumo", "summary": "Itinerário, detalhamento do preço e um pagamento verificado" }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "props": {
+        "model": "A navegação. Um item de primeiro nível com `items` é um grupo com rótulo; um item com `items` dentro de um grupo abre uma sublista no lugar. Os itens são links (`url`) ou botões (`command`).",
+        "collapsible": "Como ela recolhe: até os ícones (o padrão), para fora da tela por completo, ou de jeito nenhum.",
+        "side": "Em que borda fica. O padrão é `'left'`.",
+        "activeKey": "A chave do item da página atual; ele é marcado com `aria-current=\"page\"`. Itens com `active` também são marcados.",
+        "mobileBreakpoint": "Abaixo desta largura ela vira um drawer aberto com `v-model:visible`. O padrão é `'768px'`.",
+        "showToggle": "Mostra o botão de recolher no cabeçalho. O padrão é true.",
+        "ariaLabel": "Dá nome à navegação. O padrão é o \"Navigation\" do locale."
+    },
+    "slots": {
+        "header": "Acima da navegação: um logo, um seletor de workspace.",
+        "footer": "Abaixo dela: o usuário conectado.",
+        "default": "Mais conteúdo depois dos grupos do model.",
+        "item": "O conteúdo de um item."
+    }
+}

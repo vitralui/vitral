@@ -1,0 +1,7 @@
+{
+    "description": "Uma imagem que pode abrir num visualizador sobre a página, com giro e zoom.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Preview": { "title": "Visualização" }
+    }
+}

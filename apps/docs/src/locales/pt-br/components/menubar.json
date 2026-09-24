@@ -1,0 +1,7 @@
+{
+    "description": "A barra de menu da aplicação, com menus aninhados, que vira um único botão de menu em telas estreitas.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Small screens": { "title": "Telas pequenas" }
+    }
+}

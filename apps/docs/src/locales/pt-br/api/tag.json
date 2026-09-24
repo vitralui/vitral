@@ -1,0 +1,10 @@
+{
+    "props": {
+        "severity": "O padrão é `'primary'`.",
+        "rounded": "Em formato de pílula.",
+        "removable": "Adiciona um botão de remover, chamado \"Remove <value>\"; pressioná-lo (ou Delete/Backspace nele) emite `remove`."
+    },
+    "slots": {
+        "default": "Substitui o texto do valor."
+    }
+}

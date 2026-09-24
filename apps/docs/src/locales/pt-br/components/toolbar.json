@@ -1,0 +1,7 @@
+{
+    "description": "Uma fileira de controles em grupos de início, centro e fim, com navegação opcional pelas setas entre eles.",
+    "sections": {
+        "Start, center and end": { "title": "Início, centro e fim" },
+        "Roving focus": { "title": "Foco itinerante", "description": "O Tab chega à barra uma vez; as setas andam entre os botões dela. O desabilitado é pulado." }
+    }
+}

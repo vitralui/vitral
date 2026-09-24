@@ -1,0 +1,7 @@
+{
+    "description": "Uma grade com dimensionamento em estrelas: linhas e colunas pelo conteúdo, em frações do que sobra ou em pixels, com filhos posicionados por linha e coluna.",
+    "sections": {
+        "Definitions": { "title": "Definições", "description": "rows=\"Auto,*,2*,48\" columns=\"160,*,Auto\", com showGridLines contornando cada célula." },
+        "A form": { "title": "Um formulário", "description": "columns=\"Auto,*\": os rótulos ocupam o que precisam, os campos ficam com o resto. O espaçamento de linhas e o de colunas são definidos separadamente." }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "description": "Um select para várias escolhas, mostradas como lista, contagem ou chips, com um filtro opcional.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Chips and filter": { "title": "Chips e filtro" },
+        "Groups and a selection limit": { "title": "Grupos e um limite de seleção" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

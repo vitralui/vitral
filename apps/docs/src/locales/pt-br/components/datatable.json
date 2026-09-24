@@ -1,0 +1,10 @@
+{
+    "description": "A tabela pequena: linhas já em mãos, ordenadas, zebradas e em tamanhos, com cabeçalho fixo. Quando precisar de mais, o DataGrid assume.",
+    "sections": {
+        "Default": { "title": "Padrão", "description": "As linhas na ordem em que vieram. Nada mais está ligado." },
+        "Sortable": { "title": "Ordenável", "description": "Clique num cabeçalho para ordenar por ele: crescente, depois decrescente, depois de volta à ordem em que as linhas chegaram. Uma coluna por vez — ordenar por várias colunas é coisa do DataGrid." },
+        "Grid lines, sizes and a header of your own": { "title": "Linhas de grade, tamanhos e um cabeçalho seu", "description": "Uma linha entre as colunas, além da que há entre as linhas, células mais justas ou mais folgadas, e o cabeçalho e o rodapé como conteúdo que você escreve." },
+        "Its own scroller": { "title": "Rolagem própria", "description": "Com uma altura definida, a tabela rola dentro dela e o cabeçalho fica parado. O cabeçalho fixo recebe um fundo opaco, senão as linhas apareceriam através dele." },
+        "Nothing to show": { "title": "Nada para mostrar", "description": "Sem linhas, uma única célula ocupa a tabela inteira e avisa. `empty` — o slot ou `<DataTable.Empty>` — substitui as palavras." }
+    }
+}

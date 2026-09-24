@@ -1,0 +1,8 @@
+{
+    "props": {
+        "rows": "Número de linhas. Omitido, é quantas os filhos precisarem.",
+        "columns": "Número de colunas. Omitido, é quantas os filhos precisarem; com as linhas também omitidas, a grade é quadrada.",
+        "firstColumn": "Células vazias antes do primeiro filho. Vale quando `columns` está definido e o valor é menor que ele.",
+        "spacing": "Espaço entre as células. O padrão é o token `uniformgrid.spacing`."
+    }
+}

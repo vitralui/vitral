@@ -1,0 +1,8 @@
+{
+    "description": "Um dial para um número com limites, ajustado arrastando, clicando em qualquer ponto dele ou pelo teclado.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Range, step and size": { "title": "Intervalo, passo e tamanho" },
+        "Read-only and disabled": { "title": "Somente leitura e desabilitado" }
+    }
+}

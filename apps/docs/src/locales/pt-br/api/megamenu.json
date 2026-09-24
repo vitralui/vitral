@@ -1,0 +1,9 @@
+{
+    "props": {
+        "orientation": "Uma barra (o padrão) cujos painéis descem abaixo dela, ou uma coluna cujos painéis abrem ao lado.",
+        "ariaLabel": "Dá nome ao menu."
+    },
+    "slots": {
+        "item": "O conteúdo de um item, de primeiro nível ou num painel."
+    }
+}

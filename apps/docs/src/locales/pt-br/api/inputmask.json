@@ -1,0 +1,13 @@
+{
+    "props": {
+        "mask": "O padrão: `9` aceita um dígito, `a` uma letra, `*` qualquer um; tudo depois de `?` é opcional; qualquer outro caractere é digitado pelo leitor.",
+        "slotChar": "O que uma posição vazia mostra: um caractere, ou uma string do tamanho da máscara (`'mm/dd/yyyy'`). O padrão é `_`.",
+        "autoClear": "Limpa um valor incompleto quando a caixa perde o foco. O padrão é true.",
+        "unmask": "O v-model recebe só os caracteres digitados, sem os literais.",
+        "definitions": "Caracteres de posição extras, cada um com os caracteres que aceita.",
+        "variant": "O padrão é o `inputVariant` do plugin."
+    },
+    "emits": {
+        "complete": "Todas as posições obrigatórias estão preenchidas."
+    }
+}

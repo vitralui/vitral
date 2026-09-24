@@ -1,0 +1,37 @@
+{
+    "description": "Validação e envio montados a partir de partes que ligam valores, rótulos, dicas e erros a qualquer controle Vitral, com regras ou um schema.",
+    "sections": {
+        "Sign-up": {
+            "title": "Cadastro",
+            "description": "Regras prontas em cada campo. Nada é verificado até o primeiro envio; depois disso, cada campo é verificado de novo à medida que muda, então um erro corrigido some na hora."
+        },
+        "Validate on blur or on submit": {
+            "title": "Validar no blur ou no envio",
+            "description": "`validate-on` diz quando um campo é verificado pela primeira vez: `submit` (o padrão), `blur`, `change` ou `input`. Verificar no blur avisa cedo; verificar no envio nunca interrompe ninguém. Cada campo pode escolher o seu."
+        },
+        "With a resolver": {
+            "title": "Com um resolver",
+            "description": "Um resolver valida todos os valores de uma vez: `zodResolver(schema)`, `yupResolver`, `valibotResolver`, `superstructResolver`, `standardSchemaResolver` ou `functionResolver`, em `Form.Root` ou em `createForm`. Um adaptador só precisa do formato do schema — `safeParse`, `validate`, `~standard` —, por isso nenhuma biblioteca de schema está instalada aqui e a de baixo foi escrita à mão. As verificações entre campos (os anos) e as transformações (o handle perde os espaços das pontas e vai para minúsculas no envio) vêm do schema, e o que ele transforma é o que é enviado."
+        },
+        "Async validation": {
+            "title": "Validação assíncrona",
+            "description": "Uma regra pode retornar uma promise. Aqui o nome é verificado enquanto você digita, 300 ms depois da última tecla; uma verificação mais nova aborta a que ainda está rodando (o `signal` dela dispara), então uma resposta lenta nunca sobrescreve uma recente. Experimente “ada” ou “admin”."
+        },
+        "Field arrays": {
+            "title": "Arrays de campos",
+            "description": "`Form.FieldArray` repete um grupo: cada entrada tem uma chave estável e um caminho para nomear seus campos, e o slot pode adicionar, inserir, remover, mover e trocar. Os erros acompanham suas linhas. As regras da própria lista aparecem num `Form.Message` colocado diretamente dentro dele."
+        },
+        "Error summary": {
+            "title": "Resumo de erros",
+            "description": "`Form.Summary` (também `Form.Errors`) aparece depois de um envio que falhou, acima do formulário: um alerta que lista cada erro como um link para o seu campo e que recebe o foco, para que quem usa teclado ou leitor de tela comece por ali. Enquanto isso, as mensagens dos próprios campos ficam em silêncio, e nada é anunciado duas vezes."
+        },
+        "Every control": {
+            "title": "Todos os controles",
+            "description": "Um de cada input do Vitral, cada um ligado só por estar dentro de um `Form.Field`. Envie o formulário vazio para ver todos eles inválidos."
+        },
+        "Using the form without a framework": {
+            "title": "Usando o formulário sem framework",
+            "description": "O estado, as regras e as verificações assíncronas são o @vitral/forms, que não desenha nada e não importa nenhum framework; as partes de Form são um wrapper sobre ele. createForm() guarda os valores e os erros, register() diz como um campo se chama e o que ele precisa ser, e subscribe() informa cada mudança. O formulário abaixo o liga a três inputs comuns à mão — que é tudo o que um adaptador para React ou Angular faria; o código dele mostra como."
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "description": "Um diálogo aberto por código com um componente como conteúdo, que recebe dados e fecha devolvendo um resultado.",
+    "sections": {
+        "Basic": { "title": "Básico" }
+    }
+}

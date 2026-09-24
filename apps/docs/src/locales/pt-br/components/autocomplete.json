@@ -1,0 +1,10 @@
+{
+    "description": "Um campo que sugere enquanto você digita, com sugestões vindas da sua aplicação, um ou vários valores como chips e um botão para a lista inteira.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Dropdown and forced selection": { "title": "Dropdown e seleção obrigatória" },
+        "Multiple": { "title": "Múltiplo" },
+        "Groups and templates": { "title": "Grupos e templates" },
+        "Plain strings, sizes and states": { "title": "Strings simples, tamanhos e estados" }
+    }
+}

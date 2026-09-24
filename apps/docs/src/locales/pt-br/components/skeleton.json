@@ -1,0 +1,7 @@
+{
+    "description": "O contorno de um conteúdo que ainda está carregando, em qualquer formato, de uma linha de texto a um card inteiro.",
+    "sections": {
+        "Shapes": { "title": "Formas" },
+        "A card loading": { "title": "Um card carregando" }
+    }
+}

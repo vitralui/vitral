@@ -1,0 +1,17 @@
+{
+    "props": {
+        "step": "O que uma seta ou um botão de incremento soma ou subtrai; PageUp/PageDown movem dez vezes isso. O padrão é 1.",
+        "currency": "Código ISO 4217, como `BRL`; obrigatório com `mode: 'currency'`.",
+        "locale": "Uma tag BCP 47 para o formato do número. O padrão é o `code` do locale do Vitral.",
+        "useGrouping": "Separadores de milhar. O padrão é true.",
+        "prefix": "Texto antes do número, como `≈ `; faz parte da exibição, não do valor.",
+        "suffix": "Texto depois do número, como ` km`.",
+        "showButtons": "Botões de incremento.",
+        "buttonLayout": "`stacked` põe mais sobre menos no fim do campo; `horizontal` põe menos antes do número e mais depois.",
+        "allowEmpty": "Se apagar o texto deixa o valor vazio (`null`). O padrão é true; com false, um campo esvaziado volta ao último valor.",
+        "variant": "O padrão é o `inputVariant` do plugin."
+    },
+    "emits": {
+        "input": "Toda edição, digitada ou incrementada, antes de o valor ser confirmado no blur ou com Enter."
+    }
+}

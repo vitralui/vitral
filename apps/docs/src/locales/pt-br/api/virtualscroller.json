@@ -1,0 +1,20 @@
+{
+    "props": {
+        "items": "Todos os itens; só os próximos da área visível são renderizados.",
+        "itemSize": "A altura de um item (ou largura, na horizontal) em pixels.",
+        "orientation": "Rola na `'vertical'` (o padrão) ou na `'horizontal'`.",
+        "scrollHeight": "A altura (ou largura) do contêiner, quando o pai não define uma.",
+        "numToleratedItems": "Itens renderizados além de cada borda da área visível. O padrão é meia área visível.",
+        "lazy": "Pede os itens à medida que entram na tela (`lazy-load`) em vez de tê-los todos.",
+        "loading": "Mostra o indicador de carregamento sobre a lista.",
+        "disabled": "Renderiza todos os itens, como faria um contêiner comum.",
+        "delay": "Milissegundos a esperar depois que a rolagem para antes de `lazy-load`. O padrão é 0.",
+        "dataKey": "Um campo-chave para os itens renderizados; sem ele, usa-se o índice."
+    },
+    "emits": {
+        "lazy-load": "No modo lazy, o intervalo de itens que o scroller está prestes a mostrar."
+    },
+    "slots": {
+        "content": "Substitui por completo o intervalo renderizado, para o corpo de uma tabela, por exemplo. `styleOffset` o posiciona."
+    }
+}

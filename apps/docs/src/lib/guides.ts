@@ -1,4 +1,5 @@
 import type { Component } from 'vue';
+import { lookup, t } from './i18n';
 
 /** Every page in `src/guides/` exports one of these from a plain `<script>` block. */
 export interface GuideMeta {
@@ -10,6 +11,11 @@ export interface GuideMeta {
 }
 
 export const guideOrder: GuideMeta['section'][] = ['Get started', 'Theming', 'Customisation', 'Reference', 'AI'];
+
+/** A section's name as the page's language reads it; the English one stays the key. */
+export function sectionName(section: GuideMeta['section']): string {
+    return t(section);
+}
 
 const modules = import.meta.glob<{ default: Component; meta: GuideMeta }>('../guides/*.vue', { eager: true });
 
@@ -30,4 +36,10 @@ export const guideSections = guideOrder
 
 export function guideOf(id: string) {
     return guides.find((guide) => guide.id === id);
+}
+
+/** A guide's title and description in the page's language, from `locales/<lang>/guides/<id>.json`. */
+export function guideText(guide: GuideEntry): { title: string; description: string } {
+    const file = `guides/${guide.id}`;
+    return { title: lookup(file, 'title') ?? guide.meta.title, description: lookup(file, 'description') ?? guide.meta.description };
 }

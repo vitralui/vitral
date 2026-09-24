@@ -1,4 +1,5 @@
 import { Avalonia, Ink, Prism, Simple, type Preset } from '@vitral/vue';
+import { catalog } from './i18n';
 
 /**
  * The presets the site ships with, as the theme menu, the home page's
@@ -56,4 +57,19 @@ export const themes: ThemeEntry[] = [
 
 export function themeOf(id: string) {
     return themes.find((theme) => theme.id === id);
+}
+
+/**
+ * A preset's words in the page's language, from `locales/<lang>/presets.json`
+ * (`{ "<id>": { "origin", "description", "traits": [] } }`). The traits are
+ * taken only as a whole list as long as the English, so a half-translated list
+ * never shows a theme with a trait missing.
+ */
+export function themeText(theme: ThemeEntry): Pick<ThemeEntry, 'origin' | 'description' | 'traits'> {
+    const text = (catalog('presets') as Record<string, Partial<Pick<ThemeEntry, 'origin' | 'description' | 'traits'>>> | undefined)?.[theme.id];
+    return {
+        origin: text?.origin ?? theme.origin,
+        description: text?.description ?? theme.description,
+        traits: Array.isArray(text?.traits) && text.traits.length === theme.traits.length ? text.traits : theme.traits
+    };
 }

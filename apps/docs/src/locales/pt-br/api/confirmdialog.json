@@ -1,0 +1,8 @@
+{
+    "props": {
+        "group": "Responde só às chamadas de `useConfirm().require()` enviadas com o mesmo `group`."
+    },
+    "slots": {
+        "message": "Substitui o texto da mensagem; ele continua descrevendo o diálogo."
+    }
+}

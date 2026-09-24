@@ -1,0 +1,7 @@
+{
+    "slots": {
+        "header": "Acima do corpo, de borda a borda: uma imagem ou um banner.",
+        "title": "Substitui o texto de `title`.",
+        "subtitle": "Substitui o texto de `subtitle`."
+    }
+}

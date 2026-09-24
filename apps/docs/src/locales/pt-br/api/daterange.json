@@ -1,0 +1,21 @@
+{
+    "props": {
+        "months": "Quantos meses mostrar lado a lado. Dois é o padrão e a razão de ser deste componente: um intervalo que cruza a virada do mês é escolhido num só gesto em vez de paginando. Um mostra o mesmo intervalo num único calendário.",
+        "showOtherMonths": "Se os dias de antes e depois de cada mês são desenhados. Sem definir, ficam ligados num único calendário e desligados em vários: com dois meses lado a lado os últimos dias de um são os primeiros do outro, então a mesma data aparece duas vezes, um intervalo é pintado nas duas cópias e a fronteira entre os calendários deixa de significar algo. As células permanecem — a grade mantém suas seis linhas e sua altura — apenas ficam vazias.",
+        "dateFormat": "Um padrão de `formatDate`; o padrão é o `dateFormat` do locale.",
+        "separator": "Entre as duas datas na caixa de texto.",
+        "disabledDays": "Dias da semana que não podem ser escolhidos, 0 = domingo.",
+        "showClearButton": "Um botão no rodapé que esvazia o intervalo.",
+        "firstDayOfWeek": "0 = domingo; o padrão é o `firstDayOfWeek` do locale.",
+        "inline": "Mostra os calendários no lugar, sem caixa de texto nem popup.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "rangeSelect": "As duas pontas foram marcadas. Dispara quando o intervalo está completo, não no primeiro clique."
+    },
+    "slots": {
+        "date": "O conteúdo de um dia.",
+        "footer": "Abaixo dos calendários: presets, uma contagem de noites, um par de botões."
+    }
+}

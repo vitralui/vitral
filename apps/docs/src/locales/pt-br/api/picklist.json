@@ -1,0 +1,14 @@
+{
+    "props": {
+        "optionLabel": "Campo (caminho com pontos) com o texto de um item, para o template padrão e os anúncios.",
+        "dataKey": "Um campo que identifica um item.",
+        "sourceHeader": "Dá nome à primeira lista. O padrão é o \"Available\" do locale.",
+        "targetHeader": "Dá nome à segunda lista. O padrão é o \"Selected\" do locale.",
+        "showSourceControls": "Mostra os botões de mover ao lado da primeira lista. O padrão é true.",
+        "showTargetControls": "Mostra os botões de mover ao lado da segunda lista. O padrão é true.",
+        "scrollHeight": "A altura das listas."
+    },
+    "slots": {
+        "option": "O conteúdo de um item, em qualquer das listas."
+    }
+}

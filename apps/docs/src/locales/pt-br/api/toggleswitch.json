@@ -1,0 +1,12 @@
+{
+    "props": {
+        "label": "O título acima do switch (o título, não o texto de ligado/desligado); ele é o `<label>` do switch e, portanto, seu nome acessível.",
+        "onLabel": "Mostrado ao lado do switch enquanto ligado.",
+        "offLabel": "Mostrado ao lado do switch enquanto desligado.",
+        "showStateLabel": "Mostra o On/Off do locale ao lado do switch quando não há `onLabel`/`offLabel`."
+    },
+    "slots": {
+        "default": "Substitui o texto do título.",
+        "content": "Substitui o conteúdo de ligado/desligado ao lado do switch."
+    }
+}

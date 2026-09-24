@@ -1,0 +1,8 @@
+{
+    "props": {
+        "align": "Onde o conteúdo fica ao longo da linha: `left`, `center` ou `right` num divisor horizontal (`left` por padrão), `top`, `center` ou `bottom` num vertical (`center` por padrão)."
+    },
+    "slots": {
+        "default": "Texto ou um ícone inserido na linha."
+    }
+}

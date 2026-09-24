@@ -1,0 +1,19 @@
+{
+    "props": {
+        "separator": "O que encerra uma tag durante a digitação, além do Enter. O padrão é uma vírgula.",
+        "max": "Quantas tags o campo aceita.",
+        "allowDuplicate": "Mantém uma tag que a lista já tem. Desligado por padrão.",
+        "addOnBlur": "Adiciona o que estiver na caixa quando o foco sai do campo. Ligado por padrão.",
+        "validate": "Recusa uma tag: o texto fica na caixa para o leitor corrigir.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "name": "O nome com que o campo é enviado; as tags vão uma a uma."
+    },
+    "emits": {
+        "add": "Uma tag foi adicionada, com Enter, um separador, uma colagem ou no blur.",
+        "remove": "Uma tag foi retirada, pelo seu botão ou por uma tecla.",
+        "reject": "Algo foi recusado: a lista estava cheia, a tag já existia, ou `validate` disse não."
+    },
+    "slots": {
+        "tag": "Substitui o conteúdo de uma tag, dentro da própria caixa da tag."
+    }
+}

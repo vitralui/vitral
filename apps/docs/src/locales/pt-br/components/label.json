@@ -1,0 +1,8 @@
+{
+    "description": "Um label nativo com a tipografia dos campos, que verifica para onde aponta e fica esmaecido quando esse controle está desabilitado.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Beside a checkbox, and disabled": { "title": "Ao lado de um checkbox, e desabilitado" },
+        "Naming a group": { "title": "Nomeando um grupo" }
+    }
+}

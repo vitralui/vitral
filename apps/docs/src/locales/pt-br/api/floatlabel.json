@@ -1,0 +1,9 @@
+{
+    "props": {
+        "variant": "- `over` (o padrão): o rótulo sobe para a borda do campo. - `in`: ele fica dentro, acima do valor. - `on`: ele pousa na borda sem o campo crescer.",
+        "filled": "Sobe o rótulo mesmo que o controle não tenha placeholder para ler. Campos nativos são detectados por `:placeholder-shown`; um select ou um seletor de data não têm esse estado, então o wrapper é avisado."
+    },
+    "slots": {
+        "default": "O controle e o seu `<label>`, nessa ordem."
+    }
+}

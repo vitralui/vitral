@@ -1,0 +1,26 @@
+{
+    "summary": "Um blog pessoal: posts com tags, uma página de post com comentários e uma página sobre.",
+    "description": "Um blog calmo e legível, de um único autor. O índice abre com o post mais recente e filtra os demais por tag; um post tem linha de autor, tempo de leitura, sumário, curtidas e um formulário de comentário; a página sobre conta a história com uma linha do tempo e termina num formulário de contato.",
+    "tags": ["Blog", "Pessoal", "Conteúdo"],
+    "features": [
+        "Um post em destaque e uma lista que pode ser filtrada por tag",
+        "Páginas de post com autor, data, tempo de leitura e sumário",
+        "Curtidas, uma thread de comentários e um formulário de comentário",
+        "Navegação para o post anterior e o próximo",
+        "Uma página sobre com a linha do tempo da carreira e um formulário de contato"
+    ],
+    "faq": [
+        { "question": "Posso escrever os posts em Markdown?", "answer": "Sim — renderize-o para HTML dentro de um bloco tp-prose e ele herda os mesmos estilos de texto do post de exemplo." },
+        { "question": "Os comentários funcionam?", "answer": "Ficam guardados na memória durante a sessão. Aponte o handler de envio para o seu serviço de comentários para mantê-los." },
+        {
+            "question": "Como o filtro de tag é compartilhado entre as telas?",
+            "answer": "A tag selecionada vive no pequeno store reativo do template, então clicar numa tag a partir de um post abre o índice já filtrado."
+        },
+        { "question": "A largura de leitura é fixa?", "answer": "A coluna do artigo tem no máximo 44rem, para que as linhas continuem legíveis; as imagens e o formulário de comentário ocupam essa mesma coluna." }
+    ],
+    "screens": {
+        "posts": { "name": "Posts", "summary": "Um post em destaque e uma lista filtrada por tag" },
+        "post": { "name": "Post", "summary": "Autor, tempo de leitura, sumário, texto e comentários" },
+        "about": { "name": "Sobre", "summary": "Uma bio, uma linha do tempo e um formulário de contato" }
+    }
+}

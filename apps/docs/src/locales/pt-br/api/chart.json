@@ -1,0 +1,23 @@
+{
+    "props": {
+        "type": "O tipo de gráfico; sobrepõe `options.chart.type`. O padrão é `'line'`.",
+        "series": "Os dados, em qualquer formato que o ApexCharts aceite: `[{ name, data: [...] }]`, ou números simples para uma pizza.",
+        "options": "Opções no formato do ApexCharts. Tudo o que é visual é dado simples, então o objeto sobrevive ao JSON.",
+        "height": "Sobrepõe `options.chart.height`: pixels, ou um comprimento CSS.",
+        "width": "Sobrepõe `options.chart.width`."
+    },
+    "emits": {
+        "dataPointSelection": "Um ponto de dados foi escolhido por clique, Enter ou Espaço.",
+        "legendClick": "Uma entrada da legenda foi pressionada; `hidden` é o novo estado da série.",
+        "zoomed": "A janela do eixo x mudou; null quando o zoom está todo afastado.",
+        "selection": "Um intervalo foi escolhido no modo de seleção (ou num brush).",
+        "click": "Qualquer clique na área do gráfico."
+    },
+    "slots": {
+        "default": "As partes, escritas como filhos: `<Chart.Tooltip>`, `<Chart.Legend>`…",
+        "tooltip": "Substitui o conteúdo do tooltip.",
+        "noData": "Mostrado no lugar do gráfico quando não há dados.",
+        "legend": "Substitui o texto de uma entrada da legenda.",
+        "center": "Substitui o texto central de uma rosca."
+    }
+}

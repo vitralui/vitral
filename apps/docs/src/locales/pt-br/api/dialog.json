@@ -1,0 +1,19 @@
+{
+    "props": {
+        "header": "O título; ele dá nome ao diálogo. Sem ele, nomeie-o com `aria-label` ou `aria-labelledby`.",
+        "modal": "Escurece e bloqueia a página, prende o foco e trava a rolagem. O padrão é true.",
+        "closable": "Mostra o botão de fechar. O padrão é true.",
+        "dismissableMask": "Fecha com um clique na máscara.",
+        "closeOnEscape": "O padrão é true.",
+        "maximizable": "Adiciona um botão que faz o diálogo ocupar a viewport.",
+        "blockScroll": "Trava a rolagem da página mesmo quando o diálogo não é modal.",
+        "showHeader": "O padrão é true.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "after-hide": "Depois da animação de fechar, quando o diálogo já saiu da página."
+    },
+    "slots": {
+        "header": "Substitui o texto do título; ele continua dando nome ao diálogo."
+    }
+}

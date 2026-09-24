@@ -1,0 +1,9 @@
+{
+    "description": "Um controle segmentado para uma escolha, como radio group, ou várias, como toggle buttons.",
+    "sections": {
+        "Single": { "title": "Único" },
+        "Icons": { "title": "Ícones" },
+        "Multiple": { "title": "Múltiplo" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

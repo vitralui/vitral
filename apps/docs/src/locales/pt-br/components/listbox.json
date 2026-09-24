@@ -1,0 +1,9 @@
+{
+    "description": "Uma lista para escolher uma ou várias opções, sempre aberta: a irmã do Select.",
+    "sections": {
+        "Single": { "title": "Única", "description": "A seleção acompanha as setas, como num list box nativo. Évora está desabilitada." },
+        "Multiple, with a filter": { "title": "Múltipla, com filtro", "description": "A busca ignora acentos e maiúsculas: “ingles” não é necessário, “espanol” encontra Español." },
+        "Groups and custom options": { "title": "Grupos e opções personalizadas" },
+        "States": { "title": "Estados" }
+    }
+}

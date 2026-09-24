@@ -1,0 +1,8 @@
+{
+    "description": "Uma contagem ou um ponto de status, sozinho ou preso no canto do que envolve, com o OverlayBadge.",
+    "sections": {
+        "Severities": { "title": "Severidades" },
+        "Sizes and dot": { "title": "Tamanhos e ponto", "description": "Sem valor, o badge vira um ponto." },
+        "OverlayBadge": { "title": "OverlayBadge", "description": "Ligue o `badgeId` do slot como aria-describedby: “Notifications, 4”." }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "props": {
+        "model": "Os itens de primeiro nível; seus `items` descem como menus, que podem se aninhar mais.",
+        "breakpoint": "Abaixo desta largura a barra vira um botão de menu com os itens em coluna. O padrão é `'960px'`.",
+        "ariaLabel": "Dá nome à barra de menu."
+    },
+    "emits": {
+        "mobile-toggle": "O menu de telas pequenas foi aberto ou fechado."
+    },
+    "slots": {
+        "start": "Antes dos itens: um logo.",
+        "end": "Depois dos itens: uma caixa de busca, um avatar.",
+        "buttonicon": "O ícone do botão do menu de telas pequenas."
+    }
+}

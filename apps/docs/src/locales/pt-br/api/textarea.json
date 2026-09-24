@@ -1,0 +1,8 @@
+{
+    "props": {
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "autoResize": "Cresce com o conteúdo em vez de rolar, e dispensa a alça de redimensionar.",
+        "rows": "Linhas de texto visíveis; com `autoResize`, a altura de partida, abaixo da qual nunca encolhe.",
+        "resize": "Em que direção o leitor pode arrastar a alça. O padrão vem do tema, que é `vertical`: um campo que preenche o contêiner não tem para onde ir de lado. `both` serve a um com largura própria. `autoResize` tira a alça por completo, já que a caixa decide a própria altura."
+    }
+}

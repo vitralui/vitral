@@ -1,0 +1,8 @@
+{
+    "description": "Um comando com um menu de comandos relacionados soldado a ele.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Severities and variants": { "title": "Severidades e variantes" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

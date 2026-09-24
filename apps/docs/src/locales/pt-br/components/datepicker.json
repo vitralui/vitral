@@ -1,0 +1,11 @@
+{
+    "description": "Um campo de data em que se pode digitar ou escolher num calendário, lido no formato do locale.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Constraints": { "title": "Restrições", "description": "Só os próximos 30 dias, sem fins de semana, e dois dias bloqueados. Os dias não selecionáveis são pulados pelas teclas e não podem ser clicados nem digitados." },
+        "Footer buttons": { "title": "Botões no rodapé" },
+        "Inline": { "title": "Inline", "description": "O calendário sozinho, sem o campo." },
+        "Sizes, variants and states": { "title": "Tamanhos, variantes e estados" },
+        "Fluid": { "title": "Fluido" }
+    }
+}

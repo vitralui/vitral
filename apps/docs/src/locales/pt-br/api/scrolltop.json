@@ -1,0 +1,8 @@
+{
+    "props": {
+        "target": "O que ele rola: a página (o padrão) ou o elemento em que está.",
+        "threshold": "Quanto descer, em pixels, antes de aparecer. O padrão é 400.",
+        "icon": "O padrão é uma seta para cima.",
+        "behavior": "`'smooth'` (o padrão) ou `'auto'`. Com movimento reduzido, sempre salta."
+    }
+}

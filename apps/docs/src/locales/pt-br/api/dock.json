@@ -1,0 +1,11 @@
+{
+    "props": {
+        "model": "Os itens; o `label` de cada item lhe dá nome e aparece como tooltip.",
+        "position": "A borda em que fica. O padrão é `'bottom'`.",
+        "magnification": "Aumenta os itens sob o ponteiro. O padrão é true.",
+        "ariaLabel": "Dá nome ao dock."
+    },
+    "slots": {
+        "item": "O conteúdo de um item: um ícone ou uma imagem."
+    }
+}

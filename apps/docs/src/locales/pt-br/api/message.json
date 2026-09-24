@@ -1,0 +1,14 @@
+{
+    "props": {
+        "severity": "O padrão é `'info'`. `danger` e `warn` são anunciados na hora, como alertas; o resto, educadamente.",
+        "title": "O título da InfoBar, em negrito antes da mensagem.",
+        "icon": "Substitui o ícone da severidade.",
+        "hideIcon": "Oculta o ícone.",
+        "closable": "Mostra um botão de fechar; fechar oculta a mensagem e emite `close`.",
+        "variant": "`'subtle'` (uma faixa tingida, o padrão), `'outlined'` ou `'simple'` (só texto colorido).",
+        "life": "Milissegundos até ela se ocultar sozinha; a contagem pausa enquanto está com hover ou foco."
+    },
+    "slots": {
+        "action": "A área de ação da InfoBar: um botão ou um link ao lado da mensagem."
+    }
+}

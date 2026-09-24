@@ -1,0 +1,5 @@
+{
+    "props": {
+        "defaults": "Props padrão para todo diálogo que ele mostra; as `props` de cada chamada de `open()` as sobrepõem."
+    }
+}

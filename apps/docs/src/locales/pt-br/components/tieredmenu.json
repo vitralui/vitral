@@ -1,0 +1,7 @@
+{
+    "description": "Um menu cujos itens abrem submenus ao lado, em qualquer profundidade, inline ou como popup.",
+    "sections": {
+        "Inline": { "title": "Inline" },
+        "Popup": { "title": "Popup" }
+    }
+}

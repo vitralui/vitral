@@ -1,0 +1,14 @@
+{
+    "props": {
+        "totalRecords": "Linhas no conjunto inteiro de dados, somando as páginas.",
+        "rowsPerPageOptions": "Opções para o select de linhas por página; sem elas, ele é omitido.",
+        "pageLinkSize": "Quantos links de página mostrar em torno da atual.",
+        "template": "As peças a renderizar, em ordem: uma lista, ou uma string separada por espaços.",
+        "currentPageReportTemplate": "`{first}`, `{last}`, `{total}`, `{page}`, `{pageCount}`, `{rows}`. O padrão é o `pageReport` do locale.",
+        "alwaysShow": "Renderiza mesmo quando tudo cabe numa página."
+    },
+    "slots": {
+        "start": "Conteúdo antes dos controles: um resumo, um botão de exportar.",
+        "end": "Conteúdo depois dos controles."
+    }
+}

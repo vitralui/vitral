@@ -1,0 +1,21 @@
+{
+    "props": {
+        "step": "Minutos entre os horários que a lista oferece. O padrão é 30.",
+        "minTime": "O horário mais cedo, em minutos depois da meia-noite ou `'09:00'`.",
+        "maxTime": "O mais tarde, do mesmo jeito.",
+        "hour12": "Força doze ou vinte e quatro horas; o padrão é o que o locale usa.",
+        "seconds": "Mostra os segundos no que é escrito; a lista continua sendo montada a partir de `step`.",
+        "inline": "Mostra a lista no lugar, sem caixa de texto nem popup.",
+        "showClearButton": "Um botão no rodapé que esvazia o valor.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    },
+    "emits": {
+        "timeSelect": "Um horário foi escolhido na lista, ou digitado e confirmado."
+    },
+    "slots": {
+        "dropdownicon": "O ícone do botão que abre a lista.",
+        "option": "Um horário da lista.",
+        "footer": "Abaixo da lista: uma nota, um par de botões."
+    }
+}

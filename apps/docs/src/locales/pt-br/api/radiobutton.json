@@ -1,0 +1,10 @@
+{
+    "props": {
+        "value": "O que o v-model vira quando este radio é escolhido; comparado pela estrutura, então objetos funcionam.",
+        "name": "Radios com o mesmo nome são um só grupo para o navegador. Um RadioGroup o fornece.",
+        "label": "O texto ao lado do anel; o slot padrão aceita conteúdo mais rico. Qualquer um vira o seu `<label>`."
+    },
+    "slots": {
+        "default": "O conteúdo do rótulo."
+    }
+}

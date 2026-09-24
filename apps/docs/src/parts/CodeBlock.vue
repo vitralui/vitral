@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import { Icon } from '@vitral/vue';
+import { t } from '../lib/i18n';
 import { computed, ref } from 'vue';
-import { highlight, langOf } from '../lib/highlight';
+import { highlight, highlightLines, langOf } from '../lib/highlight';
 
-const props = defineProps<{ code: string; label?: string; lang?: 'vue' | 'ts' | 'bash' | 'css' | 'md' | 'text'; bare?: boolean }>();
+const props = defineProps<{ code: string; label?: string; lang?: 'vue' | 'ts' | 'bash' | 'css' | 'md' | 'text'; bare?: boolean; numbered?: boolean }>();
 
 const html = computed(() => highlight(props.code.trim(), props.lang ?? langOf(props.label ?? '')));
+/**
+ * Numbered, every line is a row of its own — its number, then its code — so a
+ * long line wraps under itself instead of sending the block sideways.
+ */
+const lines = computed(() => (props.numbered ? highlightLines(props.code.trim(), props.lang ?? langOf(props.label ?? '')) : []));
 const copied = ref(false);
 
 async function copy() {
@@ -20,11 +27,20 @@ async function copy() {
 </script>
 
 <template>
-    <div class="code">
+    <div class="code" :class="{ 'code-bare': bare }">
         <div v-if="!bare" class="code-head">
-            <span>{{ label ?? 'Example' }}</span>
-            <button class="copy-btn copy" type="button" @click="copy">{{ copied ? 'Copied' : 'Copy' }}</button>
+            <span>{{ label ?? t('Example') }}</span>
+            <button class="code-copy" type="button" :aria-label="copied ? t('Copied') : t('Copy the code')" :title="copied ? t('Copied') : t('Copy the code')" @click="copy">
+                <Icon :icon="copied ? 'check' : 'copy'" />
+            </button>
         </div>
-        <pre><code v-html="html" /></pre>
+        <!-- Without a head, the button floats in the corner of the code itself. -->
+        <button v-else class="code-copy code-copy-float" type="button" :aria-label="copied ? t('Copied') : t('Copy the code')" :title="copied ? t('Copied') : t('Copy the code')" @click="copy">
+            <Icon :icon="copied ? 'check' : 'copy'" />
+        </button>
+        <div v-if="numbered" class="code-scroll">
+            <pre class="code-lines" :style="{ '--code-digits': String(lines.length).length }"><code><span v-for="(line, index) in lines" :key="index" class="code-line"><span class="code-ln" aria-hidden="true">{{ index + 1 }}</span><span class="code-text" v-html="line || ' '" /></span></code></pre>
+        </div>
+        <pre v-else><code v-html="html" /></pre>
     </div>
 </template>

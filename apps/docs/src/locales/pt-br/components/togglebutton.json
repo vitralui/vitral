@@ -1,0 +1,8 @@
+{
+    "description": "Um botão que fica pressionado, com rótulos e ícones próprios para ligado e desligado.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Icons and labels": { "title": "Ícones e rótulos" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

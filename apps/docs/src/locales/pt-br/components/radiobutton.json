@@ -1,0 +1,9 @@
+{
+    "description": "Radios nativos sob anéis desenhados, agrupados pelo RadioGroup com um só name e um só v-model.",
+    "sections": {
+        "Radio group": { "title": "Radio group", "description": "Entre no grupo com Tab e depois use as setas." },
+        "Horizontal, with object values": { "title": "Horizontal, com valores objeto" },
+        "Invalid and sizes": { "title": "Inválido e tamanhos" },
+        "Without a group": { "title": "Sem grupo", "description": "Radios avulsos compartilham um grupo pelo `name`." }
+    }
+}

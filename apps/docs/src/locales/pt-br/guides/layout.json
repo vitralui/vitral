@@ -1,0 +1,51 @@
+{
+    "title": "Painéis de layout",
+    "description": "Os sete componentes com que uma aplicação é montada, e para que serve cada um.",
+    "intro": "Bibliotecas de componentes raramente têm estes, e toda aplicação acaba escrevendo-os: os painéis que decidem onde cada coisa vai. São finos, com flexbox e CSS grid por baixo, e com a aritmética em <code>@vitral/core</code>, para que um adaptador para outro framework a ganhe de graça; e sobrevivem ao <a href=\"/docs/unstyled\">modo sem estilo</a>, porque o seu layout é feito de estilos inline, e não de classes.",
+    "seven": {
+        "title": "Os sete",
+        "component": "Componente",
+        "for": "Para",
+        "gives": "O que oferece"
+    },
+    "stackpanel": {
+        "for": "Uma linha de filhos",
+        "gives": "Orientação, espaçamento, alinhamento e quebra de linha. Uma flex box com as props nomeadas pelo que fazem."
+    },
+    "wrappanel": {
+        "for": "Filhos que fluem para novas linhas",
+        "gives": "<code>itemWidth</code> e <code>itemHeight</code> dão o mesmo tamanho a todos os filhos; as linhas se acomodam no início em vez de se esticar."
+    },
+    "uniformgrid": {
+        "for": "Células iguais",
+        "gives": "Linhas e colunas derivadas dos filhos quando só uma das duas é informada, com <code>firstColumn</code> para deixar um vão antes da primeira."
+    },
+    "dockpanel": {
+        "for": "Regiões presas às bordas",
+        "gives": "Um slot por borda (<code>#top</code>, <code>#bottom</code>, <code>#left</code>, <code>#right</code>), e o slot padrão preenche o que sobra. <code>dockOrder</code> decide quem fica com os cantos."
+    },
+    "grid": {
+        "for": "Linhas e colunas, por definição",
+        "gives": "Dimensionamento em estrela: <code>columns=\"Auto,*,2*,120\"</code>. <code>GridItem</code> posiciona um filho por linha e coluna, contadas a partir de 0, com spans."
+    },
+    "splitview": {
+        "for": "Um painel ao lado do conteúdo",
+        "gives": "<code>inline</code>, <code>overlay</code>, <code>compactInline</code> e <code>compactOverlay</code>; os modos flutuantes fecham com um clique fora e devolvem o foco."
+    },
+    "splitter": {
+        "for": "Painéis que o leitor redimensiona",
+        "gives": "Arraste um divisor, ou dê foco a ele e use as setas; Home e End o levam aos seus limites."
+    },
+    "shell": {
+        "title": "Um shell de aplicação, num template só",
+        "text": "Esse é o formato que a maioria das ferramentas de desktop compartilha: uma toolbar presa no topo, uma barra de status embaixo, um painel que se recolhe numa faixa de ícones e uma grade dividindo o resto."
+    },
+    "star": {
+        "title": "Dimensionamento em estrela",
+        "auto": "<code>Auto</code>: a trilha ocupa o que o seu conteúdo precisa.",
+        "share": "<code>*</code>: uma parte do que sobra. <code>2*</code> fica com o dobro da parte de um <code>*</code>.",
+        "number": "Um número: pixels.",
+        "other": "Qualquer outra coisa (<code>20%</code>, <code>10rem</code>, <code>minmax(8rem, 1fr)</code>) passa direto como CSS.",
+        "spacing": "Os espaçamentos entre linhas e entre colunas são props separadas, e uma flag <code>showGridLines</code> contorna cada célula enquanto você acerta um layout."
+    }
+}

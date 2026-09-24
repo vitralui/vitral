@@ -1,0 +1,14 @@
+{
+    "props": {
+        "position": "O padrão é `'top-right'`.",
+        "group": "Mostra só as mensagens enviadas com o mesmo `group`."
+    },
+    "emits": {
+        "close": "Fechado pelo seu botão de fechar.",
+        "life-end": "Fechado porque seu `life` acabou."
+    },
+    "slots": {
+        "message": "Substitui o ícone e o texto de cada mensagem; o botão de fechar permanece.",
+        "container": "Substitui todo o interior do card, botão de fechar incluído."
+    }
+}

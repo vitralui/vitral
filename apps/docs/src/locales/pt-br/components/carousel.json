@@ -1,0 +1,9 @@
+{
+    "description": "Uma trilha de itens com paginação e rotação opcional, que pausa quando pedido e enquanto você aponta para ela ou interage com ela.",
+    "sections": {
+        "Several at once": { "title": "Vários de uma vez" },
+        "Circular, with rotation": { "title": "Circular, com rotação" },
+        "Vertical": { "title": "Vertical" },
+        "Transitions, one at a time": { "title": "Transições, um de cada vez", "description": "O padrão desliza a faixa inteira, e é isso que permite a um carousel mostrar vários de uma vez. Todos os outros presets mostram um só e o animam onde ele está, por isso valem apenas quando numVisible é 1. São os mesmos presets que o Galleria usa." }
+    }
+}

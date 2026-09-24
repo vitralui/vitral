@@ -1,0 +1,8 @@
+{
+    "description": "Dispõe os filhos numa linha e passa para a seguinte quando ela enche, na horizontal ou na vertical, com um tamanho uniforme opcional.",
+    "sections": {
+        "Horizontal": { "title": "Horizontal", "description": "Cada filho mantém a própria largura. Arraste o canto da moldura para redimensioná-la e veja as linhas se reorganizarem." },
+        "ItemWidth and ItemHeight": { "title": "ItemWidth e ItemHeight", "description": "item-width=\"120\" item-height=\"72\": todos os filhos do mesmo tamanho, seja qual for o conteúdo." },
+        "Vertical": { "title": "Vertical", "description": "Preenche colunas de cima para baixo; precisa de uma altura para quebrar." }
+    }
+}

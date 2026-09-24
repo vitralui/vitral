@@ -11,6 +11,10 @@
 // the component styles and the content. The bundle then takes over in the
 // browser as usual. Chrome is found through $CHROME or a Playwright Chromium.
 //
+// Every route is rendered once per language: English at its own path, and each
+// language that has translations under `apps/docs/src/locales/<lang>/` at the
+// same path behind its prefix (`/pt-br/docs/theming`).
+//
 // It also writes sitemap.xml and robots.txt, over the same list of routes.
 
 import { spawn } from 'node:child_process';
@@ -46,10 +50,11 @@ const templates = readdirSync(join(app, 'src/templates'))
     .filter((name) => existsSync(join(app, 'src/templates', name, 'index.ts')))
     .sort();
 
-const routes = [
+const pages = [
     '/',
     '/icons',
     '/charts',
+    '/components',
     '/templates',
     // Not a page anyone links to: rendered so the host has a 404 to serve.
     '/404',
@@ -57,6 +62,18 @@ const routes = [
     ...components.map((id) => `/components/${id}`),
     ...templates.map((id) => `/templates/${id}`)
 ];
+
+// The languages other than English are the folders of translations; each one's
+// prefix is its folder's name.
+const languages = [
+    { tag: 'en', prefix: '' },
+    ...readdirSync(join(app, 'src/locales'))
+        .filter((name) => statSync(join(app, 'src/locales', name)).isDirectory())
+        .sort()
+        .map((name) => ({ tag: name.replace(/-(\w+)$/, (_, region) => `-${region.toUpperCase()}`), prefix: `/${name}` }))
+];
+const inLanguage = (prefix, page) => (prefix ? (page === '/' ? prefix : prefix + page) : page);
+const routes = languages.flatMap(({ prefix }) => pages.filter((page) => !prefix || page !== '/404').map((page) => inLanguage(prefix, page)));
 
 // ---- a server for the built site
 
@@ -149,7 +166,7 @@ async function connect(chrome, debugPort) {
 const readPage = `(${function () {
     const root = document.querySelector('.doc-main') ?? document.querySelector('main') ?? document.body;
     const skip = new Set(['SCRIPT', 'STYLE', 'NAV', 'ASIDE', 'BUTTON', 'NOSCRIPT', 'FORM']);
-    const skipClass = ['demo-body', 'demo-tools', 'toc', 'doc-nav', 'home-showcase', 'home-swatches'];
+    const skipClass = ['demo-body', 'demo-code', 'toc', 'doc-nav', 'home-showcase', 'home-swatches'];
     const ignored = (el) => skip.has(el.tagName) || skipClass.some((name) => el.classList.contains(name));
 
     const inline = (node) => {
@@ -246,7 +263,7 @@ try {
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
 
     const started = Date.now();
-    const pages = [];
+    const texts = [];
     for (const [i, route] of routes.entries()) {
         const url = `http://localhost:${port}${base}${route === '/' ? '' : route.slice(1) + '/'}`;
         await send('Page.navigate', { url });
@@ -268,13 +285,14 @@ try {
         mkdirSync(dirname(out), { recursive: true });
         writeFileSync(out, `<!doctype html>\n${html}\n`);
 
-        const read = (await send('Runtime.evaluate', { expression: readPage, returnByValue: true }))?.result?.value;
-        if (read) pages.push({ route, ...JSON.parse(read) });
+        // The text versions are the English pages: what reads them reads English.
+        const read = pages.includes(route) ? (await send('Runtime.evaluate', { expression: readPage, returnByValue: true }))?.result?.value : null;
+        if (read) texts.push({ route, ...JSON.parse(read) });
         if ((i + 1) % 25 === 0 || i === routes.length - 1) console.log(`  ${i + 1}/${routes.length} pages`);
     }
     console.log(`Prerendered ${routes.length} pages in ${Math.round((Date.now() - started) / 1000)}s.`);
     close();
-    writeText(pages);
+    writeText(texts);
 } finally {
     browser.kill();
     // `close()` stops new connections but waits on the open ones, and a
@@ -288,10 +306,24 @@ try {
 
 const today = new Date().toISOString().slice(0, 10);
 const url = (route) => `${origin}${base}${route === '/' ? '' : route.slice(1) + '/'}`;
+
+/**
+ * Every version of a page is listed, and each lists all of them — itself
+ * included, and `x-default` for a reader in none of the languages — which is
+ * how a search engine pairs them and shows each reader their own.
+ */
+const versions = (page) =>
+    [...languages.map(({ tag, prefix }) => [tag, inLanguage(prefix, page)]), ['x-default', page]]
+        .map(([tag, route]) => `        <xhtml:link rel="alternate" hreflang="${tag}" href="${url(route)}" />`)
+        .join('\n');
 writeFileSync(
     join(dist, 'sitemap.xml'),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-        routes.filter((route) => route !== '/404').map((route) => `    <url>\n        <loc>${url(route)}</loc>\n        <lastmod>${today}</lastmod>\n    </url>`).join('\n') +
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
+        pages
+            .filter((page) => page !== '/404')
+            .flatMap((page) => languages.map(({ prefix }) => [page, inLanguage(prefix, page)]))
+            .map(([page, route]) => `    <url>\n        <loc>${url(route)}</loc>\n        <lastmod>${today}</lastmod>\n${versions(page)}\n    </url>`)
+            .join('\n') +
         `\n</urlset>\n`
 );
 writeFileSync(join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${origin}${base}sitemap.xml\n`);
@@ -318,10 +350,19 @@ function writeText(pages) {
     const url = (route) => `${origin}${base}${route === '/' ? '' : route.slice(1) + '/'}`;
     const asText = (route) => `${origin}${base}${route === '/' ? 'index' : route.slice(1)}.md`;
     const day = new Date().toISOString().slice(0, 10);
-    const demoFile = (route) => {
+    /**
+     * A page's examples as files: each one it imports from `demos/<Page>/`, in
+     * the order it imports them, or the page itself when its examples still
+     * live inside it.
+     */
+    const demoFiles = (route) => {
         const id = route.slice('/components/'.length);
         const file = readdirSync(join(app, 'src/demos')).find((name) => name.toLowerCase() === `${id}.vue`);
-        return file ? readFileSync(join(app, 'src/demos', file), 'utf8').trim() : null;
+        if (!file) return [];
+        const page = readFileSync(join(app, 'src/demos', file), 'utf8');
+        const examples = [...page.matchAll(/import \w+ from '\.\/([^/']+\/[^/']+\.vue)';/g)].map((match) => match[1]);
+        if (!examples.length) return [{ name: file, code: page.trim() }];
+        return examples.map((path) => ({ name: path.split('/')[1], code: readFileSync(join(app, 'src/demos', path), 'utf8').trim() }));
     };
 
     const name = (page) => page.title.split(' · ')[0].replace(/ — .*$/, '');
@@ -330,8 +371,10 @@ function writeText(pages) {
         // The page's own heading is the title, so it is not repeated above it.
         page.markdown = page.markdown.replace(/^# .*\n\n/, '');
         if (page.route.startsWith('/components/')) {
-            const demo = demoFile(page.route);
-            if (demo) page.markdown += `\n\n## Examples, in full\n\nThe page's examples, as the site runs them.\n\n\`\`\`vue ${page.route.slice(12)}.vue\n${demo}\n\`\`\``;
+            const demos = demoFiles(page.route);
+            if (demos.length) {
+                page.markdown += `\n\n## Examples, in full\n\nThe page's examples, as the site runs them.` + demos.map((demo) => `\n\n\`\`\`vue ${demo.name}\n${demo.code}\n\`\`\``).join('');
+            }
         }
         page.text = `# ${name(page)}\n\n> ${page.description}\n\nSource: ${url(page.route)}\n\n${page.markdown}\n`;
         const file = page.route === '/' ? join(dist, 'index.md') : join(dist, `${page.route.slice(1)}.md`);

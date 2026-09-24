@@ -1,0 +1,8 @@
+{
+    "description": "Botões que andam juntos, unidos num só controle com nome, cada um com sua própria parada de tabulação.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Outlined and secondary": { "title": "Outlined e secondary" },
+        "Vertical": { "title": "Vertical" }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "props": {
+        "initialValues": "Os valores de partida, e para onde voltar ao resetar. O padrão é uma cópia do v-model.",
+        "resolver": "Valida o formulário inteiro: `zodResolver(schema)`, `yupResolver(schema)`, `functionResolver(fn)`…",
+        "validate": "Verificações entre campos, ao lado do resolver: devolva mensagens por caminho.",
+        "rules": "Regras por caminho, para um formulário que as declara num só lugar.",
+        "validateOn": "Quando um campo é validado pela primeira vez. O padrão é `submit`. Um campo pode dizer outra coisa.",
+        "revalidateOn": "Quando um campo já validado é validado de novo. O padrão é `input`, então um erro some assim que é corrigido.",
+        "debounce": "Milissegundos a esperar depois que a digitação para antes de uma validação disparada por input.",
+        "form": "Um formulário criado com `useForm()`, para controlá-lo de fora do template.",
+        "focusOnInvalid": "Depois de um envio que falhou, move o foco para o resumo de erros (quando há um) ou para o primeiro campo inválido. O padrão é true.",
+        "disabled": "Desabilita todo controle ligado por um campo, e o botão de envio.",
+        "errorRelation": "Como um controle aponta para o seu erro. O padrão é `both`."
+    },
+    "emits": {
+        "submit": "Todo envio, com seus valores e se são válidos. Um handler que devolve uma promise mantém o formulário enviando até ela se resolver.",
+        "invalid-submit": "Um envio barrado por erros."
+    }
+}

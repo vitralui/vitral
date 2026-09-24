@@ -1,0 +1,27 @@
+{
+    "title": "Agentes de código",
+    "description": "Cada página deste site também é Markdown puro, e o conjunto todo cabe num arquivo só, para que um assistente leia a documentação em vez de adivinhá-la.",
+    "intro": "Um assistente que não leu a documentação escreve o que lembra de alguma outra biblioteca: classes utilitárias por cima dos componentes, uma folha de estilos brigando com o tema, imports de ícones que não existem. Nada disso é um problema difícil — é um problema de leitura. Por isso o build escreve este site duas vezes: uma como as páginas que você está vendo, e outra como Markdown, no formato que o <a href=\"https://llmstxt.org\" target=\"_blank\" rel=\"noreferrer\">llms.txt</a> descreve.",
+    "published": {
+        "title": "O que é publicado",
+        "index": "é o índice: os guias, cada componente e cada template, cada um com a linha que o descreve, apontando para o Markdown e não para a página.",
+        "full": "é tudo, concatenado, para um modelo com contexto suficiente para comportá-lo. E qualquer página responde com <code>.md</code> no lugar da barra final, que é a coisa mais barata a entregar a um agente que só precisa de um componente.",
+        "generated": "O Markdown é gerado a partir da página renderizada, então traz a prosa, os títulos e as tabelas de API — que, por sua vez, são lidas do <code>types.ts</code> de cada componente em tempo de build. A página de um componente também recebe, no final, o código dos seus exemplos, porque no site eles ficam atrás de um botão, e um agente não tem como apertá-lo."
+    },
+    "point": {
+        "title": "Aponte um agente para cá",
+        "text": "Tudo cabe numa linha de prompt:",
+        "rules": "Num projeto em que você trabalha todo dia, ponha as regras onde o agente as lê — <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.cursor/rules</code>, ou como quer que a sua ferramenta chame isso. Esta é a versão curta que vale colar, e ela trata das coisas que um modelo erra por hábito, e não por ignorância:"
+    },
+    "why": {
+        "title": "Por que essas regras",
+        "tokens": "<strong>Tokens, não CSS.</strong> A aparência de cada componente são custom properties, que um <a href=\"/docs/presets\">preset</a> define e <a href=\"/docs/theming\">a prop <code>dt</code></a> sobrescreve numa instância. Uma folha de estilos escrita ao lado funciona até o esquema de cores mudar.",
+        "passThrough": "<strong><a href=\"/docs/pass-through\">Pass-through</a> para a marcação.</strong> Todo elemento interno pode ser endereçado pelo nome, então um agente nunca precisa envolver um componente para alcançar o que há dentro dele.",
+        "icons": "<strong>Ícones são nomes registrados.</strong> Os componentes resolvem sozinhos o conjunto que usam; qualquer outro é um import nomeado, ou uma chamada a <code>registerIcons</code>. Um nome inventado vira uma classe, em silêncio.",
+        "accessibility": "<strong>A acessibilidade já está lá.</strong> Cada componente segue o seu <a href=\"https://www.w3.org/WAI/ARIA/apg/patterns/\" target=\"_blank\" rel=\"noreferrer\">padrão WAI-ARIA APG</a> e é testado contra ele, então acrescentar atributos <code>role</code> e <code>aria-*</code> costuma quebrá-lo em vez de ajudar."
+    },
+    "honest": {
+        "title": "Mantendo tudo honesto",
+        "text": "Nada aqui é escrito à mão, e essa é a ideia: o Markdown é o site, as tabelas de API são o código-fonte, e os dois são reconstruídos a cada push. Uma página que fica desatualizada fica desatualizada num lugar só."
+    }
+}

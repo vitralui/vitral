@@ -1,0 +1,8 @@
+{
+    "description": "Vários valores numa só barra, com uma legenda, lidos como um único total.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Label first, custom colours": { "title": "Rótulo primeiro, cores personalizadas" },
+        "Vertical": { "title": "Vertical" }
+    }
+}

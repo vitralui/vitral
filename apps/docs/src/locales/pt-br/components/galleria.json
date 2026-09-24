@@ -1,0 +1,9 @@
+{
+    "description": "Imagens com miniaturas, indicadores, rotação e modo de tela cheia.",
+    "sections": {
+        "Thumbnails": { "title": "Miniaturas" },
+        "Transitions": { "title": "Transições", "description": "Como uma imagem dá lugar à próxima, pelo nome. Os presets são definidos uma vez e compartilhados com o Carousel, e todos param sob prefers-reduced-motion." },
+        "Indicators and rotation": { "title": "Indicadores e rotação" },
+        "Full screen": { "title": "Tela cheia" }
+    }
+}

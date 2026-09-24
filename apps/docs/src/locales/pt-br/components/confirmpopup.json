@@ -1,0 +1,6 @@
+{
+    "description": "Uma confirmação ancorada ao elemento de que trata, aberta com useConfirm e segurando o foco até ser respondida.",
+    "sections": {
+        "Basic": { "title": "Básico" }
+    }
+}

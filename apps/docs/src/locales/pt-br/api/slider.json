@@ -1,0 +1,16 @@
+{
+    "props": {
+        "min": "O padrão é 0.",
+        "max": "O padrão é 100.",
+        "step": "Distância entre valores vizinhos; o padrão é 1. 0 deixa o marcador parar em qualquer ponto.",
+        "range": "Dois marcadores: o v-model é `[start, end]`, e os marcadores nunca se cruzam.",
+        "orientation": "Um slider vertical tem o mínimo embaixo.",
+        "formatValue": "Texto que um leitor de tela anuncia para um valor (`aria-valuetext`): \"20 °C\" em vez de \"20\".",
+        "ariaLabel": "O nome acessível do marcador. Num intervalo, uma string nomeia os dois marcadores junto com o \"minimum\"/\"maximum\" do locale; um array nomeia cada um.",
+        "ariaLabelledby": "Id(s) do(s) elemento(s) que nomeiam os marcadores; um array nomeia cada marcador de um intervalo."
+    },
+    "emits": {
+        "change": "O valor foi confirmado: depois de uma tecla, ou quando um arrasto que o moveu termina.",
+        "slideend": "Uma interação do ponteiro terminou."
+    }
+}

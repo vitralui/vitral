@@ -1,0 +1,7 @@
+{
+    "description": "Notificações enviadas de qualquer lugar com useToast, empilhadas na posição escolhida, que pausam o tempo enquanto estão sob o ponteiro ou em foco.",
+    "sections": {
+        "Severities": { "title": "Severidades", "description": "Quatro segundos cada; passe o ponteiro sobre um para mantê-lo." },
+        "Sticky and grouped": { "title": "Fixos e agrupados", "description": "Sem um `life`, um toast espera ser fechado. Um `group` o envia para outro `<Toast>`, aqui um na parte de baixo." }
+    }
+}

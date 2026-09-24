@@ -1,0 +1,9 @@
+{
+    "description": "Uma caixa de texto de uma linha cujos atributos vão para o input nativo, com prefixo, sufixo e botão de limpar.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Adornments and clear button": { "title": "Adornos e botão de limpar", "description": "Conteúdo dentro do campo, dos dois lados, e o botão de limpar." },
+        "Sizes, variants and states": { "title": "Tamanhos, variantes e estados" },
+        "Fluid": { "title": "Fluido" }
+    }
+}

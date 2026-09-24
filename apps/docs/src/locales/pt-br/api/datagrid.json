@@ -1,0 +1,29 @@
+{
+    "props": {
+        "groupBy": "Agrupa as linhas por este campo e põe um cabeçalho sobre cada bloco, com uma contagem e um botão de alternar. O agrupamento acontece depois da consulta, então ordenação e filtros continuam decidindo quais linhas existem; `v-model:collapsedGroups` guarda quais delas o leitor fechou.",
+        "groupLabel": "O que o cabeçalho de um grupo diz; por padrão, o próprio valor.",
+        "dataKey": "Um campo que identifica uma linha, para a seleção e as chaves das linhas.",
+        "dataSource": "As linhas vêm de uma fonte de dados, local ou remota, em vez de `value`.",
+        "lazy": "Nada é calculado aqui: mudanças de ordenação, filtro e página são emitidas (`lazy-load`) para a aplicação responder.",
+        "totalRecords": "O total de todas as páginas quando `lazy`.",
+        "removableSort": "Um terceiro clique numa coluna ordenada a tira da ordenação.",
+        "filterDisplay": "`'row'` põe uma caixa de filtro sob o cabeçalho de cada coluna filtrável.",
+        "filterDelay": "Milissegundos a esperar depois da digitação antes de consultar de novo uma tabela lazy ou uma fonte de dados.",
+        "resizableColumns": "Uma alça na borda final de cada coluna, arrastada (ou usada pelo teclado) para definir sua largura.",
+        "columnResizeMode": "`'fit'` tira a largura da coluna seguinte, mantendo a da tabela; `'expand'` alarga a tabela.",
+        "reorderableColumns": "As colunas podem ser arrastadas pelo cabeçalho para outra ordem, ou movidas com Ctrl e uma seta.",
+        "columnToggle": "Um botão que abre a lista de colunas, cada uma com um checkbox.",
+        "group": "Um nome que duas tabelas compartilham: elas rolam na horizontal juntas e mantêm um só layout de colunas.",
+        "scrollHeight": "Uma altura CSS, ou `'flex'` para preencher um pai flex. O cabeçalho fica visível.",
+        "caption": "Dá nome à tabela. Oculto a menos que `showCaption`; sem ele, nomeie a tabela com `aria-label`."
+    },
+    "emits": {
+        "column-resize": "Uma coluna foi alargada ou estreitada.",
+        "column-reorder": "Uma coluna foi movida.",
+        "column-toggle": "Uma coluna foi mostrada ou ocultada.",
+        "column-pin": "Uma coluna foi fixada numa borda, ou solta."
+    },
+    "slots": {
+        "default": "Os `<Column>`s."
+    }
+}

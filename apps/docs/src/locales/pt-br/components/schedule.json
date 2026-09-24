@@ -1,0 +1,11 @@
+{
+    "description": "Um calendário com visões de mês, semana, dia, agenda e linha do tempo por recurso, arrastar para mover e redimensionar, eventos recorrentes e qualquer fuso.",
+    "sections": {
+        "Week": { "title": "Semana", "description": "O horário comercial fica sombreado; eventos sobrepostos dividem a coluna; a linha vermelha é o agora. A daily se repete em todo dia útil, a folha de pagamento no primeiro e no último dia do mês." },
+        "Month": { "title": "Mês", "description": "Os eventos atravessam os dias que ocupam; um dia cheio mostra “+N more”, que abre a lista completa." },
+        "Agenda": { "title": "Agenda", "description": "As próximas duas semanas como lista, dia a dia." },
+        "Timeline by resource": { "title": "Linha do tempo por recurso", "description": "Salas nas linhas e o tempo na horizontal. Arraste uma reserva para outra sala, ou pressione Alt com Up e Down." },
+        "The same instants, read somewhere else": { "title": "Os mesmos instantes, lidos em outro lugar", "description": "Três instantes fixos, desenhados no fuso que for escolhido. Nada nos eventos muda — só a hora e o dia em que a grade os coloca, então o build noturno passa para o dia anterior ou para o seguinte conforme o lugar de onde se olha. Clique num evento: o que volta é o instante que ele sempre foi." },
+        "Custom toolbar, content and revert": { "title": "Barra de ferramentas, conteúdo e reversão personalizados", "description": "A barra de ferramentas e o conteúdo dos eventos são slots. O horário vai das 08:00 às 18:00 em intervalos de 15 minutos, e uma mudança para o fim de semana é revertida." }
+    }
+}

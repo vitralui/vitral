@@ -1,6 +1,7 @@
 import { en, ptBR, useDirection, useLocale, useTheme, useVitral, type BorderStrength, type Direction, type Preset } from '@vitral/vue';
-import { ref, watch } from 'vue';
-import { themes } from './presets';
+import { computed, ref, watch } from 'vue';
+import { lang } from './i18n';
+import { themes, themeText } from './presets';
 
 /**
  * The site's theme switcher, as module state rather than a component's: the
@@ -9,7 +10,8 @@ import { themes } from './presets';
  */
 export const builtInPresets: Record<string, Preset> = Object.fromEntries(themes.map((theme) => [theme.id, theme.preset]));
 
-export const presetOptions = themes.map((theme) => ({ label: `${theme.name} — ${theme.origin}`, value: theme.id }));
+/** The theme menu's choices, in the page's language. */
+export const presetOptions = computed(() => themes.map((theme) => ({ label: `${theme.name} — ${themeText(theme).origin}`, value: theme.id })));
 
 export const swatches = [
     { name: 'Blue', value: '{blue}', color: '#3b82f6' },
@@ -106,6 +108,9 @@ export function installThemeSwitcher() {
     });
 
     watch(localeId, (id) => setLocale(id === 'pt-BR' ? ptBR : en));
+    // The components speak the page's language: a calendar on a Portuguese page
+    // names its months in Portuguese. The locale guide can still flip it by hand.
+    watch(lang, (which) => (localeId.value = which === 'pt-br' ? 'pt-BR' : 'en'), { immediate: true });
 
     watch(
         borders,

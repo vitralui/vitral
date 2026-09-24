@@ -1,0 +1,8 @@
+{
+    "description": "A diretiva v-tooltip: uma dica mostrada no hover e no foco do teclado, que descreve o elemento em que está.",
+    "sections": {
+        "Placement": { "title": "Posicionamento", "description": "Os modificadores escolhem o lado: `.top` (o padrão), `.bottom`, `.left`, `.right`." },
+        "Options": { "title": "Opções", "description": "Um objeto define o texto, o posicionamento e os atrasos, e pode desabilitá-la." },
+        "On a field": { "title": "Num campo", "description": "Foque a caixa com Tab: o tooltip aparece, e o input é descrito por ele." }
+    }
+}

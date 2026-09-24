@@ -1,0 +1,7 @@
+{
+    "description": "Uma faixa de ícones grandes que crescem sob o ponteiro, cada um com seu rótulo num tooltip.",
+    "sections": {
+        "Bottom": { "title": "Embaixo" },
+        "Left": { "title": "À esquerda" }
+    }
+}

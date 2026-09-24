@@ -1,0 +1,9 @@
+{
+    "props": {
+        "closable": "Adiciona um botão que volta à exibição."
+    },
+    "slots": {
+        "display": "O que aparece até ser ativado.",
+        "content": "No que ele se transforma: o editor."
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "props": {
+        "fluid": "Ocupa toda a largura do contêiner."
+    },
+    "slots": {
+        "default": "Um `<InputIcon>` antes do campo põe o ícone no início; depois dele, no fim."
+    }
+}

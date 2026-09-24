@@ -1,0 +1,11 @@
+{
+    "props": {
+        "value": "0–100.",
+        "mode": "`'determinate'` (o padrão) ou `'indeterminate'`, para trabalho de duração desconhecida.",
+        "showValue": "Mostra o valor ao lado da barra. O padrão é true.",
+        "unit": "Segue o valor no rótulo. O padrão é `'%'`."
+    },
+    "slots": {
+        "default": "Substitui o rótulo do valor."
+    }
+}

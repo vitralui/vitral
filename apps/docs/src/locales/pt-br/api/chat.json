@@ -1,0 +1,19 @@
+{
+    "props": {
+        "messages": "A conversa. `v-model:messages` não é oferecido: o que é dito cabe à aplicação decidir.",
+        "suggestions": "Sugestões para começar, mostradas enquanto a conversa está vazia.",
+        "typing": "`true` para os três pontos, ou as palavras a mostrar no lugar.",
+        "readonly": "Sem campo de composição: uma transcrição.",
+        "maxRows": "Linhas até onde o campo de composição cresce antes de rolar. O padrão é 6.",
+        "sendOnEnter": "Enter envia e Shift+Enter quebra a linha. False inverte os dois.",
+        "height": "Altura da área rolável da conversa. O padrão é `'28rem'`."
+    },
+    "slots": {
+        "header": "Acima da conversa: um título, um seletor de modelo, um botão de fechar.",
+        "footer": "Abaixo do campo de composição: um aviso, uma contagem de tokens.",
+        "message": "Substitui todo o corpo de uma mensagem.",
+        "empty": "Substitui o que é mostrado enquanto nada foi dito.",
+        "launcher": "O botão que abre o widget.",
+        "default": "As partes escritas como filhos."
+    }
+}

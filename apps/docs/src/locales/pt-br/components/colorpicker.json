@@ -1,0 +1,11 @@
+{
+    "description": "Uma amostra de cor que abre um painel de cores, com o valor em hex, RGB ou HSB e um slider de opacidade opcional.",
+    "sections": {
+        "Popup": { "title": "Popup" },
+        "Inline": { "title": "Inline" },
+        "HSB, without the text box": { "title": "HSB, sem o campo de texto" },
+        "Opacity": { "title": "Opacidade", "description": "O valor ganha dois dígitos hexadecimais. Arraste o slider, ou foque-o e use as setas; Shift move de dez em dez." },
+        "Opacity, inline": { "title": "Opacidade, inline", "description": "O xadrez é a cara da transparência: fica por baixo do gradiente do slider, da pré-visualização e da amostra." },
+        "Disabled": { "title": "Desabilitado" }
+    }
+}

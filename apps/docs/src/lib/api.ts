@@ -1,3 +1,5 @@
+import { lookup } from './i18n';
+
 /**
  * The API tables are read from the components' own `types.ts` at build time,
  * not written by hand: a prop that is renamed in the library is renamed in the
@@ -46,12 +48,13 @@ function members(body: string): ApiMember[] {
         // The member is only complete once its line ends the declaration.
         if (!pending.endsWith(';')) continue;
 
-        // Event names may be quoted: `'invalid-submit': [...]`.
-        const match = pending.match(/^['"]?([\w$-]+)['"]?(\?)?:\s*([\s\S]*);$/);
+        // Event names may be quoted, and a quoted one may hold a colon:
+        // `'invalid-submit': [...]`, `'update:modelValue': [...]`.
+        const match = pending.match(/^(?:'([^']+)'|"([^"]+)"|([\w$-]+))(\?)?:\s*([\s\S]*);$/);
         pending = '';
         if (!match) continue;
 
-        out.push({ name: match[1]!, optional: Boolean(match[2]), type: match[3]!.replace(/\s+/g, ' '), doc: doc || undefined });
+        out.push({ name: (match[1] ?? match[2] ?? match[3])!, optional: Boolean(match[4]), type: match[5]!.replace(/\s+/g, ' '), doc: doc || undefined });
         doc = undefined;
     }
     return out;
@@ -89,4 +92,13 @@ export function apiOf(component: string): ApiDoc | null {
         slots: slots ? members(slots.body).map((m) => ({ ...m, type: m.type.replace(/\s*=>\s*unknown$/, '').replace(/^\(\)$/, '—') })) : [],
         extends: props?.head.match(/extends ([\w, ]+)/)?.[1]?.split(',').map((s) => s.trim()) ?? []
     };
+}
+
+/**
+ * A member's doc comment in the page's language. The comment in `types.ts` is
+ * the English; a translation is `locales/<lang>/api/<component>.json`, by kind
+ * and name: `{ "props": { "severity": "…" }, "emits": {}, "slots": {} }`.
+ */
+export function memberDoc(component: string, kind: 'props' | 'emits' | 'slots', member: ApiMember): string | undefined {
+    return lookup(`api/${component.toLowerCase()}`, `${kind}.${member.name}`) ?? member.doc;
 }

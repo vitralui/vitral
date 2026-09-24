@@ -1,0 +1,9 @@
+{
+    "description": "Um quadro kanban de cards em colunas e raias, arrastados com mouse, toque ou teclado, com limites de trabalho em andamento.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "Uma lista plana de tarefas, cada uma dizendo sua coluna. In progress comporta no máximo duas." },
+        "Swimlanes": { "title": "Raias", "description": "As mesmas tarefas divididas por equipe. Page Up e Page Down levam um card pego de uma raia para outra; uma raia se recolhe pelo cabeçalho." },
+        "Nested columns": { "title": "Colunas aninhadas", "description": "Colunas que carregam os próprios cards (v-model:columns). Later começa recolhida, mas ainda aceita cards soltos; Frozen está travada, e seu card está desabilitado." },
+        "canDrop": { "title": "canDrop", "description": "Um hook dá a palavra final: aqui, só tarefas de alta prioridade podem ir para Done, e de qualquer lugar menos de In progress." }
+    }
+}

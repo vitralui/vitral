@@ -9,6 +9,7 @@ export const meta: GuideMeta = {
 </script>
 
 <script setup lang="ts">
+import { T, t } from '../lib/i18n';
 import CodeBlock from '../parts/CodeBlock.vue';
 
 const layers = `// primitive: palettes, radii, the raw material
@@ -72,56 +73,56 @@ const dt = `<!-- one instance, one token -->
 </script>
 
 <template>
-    <p>
+    <T k="intro">
         A theme is data. A <strong>preset</strong> is a tree of tokens in three layers, and the engine compiles it to CSS variables under the <code>--vt-</code> prefix. Nothing
         re-renders when it changes: the variables are rewritten and the browser repaints.
-    </p>
+    </T>
 
-    <h2>The three layers</h2>
+    <T k="layers.title" as="h2">The three layers</T>
     <CodeBlock :code="layers" label="preset.ts" lang="ts" />
-    <p>
+    <T k="layers.text">
         A value in braces is a <em>reference</em>, and it survives compilation as one: <code>'{primary.color}'</code> becomes <code>var(--vt-primary-color)</code>, not the colour
         it currently holds. That is what makes a single <code>setPrimary()</code> re-colour every button, tag, focus ring and chart series at once.
-    </p>
-    <CodeBlock :code="compiled" label="compiled" lang="css" />
+    </T>
+    <CodeBlock :code="compiled" :label="t('compiled')" lang="css" />
 
-    <h2>Naming</h2>
+    <T k="naming.title" as="h2">Naming</T>
     <ul>
-        <li>A component's token name is its lower-case name with no dashes: <code>ToggleSwitch</code> → <code>toggleswitch</code>.</li>
-        <li>A <code>root</code> segment is dropped: <code>button.root.paddingX</code> → <code>--vt-button-padding-x</code>.</li>
-        <li>Anything that differs between schemes goes under <code>colorScheme: &#123; light, dark &#125;</code> at any depth.</li>
+        <T k="naming.component" as="li">A component's token name is its lower-case name with no dashes: <code>ToggleSwitch</code> → <code>toggleswitch</code>.</T>
+        <T k="naming.root" as="li">A <code>root</code> segment is dropped: <code>button.root.paddingX</code> → <code>--vt-button-padding-x</code>.</T>
+        <T k="naming.scheme" as="li">Anything that differs between schemes goes under <code>colorScheme: &#123; light, dark &#125;</code> at any depth.</T>
     </ul>
 
-    <h2>Extending a preset</h2>
+    <T k="extend.title" as="h2">Extending a preset</T>
     <CodeBlock :code="preset" label="theme.ts" lang="ts" />
-    <p>
+    <T k="extend.text">
         <code>definePreset</code> deep-merges into a base, so a brand preset states only its differences. <code>palette('#7c3aed')</code> derives the eleven shades from one
         colour.
-    </p>
+    </T>
 
-    <h2>At runtime</h2>
+    <T k="runtime" as="h2">At runtime</T>
     <CodeBlock :code="runtime" label="useTheme.ts" lang="ts" />
 
-    <h2>Two sets of edges</h2>
-    <p>
+    <T k="borders.title" as="h2">Two sets of edges</T>
+    <T k="borders.text">
         A preset draws its borders the way it wants to look, which in most of them is quieter than
         <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast" target="_blank" rel="noreferrer">WCAG 1.4.11</a> asks of a control's boundary. The stronger set
         lives in the preset under <code>strongBorders</code>, compiles into a block of its own, and is chosen with <code>borders: 'strong'</code> when the plugin is installed or
         <code>setBorders</code> afterwards. Nothing is recompiled either way — it is an attribute on <code>&lt;html&gt;</code>, so the switch is instant and a preset of your own
         can carry its own pair.
-    </p>
+    </T>
     <CodeBlock :code="borders" label="theme.ts" lang="ts" />
 
-    <h2>One instance at a time</h2>
-    <p>
+    <T k="instance.title" as="h2">One instance at a time</T>
+    <T k="instance.text">
         <code>dt</code> writes the same tokens on one component's root element, so a single control can differ without a preset for it. Below that, plain CSS variables work as
         they always did.
-    </p>
+    </T>
     <CodeBlock :code="dt" label="Example.vue" lang="vue" />
 
-    <h2>Scope and cascade</h2>
-    <p>
+    <T k="cascade.title" as="h2">Scope and cascade</T>
+    <T k="cascade.text">
         Component CSS is injected once per component, in document order, and can be wrapped in a cascade layer with the <code>cssLayer</code> option. With it, any application
         rule wins on specificity alone and <code>!important</code> stays out of your stylesheet.
-    </p>
+    </T>
 </template>

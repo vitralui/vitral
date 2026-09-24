@@ -1,0 +1,6 @@
+{
+    "description": "Duas listas e os movimentos entre elas, com botões, pelo teclado ou com clique duplo, e reordenação dentro de cada uma.",
+    "sections": {
+        "Basic": { "title": "Básico" }
+    }
+}

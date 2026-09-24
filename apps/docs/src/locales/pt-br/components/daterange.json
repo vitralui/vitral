@@ -1,0 +1,11 @@
+{
+    "description": "Duas datas e os dias entre elas, escolhidas em dois meses lado a lado ou em um, com o intervalo desenhado antes de ser confirmado.",
+    "sections": {
+        "Two months": { "title": "Dois meses", "description": "O padrão. Escolha um início e depois um fim; a faixa entre eles segue o ponteiro antes da confirmação. Cada calendário para no próprio mês — os dias de um lado e do outro ficam em branco, em vez de repetir o mês vizinho." },
+        "One month": { "title": "Um mês", "description": "O mesmo intervalo num único calendário, para um formulário sem espaço para dois. Sem vizinho para repetir, os dias de um lado e do outro do mês voltam." },
+        "With the spans people ask for by name": { "title": "Com os intervalos que as pessoas pedem pelo nome", "description": "O rodapé é um slot: presets, uma contagem de noites, o que o formulário precisar." },
+        "Inline": { "title": "Inline", "description": "Sem o campo de texto nem o popup." },
+        "Showing the neighbouring days anyway": { "title": "Mostrando os dias vizinhos mesmo assim", "description": "`show-other-months` passa por cima do que o número de calendários decidiu. Dois meses com as bordas desenhadas: os últimos dias de fevereiro aparecem de novo como os primeiros de março, e um intervalo que cruza a virada é pintado duas vezes." },
+        "The shape of it": { "title": "Como usar" }
+    }
+}

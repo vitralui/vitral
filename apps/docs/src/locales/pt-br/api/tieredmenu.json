@@ -1,0 +1,11 @@
+{
+    "props": {
+        "model": "Os itens; os `items` de um item abrem como submenu ao lado dele, em qualquer profundidade.",
+        "popup": "Um menu popup, aberto por `toggle(event)` / `show(event)` e ancorado no elemento do evento.",
+        "appendTo": "Onde um popup é renderizado: `'body'` (o padrão), `'self'` para ficar no lugar, ou um seletor.",
+        "ariaLabel": "Dá nome ao menu. Um popup sem ele é nomeado pelo elemento que o abriu."
+    },
+    "slots": {
+        "item": "O conteúdo de um item. O elemento menuitem em volta, com seu papel e teclado, permanece."
+    }
+}

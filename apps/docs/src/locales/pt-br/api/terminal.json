@@ -1,0 +1,10 @@
+{
+    "props": {
+        "welcomeMessage": "Mostrado acima do primeiro comando.",
+        "prompt": "Com o que cada linha começa. O padrão é `'$'`.",
+        "inputLabel": "Dá nome à linha de comando. O padrão é o \"Command\" do locale."
+    },
+    "slots": {
+        "welcome": "Substitui a mensagem de boas-vindas."
+    }
+}

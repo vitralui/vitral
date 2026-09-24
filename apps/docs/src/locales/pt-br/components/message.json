@@ -1,0 +1,8 @@
+{
+    "description": "Uma mensagem inline com título, ação e botão de fechar, em todas as severidades.",
+    "sections": {
+        "InfoBar": { "title": "InfoBar", "description": "Título e mensagem dividem uma linha enquanto couberem." },
+        "Action and close": { "title": "Ação e fechar", "description": "O slot action recebe um botão ou link; `closable` adiciona um botão de fechar que emite `close`." },
+        "Variants": { "title": "Variantes", "description": "`outlined` e `simple`; todas as severidades funcionam com cada uma." }
+    }
+}

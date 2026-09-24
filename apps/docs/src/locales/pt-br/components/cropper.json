@@ -1,0 +1,11 @@
+{
+    "description": "Um retângulo de recorte sobre uma imagem, sem dependências: trave uma proporção, use uma máscara circular, gire e espelhe, e recorte no servidor ou no navegador.",
+    "sections": {
+        "Avatar": { "title": "Avatar", "description": "Um círculo trava a proporção em um e dispensa as alças: arraste o recorte, ou dê zoom nele. A pré-visualização ao lado é a mesma imagem sob uma caixa menor, não uma segunda renderização." },
+        "A ratio, with handles": { "title": "Uma proporção, com alças", "description": "Oito alças para o ponteiro, ocultas para tecnologias assistivas: o próprio retângulo é a única parada de tabulação." },
+        "Without the thirds": { "title": "Sem os terços", "description": "A guia fica ligada num retângulo e desligada num círculo, onde a regra dos terços não significa nada. `grid` decide por cima, num sentido ou no outro." },
+        "Free, with ratios and turns": { "title": "Livre, com proporções e giros", "description": "Um seletor trava a proporção; os giros de um quarto e os espelhamentos acompanham o recorte, que continua apontando para a mesma parte da imagem." },
+        "In a dialog": { "title": "Num diálogo", "description": "Onde um cropper costuma morar: uma foto é escolhida, recortada sobre a página, e o perfil só muda depois que ela é aceita. O diálogo dá a largura ao palco, então o recorte é medido em relação ao tamanho em que é de fato exibido." },
+        "The shape of it": { "title": "Como usar" }
+    }
+}

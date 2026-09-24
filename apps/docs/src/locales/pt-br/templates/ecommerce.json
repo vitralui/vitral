@@ -1,0 +1,36 @@
+{
+    "summary": "Uma loja virtual: catálogo, página de produto, carrinho e um checkout em três passos.",
+    "description": "Uma vitrine completa para uma pequena marca de artigos para casa. Navegue por cômodo, ordene a grade, abra um produto para escolher cor e tamanho, e leve-o por um carrinho com cupom até um checkout que valida cada passo antes de deixar você seguir.",
+    "tags": ["Loja", "Checkout", "Catálogo"],
+    "features": [
+        "Hero, blocos de categoria e uma grade de produtos que pode ser filtrada e ordenada",
+        "Página de produto com galeria de fotos, variantes, quantidade e avaliações",
+        "Um carrinho que recalcula enquanto você o edita, com um cupom que funciona (FERN10)",
+        "Um checkout linear: entrega, campos de pagamento com máscara, revisão",
+        "Estado do carrinho compartilhado entre todas as telas, com um badge ao vivo no cabeçalho"
+    ],
+    "faq": [
+        {
+            "question": "Ele aceita pagamentos de verdade?",
+            "answer": "Não. O checkout valida os campos e mostra uma confirmação, mas não há nenhum provedor de pagamento por trás — conecte o seu no handler que finaliza o pedido."
+        },
+        {
+            "question": "De onde vêm os dados dos produtos?",
+            "answer": "De data.ts, como objetos simples. Troque os arrays por um fetch, ou por um DataView ligado a uma fonte de dados, e as telas continuam funcionando."
+        },
+        {
+            "question": "Como o layout se adapta a um celular?",
+            "answer": "Por container queries na raiz do template, então ele se adapta ao espaço que recebe — um quadro de pré-visualização ou uma janela inteira. Os links do cabeçalho se recolhem num menu abaixo de 720px."
+        },
+        {
+            "question": "Posso mudar a aparência?",
+            "answer": "Toda cor, raio e sombra vem do preset ativo. Troque o tema acima da pré-visualização, ou passe o seu próprio preset ao plugin do Vitral."
+        }
+    ],
+    "screens": {
+        "home": { "name": "Loja", "summary": "Hero, categorias e uma grade de produtos ordenável" },
+        "product": { "name": "Produto", "summary": "Galeria, variantes, quantidade e avaliações" },
+        "cart": { "name": "Carrinho", "summary": "Itens, um cupom e o total do pedido" },
+        "checkout": { "name": "Checkout", "summary": "Entrega, pagamento e revisão em três passos" }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "description": "Uma conversa sem dependências, em cinco formatos, de uma thread simples a um agente com suas chamadas de ferramenta, com respostas que chegam no lugar.",
+    "sections": {
+        "Default": { "title": "Padrão", "description": "Pergunte alguma coisa. A resposta chega um token por vez, com um cursor depois do último caractere, e é anunciada quando se assenta. Anexe um arquivo com o clipe; Enter envia e Shift+Enter quebra a linha." },
+        "Two people": { "title": "Duas pessoas", "description": "`variant=\"messenger\"`: os dois lados ganham balão e avatar, e uma sequência de mensagens da mesma pessoa fica agrupada sob um só nome." },
+        "An agent and its tools": { "title": "Um agente e suas ferramentas", "description": "`variant=\"agent\"`: cada ferramenta a que o assistente recorreu é um passo que pode ser aberto — o que lhe foi pedido e o que respondeu —, e um que ainda está rodando avisa. Essa é toda a razão de mostrar os passos." },
+        "A copilot beside the work": { "title": "Um copilot ao lado do trabalho", "description": "`variant=\"copilot\"`: uma coluna estreita, sem balões e sem avatares, para um painel que fica ao lado do que está sendo escrito." },
+        "Captions": { "title": "Legendas", "description": "`variant=\"captions\"`: uma transcrição corrida em vez de uma conversa — sem balões, sem lados, o nome de quem fala na frente, e a linha ainda sendo reconhecida levando o cursor." },
+        "A widget": { "title": "Um widget", "description": "`variant=\"widget\"`: um launcher, e a thread num painel que abre sobre a página. O launcher informa se o painel está aberto e se nomeia em qualquer caso." },
+        "When an answer fails": { "title": "Quando uma resposta falha", "description": "Uma mensagem com `error` ocupa o seu lugar na thread, e `retryable` coloca embaixo dela o botão de perguntar de novo." }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "description": "Um select sobre uma árvore, com o mesmo filtro e a mesma seleção por checkbox da Tree.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Checkboxes and chips": { "title": "Checkboxes e chips" },
+        "Filter and multiple": { "title": "Filtro e múltipla" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

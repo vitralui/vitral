@@ -1,0 +1,7 @@
+{
+    "description": "Um fieldset nativo que dá nome aos controles de dentro e pode se recolher atrás da sua legenda.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Toggleable": { "title": "Recolhível" }
+    }
+}

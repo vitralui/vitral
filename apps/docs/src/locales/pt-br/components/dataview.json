@@ -1,0 +1,6 @@
+{
+    "description": "Ordenação e paginação sobre um template seu para cada item, exibido em lista ou em grade.",
+    "sections": {
+        "List and grid": { "title": "Lista e grade" }
+    }
+}

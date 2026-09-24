@@ -1,0 +1,9 @@
+{
+    "description": "Escolha uma opção de uma lista, com um filtro opcional que ignora maiúsculas e acentos.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Filter": { "title": "Filtro" },
+        "Groups": { "title": "Grupos" },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

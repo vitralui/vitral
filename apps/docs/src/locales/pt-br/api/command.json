@@ -1,0 +1,11 @@
+{
+    "props": {
+        "shouldFilter": "Oculta os itens que a busca não encontra. Desligado, a aplicação filtra (e renderiza só o que combina). O padrão é true.",
+        "filter": "Pontua um item em relação à busca: 0 (ou false) o oculta, e pontuações maiores vêm primeiro. O padrão é o `commandScore` do core (texto inteiro, depois prefixo, início de palavra, qualquer lugar e letras em ordem) sobre o valor e as palavras-chave, ignorando maiúsculas e acentos.",
+        "loop": "Com as setas, volta do último item para o primeiro.",
+        "label": "Dá nome à lista. O padrão é o \"Command palette\" do locale."
+    },
+    "emits": {
+        "select": "Um item foi escolhido, por Enter ou por um toque."
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "title": "Renderização no servidor",
+    "description": "Coletar o CSS que uma renderização usou, para que a página chegue estilizada em vez de se estilizar depois.",
+    "intro": "No navegador, um componente coloca a sua folha de estilos no head na primeira vez que renderiza, então a página só carrega os componentes que usa e nada precisa ser importado à mão. No servidor não há head onde colocá-la, então a renderização coleta as folhas de estilos e a aplicação as escreve no documento que envia.",
+    "render": {
+        "title": "A renderização",
+        "text": "Chame <code>collectStyles(app)</code> <em>depois</em> de <code>renderToString</code>, quando todos os componentes já pediram o que precisam. Ele retorna as custom properties do tema seguidas da folha de estilos de cada componente que renderizou, seja como uma única string <code>css</code>, seja como <code>tags</code>, os elementos <code>&lt;style&gt;</code> prontos para o head.",
+        "markers": "Os elementos levam os mesmos marcadores <code>data-vitral-theme</code> e <code>data-vitral-style</code> que o navegador escreve, então a hidratação os encontra e não injeta uma segunda cópia, e levam o <code>csp.nonce</code> que o plugin recebeu. Os ids vêm do <code>useId()</code> do Vue, que dá ao servidor e ao cliente os mesmos valores, então <code>aria-controls</code> e <code>&lt;label for&gt;</code> sobrevivem à hidratação."
+    },
+    "dark": {
+        "title": "Escuro antes da primeira pintura",
+        "text": "Um esquema escuro guardado só é conhecido pelo navegador, então uma página renderizada no servidor chegaria clara e escureceria quando o bundle rodasse — um clarão branco. <code>colorSchemeTag(app)</code> escreve um pequeno script para o head que lê a escolha guardada e a preferência do sistema, e marca o <code>&lt;html&gt;</code> antes que qualquer coisa seja pintada.",
+        "known": "Um servidor que já conhece o esquema, por um cookie, uma sessão ou a conta do usuário, não precisa de script e pode renderizar a marca ele mesmo:",
+        "spread": "Espalhe esses atributos no <code>&lt;html&gt;</code>. Os dois seguem o <code>darkModeSelector</code>, então um seletor personalizado não pede uma segunda edição."
+    },
+    "client": {
+        "title": "O que não se desenha no servidor",
+        "chart": "Um gráfico é desenhado medindo o elemento em que está, e nenhum servidor consegue fazer isso. Ele ainda assim renderiza esse elemento, um host vazio, e o preenche na montagem, então a marcação que o navegador hidrata é a mesma que recebeu. Segurar um componente até depois da montagem (<code>&lt;ClientOnly&gt;</code>) é pior: o seu <code>mounted</code> roda sem ter onde desenhar.",
+        "overlays": "Overlays (diálogos, menus, tooltips) abrem com a interação, então também nunca renderizam no servidor. São teleportados quando a página já está viva."
+    },
+    "nuxt": {
+        "title": "Nuxt",
+        "intro": "O módulo faz tudo isso, e ainda os auto-imports.",
+        "cookie": "O esquema fica num cookie e não no <code>localStorage</code>, porque só um cookie chega ao servidor. A página então é renderizada no esquema que o leitor escolheu, com <code>&lt;html class=\"vt-dark\"&gt;</code> e tudo. Com <code>'system'</code>, que nenhum servidor consegue resolver, o módulo escreve o script acima no lugar.",
+        "directives": "As diretivas mantêm os nomes simples (<code>v-tooltip</code>, seja qual for o prefixo) porque são registradas na aplicação em vez de importadas. Um template é compilado antes de qualquer auto-import rodar, então só um registro chega até ele."
+    },
+    "options": {
+        "title": "Opções",
+        "option": "Opção",
+        "type": "Tipo",
+        "description": "Descrição",
+        "preset": "Um preset pronto, pelo nome, um módulo que exporta um como default, ou <code>false</code> para nenhum tema.",
+        "colorScheme": "O esquema inicial, quando o cookie não diz nada.",
+        "cookie": "Onde a escolha do leitor fica guardada, para que o servidor possa lê-la. <code>false</code> a esquece entre uma visita e outra.",
+        "darkModeSelector": "Onde o esquema escuro se aplica: uma classe, um atributo, <code>'system'</code> ou <code>false</code>.",
+        "locale": "Um locale pronto, pelo nome, ou um módulo que exporta um como default.",
+        "prefix": "O prefixo de cada componente registrado: <code>'Vt'</code> por padrão, <code>''</code> para <code>&lt;Button&gt;</code>.",
+        "global": "Registra-os globalmente. Desligado, é preciso importar de <code>@vitral/vue</code> à mão.",
+        "shared": "As mesmas opções que o plugin aceita; veja a <a href=\"/docs/installation\">instalação</a>."
+    }
+}

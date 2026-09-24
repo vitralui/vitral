@@ -1,0 +1,9 @@
+{
+    "description": "Um contêiner com título que pode se recolher atrás do seu cabeçalho.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Toggleable (Expander)": { "title": "Recolhível (Expander)" },
+        "Header actions and footer": { "title": "Ações no cabeçalho e rodapé" },
+        "Custom toggle icon, starting collapsed": { "title": "Ícone de alternância personalizado, começando recolhido" }
+    }
+}

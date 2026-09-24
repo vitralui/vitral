@@ -1,0 +1,14 @@
+{
+    "props": {
+        "optionLabel": "Campo (caminho com pontos) com o texto de um item, para o template padrão e os anúncios.",
+        "dataKey": "Um campo que identifica um item.",
+        "header": "O título da lista; ele dá nome à lista. Sem ele, nomeie-a com `aria-label`.",
+        "dragdrop": "Permite arrastar itens para um novo lugar. O padrão é true.",
+        "showControls": "Mostra os botões de mover. O padrão é true.",
+        "scrollHeight": "A altura da lista."
+    },
+    "slots": {
+        "option": "O conteúdo de um item.",
+        "header": "Substitui o título."
+    }
+}
