@@ -74,8 +74,12 @@ const tx = computed(() => (stacked.value ? transitionName(props.transition as ne
 
 const trackStyle = computed(() => {
     if (stacked.value) return undefined;
-    const at = `calc(${-first.value * share.value}% + ${swipe.offset.value}px)`;
-    return { transform: vertical.value ? `translateY(${at})` : `translateX(${at})` };
+    if (vertical.value) return { transform: `translateY(calc(${-first.value * share.value}% + ${swipe.offset.value}px))` };
+    // The strip runs the reading direction's way, so right to left the items
+    // after the first sit to its left and the strip moves right to reach them.
+    // The sign is the stylesheet's (`--_dir`), which knows the direction; the
+    // pointer's offset is in screen pixels either way.
+    return { transform: `translateX(calc(${-first.value * share.value}% * var(--_dir, 1) + ${swipe.offset.value}px))` };
 });
 const itemStyle = computed(() => (stacked.value ? undefined : vertical.value ? { height: `${share.value}%` } : { width: `${share.value}%` }));
 const isVisible = (index: number) => index >= first.value && index < first.value + layout.value.numVisible;

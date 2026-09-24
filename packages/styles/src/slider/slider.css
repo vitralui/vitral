@@ -5,6 +5,9 @@
  */
 .vt-slider {
     --_half-thumb: calc(var(--vt-slider-thumb-size) / 2);
+    /* The thumb is centred on its value by moving it back half its width: back
+       is to the left reading left to right, to the right reading right to left. */
+    --_dir: 1;
 
     position: relative;
     display: flex;
@@ -72,8 +75,12 @@
     background: var(--vt-slider-thumb-background);
     border-radius: var(--vt-slider-thumb-border-radius);
     box-shadow: var(--vt-slider-thumb-shadow);
-    transform: translate(-50%, -50%);
+    transform: translate(calc(-50% * var(--_dir)), -50%);
     outline: none;
+}
+
+.vt-slider:dir(rtl) {
+    --_dir: -1;
 }
 
 .vt-slider-vertical .vt-slider-thumb {

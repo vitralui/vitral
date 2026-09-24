@@ -46,10 +46,10 @@ const percent = (value: number) => valueToRatio(value, scale.value.min, scale.va
 const rangeStyle = computed(() => {
     const start = props.range ? percent(values.value[0]) : 0;
     const end = percent(values.value[props.range ? 1 : 0]);
-    return vertical.value ? { bottom: `${start}%`, height: `${end - start}%` } : { left: `${start}%`, width: `${end - start}%` };
+    return vertical.value ? { bottom: `${start}%`, height: `${end - start}%` } : { insetInlineStart: `${start}%`, width: `${end - start}%` };
 });
 
-const thumbStyle = (index: 0 | 1) => (vertical.value ? { bottom: `${percent(values.value[index])}%` } : { left: `${percent(values.value[index])}%` });
+const thumbStyle = (index: 0 | 1) => (vertical.value ? { bottom: `${percent(values.value[index])}%` } : { insetInlineStart: `${percent(values.value[index])}%` });
 
 const state = computed(() => ({ orientation: props.orientation, range: props.range, disabled: props.disabled, dragging: dragging.value }));
 
@@ -131,7 +131,9 @@ const drag = useDrag();
 
 function valueAt(event: PointerEvent): number {
     const rect = trackRef.value!.getBoundingClientRect();
-    const offset = vertical.value ? event.clientY - rect.top : event.clientX - rect.left;
+    // Right to left, the minimum is at the right end of the track.
+    const rtl = !vertical.value && getComputedStyle(trackRef.value!).direction === 'rtl';
+    const offset = vertical.value ? event.clientY - rect.top : rtl ? rect.right - event.clientX : event.clientX - rect.left;
     const ratio = pointerRatio(offset, vertical.value ? rect.height : rect.width, vertical.value);
     return ratioToValue(ratio, scale.value.min, scale.value.max);
 }

@@ -78,6 +78,12 @@
     transform: translateX(var(--_travel));
 }
 
+/* The knob starts at the inline start, which reading right to left is the right
+   end: on, it travels left. A positive travel took it out past the track. */
+.vt-toggleswitch-checked .vt-toggleswitch-knob:dir(rtl) {
+    transform: translateX(calc(-1 * var(--_travel)));
+}
+
 .vt-toggleswitch:not(.vt-toggleswitch-disabled) .vt-toggleswitch-body:hover .vt-toggleswitch-track {
     --_knob: var(--vt-toggleswitch-knob-hover-size);
     background: var(--vt-toggleswitch-hover-background);

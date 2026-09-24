@@ -28,8 +28,15 @@
 }
 
 .vt-carousel-track {
+    --_dir: 1;
     display: flex;
     transition: transform var(--vt-carousel-transition-duration) ease-in-out;
+}
+
+/* Right to left, the strip's later items lie to its left: the component moves
+   it by this sign, so the next page slides in from the reading direction's end. */
+.vt-carousel-track:dir(rtl) {
+    --_dir: -1;
 }
 
 .vt-carousel-track-dragging {

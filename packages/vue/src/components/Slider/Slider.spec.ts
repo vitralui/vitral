@@ -50,7 +50,7 @@ describe('Slider', () => {
         expect(thumb!.getAttribute('aria-valuemax')).toBe('60');
         expect(thumb!.getAttribute('aria-valuetext')).toBe('30%');
         expect(thumb!.getAttribute('aria-orientation')).toBe('horizontal');
-        expect(thumb!.style.left).toBe('40%');
+        expect(thumb!.style.insetInlineStart).toBe('40%');
     });
 
     it('sends class to the root and other attributes to the thumb', () => {

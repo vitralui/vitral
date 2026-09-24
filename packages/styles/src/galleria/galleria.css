@@ -16,6 +16,16 @@
     flex-direction: row;
 }
 
+/* `left` and `right` name sides of the screen, so right to left, where a row
+   runs the other way, the two swap their direction to stay on their side. */
+.vt-galleria-thumbnails-left:dir(rtl) {
+    flex-direction: row;
+}
+
+.vt-galleria-thumbnails-right:dir(rtl) {
+    flex-direction: row-reverse;
+}
+
 .vt-galleria-stage {
     position: relative;
     display: flex;

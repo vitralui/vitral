@@ -96,6 +96,10 @@
 .vt-cropper-handle-sw { top: 100%; inset-inline-start: 0; transform: translate(-50%, -50%); cursor: nesw-resize; }
 .vt-cropper-handle-w { top: 50%; inset-inline-start: 0; transform: translate(-50%, -50%); cursor: ew-resize; }
 
+/* Right to left, the inline start is the right edge: a handle is centred on it
+   by moving right, not left, or it sits half inside the area. */
+.vt-cropper-handle:dir(rtl) { transform: translate(50%, -50%); }
+
 /* Right to left, a corner's cursor points the other way. */
 [dir='rtl'] .vt-cropper-handle-nw,
 [dir='rtl'] .vt-cropper-handle-se { cursor: nesw-resize; }
