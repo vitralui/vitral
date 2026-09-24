@@ -37,6 +37,9 @@ a {
     /* The space between the column and the window's edge, growing with the window. */
     --site-gutter: clamp(1.25rem, 5vw, 4rem);
     --site-bar-height: 56px;
+    /* What stays stuck at the top as the page scrolls: the bar, and on a narrow
+       screen the pane's bar under it. An anchor lands below all of it. */
+    --site-sticky: var(--site-bar-height);
     --site-pane: 240px;
     --site-toc: 200px;
 }
@@ -792,14 +795,14 @@ a {
     font-size: 1.375rem;
     font-weight: 600;
     letter-spacing: -0.015em;
-    scroll-margin-top: calc(var(--site-bar-height) + 1rem);
+    scroll-margin-top: calc(var(--site-sticky) + 1rem);
 }
 
 .prose h3 {
     margin: 1.75rem 0 0.5rem;
     font-size: 1rem;
     font-weight: 600;
-    scroll-margin-top: calc(var(--site-bar-height) + 1rem);
+    scroll-margin-top: calc(var(--site-sticky) + 1rem);
 }
 
 .prose p,
@@ -1030,7 +1033,7 @@ a {
 
 .demo-section {
     margin: 2rem 0;
-    scroll-margin-top: calc(var(--site-bar-height) + 1rem);
+    scroll-margin-top: calc(var(--site-sticky) + 1rem);
 }
 
 .demo-section > header {
@@ -1521,6 +1524,68 @@ a {
     .pane {
         display: none;
     }
+}
+
+/* ---- the pane on a narrow screen: a bar under the site's, opening a drawer ---- */
+
+.docs-localnav {
+    display: none;
+    position: sticky;
+    top: var(--site-bar-height);
+    z-index: 800;
+    grid-column: 1 / -1;
+    align-items: center;
+    margin: 0 calc(-1 * var(--site-gutter));
+    padding: 0 var(--site-gutter);
+    height: 2.75rem;
+    border-bottom: 1px solid var(--vt-content-border-color);
+    background: color-mix(in srgb, var(--vt-app-background) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.docs-localnav-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    margin-inline-start: -0.5rem;
+    border: 0;
+    border-radius: var(--vt-border-radius-md);
+    background: none;
+    color: var(--vt-text-muted-color);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.docs-localnav-button:hover {
+    background: var(--vt-content-hover-background);
+    color: var(--vt-text-color);
+}
+
+.docs-localnav-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+@media (max-width: 900px) {
+    :root {
+        --site-sticky: calc(var(--site-bar-height) + 2.75rem);
+    }
+
+    .docs-localnav {
+        display: flex;
+    }
+}
+
+/* In the drawer the pane is a plain list, whatever the width says about the aside. */
+.pane-drawer .pane {
+    display: block;
+    position: static;
+    max-height: none;
+    padding: 0;
 }
 
 
@@ -2961,7 +3026,7 @@ a {
 }
 
 .tpl-shot-item {
-    scroll-margin-top: calc(var(--site-bar-height) + 1.5rem);
+    scroll-margin-top: calc(var(--site-sticky) + 1.5rem);
 }
 
 .tpl-shot-head {

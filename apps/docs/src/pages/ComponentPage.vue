@@ -45,13 +45,13 @@ const toc = computed(() => [
             </div>
         </div>
 
-        <h2 id="import" class="prose" style="margin: 0; font-size: 1.375rem; font-weight: 600; scroll-margin-top: 4.5rem">{{ t('Import') }}</h2>
+        <h2 id="import" class="prose" style="margin: 0; font-size: 1.375rem; font-weight: 600; scroll-margin-top: calc(var(--site-sticky) + 1rem)">{{ t('Import') }}</h2>
         <CodeBlock :code="importSnippet" label="main.ts" lang="ts" />
 
         <component :is="entry.component" :key="entry.id" />
 
         <template v-if="api">
-            <h2 id="api" class="prose" style="margin: 2.5rem 0 0.5rem; font-size: 1.375rem; font-weight: 600; scroll-margin-top: 4.5rem">API</h2>
+            <h2 id="api" class="prose" style="margin: 2.5rem 0 0.5rem; font-size: 1.375rem; font-weight: 600; scroll-margin-top: calc(var(--site-sticky) + 1rem)">API</h2>
             <p style="margin: 0 0 1rem; font-size: 0.875rem; color: var(--vt-text-muted-color)">
                 {{ t('Read from') }} <code>{{ `packages/vue/src/components/${entry.file}/types.ts` }}</code
                 >{{ t(', so it says what the component actually accepts.') }}

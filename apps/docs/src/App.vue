@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Icon, ScrollTop } from '@vitral/vue';
+import { Drawer, Icon, ScrollTop } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { categoryName } from './demo';
-import { entryOf, entryText, sections } from './lib/catalog';
-import { guideOf, guideSections, guideText, sectionName } from './lib/guides';
+import { entryOf } from './lib/catalog';
+import { guideOf } from './lib/guides';
 import { t } from './lib/i18n';
 import { templateOf } from './templates';
 import { useDocumentHead } from './lib/head';
@@ -19,7 +18,7 @@ import NotFound from './pages/NotFound.vue';
 import TemplateFullscreen from './pages/TemplateFullscreen.vue';
 import TemplatePage from './pages/TemplatePage.vue';
 import TemplatesPage from './pages/TemplatesPage.vue';
-import AddonNav from './parts/AddonNav.vue';
+import PaneLinks from './parts/PaneLinks.vue';
 import SiteFooter from './parts/SiteFooter.vue';
 import TopBar from './parts/TopBar.vue';
 
@@ -27,6 +26,8 @@ installThemeSwitcher();
 useDocumentHead();
 
 const search = ref(false);
+/** The pane as a drawer, on a screen too narrow to show it beside the page. */
+const paneOpen = ref(false);
 const isDocs = computed(() => route.value.name === 'doc');
 
 /**
@@ -68,6 +69,8 @@ function revealCurrent(smooth: boolean) {
 // On arrival there is nothing to animate, and afterwards the movement says the
 // list followed you rather than jumped.
 onMounted(() => nextTick(() => revealCurrent(false)));
+// A link in the drawer has done its job once the page it opens is up.
+watch(() => route.value.path, () => (paneOpen.value = false));
 watch(() => route.value.path, () => nextTick(() => revealCurrent(true)));
 
 // A new page starts at its top, at once, whatever the page's smooth scrolling
@@ -114,27 +117,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <ChartsPage v-else-if="route.name === 'charts'" />
 
         <div v-else class="docs">
-            <nav ref="pane" class="pane" :aria-label="isDocs ? t('Documentation') : t('Components')">
-                <template v-if="isDocs">
-                    <template v-for="group in guideSections" :key="group.section">
-                        <h2>{{ sectionName(group.section) }}</h2>
-                        <a v-for="guide in group.items" :key="guide.id" :href="href(`/docs/${guide.id}`)" :aria-current="route.id === guide.id ? 'page' : undefined">
-                            {{ guideText(guide).title }}
-                        </a>
-                    </template>
-                    <h2>{{ t('Components') }}</h2>
-                    <a :href="href('/components')" class="pane-more">{{ t('All components') }} <Icon icon="arrowRight" /></a>
-                </template>
+            <!-- Below the width where the pane fits, a bar under the site's own
+                 opens the same list as a drawer, the way VitePress does. -->
+            <div class="docs-localnav">
+                <button type="button" class="docs-localnav-button" aria-haspopup="dialog" :aria-expanded="paneOpen" @click="paneOpen = true">
+                    <Icon icon="sidebar" />
+                    {{ isDocs ? t('Documentation') : t('Components') }}
+                </button>
+            </div>
+            <Drawer v-model:visible="paneOpen" :header="isDocs ? t('Documentation') : t('Components')" position="left" class="pane-drawer">
+                <nav class="pane" :aria-label="isDocs ? t('Documentation') : t('Components')">
+                    <PaneLinks :docs="isDocs" />
+                </nav>
+            </Drawer>
 
-                <template v-else>
-                    <AddonNav />
-                    <template v-for="group in sections" :key="group.category">
-                        <h2>{{ categoryName(group.category) }}</h2>
-                        <a v-for="entry in group.items" :key="entry.id" :href="href(`/components/${entry.id}`)" :aria-current="route.id === entry.id ? 'page' : undefined">
-                            {{ entryText(entry).title }}
-                        </a>
-                    </template>
-                </template>
+            <nav ref="pane" class="pane" :aria-label="isDocs ? t('Documentation') : t('Components')">
+                <PaneLinks :docs="isDocs" />
             </nav>
 
             <DocPage v-if="isDocs" />

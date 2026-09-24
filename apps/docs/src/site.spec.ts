@@ -7,6 +7,7 @@ import App from './App.vue';
 import { entries } from './lib/catalog';
 import { themes } from './lib/presets';
 import { direction, presetId } from './lib/theme';
+import { navigate } from './lib/router';
 import { apiOf } from './lib/api';
 import { guides } from './lib/guides';
 import { sectionSources } from './lib/source';
@@ -258,6 +259,19 @@ describe('the site', () => {
         const links = wrapper.findAll('.components-card').map((link) => link.attributes('href'));
         expect(links).toHaveLength(entries.length);
         for (const entry of entries) expect(links).toContain(`/components/${entry.id}/`);
+    });
+
+    it("opens the pane as a drawer from the bar under the site's, and closes it on the way to a page", async () => {
+        const wrapper = mountSite('/components/button');
+        await wrapper.find('.docs-localnav-button').trigger('click');
+        await flushPromises();
+        const drawer = document.querySelector('.pane-drawer');
+        expect(drawer?.querySelector('a[href="/components/datepicker/"]')).not.toBeNull();
+        // The site turns a press on a link into this; the test has no listener for it.
+        navigate('/components/datepicker');
+        await flushPromises();
+        expect(location.pathname).toBe('/components/datepicker/');
+        expect(wrapper.find('.docs-localnav-button').attributes('aria-expanded')).toBe('false');
     });
 
     it('lists every component in the pane', () => {
