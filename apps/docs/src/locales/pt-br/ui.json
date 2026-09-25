@@ -314,5 +314,17 @@
     "Close the search": "Fechar a busca",
     "View code": "Ver código",
     "Copy the code": "Copiar o código",
-    "A Vue 3 component library on a token engine: one set of tokens themes every component, light and dark, with the WAI-ARIA behaviour built in.": "Uma biblioteca de componentes para Vue 3 sobre um motor de tokens: um só conjunto de tokens dá o tema a todos os componentes, claro e escuro, com o comportamento WAI-ARIA já embutido."
+    "A Vue 3 component library on a token engine: one set of tokens themes every component, light and dark, with the WAI-ARIA behaviour built in.": "Uma biblioteca de componentes para Vue 3 sobre um motor de tokens: um só conjunto de tokens dá o tema a todos os componentes, claro e escuro, com o comportamento WAI-ARIA já embutido.",
+    "From the documentation of Vitral, a Vue 3 component library.": "Da documentação do Vitral, uma biblioteca de componentes para Vue 3.",
+    "Live examples with the code behind each one, and its API.": "Exemplos ao vivo com o código de cada um, e a API.",
+    "Copy any icon as an import or as SVG.": "Copie qualquer ícone como import ou como SVG.",
+    "Each one opens as a live demo, with its source on GitHub.": "Cada um abre como demo ao vivo, com o código no GitHub.",
+    "A Vue 3 template built from Vitral components, with its source on GitHub.": "Um template Vue 3 feito com componentes Vitral, com o código no GitHub.",
+    "Related components": "Componentes relacionados",
+    "Used in these templates": "Usado nestes templates",
+    "Free and open source. One package, one plugin call, and every component is themed.": "Gratuito e de código aberto. Um pacote, uma chamada de plugin, e todos os componentes ganham tema.",
+    "Read the installation guide": "Ler o guia de instalação",
+    "Star on GitHub": "Dar uma estrela no GitHub",
+    "Package manager: {name}": "Gerenciador de pacotes: {name}",
+    "Package manager": "Gerenciador de pacotes"
 }

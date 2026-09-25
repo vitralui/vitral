@@ -8,9 +8,12 @@ import { entries } from './lib/catalog';
 import { themes } from './lib/presets';
 import { direction, presetId } from './lib/theme';
 import { navigate } from './lib/router';
-import { apiOf } from './lib/api';
+import { apiOf, loadApi } from './lib/api';
 import { guides } from './lib/guides';
-import { sectionSources } from './lib/source';
+import { lang } from './lib/i18n';
+import { preload } from './lib/preload';
+import { route } from './lib/router';
+import { loadSectionSources } from './lib/source';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,9 +30,11 @@ import { templates } from './templates';
 const mounted: { unmount: () => void }[] = [];
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '../public');
 
-function mountSite(path: string) {
+/** As the site does: the page's demos, code and words are fetched, then it mounts. */
+async function mountSite(path: string) {
     history.replaceState(null, '', path);
     dispatchEvent(new PopStateEvent('popstate'));
+    await preload(route.value.path, lang.value);
     const wrapper = mount(App, { attachTo: document.body, global: { plugins: [[Vitral, { theme: 'none' }]] } });
     mounted.push(wrapper);
     return wrapper;
@@ -52,7 +57,7 @@ afterEach(() => {
 
 describe('the site', () => {
     it('shows the landing page at the root', async () => {
-        const wrapper = mountSite('/');
+        const wrapper = await mountSite('/');
         expect(wrapper.find('h1').text()).toContain('Components that take the shape of your brand');
         // The hero shows the library itself, and every category links to its components.
         expect(wrapper.findAll('.home-category').length).toBeGreaterThan(5);
@@ -64,8 +69,8 @@ describe('the site', () => {
         expect(hero.find('.home-card-stat .vt-chart').exists()).toBe(true);
     });
 
-    it('shows templates on the landing page, each linking to its page', () => {
-        const wrapper = mountSite('/');
+    it('shows templates on the landing page, each linking to its page', async () => {
+        const wrapper = await mountSite('/');
         const cards = wrapper.findAll('.home-template');
         expect(cards.length).toBeGreaterThanOrEqual(4);
         expect(cards.length).toBeLessThanOrEqual(6);
@@ -74,16 +79,45 @@ describe('the site', () => {
         expect(wrapper.html()).not.toContain('/themes');
     });
 
-    it('opens a component page with its demos, its import and its API', () => {
-        const wrapper = mountSite('/components/button');
+    it('opens a component page with its demos, its import and its API', async () => {
+        const wrapper = await mountSite('/components/button');
         expect(wrapper.find('.doc-head h1').text()).toBe('Button');
         expect(wrapper.findAll('.demo-section').length).toBeGreaterThan(0);
         expect(wrapper.find('.code pre').text()).toContain("import { Button } from '@vitral/vue'");
         expect(wrapper.find('.api-table').exists()).toBe(true);
     });
 
+    it('ends a component page with where to go next and how to start', async () => {
+        const wrapper = await mountSite('/components/datagrid');
+        // What the templates build with the grid, before the rest of its category.
+        const related = wrapper.findAll('.page-end-related .components-card').map((link) => link.attributes('href'));
+        expect(related.length).toBe(4);
+        expect(related).not.toContain('/components/datagrid/');
+        const users = templates.filter((entry) => entry.components.includes('DataGrid'));
+        expect(wrapper.findAll('.page-end-related .tpl-components a')).toHaveLength(users.length);
+        expect(wrapper.find('.page-end-start a[href="/docs/installation/"]').exists()).toBe(true);
+        await expectNoA11yViolations(wrapper.find('.page-end-start').element);
+    });
+
+    it('describes each page to a search engine, with the trail back to the home page', async () => {
+        await mountSite('/components/datagrid');
+        const data = JSON.parse(document.head.querySelector('script[type="application/ld+json"]')!.textContent!);
+        const page = data['@graph'].find((node: { '@type': string }) => node['@type'] === 'TechArticle');
+        expect(page.headline).toBe('DataGrid — Vue component');
+        const trail = data['@graph'].find((node: { '@type': string }) => node['@type'] === 'BreadcrumbList');
+        expect(trail.itemListElement.map((item: { name: string }) => item.name)).toEqual(['Vitral', 'Components', 'DataGrid']);
+        expect(trail.itemListElement.at(-1).item).toBe('https://vitralui.github.io/components/datagrid/');
+        // What a result shows fits in a result.
+        for (const path of ['/docs/forms', '/docs/introduction', `/templates/${templates[0]!.id}`]) {
+            await mountSite(path);
+            const description = document.head.querySelector<HTMLMetaElement>('meta[name="description"]')!.content;
+            expect(description.length, path).toBeGreaterThanOrEqual(70);
+            expect(description.length, path).toBeLessThanOrEqual(160);
+        }
+    });
+
     it('lists every template in the gallery, and filters them by category', async () => {
-        const wrapper = mountSite('/templates');
+        const wrapper = await mountSite('/templates');
         expect(wrapper.find('.topbar').exists()).toBe(true);
         expect(wrapper.findAll('.tpl-card')).toHaveLength(templates.length);
         for (const entry of templates) {
@@ -121,7 +155,7 @@ describe('the site', () => {
 
     for (const entry of templates) {
         it(`shows the ${entry.name} template in pictures, with its demo and source a click away`, async () => {
-            const wrapper = mountSite(`/templates/${entry.id}`);
+            const wrapper = await mountSite(`/templates/${entry.id}`);
             await flushPromises();
             expect(wrapper.find('.tpl-detail h1').text()).toBe(entry.name);
             const demo = () => wrapper.findAll('.tpl-hero a').find((link) => link.text() === 'Live demo')!;
@@ -130,7 +164,8 @@ describe('the site', () => {
             expect(source.attributes('target')).toBe('_blank');
 
             // No template runs on this page: every screen is a whole-page picture, in order, each opening the demo on itself.
-            expect(wrapper.findAllComponents(entry.layout)).toHaveLength(0);
+            // Found by identity: every async component shares the wrapper's name, the page's own included.
+            expect(wrapper.findAllComponents(entry.layout).filter((found) => found.vm.$.type === entry.layout)).toHaveLength(0);
             const items = wrapper.findAll('.tpl-shots .tpl-shot-item');
             expect(items.map((item) => item.find('h3').text())).toEqual(entry.screens.map((screen) => screen.name));
             for (const [i, screen] of entry.screens.entries()) {
@@ -152,7 +187,7 @@ describe('the site', () => {
 
     it('opens a template full screen, without the site around it', async () => {
         const entry = templates[0]!;
-        const wrapper = mountSite(`/templates/${entry.id}/preview/${entry.screens[1]!.id}`);
+        const wrapper = await mountSite(`/templates/${entry.id}/preview/${entry.screens[1]!.id}`);
         // The layout and its screens are loaded on demand.
         await vi.waitFor(async () => {
             await flushPromises();
@@ -168,15 +203,15 @@ describe('the site', () => {
         await expectNoA11yViolations(wrapper.find('.tpl-float').element);
     });
 
-    it('drops the bar when the screen is being photographed', () => {
+    it('drops the bar when the screen is being photographed', async () => {
         const entry = templates[0]!;
-        const wrapper = mountSite(`/templates/${entry.id}/preview?shot`);
+        const wrapper = await mountSite(`/templates/${entry.id}/preview?shot`);
         expect(wrapper.find('.tpl-full').exists()).toBe(true);
         expect(wrapper.find('.tpl-float').exists()).toBe(false);
     });
 
     it('lists the templates by category in the bar, with the search finding them too', async () => {
-        const wrapper = mountSite('/');
+        const wrapper = await mountSite('/');
         const button = wrapper.findAll('.top-nav button').find((entry) => entry.text().startsWith('Templates'))!;
         await button.trigger('click');
         expect(button.attributes('aria-expanded')).toBe('true');
@@ -189,7 +224,7 @@ describe('the site', () => {
     });
 
     it('opens the search across the bar, and puts the bar back when it closes', async () => {
-        const wrapper = mountSite('/');
+        const wrapper = await mountSite('/');
         await wrapper.find('.search-btn').trigger('click');
         // The field is laid over the menus; the buttons after it stay.
         expect(wrapper.find('.topbar').classes()).toContain('is-searching');
@@ -203,7 +238,7 @@ describe('the site', () => {
     });
 
     it('closes the menus when the page turns over to the other direction', async () => {
-        const wrapper = mountSite('/');
+        const wrapper = await mountSite('/');
         const button = wrapper.findAll('.top-nav button')[0]!;
         await button.trigger('click');
         expect(wrapper.find('.mega-panel').exists()).toBe(true);
@@ -214,28 +249,28 @@ describe('the site', () => {
         await flushPromises();
     });
 
-    it('sends the retired theme pages, and the old fragment links, to where they live now', () => {
+    it('sends the retired theme pages, and the old fragment links, to where they live now', async () => {
         for (const old of ['/themes', '/themes/ink']) {
-            const wrapper = mountSite(old);
+            const wrapper = await mountSite(old);
             expect(location.pathname).toBe('/templates/');
             expect(wrapper.find('.tpl-gallery-page').exists()).toBe(true);
         }
     });
 
-    it('sends a page that was renamed to the name it has now', () => {
-        const wrapper = mountSite('/components/password');
+    it('sends a page that was renamed to the name it has now', async () => {
+        const wrapper = await mountSite('/components/password');
         expect(location.pathname).toBe('/components/inputpassword/');
         expect(wrapper.find('.doc-head h1').text()).toBe('InputPassword');
     });
 
-    it('opens a guide', () => {
-        const wrapper = mountSite('/docs/theming');
+    it('opens a guide', async () => {
+        const wrapper = await mountSite('/docs/theming');
         expect(wrapper.find('.doc-head h1').text()).toBe('Theming');
         expect(wrapper.find('.prose').text()).toContain('token');
     });
 
     it('reads the same page in Portuguese under /pt-br, and links to the other language', async () => {
-        const wrapper = mountSite('/pt-br/docs/dark-mode');
+        const wrapper = await mountSite('/pt-br/docs/dark-mode');
         await flushPromises();
         expect(document.documentElement.lang).toBe('pt-BR');
         expect(wrapper.find('.doc-head h1').text()).toBe('Esquemas de cores');
@@ -253,8 +288,8 @@ describe('the site', () => {
         expect(alternates).toEqual(['en', 'pt-BR', 'x-default']);
     });
 
-    it('lists every component at /components, rather than opening the first one', () => {
-        const wrapper = mountSite('/components');
+    it('lists every component at /components, rather than opening the first one', async () => {
+        const wrapper = await mountSite('/components');
         expect(wrapper.find('.components-page h1').text()).toBe(`${entries.length} components`);
         const links = wrapper.findAll('.components-card').map((link) => link.attributes('href'));
         expect(links).toHaveLength(entries.length);
@@ -262,7 +297,7 @@ describe('the site', () => {
     });
 
     it("opens the pane as a drawer from the bar under the site's, and closes it on the way to a page", async () => {
-        const wrapper = mountSite('/components/button');
+        const wrapper = await mountSite('/components/button');
         await wrapper.find('.docs-localnav-button').trigger('click');
         await flushPromises();
         const drawer = document.querySelector('.pane-drawer');
@@ -274,16 +309,18 @@ describe('the site', () => {
         expect(wrapper.find('.docs-localnav-button').attributes('aria-expanded')).toBe('false');
     });
 
-    it('lists every component in the pane', () => {
-        const wrapper = mountSite('/components/button');
+    it('lists every component in the pane', async () => {
+        const wrapper = await mountSite('/components/button');
         const links = wrapper.findAll('.pane a').map((link) => link.attributes('href'));
         for (const entry of entries) expect(links).toContain(`/components/${entry.id}/`);
     });
 
-    it('reads a snippet for every demo section', () => {
+    it('reads a snippet for every demo section', async () => {
         for (const entry of entries) {
-            const sources = sectionSources(entry.file);
+            const sources = await loadSectionSources(entry.file);
             expect(sources.size, `${entry.file} has no sections`).toBeGreaterThan(0);
+            // The menus know a page's sections before its code arrives; both have to agree.
+            expect([...sources.keys()], entry.file).toEqual(entry.sections);
             for (const [title, source] of sources) expect(source.code.trim(), `${entry.file} › ${title}`).not.toBe('');
         }
     });
@@ -298,7 +335,8 @@ describe('the site', () => {
         }
     });
 
-    it('reads props out of every component that declares them', () => {
+    it('reads props out of every component that declares them', async () => {
+        await Promise.all(entries.map((entry) => loadApi(entry.file)));
         const missing = entries.filter((entry) => !apiOf(entry.file)?.props.length);
         // Layout panels take their configuration through slots, not props, so a
         // handful legitimately have none; a whole-catalog blank means the parser broke.
@@ -308,7 +346,7 @@ describe('the site', () => {
     it('shows every icon, filters them, and copies from the one picked', async () => {
         const writes: string[] = [];
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (text: string) => void writes.push(text) } });
-        const wrapper = mountSite('/icons');
+        const wrapper = await mountSite('/icons');
         expect(wrapper.find('.doc-head h1').text()).toContain(String(iconList.length));
         expect(wrapper.findAll('.icons-tile')).toHaveLength(iconList.length);
         expect(wrapper.find('.top-nav a[href="/icons/"]').attributes('aria-current')).toBe('page');

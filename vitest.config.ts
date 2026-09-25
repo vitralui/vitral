@@ -1,10 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import { aliases } from './aliases.ts';
 import { rawCss } from './scripts/raw-css.ts';
+import { sfcMeta } from './scripts/sfc-meta.ts';
 import { vitralVue } from './scripts/vue-plugin.ts';
 
 export default defineConfig({
-    plugins: [rawCss(), vitralVue()],
+    plugins: [sfcMeta(), rawCss(), vitralVue()],
     resolve: { alias: aliases },
     test: {
         environment: 'jsdom',

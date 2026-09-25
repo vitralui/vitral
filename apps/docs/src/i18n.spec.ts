@@ -4,13 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { categories as iconCategories } from '@vitral/icons/registry';
 import { addons } from './lib/addons';
-import { apiOf } from './lib/api';
+import { apiOf, loadApi } from './lib/api';
 import { chartEntries, families } from './lib/charts';
 import { entries } from './lib/catalog';
 import { guides } from './lib/guides';
 import { themes } from './lib/presets';
 import { directionOptions, swatches } from './lib/theme';
-import { sectionSources } from './lib/source';
 import { templates } from './templates';
 
 /**
@@ -102,7 +101,7 @@ describe.each(languages)('the %s translation', (which) => {
             const described = new Set([...source.matchAll(/<DemoSection\b(?:"[^"]*"|[^>"])*?\btitle="([^"]*)"(?:"[^"]*"|[^>"])*?(?<!:)\bdescription="/g)].map((match) => match[1]!));
             return [
                 ...(entry.meta.description && typeof json?.description !== 'string' ? ['description'] : []),
-                ...[...sectionSources(entry.file).keys()].flatMap((title) => [
+                ...entry.sections.flatMap((title) => [
                     // A title may stay in English — one that names a chart type, say —
                     // but the section must have been looked at.
                     ...(typeof sections[title] !== 'object' ? [`sections.${title}`] : []),
@@ -139,7 +138,8 @@ describe.each(languages)('the %s translation', (which) => {
         );
     });
 
-    it('has every documented prop, event and slot', () => {
+    it('has every documented prop, event and slot', async () => {
+        await Promise.all(entries.map((entry) => loadApi(entry.file)));
         const gaps = entries.flatMap((entry) => {
             const api = apiOf(entry.file);
             if (!api) return [];

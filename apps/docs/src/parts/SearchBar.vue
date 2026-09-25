@@ -2,6 +2,7 @@
 import { Icon } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { categoryName } from '../demo';
+import { track } from '../lib/analytics';
 import { entries, entryText } from '../lib/catalog';
 import { guides, guideText, sectionName } from '../lib/guides';
 import { t } from '../lib/i18n';
@@ -57,6 +58,7 @@ function close() {
 
 function go(hit?: Hit) {
     if (!hit) return;
+    track('search', { search_term: query.value.trim(), destination: hit.path });
     navigate(hit.path);
     close();
 }

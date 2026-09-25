@@ -9,6 +9,7 @@ import { route, href } from '../lib/router';
 import { demoSourcesKey, slugify } from '../lib/section';
 import { sectionSources } from '../lib/source';
 import CodeBlock from '../parts/CodeBlock.vue';
+import PageEnd from '../parts/PageEnd.vue';
 import Toc from '../parts/Toc.vue';
 
 const entry = computed(() => entryOf(route.value.id) ?? entries[0]!);
@@ -29,8 +30,9 @@ const text = computed(() => entryText(entry.value));
 
 const toc = computed(() => [
     { id: 'import', label: t('Import') },
-    ...[...sources.value.keys()].map((title) => ({ id: slugify(title), label: sectionText(entry.value, title).title })),
-    ...(api.value?.props.length ? [{ id: 'api', label: 'API' }] : [])
+    ...entry.value.sections.map((title) => ({ id: slugify(title), label: sectionText(entry.value, title).title })),
+    ...(api.value?.props.length ? [{ id: 'api', label: 'API' }] : []),
+    { id: 'related', label: t('Related components') }
 ]);
 </script>
 
@@ -121,6 +123,8 @@ const toc = computed(() => [
                 </table></div>
             </template>
         </template>
+
+        <PageEnd :entry="entry" install />
 
         <nav class="pager" :aria-label="t('Components')">
             <a v-if="previous" :href="href(`/components/${previous.id}`)"><span>{{ t('Previous') }}</span>{{ entryText(previous).title }}</a>

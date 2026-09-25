@@ -267,12 +267,14 @@ try {
     for (const [i, route] of routes.entries()) {
         const url = `http://localhost:${port}${base}${route === '/' ? '' : route.slice(1) + '/'}`;
         await send('Page.navigate', { url });
-        // The page is done when the application has rendered its main element.
+        // The page is done when the application has rendered its main element
+        // and nothing it fetches on demand (see `apps/docs/src/lib/lazy.ts`) is
+        // still on its way.
         let ready = false;
         for (let tries = 0; tries < 60 && !ready; tries++) {
             await sleep(100);
             const result = await send('Runtime.evaluate', {
-                expression: `document.readyState === 'complete' && !!document.querySelector('#app > *')`,
+                expression: `document.readyState === 'complete' && !!document.querySelector('#app > *') && !window.__vitralPending`,
                 returnByValue: true
             });
             ready = result?.result?.value === true;

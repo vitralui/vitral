@@ -7,7 +7,6 @@ import { entryOf, sectionText } from '../lib/catalog';
 import { t } from '../lib/i18n';
 import { href, route } from '../lib/router';
 import { slugify } from '../lib/section';
-import { sectionSources } from '../lib/source';
 
 // The addons at the head of the sidebar. They are the parts of Vitral that
 // draw themselves — plain TypeScript, no framework in them — so they are worth
@@ -31,7 +30,7 @@ interface Route {
 const linksFor = (component: string): Route[] => {
     const entry = entryOf(component);
     if (!entry) return [];
-    const sections = [...sectionSources(entry.file).keys()].map((title) => ({ id: slugify(title), label: sectionText(entry, title).title }));
+    const sections = entry.sections.map((title) => ({ id: slugify(title), label: sectionText(entry, title).title }));
     const api = apiOf(entry.file)?.props.length ? [{ id: 'api', label: 'API' }] : [];
     return [...sections.slice(0, MOST), ...api];
 };
@@ -39,7 +38,7 @@ const linksFor = (component: string): Route[] => {
 const panels = computed(() =>
     addons.map((addon) => {
         const entry = entryOf(addon.component);
-        const total = entry ? sectionSources(entry.file).size : 0;
+        const total = entry ? entry.sections.length : 0;
         return {
             ...addon,
             page: `/components/${addon.component}`,

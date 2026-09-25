@@ -1,4 +1,6 @@
+import { shallowReactive } from 'vue';
 import { lookup } from './i18n';
+import { once } from './lazy';
 
 /**
  * The API tables are read from the components' own `types.ts` at build time,
@@ -22,9 +24,19 @@ export interface ApiDoc {
     extends: string[];
 }
 
-const raw = import.meta.glob('../../../../packages/vue/src/components/*/types.ts', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+// One small chunk per component, fetched when its page is opened.
+const raw = import.meta.glob<string>('../../../../packages/vue/src/components/*/types.ts', { query: '?raw', import: 'default' });
 
-const byComponent = new Map(Object.entries(raw).map(([path, text]) => [path.split('/').at(-2)!, text]));
+const byComponent = new Map(Object.entries(raw).map(([path, load]) => [path.split('/').at(-2)!, once(load)]));
+/** The `types.ts` that have arrived. Reactive, so a table that asked re-renders when its file does. */
+const loaded = shallowReactive(new Map<string, string>());
+
+/** Fetches a component's `types.ts`, if it has one and it has not been fetched already. */
+export async function loadApi(component: string): Promise<void> {
+    if (loaded.has(component)) return;
+    const text = await byComponent.get(component)?.();
+    if (text !== undefined) loaded.set(component, text);
+}
 
 /** Members of one `{ … }` body: a name, a type that may run over lines, and the doc comment above it. */
 function members(body: string): ApiMember[] {
@@ -75,9 +87,13 @@ function block(source: string, pattern: RegExp) {
     return null;
 }
 
+/** A component's API, once its `types.ts` has arrived; asking starts the fetch. */
 export function apiOf(component: string): ApiDoc | null {
-    const source = byComponent.get(component);
-    if (!source) return null;
+    const source = loaded.get(component);
+    if (source === undefined) {
+        loadApi(component).catch(() => {});
+        return null;
+    }
 
     // A component made only of parts (`Form.Root`, `Form.Field`…) is documented by its root part.
     const find = (kind: 'interface' | 'type', suffix: string) =>

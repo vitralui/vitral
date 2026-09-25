@@ -1,5 +1,6 @@
 import { en, ptBR, useDirection, useLocale, useTheme, useVitral, type BorderStrength, type Direction, type Preset } from '@vitral/vue';
 import { computed, ref, watch } from 'vue';
+import { track } from './analytics';
 import { lang } from './i18n';
 import { themes, themeText } from './presets';
 
@@ -105,6 +106,7 @@ export function installThemeSwitcher() {
         primary.value = null;
         controls!.setPreset(builtInPresets[id] ?? themes[0]!.preset);
         if (!pinnedPreset) remember(PRESET_KEY, id);
+        track('change_theme', { setting: 'preset', choice: id });
     });
 
     watch(localeId, (id) => setLocale(id === 'pt-BR' ? ptBR : en));
@@ -135,6 +137,7 @@ export function installThemeSwitcher() {
         },
         { immediate: true }
     );
+    watch(direction, (value) => track('change_theme', { setting: 'direction', choice: value }));
 
     return { controls, config };
 }

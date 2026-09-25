@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { track } from '../lib/analytics';
 import { t } from '../lib/i18n';
 import { href } from '../lib/router';
 import { Button, Icon, useTheme } from '@vitral/vue';
@@ -66,6 +67,11 @@ function onResize() {
 onMounted(() => window.addEventListener('resize', onResize));
 onBeforeUnmount(() => window.removeEventListener('resize', onResize));
 
+
+function toggleDark() {
+    theme.toggleDark();
+    track('change_theme', { setting: 'scheme', choice: theme.isDark.value ? 'dark' : 'light' });
+}
 </script>
 
 <template>
@@ -105,7 +111,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', onResize));
                     variant="text"
                     severity="secondary"
                     :aria-label="theme.isDark.value ? t('Switch to the light scheme') : t('Switch to the dark scheme')"
-                    @click="theme.toggleDark()"
+                    @click="toggleDark"
                 />
                 <a class="icon-link topbar-github" :href="REPO_URL" target="_blank" rel="noreferrer" :aria-label="t('Vitral on GitHub')">
                     <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

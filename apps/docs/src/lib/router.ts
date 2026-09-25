@@ -68,23 +68,60 @@ function pathOf(url: URL): { lang: Lang; path: string } {
 }
 
 /**
- * The path the address bar is on, after sending an old `#/docs/theming` link,
- * or a retired page, to where it lives today.
+ * The page and language the address bar is on, after sending an old
+ * `#/docs/theming` link, or a retired page, to where it lives today.
  */
-function settle(): string {
+function settle(): { lang: Lang; path: string } {
     const url = new URL(location.href);
     const { lang: which, path } = pathOf(url);
-    lang.value = which;
     const moved = url.hash.startsWith('#/') ? url.hash.slice(1).replace(/\/+$/, '') || '/' : retired.test(path) ? '/templates' : (renamed[path] ?? null);
-    if (moved) history.replaceState(null, '', href(moved) + url.search);
-    return moved ?? path;
+    if (moved) history.replaceState(null, '', hrefIn(which, moved) + url.search);
+    return { lang: which, path: moved ?? path };
 }
 
 const current = ref('/');
 
+// ---- waiting for the next page ----------------------------------------------
+
+/**
+ * What a page needs before it can be shown whole: its demos, its code, its
+ * words. The application says (see `./preload`); until it does, and in tests,
+ * pages turn at once.
+ */
+let prepare: ((path: string, which: Lang) => Promise<unknown>) | null = null;
+export function prepareWith(fn: typeof prepare): void {
+    prepare = fn;
+}
+
+/** The latest navigation: one that finishes after a newer one started is dropped. */
+let turn = 0;
+
+/**
+ * Runs `go` once the page at `path` is ready, keeping the reader on the page
+ * they are on meanwhile. If what it needs cannot be fetched, a site published
+ * since this tab opened being the usual reason, the page is loaded afresh.
+ */
+function when(path: string, which: Lang, go: () => void): void {
+    const mine = ++turn;
+    const ready = prepare?.(path, which);
+    if (!ready) return go();
+    ready.then(
+        () => mine === turn && go(),
+        () => mine === turn && location.assign(hrefIn(which, path))
+    );
+}
+
 if (typeof window !== 'undefined') {
-    current.value = settle();
-    addEventListener('popstate', () => (current.value = settle()));
+    const first = settle();
+    lang.value = first.lang;
+    current.value = first.path;
+    addEventListener('popstate', () => {
+        const next = settle();
+        when(next.path, next.lang, () => {
+            lang.value = next.lang;
+            current.value = next.path;
+        });
+    });
     // The document says what language it is in, for a screen reader's voice and
     // for the prerendered HTML a crawler reads.
     watchEffect(() => (document.documentElement.lang = languages[lang.value].tag));
@@ -109,6 +146,9 @@ function parse(path: string): Route {
 
 export const route = computed(() => parse(current.value));
 
+/** The route a path names, for looking ahead to a page before turning to it. */
+export const routeOf = parse;
+
 /**
  * Brings the named part of the page into view. A page that is already on
  * screen can be jumped to at once; one that is about to be drawn has to be
@@ -126,11 +166,13 @@ function jumpTo(id: string, tries = 10): void {
 export function navigate(path: string, hash = '', which: Lang = lang.value): void {
     if (which !== lang.value) {
         // The same page in another language: everything on it follows `lang`,
-        // so there is nothing to load, only the address and the words to change.
-        history.pushState(null, '', hrefIn(which, path) + hash);
-        lang.value = which;
-        current.value = path;
-        if (hash) jumpTo(hash.slice(1));
+        // so once the language's words are here, only the address changes.
+        when(path, which, () => {
+            history.pushState(null, '', hrefIn(which, path) + hash);
+            lang.value = which;
+            current.value = path;
+            if (hash) jumpTo(hash.slice(1));
+        });
         return;
     }
     if (current.value === path) {
@@ -142,9 +184,11 @@ export function navigate(path: string, hash = '', which: Lang = lang.value): voi
         jumpTo(hash.slice(1));
         return;
     }
-    history.pushState(null, '', href(path) + hash);
-    current.value = path;
-    if (hash) jumpTo(hash.slice(1));
+    when(path, which, () => {
+        history.pushState(null, '', href(path) + hash);
+        current.value = path;
+        if (hash) jumpTo(hash.slice(1));
+    });
 }
 
 /**

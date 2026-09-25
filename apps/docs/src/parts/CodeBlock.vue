@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@vitral/vue';
+import { track } from '../lib/analytics';
 import { t } from '../lib/i18n';
 import { computed, ref } from 'vue';
 import { highlight, highlightLines, langOf } from '../lib/highlight';
@@ -18,6 +19,7 @@ async function copy() {
     try {
         await navigator.clipboard.writeText(props.code.trim());
         copied.value = true;
+        track('copy_code', { label: props.label ?? 'example' });
         setTimeout(() => (copied.value = false), 1600);
     } catch {
         // A clipboard the browser refuses is not worth an error dialog; the

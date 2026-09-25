@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, ref, useId } from 'vue';
+import { track } from './lib/analytics';
 import { entryOf, sectionText } from './lib/catalog';
 import { t } from './lib/i18n';
 import { route } from './lib/router';
@@ -19,6 +20,11 @@ const sources = inject(demoSourcesKey, null);
 const code = computed(() => sources?.value.get(props.title));
 const open = ref(false);
 const codeId = useId();
+
+function toggle() {
+    open.value = !open.value;
+    if (open.value) track('view_code', { component: route.value.id, section: props.title });
+}
 // The English title is the section's anchor and the key its markup is found
 // by; what is shown is its translation, when the page has one.
 const text = computed(() => sectionText(entryOf(route.value.id), props.title, props.description));
@@ -37,7 +43,7 @@ const text = computed(() => sectionText(entryOf(route.value.id), props.title, pr
             <div v-if="code" :id="codeId" class="demo-code" :class="{ 'demo-code-open': open }">
                 <!-- Folded, the code is a glimpse: not a place to tab into. -->
                 <CodeBlock :code="code.code" :label="code.label" lang="vue" bare numbered :inert="!open || undefined" />
-                <button class="demo-code-toggle" type="button" :aria-expanded="open" :aria-controls="codeId" @click="open = !open">
+                <button class="demo-code-toggle" type="button" :aria-expanded="open" :aria-controls="codeId" @click="toggle">
                     {{ open ? t('Hide code') : t('View code') }}
                 </button>
             </div>

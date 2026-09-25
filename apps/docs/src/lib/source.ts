@@ -15,12 +15,16 @@
  * A section whose content is not one example component shows its markup
  * instead.
  */
-const pages = import.meta.glob('../demos/*.vue', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
-const examples = import.meta.glob('../demos/*/*.vue', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+import { shallowReactive } from 'vue';
+import { once } from './lazy';
 
-const pageSource = new Map(Object.entries(pages).map(([path, text]) => [path.split('/').pop()!.replace('.vue', ''), text]));
-/** `Button/Severities` → its source. */
-const exampleSource = new Map(Object.entries(examples).map(([path, text]) => [path.split('/').slice(-2).join('/').replace('.vue', ''), text]));
+/**
+ * A page's text and its examples' text, one chunk per page, fetched when the
+ * page is opened (`?sources` is served by `scripts/sfc-meta.ts`).
+ */
+type PageText = { page: string; examples: Record<string, string> };
+const texts = import.meta.glob<PageText>('../demos/*.vue', { query: '?sources', import: 'default' });
+const byFile = new Map(Object.entries(texts).map(([path, load]) => [path.split('/').pop()!.replace(/\.vue(\?.*)?$/, ''), once(load)]));
 
 export interface DemoSource {
     code: string;
@@ -40,8 +44,7 @@ function dedent(block: string) {
  * the code that produced it. The sections are siblings, never nested, which is
  * what makes the scan this short.
  */
-export function sectionSources(file: string) {
-    const text = pageSource.get(file) ?? '';
+function parse({ page: text, examples }: PageText) {
     // `import Severities from './Button/Severities.vue'` → Severities: Button/Severities
     const imported = new Map([...text.matchAll(/import (\w+) from '\.\/([^/']+\/[^/']+)\.vue';/g)].map((match) => [match[1]!, match[2]!]));
     const sources = new Map<string, DemoSource>();
@@ -56,13 +59,29 @@ export function sectionSources(file: string) {
         const body = text.slice(open.lastIndex, end).trim();
         const example = body.match(/^<(\w+)\s*\/>$/)?.[1];
         const path = example ? imported.get(example) : undefined;
-        const source = path ? exampleSource.get(path) : undefined;
+        const source = path ? examples[path] : undefined;
         sources.set(title, source ? { code: source.trim(), label: `${path!.split('/')[1]}.vue` } : { code: dedent(body), label: 'template' });
     }
     return sources;
 }
 
-/** Every example file of a page, in the order the page shows them: what `llms.txt` appends as the page's source. */
-export function exampleFiles(file: string): { name: string; code: string }[] {
-    return [...sectionSources(file).values()].filter((source) => source.label !== 'template').map((source) => ({ name: source.label, code: source.code }));
+/** Each page's sections, once they have arrived: reactive, so a page that asked re-renders when they do. */
+const loaded = shallowReactive(new Map<string, Map<string, DemoSource>>());
+
+/** Fetches a page's code, if it has not been already. */
+export async function loadSectionSources(file: string): Promise<Map<string, DemoSource>> {
+    const known = loaded.get(file);
+    if (known) return known;
+    const text = await byFile.get(file)?.();
+    const sources = text ? parse(text) : new Map<string, DemoSource>();
+    loaded.set(file, sources);
+    return sources;
+}
+
+/** A page's code, if it has arrived; asking starts the fetch, and the answer follows when it lands. */
+export function sectionSources(file: string): Map<string, DemoSource> {
+    const known = loaded.get(file);
+    if (known) return known;
+    loadSectionSources(file).catch(() => {});
+    return new Map();
 }

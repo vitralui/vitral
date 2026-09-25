@@ -1,4 +1,5 @@
-import { computed, defineComponent, h, inject, ref, type InjectionKey } from 'vue';
+import { computed, defineComponent, h, inject, ref, shallowReactive, type InjectionKey } from 'vue';
+import { once } from './lazy';
 
 /**
  * The site in more than one language, without a second copy of any page.
@@ -14,6 +15,8 @@ import { computed, defineComponent, h, inject, ref, type InjectionKey } from 'vu
  *   prose is marked in the guide with `<T k="…">English</T>`.
  * - `components/<id>.json`, a component page's title, description and
  *   sections, the sections keyed by their English titles.
+ * - `index.ts`, which gathers the rest into the one chunk the site fetches
+ *   for the language; a new language copies it from `pt-br/`.
  *
  * Anything a language has not translated yet is shown in English rather than
  * left out. The language is part of the address — `/docs/theming` and
@@ -36,20 +39,31 @@ export const lang = ref<Lang>('en');
 
 type Catalog = Record<string, unknown>;
 
-const files = import.meta.glob<Catalog>('../locales/*/**/*.json', { eager: true, import: 'default' });
+// A language's files are one chunk, `locales/<lang>/index.ts`, fetched the
+// first time a page in it is opened.
+const bundles = import.meta.glob<{ default: Record<string, Catalog> }>('../locales/*/index.ts');
+const fetchers = new Map(Object.entries(bundles).map(([path, load]) => [path.split('/').at(-2)!, once(load)]));
 
-/** `pt-br` → `guides/theming` → its strings. */
-const catalogs = new Map<string, Map<string, Catalog>>();
-for (const [path, catalog] of Object.entries(files)) {
-    const [, which, ...rest] = path.replace(/^\.\.\/locales\//, '/').split('/');
-    const name = rest.join('/').replace(/\.json$/, '');
-    if (!catalogs.has(which!)) catalogs.set(which!, new Map());
-    catalogs.get(which!)!.set(name, catalog);
+/** `pt-br` → `guides/theming` → its strings. Reactive: a page drawn before its words arrived is redrawn when they do. */
+const catalogs = shallowReactive(new Map<string, Map<string, Catalog>>());
+
+/** Fetches a language's words, if it has any and they have not arrived yet. */
+export async function loadLanguage(which: Lang): Promise<void> {
+    if (catalogs.has(which)) return;
+    const bundle = await fetchers.get(which)?.();
+    if (!bundle) return;
+    // `./guides/theming.json` → `guides/theming`
+    catalogs.set(which, new Map(Object.entries(bundle.default).map(([path, catalog]) => [path.replace(/^\.\//, '').replace(/\.json$/, ''), catalog])));
 }
 
 /** A file of the current language's translations, or nothing when the page is in English or not translated. */
 export function catalog(name: string): Catalog | undefined {
-    return lang.value === 'en' ? undefined : catalogs.get(lang.value)?.get(name);
+    if (lang.value === 'en') return undefined;
+    const words = catalogs.get(lang.value);
+    // The router fetches a language before it turns to it; this is the net
+    // under anything that got there another way.
+    if (!words) loadLanguage(lang.value).catch(() => {});
+    return words?.get(name);
 }
 
 /** A string out of a catalogue, by a dotted key. */

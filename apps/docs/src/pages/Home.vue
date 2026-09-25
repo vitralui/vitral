@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { track } from '../lib/analytics';
+import { installCommand, manager, managers } from '../lib/install';
 import { href } from '../lib/router';
 import { iconList } from '@vitral/icons/registry';
-import { Avatar, AvatarGroup, Button, Chart, Divider, Icon, InputText, Tag, ToggleSwitch, type ChartOptions } from '@vitral/vue';
+import { Avatar, AvatarGroup, Button, Chart, Divider, Icon, InputText, Menu, Tag, ToggleSwitch, type ChartOptions, type MenuItem } from '@vitral/vue';
 import { computed, ref, useId } from 'vue';
 import { entries, entryText, sections } from '../lib/catalog';
 import { categoryName } from '../demo';
@@ -16,12 +18,28 @@ import { templates, templateText } from '../templates';
 // library itself, running in whichever theme the reader picked.
 const ids = { name: useId(), email: useId() };
 
-const install = 'pnpm add @vitral/vue';
+// The package manager is a word in the command, not a field beside it: it
+// reads as the command it is, and a press on it offers the others.
+const install = computed(() => installCommand());
+const managerMenu = ref<InstanceType<typeof Menu> | null>(null);
+const managerOpen = ref(false);
+const managerItems = computed<MenuItem[]>(() =>
+    managers.map((entry) => ({
+        label: entry.id,
+        class: { 'home-install-current': entry.id === manager.value },
+        command: () => {
+            manager.value = entry.id;
+            track('change_install_manager', { manager: entry.id });
+        }
+    }))
+);
+
 const copied = ref(false);
 async function copyInstall() {
     try {
-        await navigator.clipboard?.writeText(install);
+        await navigator.clipboard?.writeText(install.value);
         copied.value = true;
+        track('copy_code', { label: 'install', manager: manager.value });
         setTimeout(() => (copied.value = false), 1600);
     } catch {
         // Clipboard access can be refused. The command is on screen anyway.
@@ -110,7 +128,31 @@ const shownTemplates = templates.slice(0, 6);
                         <Button as="a" :href="href('/components')" :label="t('Browse components')" severity="secondary" variant="outlined" size="large" />
                     </div>
                     <div class="home-install">
-                        <code><span aria-hidden="true">$</span> {{ install }}</code>
+                        <code>
+                            <span aria-hidden="true">$</span>
+                            <button
+                                type="button"
+                                class="home-install-manager"
+                                aria-haspopup="menu"
+                                :aria-expanded="managerOpen"
+                                :aria-controls="managerOpen ? 'home-install-managers' : undefined"
+                                :aria-label="t('Package manager: {name}', { name: manager })"
+                                @click="managerMenu?.toggle($event)"
+                            >
+                                {{ manager }}<Icon icon="chevronDown" />
+                            </button>
+                            {{ install.slice(manager.length + 1) }}
+                        </code>
+                        <Menu
+                            id="home-install-managers"
+                            ref="managerMenu"
+                            :model="managerItems"
+                            class="home-install-menu"
+                            popup
+                            :aria-label="t('Package manager')"
+                            @show="managerOpen = true"
+                            @hide="managerOpen = false"
+                        />
                         <Button
                             :icon="copied ? 'check' : 'copy'"
                             :aria-label="copied ? t('Copied') : t('Copy the install command')"

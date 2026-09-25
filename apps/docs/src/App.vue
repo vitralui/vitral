@@ -8,16 +8,10 @@ import { templateOf } from './templates';
 import { useDocumentHead } from './lib/head';
 import { route, href } from './lib/router';
 import { installThemeSwitcher } from './lib/theme';
+import { pages } from './lib/pages';
 import ComponentPage from './pages/ComponentPage.vue';
-import ComponentsPage from './pages/ComponentsPage.vue';
 import DocPage from './pages/DocPage.vue';
-import Home from './pages/Home.vue';
-import ChartsPage from './pages/ChartsPage.vue';
-import IconsPage from './pages/IconsPage.vue';
 import NotFound from './pages/NotFound.vue';
-import TemplateFullscreen from './pages/TemplateFullscreen.vue';
-import TemplatePage from './pages/TemplatePage.vue';
-import TemplatesPage from './pages/TemplatesPage.vue';
 import PaneLinks from './parts/PaneLinks.vue';
 import SiteFooter from './parts/SiteFooter.vue';
 import TopBar from './parts/TopBar.vue';
@@ -95,7 +89,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 <template>
     <!-- A template opened full screen is the whole page: no bar, no footer. -->
-    <TemplateFullscreen v-if="route.name === 'template-preview' && !missing" />
+    <component :is="pages['template-preview']!.component" v-if="route.name === 'template-preview' && !missing" />
 
     <template v-else>
         <!-- WCAG 2.4.1: every page opens with the same bar and the same
@@ -109,12 +103,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <div id="content" tabindex="-1" accesskey="1" class="content-target">
 
         <NotFound v-if="route.name === 'not-found' || missing" />
-        <Home v-else-if="route.name === 'home'" />
-        <ComponentsPage v-else-if="route.name === 'components'" />
-        <TemplatesPage v-else-if="route.name === 'templates'" />
-        <TemplatePage v-else-if="route.name === 'template'" />
-        <IconsPage v-else-if="route.name === 'icons'" />
-        <ChartsPage v-else-if="route.name === 'charts'" />
+        <!-- The one-of-a-kind pages, each fetched when first opened (see lib/pages). -->
+        <component :is="pages[route.name]!.component" v-else-if="pages[route.name]" />
 
         <div v-else class="docs">
             <!-- Below the width where the pane fits, a bar under the site's own

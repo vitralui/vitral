@@ -1,21 +1,30 @@
 import type { Component } from 'vue';
 import { categoryOrder, type DemoMeta } from '../demo';
 import { catalog, lookup } from './i18n';
+import { lazyComponent } from './lazy';
 
 export interface CatalogEntry {
     id: string;
     /** The file name, which is also the component's directory in `@vitral/vue`. */
     file: string;
     meta: DemoMeta;
+    /** The English titles of the page's demo sections, in order: its anchors. */
+    sections: string[];
+    /** The page itself, fetched when it is opened (see `./lazy`). */
     component: Component;
+    load: () => Promise<void>;
 }
 
-const modules = import.meta.glob<{ default: Component; meta?: DemoMeta }>('../demos/*.vue', { eager: true });
+// What every page is, up front, for the menus and the search; what is on it,
+// only when it is opened. `?meta` is served by `scripts/sfc-meta.ts`.
+const metas = import.meta.glob<{ meta?: DemoMeta; sections: string[] }>('../demos/*.vue', { query: '?meta', eager: true });
+const pages = import.meta.glob<{ default: Component }>('../demos/*.vue');
 
-export const entries: CatalogEntry[] = Object.entries(modules)
+export const entries: CatalogEntry[] = Object.entries(metas)
     .map(([path, module]) => {
-        const file = path.split('/').pop()!.replace('.vue', '');
-        return { id: file.toLowerCase(), file, meta: module.meta ?? { title: file, category: 'Misc' as const }, component: module.default };
+        const file = path.split('/').pop()!.replace(/\.vue(\?.*)?$/, '');
+        const page = lazyComponent(pages[path.replace(/\?.*$/, '')]!);
+        return { id: file.toLowerCase(), file, meta: module.meta ?? { title: file, category: 'Misc' as const }, sections: module.sections, ...page };
     })
     .sort((a, b) => a.meta.title.localeCompare(b.meta.title));
 

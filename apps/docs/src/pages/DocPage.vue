@@ -4,6 +4,7 @@ import { guideOf, guides, guideText, sectionName } from '../lib/guides';
 import { lang, proseScope, t } from '../lib/i18n';
 import { route, href } from '../lib/router';
 import { slugify } from '../lib/section';
+import PageEnd from '../parts/PageEnd.vue';
 import Toc from '../parts/Toc.vue';
 
 const guide = computed(() => guideOf(route.value.id) ?? guides[0]!);
@@ -51,6 +52,9 @@ const text = computed(() => guideText(guide.value));
         <div ref="body" class="prose">
             <component :is="guide.component" :key="guide.id" />
         </div>
+
+        <!-- The installation guide is the thing this would point at. -->
+        <PageEnd :install="guide.id !== 'installation'" />
 
         <nav class="pager" :aria-label="t('Guides')">
             <a v-if="previous" :href="href(`/docs/${previous.id}`)"><span>{{ t('Previous') }}</span>{{ guideText(previous).title }}</a>
