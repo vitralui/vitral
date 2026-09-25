@@ -100,7 +100,7 @@ const shownTemplates = templates.slice(0, 6);
         <section class="home-hero" aria-labelledby="home-title">
             <div class="home-wrap home-hero-grid">
                 <div class="home-hero-copy">
-                    <a class="home-pill" :href="href('/docs/introduction')"><b>v0.1</b> {{ t('Vue 3 and Nuxt today, React and Angular next') }} <Icon icon="arrowRight" /></a>
+                    <a class="home-pill" :href="href('/docs/introduction')"><b>v0.2</b> {{ t('Vue 3 and Nuxt today, React and Angular next') }} <Icon icon="arrowRight" /></a>
                     <h1 id="home-title">{{ t('Components that take the shape of your brand') }}</h1>
                     <p class="home-lead">
                         {{ t('Vitral is a Vue component library with a theme engine underneath: change a few tokens and every control follows.') }}

@@ -74,7 +74,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', onResize));
             <a ref="brand" class="brand" :href="href('/')">
                 <span class="brand-mark" aria-hidden="true" />
                 Vitral
-                <span class="brand-version">0.1</span>
+                <span class="brand-version">0.2</span>
             </a>
 
             <!-- Kept mounted while the search is open, so the drawer's state and the
