@@ -15,7 +15,7 @@ import type { ConfirmDialogProps, ConfirmDialogSlots } from './types';
 
 defineOptions({ name: 'VtConfirmDialog' });
 
-const props = withDefaults(defineProps<ConfirmDialogProps>(), { unstyled: undefined });
+const props = withDefaults(defineProps<ConfirmDialogProps>(), { unstyled: undefined, draggable: true, keepInViewport: true });
 defineSlots<ConfirmDialogSlots>();
 
 const { part, context, locale } = useComponent(confirmdialogStyle, props);
@@ -69,6 +69,8 @@ function onUpdateVisible(open: boolean) {
         :header="options.header"
         :aria-label="options.header ? undefined : locale.aria.confirmation"
         :aria-describedby="messageId"
+        :draggable="draggable"
+        :keep-in-viewport="keepInViewport"
         :unstyled="unstyled"
         :pt="pt"
         :dt="dt"

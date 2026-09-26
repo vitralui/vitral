@@ -36,6 +36,17 @@ describe('ConfirmDialog', () => {
         expect(document.activeElement).toBe(button('Yes'));
     });
 
+    it('moves by its header unless told not to', async () => {
+        const header = (dialog: () => HTMLElement | null) => dialog()!.querySelector('.vt-dialog-header')!.classList;
+        const moving = mountConfirm();
+        await moving.require({ header: 'Delete file', message: 'Sure?' });
+        expect(header(moving.dialog)).toContain('vt-dialog-header-draggable');
+        moving.wrapper.unmount();
+        const fixed = mountConfirm({ draggable: false });
+        await fixed.require({ header: 'Delete file', message: 'Sure?' });
+        expect(header(fixed.dialog)).not.toContain('vt-dialog-header-draggable');
+    });
+
     it('accepts, closes and returns focus', async () => {
         const accept = vi.fn();
         const reject = vi.fn();

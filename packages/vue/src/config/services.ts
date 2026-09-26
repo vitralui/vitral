@@ -59,7 +59,7 @@ export interface DynamicDialogCloseResult {
 }
 
 export interface DynamicDialogOptions {
-    /** Props for the `<Dialog>` around the content: `header`, `modal`, `style`, `dismissableMask`… */
+    /** Props for the `<Dialog>` around the content: `header`, `modal`, `style`, `dismissableMask`, `draggable`… */
     props?: Record<string, unknown>;
     /** Anything the content reads back through its dialog ref. */
     data?: unknown;

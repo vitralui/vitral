@@ -11,6 +11,7 @@ export const meta: DemoMeta = {
 <script setup lang="ts">
 import DemoSection from '../DemoSection.vue';
 import Basic from './Dialog/Basic.vue';
+import Draggable from './Dialog/Draggable.vue';
 import Maximizable from './Dialog/Maximizable.vue';
 import Modeless from './Dialog/Modeless.vue';
 import OverlaysInside from './Dialog/OverlaysInside.vue';
@@ -21,6 +22,7 @@ import Position from './Dialog/Position.vue';
     <DemoSection title="Basic" description="The header names the dialog; the footer is the button band."><Basic /></DemoSection>
     <DemoSection title="Position" description="The dialog sits in the centre, along an edge or in a corner, and slides in from there."><Position /></DemoSection>
     <DemoSection title="Maximizable" description="A button fills the viewport with the dialog; its name switches between Maximize and Restore."><Maximizable /></DemoSection>
+    <DemoSection title="Draggable" description="The header moves the dialog, and `keepInViewport` keeps it whole on the screen while it does. Both are on by default; `draggable: false` keeps it in place."><Draggable /></DemoSection>
     <DemoSection title="Modeless" description="`modal: false` keeps the page usable: no mask, no focus trap, no scroll lock. Escape still closes it."><Modeless /></DemoSection>
     <DemoSection title="Overlays inside" description="Open the select, then press Escape: the select closes first, the dialog stays."><OverlaysInside /></DemoSection>
 </template>
