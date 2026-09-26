@@ -6,12 +6,16 @@
         "dismissableMask": "Fecha com um clique na máscara.",
         "closeOnEscape": "O padrão é true.",
         "maximizable": "Adiciona um botão que faz o diálogo ocupar a viewport.",
+        "draggable": "Move o diálogo arrastando o cabeçalho. O padrão é true.",
+        "keepInViewport": "Enquanto é arrastado, mantém o diálogo inteiro na tela. O padrão é true.",
         "blockScroll": "Trava a rolagem da página mesmo quando o diálogo não é modal.",
         "showHeader": "O padrão é true.",
         "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
     },
     "emits": {
-        "after-hide": "Depois da animação de fechar, quando o diálogo já saiu da página."
+        "after-hide": "Depois da animação de fechar, quando o diálogo já saiu da página.",
+        "dragstart": "O cabeçalho foi pressionado e o diálogo começou a se mover.",
+        "dragend": "O diálogo foi solto onde está agora."
     },
     "slots": {
         "header": "Substitui o texto do título; ele continua dando nome ao diálogo."

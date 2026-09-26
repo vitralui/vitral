@@ -79,6 +79,18 @@
     padding: var(--vt-dialog-padding) var(--vt-dialog-padding) 0;
 }
 
+/* A header that moves the dialog says so, and takes a finger without scrolling the page. */
+.vt-dialog-header-draggable {
+    cursor: move;
+    touch-action: none;
+    user-select: none;
+}
+
+/* While it moves, nothing under the pointer is selected along the way. */
+.vt-dialog-dragging {
+    user-select: none;
+}
+
 .vt-dialog-title {
     min-width: 0;
     font-size: var(--vt-dialog-title-font-size);

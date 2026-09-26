@@ -159,4 +159,41 @@ describe('Dialog', () => {
         await open();
         await expectNoA11yViolations();
     });
+
+    it('moves by its header, and never past the edge of the screen', async () => {
+        const { dialog, open } = mountDialog({ maximizable: true });
+        await open();
+        const el = dialog()!;
+        const mask = el.parentElement!;
+        // A 800×600 screen, the dialog 200×100 in the middle of it, wherever it has been moved to.
+        const moved = () => (el.style.translate || '0px 0px').split(' ').map(parseFloat) as [number, number];
+        mask.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
+        el.getBoundingClientRect = () => new DOMRect(300 + moved()[0], 250 + moved()[1], 200, 100);
+        const header = el.querySelector<HTMLElement>('.vt-dialog-header')!;
+        expect(header.classList).toContain('vt-dialog-header-draggable');
+        const pointer = (type: string, x: number, y: number) => new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0 });
+        header.dispatchEvent(pointer('pointerdown', 400, 260));
+        document.dispatchEvent(pointer('pointermove', 450, 300));
+        await nextTick();
+        expect(el.style.translate).toBe('50px 40px');
+        // Far past the corner: it stops with its edges on the screen's.
+        document.dispatchEvent(pointer('pointermove', 2000, -900));
+        await nextTick();
+        expect(el.style.translate).toBe('300px -250px');
+        document.dispatchEvent(pointer('pointerup', 2000, -900));
+        await nextTick();
+        // A press on a header button is the button's.
+        const close = el.querySelector<HTMLElement>('.vt-dialog-close-button')!;
+        close.dispatchEvent(pointer('pointerdown', 780, 10));
+        document.dispatchEvent(pointer('pointermove', 100, 100));
+        await nextTick();
+        expect(el.style.translate).toBe('300px -250px');
+        document.dispatchEvent(pointer('pointerup', 100, 100));
+    });
+
+    it('stays put when it is not draggable', async () => {
+        const { dialog, open } = mountDialog({ draggable: false });
+        await open();
+        expect(dialog()!.querySelector('.vt-dialog-header')!.classList).not.toContain('vt-dialog-header-draggable');
+    });
 });

@@ -16,6 +16,10 @@ export interface DialogProps extends BaseProps {
     position?: DialogPosition;
     /** Add a button that fills the viewport with the dialog. */
     maximizable?: boolean;
+    /** Move the dialog by dragging its header. Defaults to true. */
+    draggable?: boolean;
+    /** While it is dragged, keep the whole dialog on the screen. Defaults to true. */
+    keepInViewport?: boolean;
     /** Lock the page's scroll even when the dialog is not modal. */
     blockScroll?: boolean;
     /** Defaults to true. */
@@ -31,6 +35,10 @@ export type DialogEmits = {
     'after-hide': [];
     maximize: [];
     unmaximize: [];
+    /** The header was pressed and the dialog began to move. */
+    dragstart: [event: PointerEvent];
+    /** The dialog was let go where it now is. */
+    dragend: [event: PointerEvent];
 };
 
 export interface DialogSlots {
