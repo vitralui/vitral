@@ -1,6 +1,6 @@
 {
   "name": "@vitral/chart",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-free SVG charts for Vitral: the engine (scales, scenes, formats, the options schema) and a DOM renderer with interaction and accessibility, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

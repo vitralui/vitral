@@ -1,6 +1,6 @@
 {
   "name": "@vitral/taskboard",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-free task board for Vitral: the engine (columns, lanes, moves, limits) and a DOM renderer with accessible drag and drop, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

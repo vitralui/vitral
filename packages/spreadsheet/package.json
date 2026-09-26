@@ -1,6 +1,6 @@
 {
   "name": "@vitral/spreadsheet",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-free spreadsheet for Vitral: the engine (cells, A1 references, formulas, the dependency graph) and a DOM renderer with a virtualised grid, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

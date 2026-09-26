@@ -1,6 +1,6 @@
 {
   "name": "@vitral/datagrid",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-free data grid for Vitral: the engine (query, sort, filter, pages, selection, the column layout) and a DOM renderer with interaction and accessibility, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

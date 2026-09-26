@@ -1,6 +1,6 @@
 {
   "name": "@vitral/controls",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-free controls for Vitral addons: an anchored overlay, a listbox select and a menu, built on @vitral/core and @vitral/dom and wearing the Vitral styles.",
   "keywords": [
     "vitral",

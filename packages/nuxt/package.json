@@ -1,6 +1,6 @@
 {
   "name": "@vitral/nuxt",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "The Nuxt module for Vitral: the plugin from nuxt.config, auto-imported components and composables, the theme rendered on the server and the colour scheme in a cookie.",
   "keywords": [
     "vitral",

@@ -1,6 +1,6 @@
 {
   "name": "@vitral/themes",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Design-token engine and presets (Prism, Ink, Avalonia, Simple) for Vitral.",
   "keywords": [
     "vitral",

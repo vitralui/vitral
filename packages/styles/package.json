@@ -1,6 +1,6 @@
 {
   "name": "@vitral/styles",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Framework-agnostic component CSS and class maps for Vitral, written against theme tokens.",
   "keywords": [
     "vitral",
