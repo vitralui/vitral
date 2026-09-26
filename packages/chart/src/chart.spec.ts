@@ -61,8 +61,10 @@ describe('createChart', () => {
         expect(document.getElementById(canvas().getAttribute('aria-describedby')!)!.textContent).toContain('arrow keys');
         expect(svg().querySelectorAll('.vt-chart-line')).toHaveLength(2);
         expect([...svg().querySelectorAll('.vt-chart-axis-bottom .vt-chart-axis-label')].map((t) => t.textContent)).toEqual(['Jan', 'Feb', 'Mar']);
-        // The layout order: toolbar, body (legend after the canvas), key help, live region.
-        expect([...el.children].map((c) => c.className || c.tagName)).toEqual(['vt-chart-toolbar', 'vt-chart-body vt-chart-body-legend-bottom', 'SPAN', 'vt-chart-status']);
+        // The layout order: toolbar, body (legend after the canvas), summary, key help, live region.
+        expect([...el.children].map((c) => c.className || c.tagName)).toEqual(['vt-chart-toolbar', 'vt-chart-body vt-chart-body-legend-bottom', 'SPAN', 'SPAN', 'vt-chart-status']);
+        // No `<title>`: the browser would show it as a tooltip of its own.
+        expect(svg().querySelector('title')).toBeNull();
         await expectNoA11yViolations();
     });
 
@@ -587,6 +589,27 @@ describe('createChart', () => {
         await expectNoA11yViolations();
     });
 
+    it('fits a donut\'s centre to its hole, and pulls out one slice at a time', async () => {
+        const long = 'Class B - 2026 - a2602a23 with a name far too long for the hole';
+        const { svg, canvas } = mount({ type: 'donut', series: [8, 3, 12345678901234], options: { labels: [long, 'Short', 'Big'], chart: { animations: { enabled: false } } } });
+        const path = (i: number) => svg().querySelectorAll('.vt-chart-slice')[i]!.getAttribute('d');
+        const rest = [path(0), path(1)];
+        canvas().focus();
+        await press(canvas(), 'ArrowRight');
+        const name = svg().querySelector('.vt-chart-center-label')!.textContent!;
+        expect(name.endsWith('…')).toBe(true);
+        expect(long.startsWith(name.slice(0, -1))).toBe(true);
+        // Selected, then the focus moves on: the first goes back in as the second comes out.
+        await press(canvas(), ' ');
+        expect(path(0)).not.toBe(rest[0]);
+        await press(canvas(), 'ArrowRight');
+        expect(path(0)).toBe(rest[0]);
+        expect(path(1)).not.toBe(rest[1]);
+        // A value too wide for the theme's size is set smaller.
+        await press(canvas(), 'ArrowRight');
+        expect((svg().querySelector('.vt-chart-center-value') as SVGElement).style.fontSize).not.toBe('');
+    });
+
     it('shares the crosshair and the zoom across a group', async () => {
         const top = mount({ options: { ...quarter, chart: { group: 'pair', id: 'top', animations: { enabled: false } } } });
         const bottom = mount({ type: 'bar', options: { ...quarter, chart: { group: 'pair', id: 'bottom', animations: { enabled: false } } } });
@@ -651,6 +674,11 @@ describe('createChart', () => {
         }
         const spark = mount({ series: [{ name: 'A', data: [1, 3, 2] }], options: { chart: { sparkline: { enabled: true } } } });
         expect(spark.el.classList.contains('vt-chart-sparkline')).toBe(true);
+        // The dot on a point at the edge is drawn whole, not half outside the drawing.
+        const line = spark.svg().querySelector('.vt-chart-line')!.getAttribute('d')!;
+        const ys = [...line.matchAll(/[\d.]+,([\d.]+)/g)].map((m) => Number(m[1]));
+        expect(ys.length).toBeGreaterThan(0);
+        expect(Math.min(...ys)).toBeGreaterThanOrEqual(7);
         expect(document.querySelector('.vt-chart-axis-label')).toBeNull();
         expect(document.querySelector('.vt-chart-legend')).toBeNull();
         expect(document.querySelector('[role="toolbar"]')).toBeNull();

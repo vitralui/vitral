@@ -293,6 +293,19 @@ export function buildCartesian(input: SceneInput): ChartScene {
         // nothing holding that half inside the drawing.
         bottom = Math.max(bottom, labelSize / 2 + 2);
     }
+    // A point on the plot's edge — the first or last of a line, a zero on the
+    // floor, the peak at the ceiling — is drawn centred on it, and the dot the
+    // pointer puts there grows on hover. With a sparkline's hairline padding
+    // half of it was past the edge of the drawing and cut off, so every side
+    // keeps room for the whole dot.
+    if (!anyBar && !horizontal) {
+        const sizes = visible.map((s) => perSeries(o.markers?.size, s.index, 0));
+        const reach = (Math.max(8, ...sizes) / 2 + (o.markers?.strokeWidth ?? 2) / 2) * 1.4 + 1;
+        left = Math.max(left, reach);
+        right = Math.max(right, reach);
+        top = Math.max(top, t.height + reach);
+        bottom = Math.max(bottom, reach);
+    }
     // In a group, the plots line up: the widest axis in the group decides where
     // every plot starts and ends, so a price and its volume share a column.
     if (o.chart?.group && o.chart.id && !sparkline) {

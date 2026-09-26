@@ -207,17 +207,6 @@ export function marksView(c: ViewContext): Child[] {
     // plot's own edge, so it is given in pixels and there is nothing to guess.
     const origin = scene.horizontal ? `${round(scene.plot.x)}px 0` : `0 ${round(scene.plot.y + scene.plot.height)}px`;
 
-    const column = state.column;
-    const hoverMarkers =
-        column < 0
-            ? []
-            : scene.marks
-                  .filter((m) => m.kind === 'line' && m.width > 0)
-                  .flatMap((m) => {
-                      const d = scene.data.find((x) => x.series === m.series && x.column === column && x.value !== null);
-                      return d ? [{ series: m.series, x: d.x, y: d.y, color: m.color }] : [];
-                  });
-
     const defs = s(
         'defs',
         { key: 'marks-defs' },
@@ -326,13 +315,32 @@ export function marksView(c: ViewContext): Child[] {
                   )
                 : null
         ),
-        hoverMarkers.map((hm) =>
-            s('path', mergeAttrs({ key: `h${hm.series}` }, part('marker', { hover: true }), { d: markerD({ x: hm.x, y: hm.y, size: 8, shape: 'circle', fill: hm.color, strokeWidth: 2 }), style: { fill: hm.color, strokeWidth: 2 } }))
-        ),
         scene.marks.map((m) => (m.kind !== 'candle' ? m.labels.map((l, i) => labelView(c, l, `l${m.kind}${m.series}-${i}`)) : null))
     );
 
     return [defs, series, overlay];
+}
+
+/**
+ * The dot on each line at the column in focus. It is drawn over the axes, not
+ * under them: a zero sits on the axis line, and the line was drawn across the
+ * middle of it.
+ */
+export function hoverMarkersView({ scene, state, part }: ViewContext): Child {
+    const column = state.column;
+    if (column < 0) return null;
+    return s(
+        'g',
+        { key: 'marks-hover', 'aria-hidden': 'true' },
+        scene.marks
+            .filter((m) => m.kind === 'line' && m.width > 0)
+            .map((m) => {
+                const d = scene.data.find((x) => x.series === m.series && x.column === column && x.value !== null);
+                return d
+                    ? s('path', mergeAttrs({ key: `h${m.series}` }, part('marker', { hover: true }), { d: markerD({ x: d.x, y: d.y, size: 8, shape: 'circle', fill: m.color, strokeWidth: 2 }), style: { fill: m.color, strokeWidth: 2 } }))
+                    : null;
+            })
+    );
 }
 
 /** Cells and their labels. */
@@ -372,13 +380,27 @@ export interface PieCenter {
     total: string;
 }
 
-/** Slices, their labels, and a donut's centre: the total, or the slice in focus. */
-export function pieView(c: ViewContext, center: PieCenter | null, customCenter?: Child): Child {
+/** A donut's centre as it fits the hole: the name cut short, the value made smaller. */
+export interface FittedCenter {
+    name: string;
+    value: string;
+    /** The value's font size when the theme's would not fit; unset, the theme's. */
+    valueSize?: number;
+}
+
+/**
+ * One slice stands out at a time. The one in focus — from the legend, the
+ * keyboard or the pointer — does; a selected slice stays out only while
+ * nothing else is in focus, or two slices were pulled out side by side.
+ */
+export function pieView(c: ViewContext, center: FittedCenter | null, customCenter?: Child): Child {
     const { scene, state, part } = c;
     const pie = scene.pie!;
-    const hovered = (series: number) => state.hoverSeries === series || state.focusSeries === series;
+    const active = state.focusSeries >= 0 ? state.focusSeries : state.hoverSeries;
+    const hovered = (series: number) => active === series;
     const selected = (series: number) => state.selected.has(pointKey(series, 0));
-    const pathOf = (sl: (typeof pie.slices)[number]) => (selected(sl.series) ? sl.selectedPath : hovered(sl.series) ? sl.hoverPath : sl.path);
+    const out = (series: number) => selected(series) && (active < 0 || active === series);
+    const pathOf = (sl: (typeof pie.slices)[number]) => (out(sl.series) ? sl.selectedPath : hovered(sl.series) ? sl.hoverPath : sl.path);
     return s(
         'g',
         { key: 'pie', ...part('series', { kind: 'pie' }) },
@@ -402,7 +424,7 @@ export function pieView(c: ViewContext, center: PieCenter | null, customCenter?:
             'g',
             { key: 'labels', 'aria-hidden': 'true' },
             pie.slices.map((sl) =>
-                sl.label ? s('g', { key: `l${sl.series}`, transform: selected(sl.series) ? `translate(${round(sl.offset[0])} ${round(sl.offset[1])})` : undefined }, labelView(c, sl.label)) : null
+                sl.label ? s('g', { key: `l${sl.series}`, transform: out(sl.series) ? `translate(${round(sl.offset[0])} ${round(sl.offset[1])})` : undefined }, labelView(c, sl.label)) : null
             )
         ),
         pie.donut && center
@@ -410,8 +432,12 @@ export function pieView(c: ViewContext, center: PieCenter | null, customCenter?:
                   'g',
                   { key: 'center', 'aria-hidden': 'true' },
                   customCenter ?? [
-                      s('text', { ...part('centerLabel'), x: round(pie.cx), y: round(pie.cy - 4), 'text-anchor': 'middle' }, center.name),
-                      s('text', { ...part('centerValue'), x: round(pie.cx), y: round(pie.cy + 4), 'text-anchor': 'middle', 'dominant-baseline': 'hanging' }, center.value)
+                      center.name ? s('text', { ...part('centerLabel'), x: round(pie.cx), y: round(pie.cy - 4), 'text-anchor': 'middle' }, center.name) : null,
+                      s(
+                          'text',
+                          { ...part('centerValue'), x: round(pie.cx), y: round(center.name ? pie.cy + 4 : pie.cy), 'text-anchor': 'middle', 'dominant-baseline': center.name ? 'hanging' : 'central', style: center.valueSize ? { fontSize: `${center.valueSize}px` } : undefined },
+                          center.value
+                      )
                   ]
               )
             : null

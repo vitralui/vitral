@@ -40,7 +40,7 @@ import {
     type LegendEntry,
     type LegendItemContext
 } from './render/html';
-import { annotationsView, axesView, gridView, heatmapView, marksView, pieView, pointKey, radarView, round, textAttrs, type PieCenter, type RenderState, type ViewContext } from './render/svg';
+import { annotationsView, axesView, gridView, heatmapView, hoverMarkersView, marksView, pieView, pointKey, radarView, round, textAttrs, type FittedCenter, type PieCenter, type RenderState, type ViewContext } from './render/svg';
 import { chartStyle } from './style';
 
 // A chart drawn as SVG from the engine's scene, with no framework. The picture
@@ -270,6 +270,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     let size = { width: 0, height: 0 };
     let fonts: { label?: number; title?: number; subtitle?: number; dataLabel?: number } = {};
     let fontFamily = 'sans-serif';
+    let centerFonts = { label: 12, value: 22 };
 
     // ---- state
     let hidden = new Set<number>();
@@ -516,6 +517,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         const next = { label: px('--vt-chart-axis-font-size', 12), title: px('--vt-chart-title-font-size', 15), subtitle: px('--vt-chart-subtitle-font-size', 12), dataLabel: px('--vt-chart-data-label-font-size', 11) };
         if (next.label !== fonts.label || next.title !== fonts.title || next.subtitle !== fonts.subtitle || next.dataLabel !== fonts.dataLabel) fonts = next;
         fontFamily = style.fontFamily || 'sans-serif';
+        centerFonts = { label: px('--vt-chart-pie-total-label-font-size', 12), value: px('--vt-chart-pie-total-value-font-size', 22) };
     }
 
     // Text is measured on a canvas when there is one; a character estimate stands in otherwise.
@@ -528,6 +530,39 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         if (!context2d) return text.length * fontSize * 0.58;
         context2d.font = `${fontSize}px ${fontFamily}`;
         return context2d.measureText(text).width;
+    }
+
+    /** `text`, cut short with an ellipsis until it is no wider than `width`; empty when not even that fits. */
+    function ellipsize(text: string, size: number, width: number): string {
+        if (measure(text, size) <= width) return text;
+        let lo = 0;
+        let hi = text.length;
+        while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2);
+            if (measure(text.slice(0, mid).trimEnd() + '…', size) <= width) lo = mid;
+            else hi = mid - 1;
+        }
+        return lo ? text.slice(0, lo).trimEnd() + '…' : '';
+    }
+
+    /**
+     * A donut's centre, made to fit its hole. A long name ran out over the ring
+     * and past it; now it is cut short, and a long value is set smaller — down
+     * to a floor, then cut short too. A hole too small for a name keeps just
+     * the value, and one too small for that shows nothing.
+     */
+    function fitCenter(center: PieCenter, radius: number): FittedCenter | null {
+        // The width of the hole at `dy` from its middle, less a margin each side.
+        const across = (dy: number) => (dy >= radius ? 0 : 2 * Math.sqrt(radius * radius - dy * dy) - 12);
+        // Bold is wider than the canvas measures it at the family's weight.
+        const bold = 1.1;
+        let valueSize = centerFonts.value;
+        const floor = Math.min(valueSize, Math.max(10, centerFonts.label));
+        while (valueSize > floor && measure(center.value, valueSize) * bold > across(4 + valueSize)) valueSize--;
+        const value = ellipsize(center.value, valueSize * bold, across(4 + valueSize));
+        if (!value) return null;
+        const name = across(4 + centerFonts.label) >= 24 ? ellipsize(center.name, centerFonts.label, across(4 + centerFonts.label)) : '';
+        return { name, value, valueSize: valueSize !== centerFonts.value ? valueSize : undefined };
     }
 
     // ---- scheduling
@@ -750,6 +785,9 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
         if (trigger === 'click' && event.pointerType !== 'mouse') return;
         const { x, y } = local(event);
         const next = hitTest(x, y);
+        // The pointer takes over from the keyboard: two points in focus at
+        // once, one from each, left the reader to guess which was meant.
+        if (next && keyFocus) keyFocus = null;
         if (trigger === 'click' && !pinned) {
             // Click-triggered: the pointer only highlights; the panel waits for a click.
             hover = next ? { ...next } : null;
@@ -1285,15 +1323,17 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
 
         // Donut centre.
         let center: PieCenter | null = null;
+        // The slice in focus, the same one the drawing pulls out.
+        const activeSlice = state.focusSeries >= 0 ? state.focusSeries : state.hoverSeries;
         if (sc.pie?.tracks) {
             // A gauge reads its own value in the middle; there is no total to
             // show, since the rings are shares of their own maximums.
-            const slice = sc.pie.slices.find((x) => x.series === state.hoverSeries) ?? sc.pie.slices[0];
+            const slice = sc.pie.slices.find((x) => x.series === activeSlice) ?? sc.pie.slices[0];
             if (slice && options.dataLabels?.enabled !== false)
                 center = { name: seriesName(slice.series), value: chartFormatter(options.dataLabels?.formatter, '{percent|percent:0}', loc)(slice.value, { percent: slice.percent, seriesName: seriesName(slice.series) }), total: '' };
         } else if (sc.pie && options.plotOptions?.pie?.donut?.labels?.show !== false) {
             const labels = options.plotOptions?.pie?.donut?.labels;
-            const slice = sc.pie.slices.find((x) => x.series === state.hoverSeries);
+            const slice = sc.pie.slices.find((x) => x.series === activeSlice);
             const total = chartFormatter(labels?.total?.formatter, '{value}', loc)(sc.pie.total);
             if (slice && !labels?.total?.showAlways) center = { name: seriesName(slice.series), value: chartFormatter(labels?.value?.formatter, '{value}', loc)(slice.value, { percent: slice.percent }), total };
             else if (labels?.total?.show !== false) center = { name: labels?.total?.label ?? loc.chart.total, value: total, total };
@@ -1317,7 +1357,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
 
         let plotNodes: Child;
         if (sc.heatmap) plotNodes = heatmapView(ctx);
-        else if (sc.pie) plotNodes = pieView(ctx, center, customCenter);
+        else if (sc.pie) plotNodes = pieView(ctx, center && fitCenter(center, sc.pie.inner), customCenter);
         else if (sc.radar) plotNodes = radarView(ctx);
         else plotNodes = marksView(ctx);
 
@@ -1355,7 +1395,6 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
                 onPointerdown,
                 onClick
             }),
-            s('title', { key: 'title', id: summaryId }, summary),
             s(
                 'defs',
                 { key: 'defs' },
@@ -1371,6 +1410,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
                       withKey(annotationsView(ctx, 'back'), 'annotations-back'),
                       plotNodes,
                       withKey(axesView(ctx), 'axes'),
+                      sc.heatmap || sc.pie || sc.radar ? null : hoverMarkersView(ctx),
                       sc.grid.position === 'front' ? withKey(gridView(ctx), 'grid-front') : null,
                       withKey(annotationsView(ctx, 'front'), 'annotations-front'),
                       crosshair && crosshair.front ? crosshairNodes('cross-front') : null,
@@ -1481,6 +1521,10 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
                 canvas,
                 showLegend && (legendPosition === 'bottom' || legendPosition === 'right') ? legendNode('legend-after') : null
             ),
+            // The summary names the drawing from outside it: an SVG `<title>` would
+            // do the same, but the browser shows it as a tooltip over the chart,
+            // which has a tooltip of its own.
+            h('span', { key: 'summary', id: summaryId, hidden: true }, summary),
             h('span', { key: 'help', id: helpId, hidden: true }, loc.chart.keyboardHelp),
             h('span', mergeAttrs({ key: 'status', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }, part('status'), { style: { ...visuallyHidden } }), readout),
             table ? tableView(part, table, formatMessage(loc.chart.dataTable, { title: title || loc.chart.untitled })) : null
