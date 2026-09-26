@@ -4,12 +4,15 @@ import {
     ariaEditorShortcut,
     createEditor as createEditorInstance,
     createEditorView,
+    editorLinkAt,
+    editorLinkHint,
     editorPalette,
     editorShortcutFor,
     editorSelectionRange,
     editorTextblocks,
     en,
     formatEditorShortcut,
+    followEditorLink,
     formatMessage,
     isEmptyEditorDoc,
     loadStyle,
@@ -154,11 +157,24 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             linkPanel.close();
             focus();
         },
+        open: () => {
+            followEditorLink(link.href.trim());
+            linkPanel.close();
+        },
         cancel: () => {
             linkPanel.close();
             focus();
         }
     };
+
+    /** The link editor, filled in with the link under the caret when there is one. */
+    function openLinkPanel(event?: MouseEvent) {
+        if (!editable()) return;
+        const at = editorLinkAt(editor.state);
+        link = { href: at?.href ?? '', text: at?.text ?? '', newTab: at?.target === '_blank', existing: !!at };
+        if (!event) placeCaret();
+        openPanel(linkPanel, 'link', event);
+    }
 
     const imageActions = {
         insert: (src: string, alt: string) => {
@@ -264,6 +280,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
 
     function openPanel(overlay: Overlay, name: string, event?: MouseEvent) {
         if (event) anchors.set(name, event.currentTarget as HTMLElement);
+        else anchors.delete(name);
         closePanels(overlay);
         overlay.open();
         overlay.update();
@@ -297,10 +314,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                     run(name, ...args);
                     if (event.detail > 0) focus();
                 },
-                openLink: (event) => {
-                    link = { href: '', text: '', newTab: false, existing: editor.isActive('link') };
-                    openPanel(linkPanel, 'link', event);
-                },
+                openLink: (event) => openLinkPanel(event),
                 openImage: (event) => openPanel(imagePanel, 'image', event),
                 openTable: (event) => openPanel(tablePanel, 'table', event),
                 openColor: (kind, event) => {
@@ -424,7 +438,14 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             editable,
             taskLabel: locale().editor.taskDone,
             selectedClass: 'vt-editor-node-selected',
-            emptyClass: 'vt-editor-content-empty'
+            emptyClass: 'vt-editor-content-empty',
+            // Ctrl/⌘+K opens the link editor, over the caret.
+            handleKey: (_name, binding) => {
+                if (binding?.[0] !== 'link' || !editable()) return false;
+                openLinkPanel();
+                return true;
+            },
+            linkHint: (href) => ({ ...tooltips.options(editorLinkHint(href, locale().editor.followLink)), placement: 'top' })
         });
         if (current.autofocus) view.focus();
     }

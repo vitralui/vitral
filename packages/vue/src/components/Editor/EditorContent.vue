@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { createEditorView, isEmptyEditorDoc, type EditorView } from '@vitral/core';
+import { createEditorView, editorLinkHint, isEmptyEditorDoc, type EditorView } from '@vitral/core';
 import { editorStyle } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useVitral } from '../../config/config';
+import { tooltipOptions } from '../../directives/tooltip';
 import { inheritRoot, useEditorContext } from './context';
 import type { EditorContentProps } from './types';
 
@@ -16,6 +18,7 @@ const props = withDefaults(defineProps<EditorContentProps>(), { unstyled: undefi
 const ctx = useEditorContext('EditorContent');
 const { part, cx } = useComponent(editorStyle, inheritRoot(props, ctx));
 const attrs = useAttrs();
+const vitral = useVitral();
 const el = ref<HTMLElement | null>(null);
 const labelledBy = ref<string>();
 let view: EditorView | null = null;
@@ -61,7 +64,9 @@ onMounted(() => {
         editable: () => ctx.editable.value,
         handleKey: ctx.handleKey,
         taskLabel: ctx.locale.value.editor.taskDone,
-        selectedClass: cx('selectedNode')
+        selectedClass: cx('selectedNode'),
+        // Over a link while writing: where it goes, and that Ctrl/⌘+click follows it.
+        linkHint: (href) => tooltipOptions(vitral, { text: editorLinkHint(href, ctx.locale.value.editor.followLink), showDelay: 400 })
     });
     ctx.attachView(view, el.value);
     linkLabel();

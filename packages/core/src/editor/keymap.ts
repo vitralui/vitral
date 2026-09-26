@@ -40,6 +40,8 @@ export type EditorKeyBinding = readonly [command: string, ...args: unknown[]];
 /**
  * The editor's shortcuts. `link` and `toolbar` are not commands but requests
  * to the interface: open the link editor, move focus to the toolbar.
+ * `openLink` is the view's own: it follows the link under the caret, as
+ * Alt+Enter does in a document editor.
  */
 export const editorKeymap: Readonly<Record<string, EditorKeyBinding>> = {
     'Mod-b': ['toggleBold'],
@@ -49,6 +51,7 @@ export const editorKeymap: Readonly<Record<string, EditorKeyBinding>> = {
     'Mod-Shift-x': ['toggleStrike'],
     'Mod-e': ['toggleCode'],
     'Mod-k': ['link'],
+    'Alt-Enter': ['openLink'],
     'Mod-z': ['undo'],
     'Mod-Shift-z': ['redo'],
     'Mod-y': ['redo'],

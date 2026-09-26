@@ -1,10 +1,12 @@
 import type { EditorInstance } from './editor';
 import { groupInline, isEmptyDoc, parseEditorHTML, textToEditorDoc } from './html';
-import { editorKeymap, keyName, type EditorKeyBinding } from './keymap';
+import { editorKeymap, isMacPlatform, keyName, type EditorKeyBinding } from './keymap';
 import { clampLevel, inlineLength, inlineText, isAtom, isTextblock, makeTextblock, marksAt, replaceAt, replaceInline, textToInline, type EditorMark, type EditorNode, type EditorPosition } from './model';
 import { editorColorStyle, sanitizeUrl } from './sanitize';
 import { caret, isCollapsed, selectionRange, type EditorSelection } from './state';
-import { deleteBetween, deleteForward, fragmentText, insertContent, insertText } from './commands';
+import { deleteBetween, deleteForward, fragmentText, insertContent, insertText, linkAt } from './commands';
+import { createTooltip, type TooltipHandle, type TooltipOptions } from '../overlay/tooltip';
+import { formatMessage } from '../locale/locale';
 
 // The bridge between an editor and a `contenteditable` element. The element
 // shows the document and reports what the user does; it is never the source
@@ -29,6 +31,29 @@ export interface EditorViewOptions {
     selectedClass?: string;
     /** Class on the element while the document is empty (it shows the placeholder). */
     emptyClass?: string;
+    /**
+     * The tooltip over a link while the text can be changed, saying how to
+     * follow it (a click there only places the caret). Given the address,
+     * return its options — the words, the classes — or nothing for none.
+     */
+    linkHint?: (href: string) => TooltipOptions | null | undefined;
+}
+
+/**
+ * The words over a link: where it goes and how to follow it —
+ * `example.com/docs — Ctrl+click to open`. A long address is cut short in
+ * the middle of nowhere useful, so it is cut at the end.
+ */
+export function editorLinkHint(href: string, followLink: string, mac = isMacPlatform()): string {
+    const shown = href.replace(/^(https?:\/\/|mailto:|tel:)/, '').replace(/\/$/, '');
+    const short = shown.length > 48 ? `${shown.slice(0, 47)}…` : shown;
+    return `${short} — ${formatMessage(followLink, { key: mac ? '⌘' : 'Ctrl' })}`;
+}
+
+/** Opens a link in a new tab, with no way back to the page that opened it. */
+export function followEditorLink(href: string): void {
+    if (typeof window === 'undefined' || !href) return;
+    window.open(href, '_blank', 'noopener,noreferrer');
 }
 
 export interface EditorView {
@@ -445,6 +470,8 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         if (destroyed) return;
         if (composing) return;
         render();
+        // The link it hung from was drawn again: the tooltip goes with it.
+        if (hint && !root.contains(hint.link)) clearHint();
         if (hasFocus()) writeSelection();
     }
 
@@ -723,6 +750,17 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         }
         if (!binding) return;
         const [command, ...args] = binding;
+        if (command === 'openLink') {
+            // Read or written, the link under the caret is followed; with none
+            // there, Alt+Enter is left to whatever else wants it.
+            readSelection();
+            const link = linkAt(editor.state);
+            const href = link ? sanitizeUrl(link.href, 'link') : null;
+            if (!href) return;
+            event.preventDefault();
+            followEditorLink(href);
+            return;
+        }
         if (command === 'selectAll' || command === 'link' || command === 'toolbar') return;
         if (!editable()) return;
         readSelection();
@@ -836,7 +874,51 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         pointerDown = false;
     }
 
+    /** The link an event happened on, when it is one of the document's. */
+    function linkOf(target: EventTarget | null): HTMLAnchorElement | null {
+        const a = (target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+        return a && root.contains(a) ? a : null;
+    }
+
+    // Clicking a link while writing places the caret in it, as it must, so
+    // following it takes Ctrl (⌘ on a Mac) — the convention of every editor
+    // where text and links share the page. Shift is not used: Shift+click
+    // extends the selection.
+    function onLinkClick(event: MouseEvent): boolean {
+        const a = linkOf(event.target);
+        if (!a || !editable()) return false;
+        const mod = isMacPlatform() ? event.metaKey : event.ctrlKey;
+        if (!mod) return false;
+        event.preventDefault();
+        clearHint();
+        followEditorLink(a.getAttribute('href') ?? '');
+        return true;
+    }
+
+    // The tooltip over a link: one at a time, made for the link under the
+    // pointer and given up when it moves on.
+    let hint: { link: HTMLAnchorElement; tip: TooltipHandle } | null = null;
+    let hintTimer: ReturnType<typeof setTimeout> | undefined;
+    function clearHint() {
+        clearTimeout(hintTimer);
+        hint?.tip.destroy();
+        hint = null;
+    }
+    function onMouseover(event: MouseEvent) {
+        const link = linkOf(event.target);
+        if (link === hint?.link) return;
+        clearHint();
+        if (!link || !options.linkHint || !editable()) return;
+        const settings = options.linkHint(link.getAttribute('href') ?? '');
+        if (!settings) return;
+        const tip = createTooltip(link, settings);
+        hint = { link, tip };
+        // The pointer is already over it, so the tooltip's own hover has been missed.
+        hintTimer = setTimeout(() => tip.show(), settings.showDelay ?? 0);
+    }
+
     function onClick(event: MouseEvent) {
+        if (onLinkClick(event)) return;
         const box = (event.target as Element).closest?.('input[type="checkbox"]');
         if (!box || !root.contains(box)) return;
         event.preventDefault();
@@ -884,6 +966,8 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         [root, 'dragstart', onDragStart as EventListener],
         [root, 'mousedown', onMousedown as EventListener],
         [root, 'click', onClick as EventListener],
+        [root, 'mouseover', onMouseover as EventListener],
+        [root, 'mouseleave', clearHint],
         [root, 'focus', onFocus],
         [doc, 'mouseup', onMouseup],
         [doc, 'selectionchange', onSelectionChange]
@@ -920,6 +1004,7 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         readDOM,
         destroy() {
             destroyed = true;
+            clearHint();
             unsubscribe();
             observer?.disconnect();
             for (const [target, type, fn] of listeners) target.removeEventListener(type, fn);

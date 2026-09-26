@@ -263,6 +263,8 @@ export interface Locale {
         apply: string;
         removeLink: string;
         openLink: string;
+        /** Over a link while editing: how to follow it. `{key}` is Ctrl, or ⌘ on a Mac. */
+        followLink: string;
         invalidUrl: string;
         /** The image form. */
         imageUrl: string;
@@ -747,6 +749,7 @@ export const en: Locale = {
         apply: 'Apply',
         removeLink: 'Remove link',
         openLink: 'Open link',
+        followLink: '{key}+click to open',
         invalidUrl: 'Enter a web, email or phone link (https:, mailto:, tel:) or a relative path.',
         imageUrl: 'Image URL',
         imageAlt: 'Alternative text',
@@ -770,7 +773,7 @@ export const en: Locale = {
         character: '{count} character',
         characters: '{count} characters',
         charactersLimit: '{count} of {limit} characters',
-        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Markdown shortcuts such as # and - work at the start of a line.',
+        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Ctrl+K edits a link, Alt+Enter opens the one under the caret. Markdown shortcuts such as # and - work at the start of a line.',
         slashMenu: 'Insert a block',
         slashEmpty: 'Nothing matches “{query}”',
         blockMenu: 'Block actions',
@@ -1164,6 +1167,7 @@ export const ptBR: Locale = {
         apply: 'Aplicar',
         removeLink: 'Remover link',
         openLink: 'Abrir link',
+        followLink: '{key}+clique para abrir',
         invalidUrl: 'Informe um link web, de e-mail ou telefone (https:, mailto:, tel:) ou um caminho relativo.',
         imageUrl: 'URL da imagem',
         imageAlt: 'Texto alternativo',
@@ -1187,7 +1191,7 @@ export const ptBR: Locale = {
         character: '{count} caractere',
         characters: '{count} caracteres',
         charactersLimit: '{count} de {limit} caracteres',
-        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Atalhos Markdown como # e - funcionam no início da linha.',
+        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Ctrl+K edita um link e Alt+Enter abre o que está sob o cursor. Atalhos Markdown como # e - funcionam no início da linha.',
         slashMenu: 'Inserir um bloco',
         slashEmpty: 'Nada corresponde a “{query}”',
         blockMenu: 'Ações do bloco',

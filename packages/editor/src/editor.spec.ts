@@ -130,6 +130,24 @@ describe('its panels', () => {
         expect(panel()).toBeNull();
     });
 
+    it('opens a link it is in on Ctrl+K, filled in, with a way to follow it', () => {
+        const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const { content, panel } = mount({ content: '<p>See <a href="https://vitral.dev" target="_blank">docs</a></p>' });
+        handle!.focus();
+        const text = content().querySelector('a')!.firstChild!;
+        document.getSelection()!.setBaseAndExtent(text, 2, text, 2);
+        document.dispatchEvent(new Event('selectionchange'));
+        content().dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true }));
+        const dialog = panel()!;
+        expect(dialog.querySelector<HTMLInputElement>('input[type="url"]')!.value).toBe('https://vitral.dev');
+        expect(dialog.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(true);
+        Array.from(dialog.querySelectorAll('button'))
+            .find((b) => b.textContent === 'Open link')!
+            .click();
+        expect(open).toHaveBeenCalledWith('https://vitral.dev', '_blank', 'noopener,noreferrer');
+        open.mockRestore();
+    });
+
     it('refuses a link with nothing in it, and says so', () => {
         const { button, panel } = mount();
         button('Link').click();

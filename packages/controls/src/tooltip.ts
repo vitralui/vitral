@@ -1,4 +1,4 @@
-import { createTooltip, loadStyle, type Placement, type TooltipHandle } from '@vitral/core';
+import { createTooltip, loadStyle, type Placement, type TooltipHandle, type TooltipOptions } from '@vitral/core';
 import type { PassThrough, PassThroughContext, PassThroughValue } from '@vitral/dom';
 import { classOf, tooltipStyle } from '@vitral/styles';
 
@@ -28,6 +28,8 @@ export interface TooltipsOptions {
 export interface Tooltips {
     /** Gives an element its tooltip, or changes the words; `undefined` takes it away. */
     attach(element: Element | null, text: string | undefined): void;
+    /** The options a tooltip with these words is made with here — the classes, the delay, the layer — for one made elsewhere. */
+    options(text: string): TooltipOptions;
     destroy(): void;
 }
 
@@ -46,28 +48,33 @@ export function createTooltips(settings: () => TooltipsOptions): Tooltips {
     const tips = new Map<Element, TooltipHandle>();
     let loaded = false;
 
+    function configOf(text: string): TooltipOptions {
+        const options = settings();
+        if (!loaded && !options.unstyled) {
+            loaded = true;
+            loadStyle(tooltipStyle.name, tooltipStyle.css, { nonce: options.nonce, cssLayer: options.cssLayer });
+        }
+        return {
+            text,
+            placement: options.placement ?? 'bottom',
+            showDelay: options.showDelay ?? 400,
+            zIndex: options.zIndex,
+            rootAttrs: partAttrs('root', options),
+            textAttrs: partAttrs('text', options)
+        };
+    }
+
     return {
+        options: configOf,
         attach(element, text) {
             if (!element) return;
-            const options = settings();
             const existing = tips.get(element);
             if (text === undefined || text === '') {
                 existing?.destroy();
                 tips.delete(element);
                 return;
             }
-            if (!loaded && !options.unstyled) {
-                loaded = true;
-                loadStyle(tooltipStyle.name, tooltipStyle.css, { nonce: options.nonce, cssLayer: options.cssLayer });
-            }
-            const config = {
-                text,
-                placement: options.placement ?? 'bottom',
-                showDelay: options.showDelay ?? 400,
-                zIndex: options.zIndex,
-                rootAttrs: partAttrs('root', options),
-                textAttrs: partAttrs('text', options)
-            };
+            const config = configOf(text);
             if (existing) existing.update(config);
             else tips.set(element, createTooltip(element as HTMLElement, config));
         },

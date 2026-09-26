@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createEditor, type EditorInstance } from './editor';
 import { editorNodes as n, type EditorNode } from './model';
-import { createEditorView, type EditorView, type EditorViewOptions } from './view';
+import { createEditorView, editorLinkHint, type EditorView, type EditorViewOptions } from './view';
 
 const at = (path: number[], offset: number) => ({ path, offset });
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -234,6 +234,35 @@ describe('createEditorView: input', () => {
         Object.defineProperty(event, 'clipboardData', { value: { getData: (type: string) => (type === 'text/plain' ? 'cdefgh' : '') } });
         root.dispatchEvent(event);
         expect(editor.getText()).toBe('abcde');
+    });
+
+    it('follows a link on Ctrl+click or Alt+Enter, and says so over it', async () => {
+        const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const { root, editor } = setup(n.doc(n.p('see ', n.t('docs', n.link('https://example.com/docs')))), {
+            linkHint: (href) => ({ text: editorLinkHint(href, '{key}+click to open', false) })
+        });
+        const a = root.querySelector('a')!;
+        // A plain click is the caret's; Shift+click extends the selection.
+        a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }));
+        expect(open).not.toHaveBeenCalled();
+        const click = new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true });
+        a.dispatchEvent(click);
+        expect(click.defaultPrevented).toBe(true);
+        expect(open).toHaveBeenLastCalledWith('https://example.com/docs', '_blank', 'noopener,noreferrer');
+        // From the keyboard, with the caret in the link; outside one, the key is left alone.
+        editor.setSelection({ anchor: at([0], 6), head: at([0], 6) });
+        expect(key(root, 'Enter', { altKey: true }).defaultPrevented).toBe(true);
+        expect(open).toHaveBeenCalledTimes(2);
+        editor.setSelection({ anchor: at([0], 1), head: at([0], 1) });
+        expect(key(root, 'Enter', { altKey: true }).defaultPrevented).toBe(false);
+        // The tooltip, over the link while the pointer is.
+        a.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+        await tick();
+        expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('example.com/docs — Ctrl+click to open');
+        root.dispatchEvent(new MouseEvent('mouseleave'));
+        expect(document.querySelector('[role="tooltip"]')).toBeNull();
+        open.mockRestore();
     });
 
     it('refuses every change when not editable', () => {

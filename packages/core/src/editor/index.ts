@@ -67,4 +67,4 @@ export {
     type EditorColor
 } from './sanitize';
 export * from './editor';
-export { createEditorView, type EditorView, type EditorViewOptions } from './view';
+export { createEditorView, editorLinkHint, followEditorLink, type EditorView, type EditorViewOptions } from './view';

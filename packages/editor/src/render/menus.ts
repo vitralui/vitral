@@ -30,6 +30,8 @@ export interface LinkPanelActions {
     change: (patch: Partial<LinkPanelState>) => void;
     apply: () => void;
     remove: () => void;
+    /** Follows the link, in a new tab. */
+    open: () => void;
     cancel: () => void;
 }
 
@@ -74,7 +76,10 @@ export function linkPanelView(context: PanelContext, state: LinkPanelState, on: 
             'div',
             mergeAttrs({ key: 'actions' }, part('actions')),
             state.existing
-                ? h('button', mergeAttrs({ key: 'remove', type: 'button', class: 'vt-button vt-button-text vt-button-secondary vt-button-sm' }, { onClick: on.remove }), words.removeLink)
+                ? [
+                      h('button', mergeAttrs({ key: 'open', type: 'button', class: 'vt-button vt-button-text vt-button-secondary vt-button-sm' }, { onClick: on.open }), words.openLink),
+                      h('button', mergeAttrs({ key: 'remove', type: 'button', class: 'vt-button vt-button-text vt-button-secondary vt-button-sm' }, { onClick: on.remove }), words.removeLink)
+                  ]
                 : null,
             h('button', mergeAttrs({ key: 'cancel', type: 'button', class: 'vt-button vt-button-text vt-button-secondary vt-button-sm' }, { onClick: on.cancel }), locale.cancel),
             h('button', mergeAttrs({ key: 'apply', type: 'button', class: 'vt-button vt-button-sm' }, { onClick: on.apply }), words.apply)

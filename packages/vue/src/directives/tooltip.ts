@@ -57,6 +57,16 @@ function optionsOf(binding: DirectiveBinding<TooltipDirectiveValue>): TooltipOpt
 }
 
 /**
+ * A tooltip dressed the way the directive dresses one, for a tooltip a
+ * component makes on an element it does not render itself — a link inside an
+ * editor's text, say. The style is loaded on the way.
+ */
+export function tooltipOptions(context: VitralContext | undefined, options: Omit<TooltipOptions, 'rootAttrs' | 'textAttrs' | 'zIndex'>): TooltipOptions {
+    if (!context?.config.unstyled) loadStyle(tooltipStyle.name, tooltipStyle.css, { nonce: context?.config.csp.nonce, cssLayer: context?.config.cssLayer, registry: context?.styles });
+    return { placement: 'top', ...options, zIndex: context?.config.zIndex.tooltip ?? 1100, rootAttrs: partAttrs('root', context), textAttrs: partAttrs('text', context) };
+}
+
+/**
  * `v-tooltip="'Save'"`, `v-tooltip.bottom="…"` or
  * `v-tooltip="{ value, placement, showDelay, hideDelay, disabled }"`.
  * Register it with `app.directive('tooltip', Tooltip)`.
