@@ -424,22 +424,6 @@ export const chartEntries: ChartEntry[] = [
     }
 ];
 
-/**
- * An options object as the source that would have written it. Everything the
- * engine takes is plain data, so this is a formatting job rather than a
- * serialiser: quoted keys lose their quotes and strings take the quotes the
- * repository writes.
- */
-export function source(value: unknown): string {
-    return JSON.stringify(value, null, 4)
-        .replace(/"([A-Za-z_$][\w$]*)":/g, '$1:')
-        .replace(/"/g, "'");
-}
-
-export function snippetOf(entry: ChartEntry): string {
-    return `const series = ${source(entry.series)};\n\nconst options = ${source(entry.options)};`;
-}
-
 export const entryOfChart = (id: string) => chartEntries.find((entry) => entry.id === id);
 
 /** A gallery chart's name and note in the page's language, from `locales/<lang>/charts.json` → `charts.<id>`. */

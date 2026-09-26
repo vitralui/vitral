@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { Button, Chart, Icon } from '@vitral/vue';
+import { Chart, Icon } from '@vitral/vue';
 import { computed, provide, ref } from 'vue';
-import { chartEntries, chartText, families, snippetOf, type ChartEntry, type Family } from '../lib/charts';
+import { chartEntries, chartText, families, type Family } from '../lib/charts';
 import { proseScope, T, t } from '../lib/i18n';
 import { href } from '../lib/router';
-import CodeBlock from '../parts/CodeBlock.vue';
 
 /**
  * Every kind of chart the engine draws, on one page, so choosing one is a
  * matter of looking rather than of reading a list of names. Each card is the
- * live chart, what it is for, and the two objects behind it.
+ * live chart and what it is for. The page shows them off; the code for each is
+ * on the Chart component's page, with the rest of its documentation.
  */
 
 // The page's prose reads its translations from `locales/<lang>/charts.json`.
 provide(proseScope, { value: 'charts' });
 
 const family = ref<Family | 'all'>('all');
-const open = ref<string | null>(null);
 
 const shown = computed(() => (family.value === 'all' ? chartEntries : chartEntries.filter((entry) => entry.family === family.value)));
 const groups = computed(() => families.map((name) => ({ name, items: shown.value.filter((entry) => entry.family === name) })).filter((group) => group.items.length > 0));
 
-const usage = (entry: ChartEntry) => `<Chart type="${entry.kind}" :series="series" :options="options" :height="260" />`;
 const countOf = (name: Family) => chartEntries.filter((entry) => entry.family === name).length;
 </script>
 
@@ -61,20 +59,6 @@ const countOf = (name: Family) => chartEntries.filter((entry) => entry.family ==
                         <Chart :type="entry.kind" :series="entry.series" :options="entry.options" :height="240" />
                     </div>
                     <p>{{ chartText(entry).note }}</p>
-                    <Button
-                        :label="open === entry.id ? t('Hide the code') : t('Show the code')"
-                        :icon="open === entry.id ? 'chevronUp' : 'chevronDown'"
-                        severity="secondary"
-                        variant="text"
-                        size="small"
-                        :aria-expanded="open === entry.id"
-                        :aria-controls="`chart-code-${entry.id}`"
-                        @click="open = open === entry.id ? null : entry.id"
-                    />
-                    <div v-show="open === entry.id" :id="`chart-code-${entry.id}`" class="charts-code">
-                        <CodeBlock :code="usage(entry)" label="template" lang="vue" />
-                        <CodeBlock :code="snippetOf(entry)" label="script" lang="ts" />
-                    </div>
                 </article>
             </div>
         </section>
