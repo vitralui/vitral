@@ -1,6 +1,6 @@
 {
   "name": "@vitral/chat",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Framework-free chat for Vitral: the engine (messages, grouping, streaming, the composer) and a DOM renderer with roving focus and live announcements, which the Vue, React and Angular components wrap.",
   "keywords": [
     "vitral",

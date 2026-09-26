@@ -1,6 +1,6 @@
 {
   "name": "@vitral/vue",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Vitral for Vue 3: components, composables, directives and the plugin that themes them.",
   "keywords": [
     "vitral",
