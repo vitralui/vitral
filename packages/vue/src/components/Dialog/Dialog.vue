@@ -43,6 +43,12 @@ const titleId = `${useId()}-title`;
 const maskRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const contentRef = ref<HTMLElement | null>(null);
+
+/** The content is off its top: the header shows its line. */
+const scrolled = ref(false);
+function onContentScroll(event: Event) {
+    scrolled.value = (event.target as HTMLElement).scrollTop > 0;
+}
 const footerRef = ref<HTMLElement | null>(null);
 const maximized = ref(false);
 
@@ -131,6 +137,7 @@ watch(
     (open, was) => {
         if (open) {
             maximized.value = false;
+            scrolled.value = false;
             // Each opening starts where the layout puts it.
             offset.value = { x: 0, y: 0 };
             emit('show');
@@ -149,7 +156,7 @@ defineExpose({ close, toggleMaximize, maximized });
         <Transition name="vt-dialog-motion" appear @after-leave="emit('after-hide')">
             <div v-if="visible" ref="maskRef" v-bind="part('mask', { position, modal, maximized })" @pointerdown="onMaskPointerdown" @click="onMaskClick">
                 <div ref="panelRef" role="dialog" :aria-modal="modal ? 'true' : undefined" :aria-labelledby="labelledBy" v-bind="mergeProps(part('root', { maximized, dragging: drag.active.value }), attrs, { style: moved })">
-                    <div v-if="hasHeader" v-bind="part('header', { draggable: canDrag })" @pointerdown="onHeaderPointerdown">
+                    <div v-if="hasHeader" v-bind="part('header', { draggable: canDrag, scrolled })" @pointerdown="onHeaderPointerdown">
                         <div v-if="hasTitle" :id="titleId" v-bind="part('title')">
                             <slot name="header">{{ header }}</slot>
                         </div>
@@ -172,7 +179,7 @@ defineExpose({ close, toggleMaximize, maximized });
                             </button>
                         </div>
                     </div>
-                    <div ref="contentRef" v-bind="part('content')">
+                    <div ref="contentRef" v-bind="part('content')" @scroll="onContentScroll">
                         <slot />
                     </div>
                     <div v-if="$slots.footer" ref="footerRef" v-bind="part('footer')">

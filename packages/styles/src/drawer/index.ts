@@ -8,13 +8,18 @@ export interface DrawerState {
     modal?: boolean;
 }
 
+export interface DrawerHeaderState {
+    /** The content is scrolled: a line parts it from the header. */
+    scrolled?: boolean;
+}
+
 export const drawerStyle = defineStyle({
     name: 'drawer',
     css,
     classes: {
         mask: (s: DrawerState) => ['vt-mask', 'vt-drawer-mask', `vt-drawer-mask-${s.position ?? 'left'}`, { 'vt-drawer-mask-modeless': s.modal === false }],
         root: (s: DrawerState) => ['vt-drawer', `vt-drawer-${s.position ?? 'left'}`],
-        header: 'vt-drawer-header',
+        header: (s: DrawerHeaderState) => ['vt-drawer-header', { 'vt-drawer-header-scrolled': s.scrolled }],
         title: 'vt-drawer-title',
         closeButton: 'vt-drawer-close-button',
         content: 'vt-drawer-content',

@@ -32,6 +32,22 @@ function mountDialog(props: Record<string, unknown> = {}, slots: Record<string, 
 }
 
 describe('Dialog', () => {
+    it('parts the header from the content with a line only while the content is scrolled', async () => {
+        const { dialog, open } = mountDialog();
+        await open();
+        const header = dialog()!.querySelector('.vt-dialog-header')!;
+        const content = dialog()!.querySelector<HTMLElement>('.vt-dialog-content')!;
+        expect(header.classList).not.toContain('vt-dialog-header-scrolled');
+        content.scrollTop = 40;
+        content.dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(header.classList).toContain('vt-dialog-header-scrolled');
+        content.scrollTop = 0;
+        content.dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(header.classList).not.toContain('vt-dialog-header-scrolled');
+    });
+
     it('renders nothing while closed', async () => {
         const { dialog } = mountDialog();
         expect(dialog()).toBeNull();

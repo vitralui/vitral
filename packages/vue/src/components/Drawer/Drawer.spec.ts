@@ -27,6 +27,22 @@ function mountDrawer(props: Record<string, unknown> = {}) {
 }
 
 describe('Drawer', () => {
+    it('parts the header from the content with a line only while the content is scrolled', async () => {
+        const { drawer, open } = mountDrawer();
+        await open();
+        const header = drawer()!.querySelector('.vt-drawer-header')!;
+        const content = drawer()!.querySelector<HTMLElement>('.vt-drawer-content')!;
+        expect(header.classList).not.toContain('vt-drawer-header-scrolled');
+        content.scrollTop = 40;
+        content.dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(header.classList).toContain('vt-drawer-header-scrolled');
+        content.scrollTop = 0;
+        content.dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(header.classList).not.toContain('vt-drawer-header-scrolled');
+    });
+
     it('opens as a modal dialog against its edge, named by its header, focus inside', async () => {
         const { drawer, open } = mountDrawer({ position: 'right' });
         expect(drawer()).toBeNull();

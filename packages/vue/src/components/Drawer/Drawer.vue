@@ -33,6 +33,12 @@ const titleId = `${useId()}-title`;
 const maskRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const contentRef = ref<HTMLElement | null>(null);
+
+/** The content is off its top: the header shows its line. */
+const scrolled = ref(false);
+function onContentScroll(event: Event) {
+    scrolled.value = (event.target as HTMLElement).scrollTop > 0;
+}
 const footerRef = ref<HTMLElement | null>(null);
 
 const hasTitle = computed(() => !!props.header || !!slots.header);
@@ -58,7 +64,10 @@ function close() {
 watch(
     visible,
     (open, was) => {
-        if (open) emit('show');
+        if (open) {
+            scrolled.value = false;
+            emit('show');
+        }
         else if (was) emit('hide');
     },
     { immediate: true }
@@ -72,7 +81,7 @@ defineExpose({ close });
         <Transition name="vt-drawer-motion" appear @after-leave="emit('after-hide')">
             <div v-if="visible" ref="maskRef" v-bind="part('mask', state)" @pointerdown="onMaskPointerdown" @click="onMaskClick">
                 <div ref="panelRef" role="dialog" :aria-modal="modal ? 'true' : undefined" :aria-labelledby="labelledBy" v-bind="mergeProps(part('root', state), attrs)">
-                    <div v-if="hasHeader" v-bind="part('header')">
+                    <div v-if="hasHeader" v-bind="part('header', { scrolled })">
                         <div v-if="hasTitle" :id="titleId" v-bind="part('title')">
                             <slot name="header">{{ header }}</slot>
                         </div>
@@ -82,7 +91,7 @@ defineExpose({ close });
                             </slot>
                         </button>
                     </div>
-                    <div ref="contentRef" v-bind="part('content')">
+                    <div ref="contentRef" v-bind="part('content')" @scroll="onContentScroll">
                         <slot />
                     </div>
                     <div v-if="$slots.footer" ref="footerRef" v-bind="part('footer')">

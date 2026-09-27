@@ -76,7 +76,17 @@
     justify-content: space-between;
     gap: var(--vt-dialog-gap);
     flex-shrink: 0;
-    padding: var(--vt-dialog-padding) var(--vt-dialog-padding) 0;
+    /* The space above the content belongs to the header, which does not
+       scroll: kept in the content, it scrolled away and rows ran into the
+       title. The content keeps a sliver so the first field's focus ring
+       is not cut. */
+    padding: var(--vt-dialog-padding) var(--vt-dialog-padding) calc(var(--vt-dialog-gap) - 0.25rem);
+    border-bottom: 1px solid transparent;
+}
+
+/* Scrolled content ends at a line, not at the title's feet. */
+.vt-dialog-header-scrolled {
+    border-bottom-color: var(--vt-dialog-footer-border-color);
 }
 
 /* A header that moves the dialog says so, and takes a finger without scrolling the page. */
@@ -145,7 +155,7 @@
 }
 
 .vt-dialog-header ~ .vt-dialog-content {
-    padding-top: var(--vt-dialog-gap);
+    padding-top: 0.25rem;
 }
 
 .vt-dialog-footer {

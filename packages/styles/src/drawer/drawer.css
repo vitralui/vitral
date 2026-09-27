@@ -72,7 +72,17 @@
     justify-content: space-between;
     gap: var(--vt-drawer-gap);
     flex-shrink: 0;
-    padding: var(--vt-drawer-padding) var(--vt-drawer-padding) 0;
+    /* The space above the content belongs to the header, which does not
+       scroll: kept in the content, it scrolled away and rows ran into the
+       title. The content keeps a sliver so the first field's focus ring
+       is not cut. */
+    padding: var(--vt-drawer-padding) var(--vt-drawer-padding) calc(var(--vt-drawer-gap) - 0.25rem);
+    border-bottom: 1px solid transparent;
+}
+
+/* Scrolled content ends at a line, not at the title's feet. */
+.vt-drawer-header-scrolled {
+    border-bottom-color: var(--vt-drawer-footer-border-color);
 }
 
 .vt-drawer-title {
@@ -121,7 +131,7 @@
 }
 
 .vt-drawer-header ~ .vt-drawer-content {
-    padding-top: var(--vt-drawer-gap);
+    padding-top: 0.25rem;
 }
 
 .vt-drawer-footer {
