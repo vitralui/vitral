@@ -3,8 +3,8 @@
 // is particular to a multi-line box.
 export default {
     root: {
-        /** Which way the grip resizes the box: `vertical`, `horizontal`, `both` or `none`. An auto-resizing box never shows one. */
-        resize: 'vertical'
+        /** Which way the grip resizes the box: `both` (diagonally), `vertical`, `horizontal` or `none`. A fluid box keeps to `vertical`; an auto-resizing one shows no grip. */
+        resize: 'both'
     },
     // The grip is the library's own, drawn in the corner, rather than the one
     // each browser draws its own way.

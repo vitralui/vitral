@@ -1,4 +1,4 @@
-import { arrow as arrowTo, autoUpdate, computePosition, flip, limitShift, offset as offsetBy, shift, size, type Middleware, type Placement } from '@floating-ui/dom';
+import { arrow as arrowTo, autoPlacement, autoUpdate, computePosition, flip, limitShift, offset as offsetBy, shift, size, type Middleware, type Placement } from '@floating-ui/dom';
 
 export type { Placement };
 
@@ -31,6 +31,14 @@ export interface AnchorOptions {
      * The gap grows by half the arrow, so its tip just reaches the anchor.
      */
     withArrow?: boolean;
+    /** Pick whichever side has the most room, rather than `placement`'s (and its flip). */
+    autoPlace?: boolean;
+    /**
+     * Keep the popup on the screen even when its anchor has left it: it
+     * slides along the edge rather than going off with the anchor. The arrow
+     * still points the anchor's way for as long as it can.
+     */
+    stayInView?: boolean;
 }
 
 
@@ -41,7 +49,7 @@ export interface AnchorOptions {
  * point an arrow or pick an animation. Returns the cleanup function.
  */
 export function anchorTo(reference: Element, floating: HTMLElement, options: AnchorOptions = {}): () => void {
-    const { placement = 'bottom-start', alignmentOffset = 0, flip: allowFlip = true, matchWidth = false, strategy = 'fixed', arrowPadding = 8, withArrow = false } = options;
+    const { placement = 'bottom-start', alignmentOffset = 0, flip: allowFlip = true, matchWidth = false, strategy = 'fixed', arrowPadding = 8, withArrow = false, autoPlace = false, stayInView = false } = options;
     let arrow = options.arrow;
     let made: HTMLElement | null = null;
     if (withArrow && !arrow) {
@@ -62,12 +70,13 @@ export function anchorTo(reference: Element, floating: HTMLElement, options: Anc
     floating.style.top = '0px';
 
     const middleware: Middleware[] = [offsetBy({ mainAxis: offset, alignmentAxis: alignmentOffset })];
-    if (allowFlip) middleware.push(flip({ padding: 8 }));
+    if (autoPlace) middleware.push(autoPlacement({ padding: 8, alignment: placement.includes('-') ? (placement.split('-')[1] as 'start' | 'end') : null }));
+    else if (allowFlip) middleware.push(flip({ padding: 8 }));
     // Both axes: a submenu opening to the right of its item slides along the
     // item's edge by default, and on a phone what it needs is to come back from
     // off the right of the screen. The limiter stops it sliding so far that it
     // leaves the item it belongs to.
-    middleware.push(shift({ padding: 8, crossAxis: true, limiter: limitShift() }));
+    middleware.push(shift({ padding: 8, crossAxis: true, limiter: stayInView ? undefined : limitShift() }));
     if (matchWidth) {
         middleware.push(
             size({

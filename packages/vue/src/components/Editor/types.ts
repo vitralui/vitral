@@ -1,4 +1,6 @@
-import type { BlockAction, SlashCommand } from '@vitral/editor';
+import type { BlockAction, ChipSuggestion, ChipTrigger, SlashCommand } from '@vitral/editor';
+
+export type { ChipSuggestion, ChipTrigger };
 import type { BaseProps, IconProp, InputVariant, OverlayPlacement } from '../../base/types';
 
 /** A mark in the JSON document. */
@@ -84,6 +86,12 @@ export interface EditorProps extends BaseProps {
      * true.
      */
     slashMenu?: boolean | SlashCommand[];
+    /**
+     * Inline chips put in by typing a trigger: `{ char: '@', kind: 'mention',
+     * items: (q) => people.filter(…) }`, or several triggers. `items` may
+     * return a promise, for a search on the server.
+     */
+    chips?: ChipTrigger | ChipTrigger[];
     /**
      * The handle beside the block the caret is in: `true` for the usual
      * actions, the actions to offer, or `false` for none. Defaults to true.

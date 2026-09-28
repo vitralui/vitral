@@ -8,8 +8,11 @@ import type { ClassEntry } from '@vitral/styles';
  * overlay behaves, and the hooks that run as the tour moves.
  */
 
-/** Which side of the element the popover sits on; `'over'` puts it on top of the element. */
-export type TourSide = 'top' | 'right' | 'bottom' | 'left' | 'over';
+/**
+ * Which side of the element the popover sits on; `'over'` puts it on top of
+ * the element, and `'auto'` on whichever side has the most room.
+ */
+export type TourSide = 'top' | 'right' | 'bottom' | 'left' | 'over' | 'auto';
 export type TourAlign = 'start' | 'center' | 'end';
 export type TourButton = 'next' | 'previous' | 'close';
 
@@ -111,6 +114,15 @@ export interface TourStep {
 
     /** A name for `moveTo('billing')`. */
     id?: string;
+    /**
+     * The page the step is on, as a path: `'/settings/billing'`. Reaching a
+     * step on another page goes there first — through `navigate` when the
+     * tour has one (a router's `push`), or by loading the page, the tour
+     * picking up again there with `resume()`.
+     */
+    page?: string;
+    /** Bring the element into view when the step is shown; the tour's `scrollIntoView` otherwise. */
+    scrollIntoView?: boolean;
     /** The step is shown only when this says so; otherwise the tour passes over it. */
     when?: (context: TourStepContext) => boolean;
     /**
@@ -130,13 +142,36 @@ export interface TourStep {
 
 export interface TourConfig {
     steps?: TourStep[];
-    /** Move the highlight from step to step rather than jump. Defaults to true (and off under reduced motion). */
+    /** Move the highlight from step to step and fade each popover in. Off by default, and always off under reduced motion. */
     animate?: boolean;
+    /** How long a move takes when `animate` is on, in milliseconds. Defaults to 300. */
+    animationDuration?: number;
     /** The overlay's colour and opacity; the theme's otherwise. */
     overlayColor?: string;
     overlayOpacity?: number;
     /** Scroll the element into view smoothly. Defaults to false. */
     smoothScroll?: boolean;
+    /**
+     * Bring each step's element into view when it is shown. Defaults to true;
+     * off, the page stays where it is and the popover stays on the screen
+     * beside wherever the element is.
+     */
+    scrollIntoView?: boolean;
+    /** Where a scrolled-to element ends up in the window. Defaults to `'center'`. */
+    scrollBlock?: 'start' | 'center' | 'end' | 'nearest';
+    /**
+     * Keep the popover on the screen even when its element is not: it slides
+     * along the edge rather than going off with the element. Defaults to true.
+     */
+    keepInView?: boolean;
+    /**
+     * Goes to another page for a step whose `page` is not this one: a
+     * router's `push`, awaited before the step looks for its element. Without
+     * it, the page is loaded, and the tour picks up there with `resume()`.
+     */
+    navigate?: (page: string, context: TourStepContext) => void | Promise<unknown>;
+    /** The page the reader is on, to compare with a step's `page`. `location.pathname` otherwise. */
+    currentPage?: () => string;
     /** Escape, the close button and a press on the overlay end the tour. Defaults to true. */
     allowClose?: boolean;
     /** What a press on the overlay does. Defaults to `'close'`. */

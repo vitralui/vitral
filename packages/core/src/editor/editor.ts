@@ -15,6 +15,7 @@ import { countCharacters, countWords, toEditorMarkdown, toEditorText } from './t
 export const editorCommands = {
     insertText: cmd.insertText,
     insertHardBreak: cmd.insertHardBreak,
+    insertChip: cmd.insertChip,
     deleteSelection: cmd.deleteSelection,
     deleteBackward: cmd.deleteBackward,
     deleteForward: cmd.deleteForward,

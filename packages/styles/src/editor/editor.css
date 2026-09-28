@@ -195,6 +195,43 @@
     color: var(--vt-editor-link-hover-color);
 }
 
+/* A chip: one piece in the line, never split across two, and not a place for the caret. */
+.vt-editor-chip {
+    display: inline-block;
+    padding: var(--vt-editor-chip-padding);
+    font-weight: var(--vt-editor-chip-font-weight);
+    line-height: 1.35;
+    color: var(--vt-editor-chip-color);
+    white-space: nowrap;
+    vertical-align: baseline;
+    background: var(--vt-editor-chip-background);
+    border-radius: var(--vt-editor-chip-border-radius);
+    user-select: all;
+    cursor: default;
+}
+
+.vt-editor-chip-mention::before {
+    content: '@';
+    opacity: 0.7;
+}
+
+.vt-editor-chip-tag {
+    color: var(--vt-editor-chip-tag-color);
+    background: var(--vt-editor-chip-tag-background);
+}
+
+.vt-editor-chip-tag::before {
+    content: '#';
+    opacity: 0.7;
+}
+
+.vt-editor-chip-variable {
+    font-family: var(--vt-editor-chip-variable-font-family);
+    font-size: 0.9em;
+    color: var(--vt-editor-chip-variable-color);
+    background: var(--vt-editor-chip-variable-background);
+}
+
 .vt-editor-content mark {
     color: inherit;
     border-radius: 2px;

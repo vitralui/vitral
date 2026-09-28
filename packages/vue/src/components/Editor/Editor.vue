@@ -48,6 +48,7 @@ const rootProps = computed(() => ({
     colors: props.colors,
     historyDelay: props.historyDelay,
     slashMenu: props.slashMenu,
+    chips: props.chips,
     blockMenu: props.blockMenu,
     unstyled: props.unstyled,
     pt: props.pt,

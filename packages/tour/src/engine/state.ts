@@ -8,9 +8,16 @@ export interface TourRect {
     height: number;
 }
 
-/** The floating placement for a side and an alignment: `'bottom'` + `'start'` is `'bottom-start'`. */
+/** The floating placement for a side and an alignment: `'bottom'` + `'start'` is `'bottom-start'`. `'auto'` starts from the bottom. */
 export function placementOf(side: Exclude<TourSide, 'over'> = 'bottom', align: TourAlign = 'start'): string {
-    return align === 'center' ? side : `${side}-${align}`;
+    const base = side === 'auto' ? 'bottom' : side;
+    return align === 'center' ? base : `${base}-${align}`;
+}
+
+/** A path with its query, hash and trailing slash taken off, for comparing pages. */
+export function pagePath(page: string): string {
+    const path = page.split(/[?#]/)[0] ?? '';
+    return path.length > 1 ? path.replace(/\/+$/, '') : path || '/';
 }
 
 /** Fills `{current}` and `{total}`, written with single braces or double. */
@@ -114,13 +121,13 @@ export function buttonsOf(step: TourStep | undefined, config: TourConfig): { sho
     return { shown, disabled };
 }
 
-/** What the tour stored under `storageKey`, read without trusting it. */
-export function readProgress(raw: string | null | undefined): { index: number; done: boolean } | null {
+/** What the tour stored under `storageKey`, read without trusting it. `pending` is a tour that was going to another page. */
+export function readProgress(raw: string | null | undefined): { index: number; done: boolean; pending: boolean } | null {
     if (!raw) return null;
     try {
-        const value = JSON.parse(raw) as { index?: unknown; done?: unknown };
+        const value = JSON.parse(raw) as { index?: unknown; done?: unknown; pending?: unknown };
         const index = typeof value.index === 'number' && Number.isInteger(value.index) && value.index >= 0 ? value.index : 0;
-        return { index, done: value.done === true };
+        return { index, done: value.done === true, pending: value.pending === true };
     } catch {
         return null;
     }

@@ -13,7 +13,7 @@ import {
     type EditorNode,
     type EditorView
 } from '@vitral/core';
-import { createBlockHandle, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type SlashMenu } from '@vitral/editor';
+import { createBlockHandle, createChipMenu, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type ChipMenu, type SlashMenu } from '@vitral/editor';
 import { editorStyle } from '@vitral/styles';
 import { computed, getCurrentInstance, mergeProps, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
@@ -286,10 +286,25 @@ function onDocumentPointerUp() {
  * so neither is written twice.
  */
 let slash: SlashMenu | null = null;
+let chipMenu: ChipMenu | null = null;
 let blockHandle: BlockHandle | null = null;
 
 function attachMenus() {
     slash?.destroy();
+    chipMenu?.destroy();
+    chipMenu = createChipMenu({
+        editor,
+        content: () => contentEl.value,
+        anchor: caretAnchor,
+        triggers: () => (props.chips ? (Array.isArray(props.chips) ? props.chips : [props.chips]) : []),
+        part,
+        locale: () => locale.value,
+        enabled: () => !!props.chips && editable.value,
+        place: () => void caretAnchor(),
+        id: `${uid}-chips`,
+        overlayTarget: overlayTarget.value,
+        zIndex: config.zIndex.overlay
+    });
     blockHandle?.destroy();
     slash = createSlashMenu({
         editor,
@@ -317,7 +332,7 @@ function attachMenus() {
     });
 }
 
-watch([() => props.slashMenu, () => props.blockMenu, contentEl], attachMenus, { flush: 'post' });
+watch([() => props.slashMenu, () => props.blockMenu, () => props.chips, contentEl], attachMenus, { flush: 'post' });
 
 onMounted(() => {
     attachMenus();
@@ -335,6 +350,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     slash?.destroy();
+    chipMenu?.destroy();
     blockHandle?.destroy();
     document.removeEventListener('pointerup', onDocumentPointerUp);
     document.removeEventListener('mouseup', onDocumentPointerUp);

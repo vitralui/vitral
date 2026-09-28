@@ -31,6 +31,7 @@ import { baseStyle, buttonStyle, editorStyle } from '@vitral/styles';
 import { defaultBubbleMenu, defaultToolbar, editorIcons } from './buttons';
 import { createBlockHandle, defaultBlockActions } from './block';
 import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
+import { createChipMenu } from './chips';
 import { createSlashMenu, defaultSlashCommands } from './slash';
 import { bubbleView, toolbarView, type ToolbarContext } from './render/toolbar';
 import type { TextEditorConfig, TextEditorHandle, EditorToolbarItem } from './types';
@@ -231,6 +232,20 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
     }
 
     // ---- the menu a slash opens, and the handle beside a block ---------------------------------
+
+    const chipMenu = createChipMenu({
+        editor,
+        content: () => contentEl,
+        anchor: () => caretEl,
+        triggers: () => (current.chips ? (Array.isArray(current.chips) ? current.chips : [current.chips]) : []),
+        part,
+        locale,
+        enabled: () => !!current.chips && editable(),
+        place: placeCaret,
+        id: `${ids.slash}-chips`,
+        overlayTarget: current.overlayTarget,
+        zIndex: current.zIndex
+    });
 
     const slashMenu = createSlashMenu({
         editor,
@@ -446,6 +461,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             taskLabel: locale().editor.taskDone,
             selectedClass: 'vt-editor-node-selected',
             emptyClass: 'vt-editor-content-empty',
+            chipClass: (kind) => (current.unstyled ? undefined : ['vt-editor-chip', kind ? `vt-editor-chip-${kind}` : ''].filter(Boolean).join(' ')),
             // Ctrl/⌘+K opens the link editor, over the caret.
             handleKey: (_name, binding) => {
                 if (binding?.[0] !== 'link' || !editable()) return false;
@@ -495,6 +511,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         destroy() {
             stop();
             slashMenu.destroy();
+            chipMenu.destroy();
             blockHandle.destroy();
             [...panels(), bubble].forEach((overlay) => overlay.destroy());
             blockSelect?.destroy();

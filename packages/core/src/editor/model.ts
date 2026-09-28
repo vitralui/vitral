@@ -25,7 +25,9 @@ export type EditorNodeType =
     | 'tableCell'
     | 'tableHeader'
     | 'text'
-    | 'hardBreak';
+    | 'hardBreak'
+    /** Something named inline — a person, a tag, a variable — that moves and deletes as one character. */
+    | 'chip';
 
 export type EditorMarkType = 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'link' | 'color' | 'highlight';
 
@@ -56,6 +58,12 @@ export interface EditorNodeAttrs {
     src?: string;
     alt?: string;
     title?: string | null;
+    /** `chip`: what it stands for, for the application (`'user-42'`). */
+    id?: string;
+    /** `chip`: the words it shows. */
+    label?: string;
+    /** `chip`: a category the look can follow (`'mention'`, `'tag'`, `'variable'`). */
+    kind?: string | null;
 }
 
 export interface EditorNode {
@@ -131,6 +139,7 @@ export const editorNodes = {
     th: (...content: (EditorNode | string)[]): EditorNode => ({ type: 'tableHeader', content: content.map((c) => (typeof c === 'string' ? editorNodes.p(c) : c)) }),
     t: (text: string, ...marks: EditorMark[]): EditorNode => (marks.length ? { type: 'text', text, marks: sortMarks(marks) } : { type: 'text', text }),
     br: (): EditorNode => ({ type: 'hardBreak' }),
+    chip: (id: string, label = id, kind: string | null = null): EditorNode => makeChip({ id, label, kind }),
     bold: (): EditorMark => ({ type: 'bold' }),
     italic: (): EditorMark => ({ type: 'italic' }),
     underline: (): EditorMark => ({ type: 'underline' }),
@@ -206,11 +215,20 @@ export function inlineLength(content: readonly EditorNode[] | undefined): number
     return n;
 }
 
-/** The block's text, a hard break read as a newline, so offsets line up with positions. */
+/** The character a chip stands as in a block's text: one unit, like the chip itself. */
+export const CHIP_CHAR = '\ufffc';
+
+/** The block's text, a hard break read as a newline and a chip as {@link CHIP_CHAR}, so offsets line up with positions. */
 export function inlineText(content: readonly EditorNode[] | undefined): string {
     let s = '';
-    for (const node of content ?? []) s += node.type === 'text' ? (node.text ?? '') : '\n';
+    for (const node of content ?? []) s += node.type === 'text' ? (node.text ?? '') : node.type === 'chip' ? CHIP_CHAR : '\n';
     return s;
+}
+
+/** A chip node with only the attributes a chip carries. */
+export function makeChip(attrs: { id?: string; label?: string; kind?: string | null }): EditorNode {
+    const label = String(attrs.label ?? attrs.id ?? '');
+    return { type: 'chip', attrs: { id: String(attrs.id ?? label), label, kind: attrs.kind ?? null } };
 }
 
 /** Text with its newlines turned into hard breaks, every piece carrying `marks`. */
@@ -252,6 +270,8 @@ export function normalizeInline(content: readonly EditorNode[] | undefined): Edi
             out.push(marks ? { type: 'text', text: node.text, marks } : { type: 'text', text: node.text });
         } else if (node.type === 'hardBreak') {
             out.push({ type: 'hardBreak' });
+        } else if (node.type === 'chip') {
+            out.push(makeChip(node.attrs ?? {}));
         }
     }
     return out;

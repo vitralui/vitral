@@ -14,9 +14,9 @@ export interface TextareaProps extends BaseProps {
     rows?: number;
     /**
      * Which way the reader may drag the grip. Defaults to the theme's, which is
-     * `vertical`: a field that fills its container has nowhere to go sideways.
-     * `both` suits one with a width of its own. `autoResize` takes the grip
-     * away entirely, since the box is already deciding its own height.
+     * `both` — diagonally — except on a `fluid` field, which fills its
+     * container and so keeps to `vertical`. `autoResize` takes the grip away
+     * entirely, since the box is already deciding its own height.
      */
     resize?: 'vertical' | 'horizontal' | 'both' | 'none';
 }

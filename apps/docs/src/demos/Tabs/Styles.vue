@@ -8,7 +8,7 @@ const views = [
     { value: 'files', label: 'Files', icon: 'folder' },
     { value: 'settings', label: 'Settings', icon: 'sliders' }
 ];
-const tinted = ref('overview');
+const quiet = ref('overview');
 const underline = ref('overview');
 const pills = ref('activity');
 const segmented = ref('files');
@@ -18,14 +18,14 @@ const withIcons = ref('activity');
 // instance (`dt`), and — for the segmented strip's track — a class or a style
 // through pass-through (`pt`). A preset sets the same tokens for every Tabs.
 
-/** The selected tab on a tint of the accent, the pill still under it. */
-const tintedTokens = { tabs: { tab: { activeBackground: 'color-mix(in srgb, {primary.color} 10%, transparent)', activeColor: '{primary.color}' } } };
+/** Quieter than the default: no tint behind the selected tab, only the pill under it. */
+const quietTokens = { tabs: { tab: { activeBackground: 'transparent', activeColor: '{text.hoverColor}' } } };
 
 /** An underline as wide as the tab, over a hairline along the whole strip. */
 const underlineTokens = {
     tabs: {
         tablist: { borderWidth: '1px', gap: '0' },
-        tab: { borderRadius: '0', hoverBackground: 'transparent', padding: '0.625rem 1rem' },
+        tab: { borderRadius: '0', hoverBackground: 'transparent', activeBackground: 'transparent', activeColor: '{text.hoverColor}', padding: '0.625rem 1rem' },
         indicator: { width: '100%', thickness: '2px', borderRadius: '0' }
     }
 };
@@ -54,9 +54,9 @@ const raisedPt = { tab: ({ state }: { state: unknown }) => ((state as { selected
 <template>
     <div style="display: grid; gap: 1.75rem; width: 100%">
         <section>
-            <small class="demo-caption">A tinted selection</small>
-            <Tabs v-model:value="tinted" :dt="tintedTokens">
-                <TabList aria-label="Tinted">
+            <small class="demo-caption">Quiet</small>
+            <Tabs v-model:value="quiet" :dt="quietTokens">
+                <TabList aria-label="Quiet">
                     <Tab v-for="v in views" :key="v.value" :value="v.value">{{ v.label }}</Tab>
                 </TabList>
             </Tabs>

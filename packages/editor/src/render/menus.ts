@@ -213,6 +213,10 @@ export interface SlashMenuState {
     query: string;
     items: SlashCommand[];
     active: number;
+    /** The list's name and the words when nothing matches; the slash menu's otherwise. */
+    labels?: { list: string; empty: string };
+    /** Where the options' ids start; the slash menu's id otherwise. */
+    id?: string;
 }
 
 /**
@@ -222,14 +226,15 @@ export interface SlashMenuState {
  */
 export function slashMenuView(context: PanelContext, state: SlashMenuState, on: { choose: (index: number) => void }): VElement {
     const { part, locale } = context;
-    const optionId = (index: number) => `${context.ids.slash}-option-${index}`;
+    const menuId = state.id ?? context.ids.slash;
+    const optionId = (index: number) => `${menuId}-option-${index}`;
     return h(
         'div',
-        mergeAttrs({ id: context.ids.slash }, part('slashMenu')),
+        mergeAttrs({ id: menuId }, part('slashMenu')),
         state.items.length
             ? h(
                   'ul',
-                  mergeAttrs({ role: 'listbox' }, part('slashList'), { 'aria-label': locale.editor.slashMenu }),
+                  mergeAttrs({ role: 'listbox' }, part('slashList'), { 'aria-label': state.labels?.list ?? locale.editor.slashMenu }),
                   state.items.map((item, index) =>
                       h(
                           'li',
@@ -252,7 +257,7 @@ export function slashMenuView(context: PanelContext, state: SlashMenuState, on: 
                       )
                   )
               )
-            : h('div', mergeAttrs({ role: 'status' }, part('slashEmpty')), formatMessage(locale.editor.slashEmpty, { query: state.query }))
+            : h('div', mergeAttrs({ role: 'status' }, part('slashEmpty')), formatMessage(state.labels?.empty ?? locale.editor.slashEmpty, { query: state.query }))
     ) as VElement;
 }
 

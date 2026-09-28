@@ -11,7 +11,8 @@
         "toolbar": "A barra de ferramentas: `false` para nenhuma, ou grupos de nomes de itens, como em `[['bold', 'italic'], ['link']]`. O slot `toolbar` a substitui por completo.",
         "bubbleMenu": "Uma barra de ferramentas flutuante sobre o texto selecionado; `true` para os botões padrão, ou os itens a mostrar.",
         "showCount": "Mostra a contagem de palavras e caracteres abaixo do texto. Ligado por padrão quando há `maxLength`.",
-        "showWordCount": "Mostra a contagem de palavras ao lado da de caracteres. O padrão é true."
+        "showWordCount": "Mostra a contagem de palavras ao lado da de caracteres. O padrão é true.",
+        "chips": "Chips inline inseridos ao digitar um gatilho: `{ char: '@', kind: 'mention', items: (q) => people.filter(…) }`, ou vários gatilhos. `items` pode devolver uma promise, para uma busca no servidor."
     },
     "emits": {
         "text-change": "O conteúdo mudou.",

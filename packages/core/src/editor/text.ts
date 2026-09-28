@@ -6,7 +6,7 @@ import { clampLevel, inlineText, textblocks, type EditorMark, type EditorNode } 
 /** The document's text, a line per block (and per hard break). */
 export function toEditorText(doc: EditorNode): string {
     return textblocks(doc)
-        .map((b) => inlineText(b.node.content))
+        .map((b) => inlineText((b.node.content ?? []).map((node) => (node.type === 'chip' ? { type: 'text' as const, text: node.attrs?.label ?? '' } : node))))
         .join('\n');
 }
 
@@ -49,6 +49,8 @@ function inlineMarkdown(content: readonly EditorNode[] | undefined): string {
         content ?? [],
         (node) => {
             if (node.type === 'hardBreak') return '\\\n';
+            // Markdown has no chip: its label stands in for it.
+            if (node.type === 'chip') return escapeMarkdown(node.attrs?.label ?? '');
             if (node.marks?.some((m) => m.type === 'code')) {
                 const text = node.text ?? '';
                 const fence = text.includes('`') ? '``' : '`';

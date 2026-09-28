@@ -5,6 +5,8 @@ export {
     editorNodes,
     normalizeDoc as normalizeEditorDoc,
     inlineText as editorInlineText,
+    makeChip as makeEditorChip,
+    CHIP_CHAR as EDITOR_CHIP_CHAR,
     textblocks as editorTextblocks,
     comparePositions as compareEditorPositions,
     nodeAt as editorNodeAt,

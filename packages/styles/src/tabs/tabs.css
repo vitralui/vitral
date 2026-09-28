@@ -159,7 +159,8 @@
     color: var(--vt-tabs-tab-active-color);
 }
 
-.vt-tabs-tab-selected {
+.vt-tabs-tab-selected,
+.vt-tabs-tab-selected:not(:disabled):hover {
     background: var(--vt-tabs-tab-active-background);
 }
 

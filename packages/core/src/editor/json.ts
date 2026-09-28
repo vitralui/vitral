@@ -1,4 +1,4 @@
-import { clampLevel, emptyParagraph, makeTextblock, normalizeDoc, type EditorMark, type EditorMarkType, type EditorNode, type EditorNodeType } from './model';
+import { makeChip, clampLevel, emptyParagraph, makeTextblock, normalizeDoc, type EditorMark, type EditorMarkType, type EditorNode, type EditorNodeType } from './model';
 import { editorPalette, sanitizeLanguage, sanitizeUrl, type EditorColor } from './sanitize';
 
 const SIMPLE_MARKS = new Set(['bold', 'italic', 'underline', 'strike', 'code']);
@@ -31,6 +31,11 @@ function readInline(value: unknown, palette: readonly EditorColor[]): EditorNode
         if (!isObject(raw)) continue;
         if (raw.type === 'text' && typeof raw.text === 'string') out.push({ type: 'text', text: raw.text, marks: readMarks(raw.marks, palette) });
         else if (raw.type === 'hardBreak') out.push({ type: 'hardBreak' });
+        else if (raw.type === 'chip' && isObject(raw.attrs)) {
+            const a = raw.attrs;
+            const label = typeof a.label === 'string' ? a.label : typeof a.id === 'string' ? a.id : '';
+            if (label) out.push(makeChip({ id: typeof a.id === 'string' ? a.id : label, label, kind: typeof a.kind === 'string' ? a.kind : null }));
+        }
     }
     return out;
 }

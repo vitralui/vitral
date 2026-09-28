@@ -1,6 +1,6 @@
 {
     "props": {
-        "animate": "Move o destaque de passo em passo. O padrão é true.",
+        "animate": "Move o destaque de passo em passo e faz cada popover aparecer suavemente. Desligado por padrão.",
         "allowClose": "Escape, o botão de fechar e um toque na sobreposição encerram o tour. O padrão é true.",
         "stagePadding": "O espaço em volta do elemento, em pixels. O padrão é 2, para que o destaque o contorne de perto.",
         "stageRadius": "O canto do recorte. O padrão é o canto do próprio elemento, somado ao espaço em volta.",
@@ -11,7 +11,12 @@
         "storageKey": "Lembra onde o leitor parou, e se terminou, sob esta chave.",
         "options": "Todo o resto que `createTour` aceita: os hooks, `storage`, `dir`.",
         "dismissableMask": "`false` impede que um toque na sobreposição encerre o tour, como na máscara de um dialog. O padrão é true.",
-        "arrow": "Uma seta do popover apontando para o elemento. Desligada por padrão."
+        "arrow": "Uma seta do popover apontando para o elemento. Desligada por padrão.",
+        "animationDuration": "Quanto tempo dura um movimento quando `animate` está ligado, em milissegundos. O padrão é 300.",
+        "scrollIntoView": "Traz o elemento de cada passo à vista. O padrão é true; desligado, a página fica parada e o popover continua na tela.",
+        "scrollBlock": "Onde um elemento rolado até a vista fica na janela. O padrão é `'center'`.",
+        "keepInView": "Mantém o popover na tela mesmo quando o elemento não está. O padrão é true.",
+        "navigate": "Vai a outra página para um passo cuja `page` não é esta — o `push` de um router: `(page) => router.push(page)`. Sem ele, a página é carregada, e um `<Tour>` lá retoma o tour sozinho."
     },
     "slots": {
         "content": "Desenhado no popover abaixo da descrição, em todo passo."

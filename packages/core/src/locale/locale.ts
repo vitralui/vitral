@@ -312,6 +312,10 @@ export interface Locale {
         /** Names the list a slash opens. */
         slashMenu: string;
         /** Nothing matched what was typed after the slash. `{query}` */
+        /** The list of suggestions a chip trigger (`@`) opens. */
+        chipMenu: string;
+        /** Nothing matches the words after the trigger. `{query}` */
+        chipEmpty: string;
         slashEmpty: string;
         /** Names the handle beside a block, and the menu it opens. */
         blockMenu: string;
@@ -814,6 +818,8 @@ export const en: Locale = {
         keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Ctrl+K edits a link, Alt+Enter opens the one under the caret. Markdown shortcuts such as # and - work at the start of a line.',
         slashMenu: 'Insert a block',
         slashEmpty: 'Nothing matches “{query}”',
+        chipMenu: 'Suggestions',
+        chipEmpty: 'No one or nothing matches “{query}”',
         blockMenu: 'Block actions',
         slashCommands: {
             paragraph: 'Text',
@@ -1252,6 +1258,8 @@ export const ptBR: Locale = {
         keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Ctrl+K edita um link e Alt+Enter abre o que está sob o cursor. Atalhos Markdown como # e - funcionam no início da linha.',
         slashMenu: 'Inserir um bloco',
         slashEmpty: 'Nada corresponde a “{query}”',
+        chipMenu: 'Sugestões',
+        chipEmpty: 'Nada nem ninguém corresponde a “{query}”',
         blockMenu: 'Ações do bloco',
         slashCommands: {
             paragraph: 'Texto',

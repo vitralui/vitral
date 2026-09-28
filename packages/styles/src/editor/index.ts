@@ -30,6 +30,8 @@ export const editorStyle = defineStyle({
         contentEmpty: 'vt-editor-content-empty',
         /** On a selected image or rule. */
         selectedNode: 'vt-editor-node-selected',
+        /** An inline chip, by its kind: a mention, a tag, a variable. */
+        chip: (s: { kind?: string | null }) => ['vt-editor-chip', s.kind && `vt-editor-chip-${s.kind}`],
         /** The invisible element popups anchor to at the selection. */
         caret: 'vt-editor-caret',
         instructions: 'vt-sr-only',

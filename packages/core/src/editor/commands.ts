@@ -9,6 +9,7 @@ import {
     hasMark,
     inlineLength,
     inlineText,
+    makeChip,
     isAtom,
     isCell,
     isItem,
@@ -353,6 +354,22 @@ export function insertHardBreak(state: EditorState): EditorState | null {
     const cut = cutSelection(state);
     const node = withContent(cut.node, replaceInline(cut.node.content, cut.offset, cut.offset, [{ type: 'hardBreak' }]));
     return finish(state, replaceAt(cut.doc, cut.path, [node]), { node, offset: cut.offset + 1 }, undefined, marks.length ? marks : null);
+}
+
+/**
+ * Puts a chip where the selection is, replacing what was selected, with a
+ * space after it so the next word does not run into it (unless a space is
+ * already there). Not in a code block, where everything is text.
+ */
+export function insertChip(state: EditorState, attrs: { id?: string; label?: string; kind?: string | null }): EditorState | null {
+    const { from } = selectionRange(state.selection);
+    const block = nodeAt(state.doc, from.path)!;
+    if (block.type === 'codeBlock' || !(attrs.label ?? attrs.id)) return null;
+    const cut = cutSelection(state);
+    const after = inlineText(cut.node.content).slice(cut.offset, cut.offset + 1);
+    const insert: EditorNode[] = [makeChip(attrs), ...(after === ' ' ? [] : [{ type: 'text' as const, text: ' ' }])];
+    const node = withContent(cut.node, replaceInline(cut.node.content, cut.offset, cut.offset, insert));
+    return finish(state, replaceAt(cut.doc, cut.path, [node]), { node, offset: cut.offset + 2 });
 }
 
 /**

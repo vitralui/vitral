@@ -1,7 +1,7 @@
 import type { EditorInstance } from './editor';
 import { groupInline, isEmptyDoc, parseEditorHTML, textToEditorDoc } from './html';
 import { editorKeymap, isMacPlatform, keyName, type EditorKeyBinding } from './keymap';
-import { clampLevel, inlineLength, inlineText, isAtom, isTextblock, makeTextblock, marksAt, replaceAt, replaceInline, textToInline, type EditorMark, type EditorNode, type EditorPosition } from './model';
+import { CHIP_CHAR, clampLevel, inlineLength, inlineText, isAtom, isTextblock, makeTextblock, marksAt, replaceAt, replaceInline, textToInline, type EditorMark, type EditorNode, type EditorPosition } from './model';
 import { editorColorStyle, sanitizeUrl } from './sanitize';
 import { caret, isCollapsed, selectionRange, type EditorSelection } from './state';
 import { deleteBetween, deleteForward, fragmentText, insertContent, insertText, linkAt } from './commands';
@@ -31,6 +31,8 @@ export interface EditorViewOptions {
     selectedClass?: string;
     /** Class on the element while the document is empty (it shows the placeholder). */
     emptyClass?: string;
+    /** Classes on an inline chip, given its kind, so a theme can dress one kind apart from another. */
+    chipClass?: (kind: string | null | undefined) => string | undefined;
     /**
      * The tooltip over a link while the text can be changed, saying how to
      * follow it (a click there only places the caret). Given the address,
@@ -82,6 +84,11 @@ function isFiller(node: Node): boolean {
     return node.nodeType === 1 && (node as Element).hasAttribute(FILLER);
 }
 
+/** An inline chip's element: one character to every count, and nothing inside it is text to read. */
+function isChip(node: Node): boolean {
+    return node.nodeType === 1 && (node as Element).hasAttribute('data-chip');
+}
+
 export function createEditorView(root: HTMLElement, editor: EditorInstance, options: EditorViewOptions = {}): EditorView {
     const doc = root.ownerDocument;
     const editable = () => options.editable?.() ?? true;
@@ -131,7 +138,7 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
     function drawInline(host: HTMLElement, content: readonly EditorNode[]) {
         const nodes = groupInline<Node>(
             content,
-            (node) => (node.type === 'hardBreak' ? el('br') : doc.createTextNode(node.text ?? '')),
+            (node) => (node.type === 'hardBreak' ? el('br') : node.type === 'chip' ? chipElement(node) : doc.createTextNode(node.text ?? '')),
             (mark, inner) => {
                 const e = markElement(mark);
                 e.append(...inner);
@@ -142,6 +149,17 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         const last = content[content.length - 1];
         // An empty block, or one ending in a line break, needs a filler to have a line to put the caret on.
         if (!last || last.type === 'hardBreak') host.appendChild(filler());
+    }
+
+    /** A chip: not editable, so the caret goes around it and a keystroke never lands inside it. */
+    function chipElement(node: EditorNode): HTMLElement {
+        const { id = '', label = '', kind } = node.attrs ?? {};
+        const e = el('span', { 'data-chip': id, contenteditable: 'false' });
+        if (kind) e.setAttribute('data-kind', kind);
+        const cls = options.chipClass?.(kind);
+        if (cls) e.className = cls;
+        e.textContent = label;
+        return e;
     }
 
     function textblockElement(node: EditorNode): HTMLElement {
@@ -319,12 +337,18 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         const measure = (n: Node) => {
             if (n.nodeType === 3) count += (n as Text).data.length;
             else if (n.nodeType === 1) {
-                if ((n as Element).localName === 'br') {
+                if (isChip(n)) count += 1;
+                else if ((n as Element).localName === 'br') {
                     if (!isFiller(n)) count += 1;
                 } else n.childNodes.forEach(measure);
             }
         };
         const visit = (n: Node): boolean => {
+            // A point inside a chip is read as just after it: the chip is one character, and has no inside.
+            if (isChip(n) && (n === target || n.contains(target))) {
+                count += 1;
+                return true;
+            }
             if (n === target) {
                 if (n.nodeType === 3) count += Math.min(targetOffset, (n as Text).data.length);
                 else {
@@ -338,6 +362,10 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
                 return false;
             }
             if (n.nodeType !== 1) return false;
+            if (isChip(n)) {
+                count += 1;
+                return false;
+            }
             if ((n as Element).localName === 'br') {
                 if (!isFiller(n)) count += 1;
                 return false;
@@ -397,7 +425,7 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
                 return false;
             }
             if (n.nodeType !== 1) return false;
-            if ((n as Element).localName === 'br') {
+            if ((n as Element).localName === 'br' || isChip(n)) {
                 const parent = n.parentNode!;
                 const index = Array.prototype.indexOf.call(parent.childNodes, n);
                 if (count === pos.offset) {
@@ -492,7 +520,8 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
             if (n.nodeType === 3) out += (n as Text).data;
             else if (n.nodeType === 1) {
                 const e = n as Element;
-                if (e.localName === 'br') {
+                if (isChip(e)) out += CHIP_CHAR;
+                else if (e.localName === 'br') {
                     if (!isFiller(e)) out += '\n';
                 } else if (e.getAttribute('contenteditable') !== 'false') e.childNodes.forEach(walk);
             }
@@ -512,7 +541,7 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
             const block = blockOf(record.target);
             if (block && block.isConnected) dirty.add(block);
             else if (record.type === 'childList') {
-                const ours = [...Array.from(record.addedNodes), ...Array.from(record.removedNodes)].every((n) => n.nodeType === 3 || isFiller(n) || (n as Element).localName === 'br');
+                const ours = [...Array.from(record.addedNodes), ...Array.from(record.removedNodes)].every((n) => n.nodeType === 3 || isFiller(n) || isChip(n) || (n as Element).localName === 'br');
                 if (!ours || !block) structural = true;
             }
         }
@@ -543,7 +572,8 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
                 endBefore--;
                 endAfter--;
             }
-            const inserted = after.slice(start, endAfter);
+            // A chip is never typed: one that reappeared in what the browser wrote is not text to take in.
+            const inserted = after.slice(start, endAfter).split(CHIP_CHAR).join('');
             const marks = marksAt(model.content, start);
             const content =
                 model.type === 'codeBlock'

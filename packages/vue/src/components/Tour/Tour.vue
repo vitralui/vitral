@@ -26,7 +26,9 @@ const props = withDefaults(defineProps<TourProps>(), {
     showProgress: undefined,
     allowHtml: undefined,
     dismissableMask: undefined,
-    arrow: undefined
+    arrow: undefined,
+    scrollIntoView: undefined,
+    keepInView: undefined
 });
 const open = defineModel<boolean>('open', { default: false });
 const step = defineModel<number | undefined>('step', { default: undefined });
@@ -85,6 +87,11 @@ const inputs = (): TourConfig => ({
     ...defined({
         steps: toRaw(props.steps),
         animate: props.animate,
+        animationDuration: props.animationDuration,
+        scrollIntoView: props.scrollIntoView,
+        scrollBlock: props.scrollBlock,
+        keepInView: props.keepInView,
+        navigate: props.navigate,
         overlayColor: props.overlayColor,
         overlayOpacity: props.overlayOpacity,
         smoothScroll: props.smoothScroll,
@@ -136,9 +143,11 @@ const inputs = (): TourConfig => ({
     }
 });
 
-onMounted(() => {
+onMounted(async () => {
     tour = createTour(inputs());
-    if (open.value) void tour.drive(step.value);
+    if (open.value) return void tour.drive(step.value);
+    // A tour that loaded this page to reach its next step picks up here.
+    if (await tour.resume()) open.value = true;
 });
 
 watch(open, (value) => {

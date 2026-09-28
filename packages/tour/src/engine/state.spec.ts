@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buttonsOf, formatProgress, nextShownIndex, overlayPath, placementOf, positionOf, readProgress, stageOf, stepIndexOf, tweenRect } from './state';
+import { buttonsOf, formatProgress, pagePath, nextShownIndex, overlayPath, placementOf, positionOf, readProgress, stageOf, stepIndexOf, tweenRect } from './state';
 import type { TourStep } from './types';
 
 describe('the tour engine', () => {
@@ -55,8 +55,9 @@ describe('the tour engine', () => {
     });
 
     it('reads what it stored without trusting it', () => {
-        expect(readProgress('{"index":3,"done":true}')).toEqual({ index: 3, done: true });
-        expect(readProgress('{"index":-1}')).toEqual({ index: 0, done: false });
+        expect(readProgress('{"index":3,"done":true}')).toEqual({ index: 3, done: true, pending: false });
+        expect(readProgress('{"index":-1}')).toEqual({ index: 0, done: false, pending: false });
+        expect(readProgress('{"index":2,"done":false,"pending":true}')).toEqual({ index: 2, done: false, pending: true });
         expect(readProgress('not json')).toBeNull();
         expect(readProgress(null)).toBeNull();
     });

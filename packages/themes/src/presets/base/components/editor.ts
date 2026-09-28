@@ -12,6 +12,20 @@ export default {
     root: {
         transitionDuration: '{formField.transitionDuration}'
     },
+    // An inline chip: a mention, a tag, a variable. It reads as one thing in
+    // the line, in the accent's quiet tint; a tag and a variable take their own.
+    chip: {
+        padding: '0 0.375rem',
+        borderRadius: '{borderRadius.sm}',
+        fontWeight: '500',
+        background: '{primary.subtleBackground}',
+        color: '{primary.subtleColor}',
+        tagBackground: '{secondary.subtleBackground}',
+        tagColor: '{secondary.subtleColor}',
+        variableBackground: '{warn.subtleBackground}',
+        variableColor: '{warn.subtleColor}',
+        variableFontFamily: '{fontFamilyMono}'
+    },
     toolbar: {
         padding: '0.375rem',
         gap: '0.125rem',

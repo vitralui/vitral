@@ -41,6 +41,33 @@ export type EditorToolbarItem =
 export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table'>;
 
 /** One entry of the menu a slash opens. */
+/** Something a chip trigger offers: who or what the chip will stand for. */
+export interface ChipSuggestion {
+    /** What the chip stands for, for the application. */
+    id: string;
+    /** The words on the chip, and in the list. */
+    label: string;
+    /** A category the chip's look follows: `'mention'`, `'tag'`, `'variable'`. */
+    kind?: string;
+    /** A line under the label in the list: an email, a count. */
+    description?: string;
+    icon?: string;
+}
+
+/** A character that, typed at the start of a word, offers chips to put in its place. */
+export interface ChipTrigger {
+    /** One character: `'@'` for people, `'#'` for tags. Defaults to `'@'`. */
+    char?: string;
+    /**
+     * What to offer for the words typed after the trigger: a list, or a
+     * promise of one — a search on the server. A late answer to an older
+     * query is thrown away.
+     */
+    items: (query: string) => ChipSuggestion[] | Promise<ChipSuggestion[]>;
+    /** Given to every chip this trigger makes, unless its suggestion says otherwise. */
+    kind?: string;
+}
+
 export interface SlashCommand {
     /** Identifies it, and is what a host matches on. */
     id: string;
@@ -96,6 +123,12 @@ export interface TextEditorConfig {
     /** The handle beside the block the caret is in, and what it offers. */
     blockMenu?: boolean | BlockAction[];
     placeholder?: string;
+    /**
+     * Inline chips the reader puts in by typing a trigger: `{ char: '@',
+     * items: (q) => people.filter(…) }` for mentions, or several triggers at
+     * once. Chips can also be put in with `run('insertChip', { id, label, kind })`.
+     */
+    chips?: ChipTrigger | ChipTrigger[];
     /** The most characters the document may hold. */
     maxLength?: number | null;
     /** Milliseconds of quiet before an edit starts a new undo step. */

@@ -247,4 +247,75 @@ describe('createTour', () => {
         expect(document.activeElement).toBe(search);
     });
 
+
+    it('does not animate unless asked, and takes a duration when it does', async () => {
+        tour = createTour({ steps });
+        await tour.drive();
+        expect(document.querySelector('.vt-tour')!.classList.contains('vt-tour-animated')).toBe(false);
+        tour.destroy();
+        tour = createTour({ steps, animate: true, animationDuration: 500 });
+        await tour.drive();
+        const layer = document.querySelector<HTMLElement>('.vt-tour')!;
+        expect(layer.style.getPropertyValue('--vt-tour-transition-duration')).toBe('500ms');
+    });
+
+    it('leaves the page where it is when told not to scroll, and scrolls smoothly when told to', async () => {
+        const target = document.querySelector<HTMLElement>('#panel')!;
+        target.getBoundingClientRect = () => ({ top: 5000, bottom: 5040, left: 0, right: 100, width: 100, height: 40, x: 0, y: 5000, toJSON: () => ({}) }) as DOMRect;
+        const scrolled: ScrollIntoViewOptions[] = [];
+        target.scrollIntoView = ((o: ScrollIntoViewOptions) => scrolled.push(o)) as never;
+        tour = createTour({ steps: [steps[2]!], scrollIntoView: false });
+        await tour.drive();
+        expect(scrolled).toHaveLength(0);
+        tour.destroy();
+        tour = createTour({ steps: [steps[2]!], smoothScroll: true, scrollBlock: 'nearest' });
+        await tour.drive();
+        expect(scrolled[0]).toMatchObject({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    it('goes to another page through the router it is given, then finds the step there', async () => {
+        let path = '/';
+        const navigate = vi.fn(async (page: string) => {
+            path = page;
+            document.body.insertAdjacentHTML('beforeend', '<div id="billing">Billing</div>');
+        });
+        tour = createTour({
+            currentPage: () => path,
+            navigate,
+            steps: [steps[0]!, { element: '#billing', page: '/settings/billing', popover: { title: 'Billing' } }]
+        });
+        await tour.drive();
+        await tour.moveNext();
+        expect(navigate).toHaveBeenCalledWith('/settings/billing', expect.objectContaining({ index: 1 }));
+        expect(tour.getActiveElement()?.id).toBe('billing');
+    });
+
+    it('without a router, loads the page and picks up there with resume()', async () => {
+        const assign = vi.fn();
+        const original = window.location;
+        Object.defineProperty(window, 'location', { value: { ...original, pathname: '/', assign }, configurable: true });
+        try {
+            const tourSteps = [steps[0]!, { element: '#panel', page: '/reports', popover: { title: 'Reports' } }];
+            tour = createTour({ steps: tourSteps });
+            await tour.drive();
+            await tour.moveNext();
+            expect(assign).toHaveBeenCalledWith('/reports');
+            expect(JSON.parse(localStorage.getItem('vt-tour')!)).toMatchObject({ index: 1, pending: true });
+            tour.destroy();
+
+            // The next page: the same tour, and the step it was on its way to.
+            Object.defineProperty(window, 'location', { value: { ...original, pathname: '/reports', assign }, configurable: true });
+            tour = createTour({ steps: tourSteps });
+            expect(await tour.resume()).toBe(true);
+            expect(tour.getActiveIndex()).toBe(1);
+            expect(document.querySelector('.vt-tour-title')!.textContent).toBe('Reports');
+            // Only once: a later visit does not start it again by itself.
+            tour.destroy();
+            tour = createTour({ steps: tourSteps });
+            expect(await tour.resume()).toBe(false);
+        } finally {
+            Object.defineProperty(window, 'location', { value: original, configurable: true });
+        }
+    });
 });
+

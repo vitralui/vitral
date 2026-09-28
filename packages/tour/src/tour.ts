@@ -1,11 +1,12 @@
 import { anchorTo, en, isClient, loadStyle, overlayContainerOf, pushLayer, ZIndex, type Locale, type Placement } from '@vitral/core';
-import { createRoot, partResolver } from '@vitral/dom';
+import { createRoot, mergeAttrs, partResolver } from '@vitral/dom';
 import { baseStyle, tourStyle } from '@vitral/styles';
 import {
     buttonsOf,
     nextShownIndex,
     optionOf,
     overlayPath,
+    pagePath,
     placementOf,
     positionOf,
     readProgress,
@@ -73,6 +74,12 @@ export interface TourHandle {
     isCompleted(): boolean;
     /** Forgets where the reader got to. */
     reset(): void;
+    /**
+     * Picks up a tour that loaded another page to reach its next step: call it
+     * when the page starts. It resumes only a tour that was on its way here,
+     * and says whether it did.
+     */
+    resume(): Promise<boolean>;
 }
 
 let counter = 0;
@@ -134,6 +141,8 @@ export function createTour(config: TourConfig = {}): TourHandle {
     let tween = 0;
     let frame = 0;
     let pendingEnd: TourEndReason | null = null;
+    /** Loading another page to reach the next step. */
+    let leaving = false;
     let resizeObserver: ResizeObserver | null = null;
 
     /** The gap around the element: snug by default, the element and two pixels. */
@@ -151,8 +160,10 @@ export function createTour(config: TourConfig = {}): TourHandle {
 
     // ---- remembering where the reader got to
 
+    /** Where progress is kept: the tour's key, or — for a tour that has to load another page — a default one. */
+    const storeKey = () => current.storageKey ?? (steps().some((s) => s.page) ? 'vt-tour' : undefined);
     const storage = () => {
-        if (!current.storageKey) return null;
+        if (!storeKey()) return null;
         if (current.storage) return current.storage;
         try {
             return typeof localStorage === 'undefined' ? null : localStorage;
@@ -160,16 +171,16 @@ export function createTour(config: TourConfig = {}): TourHandle {
             return null;
         }
     };
-    function save(index: number, done: boolean) {
+    function save(index: number, done: boolean, pending = false) {
         try {
-            storage()?.setItem(current.storageKey!, JSON.stringify({ index, done }));
+            storage()?.setItem(storeKey()!, JSON.stringify(pending ? { index, done, pending } : { index, done }));
         } catch {
             // A full or refused storage only costs the resume.
         }
     }
     function saved() {
         try {
-            return readProgress(storage()?.getItem(current.storageKey!));
+            return readProgress(storage()?.getItem(storeKey()!));
         } catch {
             return null;
         }
@@ -184,7 +195,12 @@ export function createTour(config: TourConfig = {}): TourHandle {
         return near === 'rtl' ? 'rtl' : 'ltr';
     };
 
-    const animate = () => current.animate !== false && !reducedMotion();
+    const animate = () => current.animate === true && !reducedMotion();
+    const duration = () => Math.max(0, current.animationDuration ?? 300);
+
+    /** The page the reader is on, and whether a step's page is it. */
+    const here = () => pagePath(current.currentPage?.() ?? (isClient ? location.pathname : '/'));
+    const onPage = (step: TourStep) => !step.page || pagePath(step.page) === here();
 
     function host(): HTMLElement {
         let target = current.overlayTarget;
@@ -340,7 +356,7 @@ export function createTour(config: TourConfig = {}): TourHandle {
         const run = ++tween;
         const stepFrame = (now: number) => {
             if (run !== tween || !layer) return;
-            const t = Math.min(1, (now - start) / 300);
+            const t = duration() ? Math.min(1, (now - start) / duration()) : 1;
             drawStage(tweenRect(from, stageNow() ?? target, t));
             if (t < 1) frame = requestAnimationFrame(stepFrame);
         };
@@ -375,7 +391,8 @@ export function createTour(config: TourConfig = {}): TourHandle {
         const centered = !state.activeElement;
 
         layer.setAttribute('dir', direction());
-        root.attrs(part('root', { animate: animate() }));
+        // A duration of its own reaches the popover's fade, which the stylesheet times.
+        root.attrs(mergeAttrs(part('root', { animate: animate() }), current.animationDuration !== undefined ? { style: { '--vt-tour-transition-duration': `${duration()}ms` } } : null));
         root.render(
             tourView({
                 id,
@@ -438,16 +455,20 @@ export function createTour(config: TourConfig = {}): TourHandle {
             return;
         }
         const placement = placementOf(side, state.activeStep?.popover?.align ?? 'start');
-        if (anchored && anchored.element === element && anchored.popover === popover && anchored.placement === placement && anchored.arrow === !!current.arrow) return;
+        const auto = side === 'auto';
+        if (anchored && anchored.element === element && anchored.popover === popover && anchored.placement === `${placement}${auto ? ':auto' : ''}` && anchored.arrow === !!current.arrow) return;
         stopAnchor?.();
         const padding = paddingOf(state.activeStep);
         stopAnchor = anchorTo(element, popover, {
             placement: placement as Placement,
             offset: padding + (current.popoverOffset ?? 10),
             arrow: current.arrow ? (els.arrow as HTMLElement | null) : null,
-            arrowPadding: 12
+            arrowPadding: 12,
+            // Whichever side has room, when asked; and on the screen even when the element is not.
+            autoPlace: auto,
+            stayInView: current.keepInView !== false
         });
-        anchored = { element, popover, placement, arrow: !!current.arrow };
+        anchored = { element, popover, placement: `${placement}${auto ? ':auto' : ''}`, arrow: !!current.arrow };
     }
 
     function popoverDom(): TourPopoverDom | undefined {
@@ -527,7 +548,8 @@ export function createTour(config: TourConfig = {}): TourHandle {
             call(step.onDeselected, element, step);
             call(current.onDeselected, element, step);
         }
-        if (!lone && index !== undefined && current.storageKey) save(index, reason === 'complete');
+        // On its way to another page, the note saying so must outlive this one.
+        if (!lone && index !== undefined && storeKey() && !leaving) save(index, reason === 'complete');
         teardown();
         const focus = returnFocus;
         returnFocus = null;
@@ -584,7 +606,24 @@ export function createTour(config: TourConfig = {}): TourHandle {
             const answer = await step.beforeShow(context);
             if (run !== token || answer === false) return;
         }
-        const element = (await waitForElement(step.element, step.waitFor ?? current.elementTimeout ?? 0, run)) ?? undefined;
+        // A step on another page: go there first.
+        let arrived = false;
+        if (!onPage(step)) {
+            if (current.navigate) {
+                await current.navigate(step.page!, context);
+                if (run !== token) return;
+                arrived = true;
+            } else if (isClient) {
+                // No router: the page is loaded, and the tour picks up there with `resume()`.
+                save(index, false, true);
+                leaving = true;
+                location.assign(step.page!);
+                return;
+            }
+        }
+        // A page just reached is still drawing: its element gets a moment to appear.
+        const wait = Math.max(step.waitFor ?? current.elementTimeout ?? 0, arrived ? 3000 : 0);
+        const element = (await waitForElement(step.element, wait, run)) ?? undefined;
         if (run !== token) return;
         if (!element && step.element && current.missingElement === 'skip') {
             const next = nextShownIndex(list, index, dir === -1 ? -1 : 1);
@@ -612,10 +651,11 @@ export function createTour(config: TourConfig = {}): TourHandle {
         call(current.onHighlightStarted, element, step);
 
         mark(element, step);
-        if (element && typeof (element as HTMLElement).scrollIntoView === 'function') {
+        const scroll = step.scrollIntoView ?? current.scrollIntoView ?? true;
+        if (scroll && element && typeof (element as HTMLElement).scrollIntoView === 'function') {
             const rect = element.getBoundingClientRect();
             const outside = rect.top < 0 || rect.left < 0 || rect.bottom > window.innerHeight || rect.right > window.innerWidth;
-            if (outside) element.scrollIntoView({ behavior: current.smoothScroll ? 'smooth' : 'auto', block: 'center', inline: 'nearest' });
+            if (outside) element.scrollIntoView({ behavior: current.smoothScroll ? 'smooth' : 'auto', block: current.scrollBlock ?? 'center', inline: 'nearest' });
         }
 
         render();
@@ -631,7 +671,7 @@ export function createTour(config: TourConfig = {}): TourHandle {
         }
 
         listenForAdvance(step, element);
-        if (!lone && current.storageKey) save(index, false);
+        if (!lone && storeKey()) save(index, false);
         if (!previous) emit('start', index);
         emit('step-change', { index, step, element });
     }
@@ -669,13 +709,24 @@ export function createTour(config: TourConfig = {}): TourHandle {
             const list = steps();
             let start = step === undefined ? -1 : stepIndexOf(list, step);
             if (step === undefined) {
-                const resume = current.storageKey ? saved() : null;
+                const resume = storeKey() ? saved() : null;
                 start = resume && !resume.done && resume.index < list.length ? resume.index : 0;
             }
             if (start < 0) return;
             const index = nextShownIndex(list, start, 0);
             if (index < 0) return;
             await show(index, 0);
+        },
+        async resume() {
+            // Only a tour that was on its way to this page: one that merely has progress stored waits for `drive()`.
+            const pending = saved();
+            if (!pending?.pending || pending.done) return false;
+            const list = steps();
+            const step = list[pending.index];
+            if (!step || !onPage(step)) return false;
+            save(pending.index, false);
+            await show(pending.index, 0);
+            return true;
         },
         setConfig(next) {
             current = { ...next };
@@ -730,7 +781,7 @@ export function createTour(config: TourConfig = {}): TourHandle {
         isCompleted: () => !!saved()?.done,
         reset() {
             try {
-                storage()?.removeItem(current.storageKey!);
+                storage()?.removeItem(storeKey()!);
             } catch {
                 // Nothing to forget.
             }

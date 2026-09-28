@@ -33,8 +33,10 @@ const state = computed(() => ({
 // else the theme's `--vt-textarea-resize`, read once the field is on the page.
 
 type Direction = 'vertical' | 'horizontal' | 'both' | 'none';
-const themed = ref<Direction>('vertical');
-const direction = computed<Direction>(() => props.resize ?? themed.value);
+const themed = ref<Direction>('both');
+// A fluid field fills its container's width, so dragging it sideways would
+// fight the layout: it keeps to its height unless told otherwise.
+const direction = computed<Direction>(() => props.resize ?? (props.fluid && themed.value === 'both' ? 'vertical' : themed.value));
 const showResizer = computed(() => !props.autoResize && !props.disabled && direction.value !== 'none');
 
 let start = { width: 0, height: 0, rtl: false };
@@ -76,11 +78,9 @@ function onResizerPointerdown(event: PointerEvent) {
  */
 function resize() {
     const el = inputRef.value;
-    if (!el) return;
-    if (!props.autoResize) {
-        el.style.height = '';
-        return;
-    }
+    // Only a box that sizes itself is sized here: one the reader resized with
+    // the grip keeps the size they gave it, however much is typed into it.
+    if (!el || !props.autoResize) return;
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
 }
@@ -91,7 +91,15 @@ function onInput(event: Event) {
 }
 
 // A value set from outside, or a change of font or width, reflows the text.
-watch([model, () => props.autoResize, () => props.rows], () => nextTick(resize));
+watch([model, () => props.rows], () => nextTick(resize));
+// Turned off, the box gives back the height it had set for itself and goes by `rows` again.
+watch(
+    () => props.autoResize,
+    (on) => {
+        if (!on && inputRef.value) inputRef.value.style.height = '';
+        nextTick(resize);
+    }
+);
 
 let observer: ResizeObserver | undefined;
 let lastWidth = -1;

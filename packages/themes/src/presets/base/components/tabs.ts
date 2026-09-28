@@ -1,6 +1,8 @@
-// The tab strip: quiet text items, a hover fill, and the selected one
-// marked by a short accent pill that slides to it. A preset that wants a
-// full-width underline sets `indicator.width` to `100%`.
+// The tab strip: quiet text items, a hover fill, and the selected one on a
+// tint of the accent, with a short accent pill that slides to it. A preset
+// that wants the selection quieter sets `tab.activeBackground` to
+// `transparent`; one that wants a full-width underline sets `indicator.width`
+// to `100%`.
 export default {
     tablist: {
         gap: '0.25rem',
@@ -13,10 +15,10 @@ export default {
         fontWeight: '400',
         color: '{text.mutedColor}',
         hoverColor: '{text.color}',
-        activeColor: '{text.hoverColor}',
+        activeColor: '{primary.color}',
         background: 'transparent',
         hoverBackground: '{content.hoverBackground}',
-        activeBackground: 'transparent',
+        activeBackground: 'color-mix(in srgb, {primary.color} 10%, transparent)',
         borderRadius: '{borderRadius.sm}'
     },
     // The buttons at the ends of a scrollable strip.

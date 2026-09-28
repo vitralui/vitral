@@ -13,7 +13,7 @@
         },
         "Styles": {
             "title": "Estilos",
-            "description": "Um componente, cinco visuais: a seleção com fundo tingido, um sublinhado da largura da aba, pílulas preenchidas, um controle segmentado e abas com ícone e contador. Cada um é o componente com os tokens trocados só naquela instância via `dt` — a trilha do segmentado soma um estilo via `pt` — então um preset dá o mesmo visual a todos os Tabs definindo os mesmos tokens."
+            "description": "Um componente, cinco visuais além da seleção tingida padrão: um discreto, só com a pílula, um sublinhado da largura da aba, pílulas preenchidas, um controle segmentado e abas com ícone e contador. Cada um é o componente com os tokens trocados só naquela instância via `dt` — a trilha do segmentado soma um estilo via `pt` — então um preset dá o mesmo visual a todos os Tabs definindo os mesmos tokens."
         },
         "Manual activation": {
             "title": "Ativação manual",

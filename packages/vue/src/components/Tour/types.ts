@@ -10,11 +10,25 @@ export type { TourAlign, TourButton, TourConfig, TourEndReason, TourPopover, Tou
  */
 export interface TourProps extends BaseProps {
     steps?: TourStep[];
-    /** Move the highlight from step to step. Defaults to true. */
+    /** Move the highlight from step to step and fade each popover in. Off by default. */
     animate?: boolean;
+    /** How long a move takes when `animate` is on, in milliseconds. Defaults to 300. */
+    animationDuration?: number;
     overlayColor?: string;
     overlayOpacity?: number;
     smoothScroll?: boolean;
+    /** Bring each step's element into view. Defaults to true; off, the page stays put and the popover stays on screen. */
+    scrollIntoView?: boolean;
+    /** Where a scrolled-to element ends up. Defaults to `'center'`. */
+    scrollBlock?: 'start' | 'center' | 'end' | 'nearest';
+    /** Keep the popover on the screen even when its element is not. Defaults to true. */
+    keepInView?: boolean;
+    /**
+     * Goes to another page for a step whose `page` is not this one — a
+     * router's `push`: `(page) => router.push(page)`. Without it, the page is
+     * loaded, and a `<Tour>` there picks the tour up by itself.
+     */
+    navigate?: (page: string) => void | Promise<unknown>;
     /** Escape, the close button and a press on the overlay end the tour. Defaults to true. */
     allowClose?: boolean;
     overlayClickBehavior?: 'close' | 'nextStep';

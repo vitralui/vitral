@@ -17,6 +17,14 @@
             "title": "Pelo código",
             "description": "`useTour()` devolve o próprio tour — `drive()`, `moveNext()`, `highlight()`, `destroy()` — e aqui `highlight()` mostra um elemento sozinho."
         },
+        "Motion, placement and scrolling": {
+            "title": "Movimento, posição e rolagem",
+            "description": "Desligado por padrão: `animate` move o destaque de passo em passo e faz cada popover aparecer suavemente, em `animation-duration` milissegundos. `side: 'auto'` põe o popover onde houver espaço, e com `arrow` a seta acompanha. `scroll-into-view` traz cada elemento à vista — `smooth-scroll` para uma rolagem suave — e, desligado, a página fica onde está enquanto o popover continua na tela."
+        },
+        "Across pages": {
+            "title": "Entre páginas",
+            "description": "Um passo pode indicar a sua `page`. Chegar a um passo em outra página vai até lá primeiro: pelo `navigate` quando há um router (aqui, um substituto para um), ou carregando a página, com um `<Tour>` lá retomando o tour sozinho (`resume()` sem Vue)."
+        },
         "One tour for the whole app": {
             "title": "Um tour para o app inteiro",
             "description": "`useGlobalTour()` devolve o tour da própria aplicação, o mesmo a partir de qualquer componente: ele pertence ao app e não à página que o iniciou, então um onboarding que passa por várias telas continua através das trocas de rota. A opção `tour` do plugin define de onde todo tour parte — `<Tour>`, `useTour()` e este — e as props de cada tour ficam por cima."

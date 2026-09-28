@@ -65,6 +65,7 @@ onMounted(() => {
         handleKey: ctx.handleKey,
         taskLabel: ctx.locale.value.editor.taskDone,
         selectedClass: cx('selectedNode'),
+        chipClass: (kind) => cx('chip', { kind }),
         // Over a link while writing: where it goes, and that Ctrl/⌘+click follows it.
         linkHint: (href) => tooltipOptions(vitral, { text: editorLinkHint(href, ctx.locale.value.editor.followLink), showDelay: 400 })
     });

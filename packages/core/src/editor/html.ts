@@ -8,6 +8,7 @@ import {
     normalizeDoc,
     removeFromSet,
     sameMark,
+    makeChip,
     textToInline,
     type EditorMark,
     type EditorMarkType,
@@ -103,11 +104,18 @@ function markOpen(mark: EditorMark, palette: readonly EditorColor[]): [string, s
     }
 }
 
+/** A chip as HTML: its label for anyone reading the HTML, its id and kind for reading it back. */
+function chipHTML(node: EditorNode): string {
+    const { id = '', label = '', kind } = node.attrs ?? {};
+    const kindAttr = kind ? ` data-kind="${escapeAttr(kind)}"` : '';
+    return `<span data-chip="${escapeAttr(id)}"${kindAttr} contenteditable="false">${escapeText(label)}</span>`;
+}
+
 export function inlineToHTML(content: readonly EditorNode[] | undefined, options: EditorHTMLOptions = {}): string {
     const palette = options.palette ?? editorPalette;
     return groupInline(
         keepSpaces(content ?? []),
-        (node) => (node.type === 'hardBreak' ? '<br>' : escapeText(node.text ?? '')),
+        (node) => (node.type === 'hardBreak' ? '<br>' : node.type === 'chip' ? chipHTML(node) : escapeText(node.text ?? '')),
         (mark, inner) => {
             const [open, close] = markOpen(mark, palette);
             return open + inner.join('') + close;
@@ -276,6 +284,10 @@ class Builder {
         this.inline.push({ type: 'hardBreak' });
     }
 
+    chip(node: EditorNode) {
+        this.inline.push(node);
+    }
+
     /** Ends the pending text as a block; `force` keeps an empty one (an explicit empty `<p>`). */
     flush(force = false) {
         const content = cleanInline(this.inline);
@@ -302,6 +314,11 @@ function cleanInline(nodes: EditorNode[]): EditorNode[] {
             atLineStart = true;
             continue;
         }
+        if (node.type === 'chip') {
+            out.push(node);
+            atLineStart = false;
+            continue;
+        }
         let text = node.text!;
         if (atLineStart) text = text.replace(/^ +/, '');
         if (!text) continue;
@@ -311,7 +328,7 @@ function cleanInline(nodes: EditorNode[]): EditorNode[] {
     const last = out[out.length - 1];
     if (last?.type === 'text') last.text = last.text!.replace(/ +$/, '');
     const texts = out.filter((n) => n.type === 'text');
-    if (!out.some((n) => n.type === 'hardBreak') && texts.every((n) => !n.text!.replace(/\u00a0/g, '').trim())) return [];
+    if (!out.some((n) => n.type === 'hardBreak' || n.type === 'chip') && texts.every((n) => !n.text!.replace(/\u00a0/g, '').trim())) return [];
     return out.map((n) => (n.type === 'text' ? { ...n, text: n.text!.replace(/\u00a0/g, ' ') } : n)).filter((n) => n.type !== 'text' || n.text);
 }
 
@@ -439,6 +456,12 @@ function visit(node: Node, marks: EditorMark[], b: Builder, ctx: WalkContext) {
     if (DROP.has(tag) || isHidden(el)) return;
     if (tag === 'br') {
         if (!el.classList.contains('Apple-interchange-newline')) b.br();
+        return;
+    }
+    // A chip reads back from the attribute it was written with; its words are its label.
+    if (el.hasAttribute('data-chip')) {
+        const label = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+        b.chip(makeChip({ id: el.getAttribute('data-chip') || label, label, kind: el.getAttribute('data-kind') }));
         return;
     }
     if (tag === 'p' || tag in HEADINGS) {
