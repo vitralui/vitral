@@ -73,8 +73,9 @@ export default {
     bodyCell: {
         padding: '0.5rem 0.75rem',
         borderColor: '{content.borderColor}',
-        sm: { padding: '0.25rem 0.5rem' },
-        lg: { padding: '0.875rem 1rem' }
+        /** A small or large grid scales its type with its padding, like a button. */
+        sm: { padding: '0.25rem 0.5rem', fontSize: '{formField.sm.fontSize}' },
+        lg: { padding: '0.875rem 1rem', fontSize: '{formField.lg.fontSize}' }
     },
     footerCell: {
         color: '{text.color}',

@@ -341,16 +341,20 @@
 
 /* ---- sizes and grid lines -------------------------------------------- */
 
+/* The type scales with the padding, as a button's does: a small grid read at
+   1rem looked like its cells had been set one by one. */
 .vt-datagrid-sm .vt-datagrid-body-cell,
 .vt-datagrid-sm .vt-datagrid-header-cell,
 .vt-datagrid-sm .vt-datagrid-footer-cell {
     padding: var(--vt-datagrid-body-cell-sm-padding);
+    font-size: var(--vt-datagrid-body-cell-sm-font-size);
 }
 
 .vt-datagrid-lg .vt-datagrid-body-cell,
 .vt-datagrid-lg .vt-datagrid-header-cell,
 .vt-datagrid-lg .vt-datagrid-footer-cell {
     padding: var(--vt-datagrid-body-cell-lg-padding);
+    font-size: var(--vt-datagrid-body-cell-lg-font-size);
 }
 
 .vt-datagrid-gridlines .vt-datagrid-header-cell,
