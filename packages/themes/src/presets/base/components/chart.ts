@@ -99,7 +99,7 @@ export default {
         row: {
             radius: '{borderRadius.xs}',
             mutedOpacity: '0.55',
-            activeBackground: '{surface.100}',
+            activeBackground: '{content.hoverBackground}',
             activeInset: '2px'
         }
     },
@@ -109,7 +109,7 @@ export default {
             gap: '0.125rem',
             padding: '0 0.3125rem',
             radius: '{borderRadius.sm}',
-            background: '{surface.100}',
+            background: '{content.hoverBackground}',
             color: '{text.color}',
             fontWeight: '600'
         },
