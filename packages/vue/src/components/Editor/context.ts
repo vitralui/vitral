@@ -1,3 +1,4 @@
+import type { FindBar } from '@vitral/editor';
 import type { EditorColor, EditorCommandArgs, EditorCommandName, EditorInstance, EditorKeyBinding, EditorState, EditorView, Locale } from '@vitral/core';
 import { inject, type ComputedRef, type InjectionKey, type Ref, type ShallowRef } from 'vue';
 import type { BaseProps, PassThrough } from '../../base/types';
@@ -59,6 +60,10 @@ export interface EditorContext {
     onContentFocus(event: FocusEvent): void;
     onContentBlur(event: FocusEvent): void;
     registerLinkPanel(open: ((anchor: HTMLElement | null) => void) | null): void;
+    /** The find bar: `@vitral/editor`'s, drawn by an `<EditorFind>` part. */
+    find: FindBar;
+    /** Whether an `<EditorFind>` is there to draw it, and the keys should open it. */
+    registerFind(render: (() => void) | null): void;
 }
 
 export const EditorKey: InjectionKey<EditorContext> = Symbol('vt-editor');

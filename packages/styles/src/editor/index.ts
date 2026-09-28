@@ -39,6 +39,11 @@ export const editorStyle = defineStyle({
         count: (s: { limit?: boolean }) => ['vt-editor-count', { 'vt-editor-count-limit': s.limit }],
         bubble: 'vt-overlay vt-editor-bubble',
         panel: 'vt-editor-panel',
+        /** The find bar over the text, its rows, its option toggles and the count. */
+        find: 'vt-editor-find',
+        findRow: (s: { replace?: boolean }) => ['vt-editor-find-row', { 'vt-editor-find-row-replace': s.replace }],
+        findToggle: (s: { active?: boolean }) => ['vt-editor-button', 'vt-editor-find-toggle', { 'vt-editor-button-active': s.active }],
+        findCount: (s: { empty?: boolean }) => ['vt-editor-find-count', { 'vt-editor-find-count-empty': s.empty }],
         field: 'vt-editor-field',
         fieldLabel: 'vt-editor-field-label',
         fieldHint: 'vt-editor-field-hint',

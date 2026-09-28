@@ -1,0 +1,13 @@
+{
+    "description": "O sumário de uma página, lido dos seus títulos, com a seção sendo lida marcada conforme a página rola — o “Nesta página” ao lado de documentos longos.",
+    "sections": {
+        "Read from the headings": {
+            "title": "Lido dos títulos",
+            "description": "`source` é onde procurar e `selector` quais títulos pegar; um h3 fica sob o h2 anterior. Role a página: o link da seção no topo da vista fica marcado, e `offset` é a altura de um cabeçalho fixo que a cobre."
+        },
+        "An outline of your own": {
+            "title": "Um sumário seu",
+            "description": "`items` dá o sumário pronto — ids, rótulos e níveis — para títulos desenhados depois ou rótulos mais curtos que os títulos. `v-model:active` é a seção sendo lida."
+        }
+    }
+}

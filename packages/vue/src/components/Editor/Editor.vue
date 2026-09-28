@@ -5,6 +5,7 @@ import { defaultBubbleMenu, defaultToolbar } from '@vitral/editor/buttons';
 import EditorBubbleMenu from './EditorBubbleMenu.vue';
 import EditorContentPart from './EditorContent.vue';
 import EditorCount from './EditorCount.vue';
+import EditorFind from './EditorFind.vue';
 import EditorFooter from './EditorFooter.vue';
 import EditorRoot from './EditorRoot.vue';
 import EditorToolbar from './EditorToolbar.vue';
@@ -26,6 +27,7 @@ const props = withDefaults(defineProps<EditorProps>(), {
     bubbleMenu: false,
     slashMenu: true,
     blockMenu: true,
+    find: true,
     showCount: undefined,
     showWordCount: true
 });
@@ -49,6 +51,7 @@ const rootProps = computed(() => ({
     historyDelay: props.historyDelay,
     slashMenu: props.slashMenu,
     chips: props.chips,
+    find: props.find,
     blockMenu: props.blockMenu,
     unstyled: props.unstyled,
     pt: props.pt,
@@ -77,7 +80,9 @@ defineExpose({
     getMarkdown: () => root.value?.getMarkdown() ?? '',
     setContent: (value: EditorContent) => root.value?.setContent(value),
     can: (name: string, ...args: unknown[]) => ((root.value?.can as ((n: string, ...a: unknown[]) => boolean) | undefined)?.(name, ...args) ?? false),
-    isActive: (name: string, a?: Record<string, unknown>) => root.value?.isActive(name, a) ?? false
+    isActive: (name: string, a?: Record<string, unknown>) => root.value?.isActive(name, a) ?? false,
+    openFind: (options?: { replace?: boolean; query?: string }) => root.value?.openFind(options),
+    closeFind: () => root.value?.closeFind()
 });
 </script>
 
@@ -95,6 +100,7 @@ defineExpose({
         <slot name="toolbar">
             <EditorToolbar v-if="toolbar !== false" :items="groups" />
         </slot>
+        <EditorFind />
         <EditorContentPart />
         <EditorBubbleMenu v-if="bubbleItems.length" :items="bubbleItems" />
         <EditorFooter v-if="countVisible || slots.footer">

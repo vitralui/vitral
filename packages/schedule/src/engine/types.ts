@@ -158,6 +158,13 @@ export interface ScheduleModels {
 
 export interface ScheduleConfig extends Partial<ScheduleModels> {
     events?: ScheduleEvent[];
+    /**
+     * Shows only some events: words to look for in the title, the
+     * description and the location — case and accents aside, every word
+     * somewhere — or a function that keeps an event. The events are left as
+     * they are; only what is drawn changes.
+     */
+    filter?: string | ((event: ScheduleEvent) => boolean) | null;
     /** Rows of the timeline view. */
     resources?: ScheduleResource[];
     /** The views the switcher offers, in order. Defaults to month, week, day and agenda, plus timeline when there are resources. */

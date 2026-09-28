@@ -276,6 +276,20 @@ export interface Locale {
         /** Over a link while editing: how to follow it. `{key}` is Ctrl, or ⌘ on a Mac. */
         followLink: string;
         invalidUrl: string;
+        /** The find bar. `{current}` and `{total}` count the matches. */
+        find: string;
+        replaceWith: string;
+        matchCase: string;
+        wholeWord: string;
+        useRegex: string;
+        previousMatch: string;
+        nextMatch: string;
+        replace: string;
+        replaceAll: string;
+        toggleReplace: string;
+        closeFind: string;
+        matchCount: string;
+        noMatches: string;
         /** The image form. */
         imageUrl: string;
         imageAlt: string;
@@ -568,6 +582,8 @@ export interface Locale {
         taskboardRefused: string;
         /** `{item}` */
         taskboardLocked: string;
+        /** Said when a card is picked up while a filter hides some. */
+        taskboardFiltered: string;
         /** `{column}`, `{position}`, `{count}` */
         taskboardColumnGrabbed: string;
         /** `{column}`, `{position}`, `{count}` */
@@ -587,6 +603,16 @@ export interface Locale {
         /** A figure's change, read in place of its arrow. `{value}` */
         increase: string;
         decrease: string;
+        /** Names a signature pad, says how to sign on it, and what its buttons do. */
+        signature: string;
+        signHere: string;
+        signatureInstructions: string;
+        undoStroke: string;
+        clearSignature: string;
+        /** Names a page's table of contents. */
+        onThisPage: string;
+        /** Heads a table's column of buttons that open each row's detail. */
+        rowDetails: string;
     };
 }
 
@@ -793,6 +819,19 @@ export const en: Locale = {
         openLink: 'Open link',
         followLink: '{key}+click to open',
         invalidUrl: 'Enter a web, email or phone link (https:, mailto:, tel:) or a relative path.',
+        find: 'Find',
+        replaceWith: 'Replace with',
+        matchCase: 'Match case',
+        wholeWord: 'Whole word',
+        useRegex: 'Regular expression',
+        previousMatch: 'Previous match',
+        nextMatch: 'Next match',
+        replace: 'Replace',
+        replaceAll: 'Replace all',
+        toggleReplace: 'Toggle replace',
+        closeFind: 'Close find',
+        matchCount: '{current} of {total}',
+        noMatches: 'No results',
         imageUrl: 'Image URL',
         imageAlt: 'Alternative text',
         imageAltHint: 'Describe the image for people who cannot see it.',
@@ -815,7 +854,7 @@ export const en: Locale = {
         character: '{count} character',
         characters: '{count} characters',
         charactersLimit: '{count} of {limit} characters',
-        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Ctrl+K edits a link, Alt+Enter opens the one under the caret. Markdown shortcuts such as # and - work at the start of a line.',
+        keyboardHelp: 'Rich text. Alt+F10 moves to the toolbar, Escape comes back. Ctrl+K edits a link, Alt+Enter opens the one under the caret, Ctrl+F finds and Ctrl+H replaces. Markdown shortcuts such as # and - work at the start of a line.',
         slashMenu: 'Insert a block',
         slashEmpty: 'Nothing matches “{query}”',
         chipMenu: 'Suggestions',
@@ -1021,6 +1060,7 @@ export const en: Locale = {
         taskboardFull: '{column} is at its limit of {limit} cards',
         taskboardRefused: '{item} cannot be dropped in {column}',
         taskboardLocked: '{item} is locked and cannot be moved',
+        taskboardFiltered: 'Clear the filter to move {item}',
         taskboardColumnGrabbed: 'Column {column} picked up, position {position} of {count}',
         taskboardColumnMoved: 'Column {column}: position {position} of {count}',
         taskboardColumnDropped: 'Column {column} dropped at position {position} of {count}',
@@ -1030,7 +1070,14 @@ export const en: Locale = {
         copy: 'Copy',
         copied: 'Copied',
         increase: 'Up {value}',
-        decrease: 'Down {value}'
+        decrease: 'Down {value}',
+        signature: 'Signature',
+        signHere: 'Sign here',
+        signatureInstructions: 'Draw your signature with a mouse, a pen or a finger.',
+        undoStroke: 'Undo the last stroke',
+        clearSignature: 'Clear the signature',
+        onThisPage: 'On this page',
+        rowDetails: 'Details'
     }
 };
 
@@ -1233,6 +1280,19 @@ export const ptBR: Locale = {
         openLink: 'Abrir link',
         followLink: '{key}+clique para abrir',
         invalidUrl: 'Informe um link web, de e-mail ou telefone (https:, mailto:, tel:) ou um caminho relativo.',
+        find: 'Localizar',
+        replaceWith: 'Substituir por',
+        matchCase: 'Diferenciar maiúsculas',
+        wholeWord: 'Palavra inteira',
+        useRegex: 'Expressão regular',
+        previousMatch: 'Resultado anterior',
+        nextMatch: 'Próximo resultado',
+        replace: 'Substituir',
+        replaceAll: 'Substituir tudo',
+        toggleReplace: 'Mostrar substituir',
+        closeFind: 'Fechar busca',
+        matchCount: '{current} de {total}',
+        noMatches: 'Nenhum resultado',
         imageUrl: 'URL da imagem',
         imageAlt: 'Texto alternativo',
         imageAltHint: 'Descreva a imagem para quem não pode vê-la.',
@@ -1255,7 +1315,7 @@ export const ptBR: Locale = {
         character: '{count} caractere',
         characters: '{count} caracteres',
         charactersLimit: '{count} de {limit} caracteres',
-        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Ctrl+K edita um link e Alt+Enter abre o que está sob o cursor. Atalhos Markdown como # e - funcionam no início da linha.',
+        keyboardHelp: 'Texto formatado. Alt+F10 vai para a barra de ferramentas e Esc volta. Ctrl+K edita um link, Alt+Enter abre o que está sob o cursor, Ctrl+F localiza e Ctrl+H substitui. Atalhos Markdown como # e - funcionam no início da linha.',
         slashMenu: 'Inserir um bloco',
         slashEmpty: 'Nada corresponde a “{query}”',
         chipMenu: 'Sugestões',
@@ -1461,6 +1521,7 @@ export const ptBR: Locale = {
         taskboardFull: '{column} está no limite de {limit} cartões',
         taskboardRefused: '{item} não pode ser solto em {column}',
         taskboardLocked: '{item} está bloqueado e não pode ser movido',
+        taskboardFiltered: 'Limpe o filtro para mover {item}',
         taskboardColumnGrabbed: 'Coluna {column} pega, posição {position} de {count}',
         taskboardColumnMoved: 'Coluna {column}: posição {position} de {count}',
         taskboardColumnDropped: 'Coluna {column} solta na posição {position} de {count}',
@@ -1470,6 +1531,13 @@ export const ptBR: Locale = {
         copy: 'Copiar',
         copied: 'Copiado',
         increase: 'Alta de {value}',
-        decrease: 'Queda de {value}'
+        decrease: 'Queda de {value}',
+        signature: 'Assinatura',
+        signHere: 'Assine aqui',
+        signatureInstructions: 'Desenhe sua assinatura com o mouse, uma caneta ou o dedo.',
+        undoStroke: 'Desfazer o último traço',
+        clearSignature: 'Limpar a assinatura',
+        onThisPage: 'Nesta página',
+        rowDetails: 'Detalhes'
     }
 };

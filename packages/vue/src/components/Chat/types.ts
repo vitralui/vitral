@@ -13,6 +13,8 @@ export interface ChatProps extends BaseProps {
     emptyMessage?: string;
     /** `true` for the three dots, or the words to show instead. */
     typing?: boolean | string;
+    /** Read messages as Markdown, drawn as elements rather than HTML. A message's own `markdown` wins. */
+    markdown?: boolean;
     disabled?: boolean;
     /** No composer at all: a transcript. */
     readonly?: boolean;

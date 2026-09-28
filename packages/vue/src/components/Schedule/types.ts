@@ -56,6 +56,12 @@ export interface ScheduleBusinessHours {
 
 export interface ScheduleProps extends BaseProps {
     events?: ScheduleEvent[];
+    /**
+     * Shows only some events: words to look for in the title, the description
+     * and the location (case and accents aside), or a function that keeps an
+     * event. The events themselves are left as they are.
+     */
+    filter?: string | ((event: ScheduleEvent) => boolean) | null;
     /** Rows of the timeline view. */
     resources?: ScheduleResource[];
     /** The views the switcher offers, in order. Defaults to month, week, day and agenda, plus timeline when there are resources. */

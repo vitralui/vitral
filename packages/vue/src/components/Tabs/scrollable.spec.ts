@@ -23,8 +23,16 @@ function mountStrip(props: Record<string, unknown> = { scrollable: true }) {
     return { wrapper, value, strip, back, forward };
 }
 
-/** A strip 300px wide holding 900px of tabs, scrolled to `left`: the layout jsdom does not do. */
+/** Tabs `length` long in a strip `room` long, along `axis`: the layout jsdom does not do. */
+function fit(strip: HTMLElement, length: number, room: number, axis: 'x' | 'y' = 'x') {
+    const [size, client] = axis === 'x' ? ['scrollWidth', 'clientWidth'] : ['scrollHeight', 'clientHeight'];
+    Object.defineProperty(strip.querySelector('[role="tablist"]')!, size, { value: length, configurable: true });
+    Object.defineProperty(strip.parentElement!, client, { value: room, configurable: true });
+}
+
+/** A strip 300px wide holding 900px of tabs, scrolled to `left`. */
 function lay(strip: HTMLElement, left: number) {
+    fit(strip, 900, 300);
     Object.defineProperties(strip, {
         clientWidth: { value: 300, configurable: true },
         scrollWidth: { value: 900, configurable: true },
@@ -67,8 +75,10 @@ describe('scrollable Tabs', () => {
         expect(scrollBy).toHaveBeenNthCalledWith(2, { left: -240, behavior: 'smooth' });
     });
 
-    it('keeps its buttons out of the tab order, named for where they go', () => {
-        const { back, forward } = mountStrip();
+    it('keeps its buttons out of the tab order, named for where they go', async () => {
+        const { strip, back, forward } = mountStrip();
+        lay(strip(), 0);
+        await nextTick();
         expect(back().getAttribute('tabindex')).toBe('-1');
         expect(back().getAttribute('aria-label')).toBe('Previous');
         expect(forward().getAttribute('aria-label')).toBe('Next');
@@ -82,6 +92,19 @@ describe('scrollable Tabs', () => {
         await nextTick();
         await nextTick();
         expect(reveal).toHaveBeenLastCalledWith(expect.objectContaining({ block: 'nearest', inline: 'nearest' }));
+    });
+
+    it('draws no buttons, and keeps no room for them, while every tab fits', async () => {
+        const { strip } = mountStrip();
+        fit(strip(), 280, 300);
+        strip().dispatchEvent(new Event('scroll'));
+        await nextTick();
+        expect(document.querySelector('.vt-tabs-nav-button')).toBeNull();
+        expect(document.querySelector('.vt-tabs-tablist-overflowing')).toBeNull();
+        lay(strip(), 0);
+        await nextTick();
+        expect(document.querySelectorAll('.vt-tabs-nav-button')).toHaveLength(2);
+        expect(document.querySelector('.vt-tabs-tablist-overflowing')).not.toBeNull();
     });
 
     it('draws no buttons when it is not scrollable', () => {
@@ -110,9 +133,11 @@ describe('scroll buttons', () => {
         expect(document.querySelectorAll('.vt-tabs-nav-button')).toHaveLength(2);
     });
 
-    it('can go at the start, or not at all', () => {
+    it('can go at the start, or not at all', async () => {
         mountStrip({ scrollable: true, scrollButtons: 'start' });
-        const strip = document.querySelector('.vt-tabs-content')!;
+        const strip = document.querySelector<HTMLElement>('.vt-tabs-content')!;
+        lay(strip, 0);
+        await nextTick();
         expect(strip.previousElementSibling!.classList).toContain('vt-tabs-nav-group-start');
         document.body.innerHTML = '';
         mountStrip({ scrollable: true, scrollButtons: 'none' });
@@ -123,6 +148,7 @@ describe('scroll buttons', () => {
     it('scroll an upright strip up and down', async () => {
         mountStrip({ scrollable: true, orientation: 'vertical' });
         const strip = document.querySelector<HTMLElement>('.vt-tabs-content')!;
+        fit(strip, 600, 200, 'y');
         Object.defineProperties(strip, {
             clientHeight: { value: 200, configurable: true },
             scrollHeight: { value: 600, configurable: true },

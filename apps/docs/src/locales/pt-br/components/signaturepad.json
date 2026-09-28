@@ -1,0 +1,21 @@
+{
+    "description": "Uma superfície para assinar com mouse, caneta ou dedo. A tinta acompanha a velocidade da mão, e a assinatura volta como um SVG que um formulário pode guardar.",
+    "sections": {
+        "Basic": {
+            "title": "Básico",
+            "description": "`v-model` é a assinatura como data URL SVG, pronta para um `<img>` ou um campo de formulário; `v-model:strokes` são os pontos, para desenhá-la de novo depois. Desfazer tira o último traço."
+        },
+        "The ink": {
+            "title": "A tinta",
+            "description": "A linha acompanha a mão como uma pena. `thinning` é o quanto a pressão muda a largura — a pressão da própria caneta ou, sem ela, uma calculada pela velocidade, então um traço lento sai mais largo que um rápido; 0 desenha uma linha de largura única. `smoothing` tira o tremor, `taper` afina cada ponta até virar um ponto ao longo desse comprimento, e `pen-width` é a largura com pressão média. O SVG guardado é desenhado com a mesma tinta. Assine e mexa nos controles: a assinatura é desenhada de novo."
+        },
+        "In a form": {
+            "title": "Num formulário",
+            "description": "O pad é um campo como outro qualquer: recebe um rótulo, e `toPNG()` dá uma imagem para um serviço que queira uma."
+        },
+        "Read-only and disabled": {
+            "title": "Somente leitura e desabilitado",
+            "description": "Somente leitura mostra uma assinatura e não aceita mais tinta; desabilitado também fica esmaecido e sai da ordem de tabulação."
+        }
+    }
+}

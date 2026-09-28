@@ -68,6 +68,12 @@ export interface TaskboardProps extends BaseProps {
     disabledField?: string;
     /** The field that marks a card locked: clickable but not movable. Defaults to `'locked'`. */
     lockedField?: string;
+    /**
+     * Shows only some cards: words looked for in each card's text and numbers
+     * (case and accents aside), or a function that keeps a card. Cards cannot
+     * be dragged while a filter hides some.
+     */
+    filter?: string | ((item: any) => boolean) | null;
     /** Last word on a drop. Return false to refuse it. */
     canDrop?: (context: TaskboardDropContext) => boolean;
     /** Cards can be dragged (pointer, touch or keyboard). Defaults to true. */

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Button, SelectButton, Tour, type TourStep } from '@vitral/vue';
+import { barChart, inbox, settings } from '@vitral/icons';
+import { Button, Icon, SelectButton, Tour, type TourStep } from '@vitral/vue';
 import { nextTick, ref } from 'vue';
 
 // A stand-in for a router: three pages, one on show. With vue-router the two
@@ -29,9 +30,9 @@ const steps: TourStep[] = [
             <Button label="Start the tour" icon="play" @click="open = true" />
         </div>
         <div style="padding: 1rem; border: 1px solid var(--vt-content-border-color); border-radius: 0.5rem; min-height: 6rem">
-            <div v-if="page === '/inbox'" id="demo-page-inbox" style="display: inline-block; padding: 0.5rem 0.75rem">📥 Inbox — 3 new</div>
-            <div v-else-if="page === '/reports'" id="demo-page-reports" style="display: inline-block; padding: 0.5rem 0.75rem">📊 Reports — Q3</div>
-            <div v-else id="demo-page-settings" style="display: inline-block; padding: 0.5rem 0.75rem">⚙️ Settings</div>
+            <div v-if="page === '/inbox'" id="demo-page-inbox" style="display: inline-flex; gap: 0.5rem; align-items: center; padding: 0.5rem 0.75rem"><Icon :icon="inbox" />Inbox — 3 new</div>
+            <div v-else-if="page === '/reports'" id="demo-page-reports" style="display: inline-flex; gap: 0.5rem; align-items: center; padding: 0.5rem 0.75rem"><Icon :icon="barChart" />Reports — Q3</div>
+            <div v-else id="demo-page-settings" style="display: inline-flex; gap: 0.5rem; align-items: center; padding: 0.5rem 0.75rem"><Icon :icon="settings" />Settings</div>
         </div>
         <Tour v-model:open="open" :steps="steps" :navigate="navigate" :options="{ currentPage: () => page }" show-progress />
     </div>

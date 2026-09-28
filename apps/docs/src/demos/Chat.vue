@@ -16,6 +16,7 @@ import Captions from './Chat/Captions.vue';
 import Copilot from './Chat/Copilot.vue';
 import DefaultChat from './Chat/DefaultChat.vue';
 import FailedAnswer from './Chat/FailedAnswer.vue';
+import MarkdownAnswers from './Chat/MarkdownAnswers.vue';
 import MessageActions from './Chat/MessageActions.vue';
 import TwoPeople from './Chat/TwoPeople.vue';
 import Widget from './Chat/Widget.vue';
@@ -23,6 +24,7 @@ import Widget from './Chat/Widget.vue';
 
 <template>
     <DemoSection title="Default" description="Ask it something. The answer arrives a token at a time, with a caret after the last character, and is announced once it settles. Attach a file with the paperclip; Enter sends and Shift+Enter breaks the line."><DefaultChat /></DemoSection>
+    <DemoSection title="Answers in Markdown" description="`markdown` reads the messages as Markdown — bold, italic, code, lists, quotes, headings and links — and draws it as elements, never as HTML, so nothing in a message can run or restyle the page. Only web and mail links are followed. An answer still arriving is read as it stands: an unclosed code fence is a code block so far. A message's own `markdown` overrides the chat's."><MarkdownAnswers /></DemoSection>
     <DemoSection title="Two people" description="`variant=&quot;messenger&quot;`: both sides get a bubble and an avatar, and a run of messages from one person is grouped under one name."><TwoPeople /></DemoSection>
     <DemoSection title="An agent and its tools" description="`variant=&quot;agent&quot;`: each tool the assistant reached for is a step that can be opened — what it was asked and what it answered — and one still running says so. That is the whole reason to show the steps at all."><AgentTools /></DemoSection>
     <DemoSection title="A copilot beside the work" description="`variant=&quot;copilot&quot;`: a narrow column, no bubbles and no avatars, for a panel that sits next to what is being written."><Copilot /></DemoSection>

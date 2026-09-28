@@ -45,10 +45,11 @@ export type EditorToolbarItem =
     | 'table'
     | 'undo'
     | 'redo'
-    | 'clear';
+    | 'clear'
+    | 'find';
 
 /** The commands a plain `<EditorButton>` can run. */
-export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table'>;
+export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'find'>;
 
 export interface EditorSelectionChangeEvent {
     /** Where the selection starts and ends (anchor and head), as `{ path, offset }` positions. */
@@ -92,6 +93,13 @@ export interface EditorProps extends BaseProps {
      * return a promise, for a search on the server.
      */
     chips?: ChipTrigger | ChipTrigger[];
+    /**
+     * Find and replace: Ctrl/⌘+F opens the bar over the text, Ctrl+H (⌘+⌥+F
+     * on a Mac) with the replace row. Needs an `<EditorFind>` part, which the
+     * ready-made editor has. Defaults to true; `false` leaves the keys to the
+     * browser.
+     */
+    find?: boolean;
     /**
      * The handle beside the block the caret is in: `true` for the usual
      * actions, the actions to offer, or `false` for none. Defaults to true.
@@ -193,6 +201,9 @@ export interface EditorBubbleMenuProps extends BaseProps {
 }
 
 export interface EditorFooterProps extends BaseProps {}
+
+/** The find bar part: it takes no props of its own. */
+export interface EditorFindProps {}
 
 export interface EditorCountProps extends BaseProps {
     /** Shows the word count beside the characters. Defaults to true. */

@@ -115,6 +115,7 @@ const inputs = (): SpreadsheetOptions => ({
     toolbar: props.toolbar,
     currency: props.currency,
     formulaBar: props.formulaBar,
+    conditionalFormats: toRaw(props.conditionalFormats) as SpreadsheetOptions['conditionalFormats'],
     hooks: slots.toolbar ? { toolbar: toolbarNode } : undefined,
     readonly: props.readonly,
     ariaLabel: props.ariaLabel,
@@ -154,7 +155,7 @@ watch(
 );
 
 watch(
-    () => [props.rows, props.columns, props.formats, props.columnWidths, props.rowHeights, props.toolbar, props.currency, props.formulaBar, props.readonly, props.ariaLabel],
+    () => [props.rows, props.columns, props.formats, props.columnWidths, props.rowHeights, props.toolbar, props.currency, props.formulaBar, props.conditionalFormats, props.readonly, props.ariaLabel],
     () => sheet?.update(inputs()),
     { deep: true }
 );

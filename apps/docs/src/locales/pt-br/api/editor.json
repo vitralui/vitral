@@ -12,7 +12,8 @@
         "bubbleMenu": "Uma barra de ferramentas flutuante sobre o texto selecionado; `true` para os botões padrão, ou os itens a mostrar.",
         "showCount": "Mostra a contagem de palavras e caracteres abaixo do texto. Ligado por padrão quando há `maxLength`.",
         "showWordCount": "Mostra a contagem de palavras ao lado da de caracteres. O padrão é true.",
-        "chips": "Chips inline inseridos ao digitar um gatilho: `{ char: '@', kind: 'mention', items: (q) => people.filter(…) }`, ou vários gatilhos. `items` pode devolver uma promise, para uma busca no servidor."
+        "chips": "Chips inline inseridos ao digitar um gatilho: `{ char: '@', kind: 'mention', items: (q) => people.filter(…) }`, ou vários gatilhos. `items` pode devolver uma promise, para uma busca no servidor.",
+        "find": "Localizar e substituir: Ctrl/⌘+F abre a barra sobre o texto, Ctrl+H (⌘+⌥+F no Mac) com a linha de substituir. Precisa de uma parte `<EditorFind>`, que o editor pronto já tem. O padrão é true; `false` deixa as teclas para o navegador."
     },
     "emits": {
         "text-change": "O conteúdo mudou.",

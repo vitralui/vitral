@@ -70,3 +70,4 @@ export {
 } from './sanitize';
 export * from './editor';
 export { createEditorView, editorLinkHint, followEditorLink, type EditorView, type EditorViewOptions } from './view';
+export { editorFindPattern, expandEditorReplacement, findInEditor, replaceEditorMatches, type EditorFindOptions, type EditorMatch } from './find';

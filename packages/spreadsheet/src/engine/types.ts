@@ -128,6 +128,12 @@ export interface SpreadsheetConfig extends SheetOptions {
     rowHeights?: Record<number, number>;
     /** Rows and columns held still while the rest scrolls. */
     frozen?: { rows?: number; columns?: number };
+    /**
+     * Looks cells take from what they hold: highlights where a test passes,
+     * colour scales and data bars. Worked out as the sheet is drawn, so they
+     * follow the numbers; the earlier rule wins where two disagree.
+     */
+    conditionalFormats?: import('./conditional').ConditionalRule[];
     /** The bar of tools over the grid: `false` for none, or groups of item names. */
     toolbar?: boolean | SpreadsheetToolbarItem[][];
     /** The bar over the grid that shows the address and the formula. */

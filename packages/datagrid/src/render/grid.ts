@@ -1,7 +1,7 @@
 import { formatMessage, getField, MIN_COLUMN_WIDTH, pageCount, pageLinks, pageOf, pageReportParams, type FilterMeta, type GroupedRow, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
-import { cellText, groupTitle, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
+import { cellText, expansionKey, groupTitle, isExpanded, isFilterable, rowKey, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { Content, PageContext, Row, DataGridColumn, DataGridConfig, DataGridModels } from '../engine/types';
 
 /**
@@ -56,6 +56,8 @@ export interface DataGridActions<T = Row> {
     rowKeydown: (event: KeyboardEvent, index: number) => void;
     /** Opens or shuts one group of a grouped grid. */
     toggleGroup: (key: string) => void;
+    /** Opens or shuts one row's detail. */
+    toggleExpansion: (key: string | number) => void;
     resizeStart: (column: ResolvedColumn<T>, event: PointerEvent) => void;
     resizeKey: (column: ResolvedColumn<T>, event: KeyboardEvent) => void;
     headerKeydown: (column: ResolvedColumn<T>, event: KeyboardEvent) => void;
@@ -280,6 +282,9 @@ function headView<T>(context: ViewContext<T>): Child {
                           )
                         : column.selectionMode
                           ? h('span', part('selectionHeaderText'), locale.aria.selectRow)
+                          : column.column.expander && !column.header
+                          ? // A column of buttons still needs a name for the header a screen reader reads out.
+                            h('span', { class: 'vt-sr-only' }, locale.aria.rowDetails)
                           : column.column.sortable
                             ? h(
                                   'button',
@@ -403,9 +408,14 @@ function bodyView<T>(context: ViewContext<T>): Child {
             }
             const { row, index } = line;
             const selected = context.selectionKind ? context.selected(row) : false;
-            return h(
+            const key = rowKey(config, row, index, rows.offset);
+            const expandable = !!config.content?.rowExpansion && columns.some((c) => c.column.expander);
+            const openKey = expansionKey(config, row, index, rows.offset);
+            const expanded = expandable && isExpanded(context.models.expandedRows, openKey);
+            const detailId = `${context.ids.table}-detail-${String(key).replace(/[^\w-]/g, '_')}`;
+            const main = h(
                 'tr',
-                mergeAttrs({ key: rowKey(config, row, index, rows.offset) }, part('row', { selectable, selected }), {
+                mergeAttrs({ key }, part('row', { selectable, selected, expanded }), {
                     class: config.rowClass?.(row),
                     'aria-selected': context.selectionKind ? (selected ? 'true' : 'false') : undefined,
                     tabindex: selectable ? (index === context.tabRow ? '0' : '-1') : undefined,
@@ -419,7 +429,23 @@ function bodyView<T>(context: ViewContext<T>): Child {
                             style: { ...stickyStyle(column), ...column.column.bodyStyle },
                             class: column.column.bodyClass
                         }),
-                        column.selectionMode
+                        column.column.expander && expandable
+                            ? h(
+                                  'button',
+                                  mergeAttrs({ type: 'button' }, part('expander', { expanded }), {
+                                      'aria-expanded': expanded ? 'true' : 'false',
+                                      'aria-controls': expanded ? detailId : undefined,
+                                      'aria-label': expanded ? locale.aria.collapse : locale.aria.expand,
+                                      // The row's own click and keys are about selection, not this.
+                                      onClick: (event: MouseEvent) => {
+                                          event.stopPropagation();
+                                          context.on.toggleExpansion(openKey);
+                                      },
+                                      onKeydown: (event: KeyboardEvent) => event.stopPropagation()
+                                  }),
+                                  iconView('chevronRight', part('expanderIcon', { expanded }))
+                              )
+                            : column.selectionMode
                             ? h(
                                   'span',
                                   part('checkbox'),
@@ -439,6 +465,16 @@ function bodyView<T>(context: ViewContext<T>): Child {
                     )
                 )
             );
+            if (!expanded) return main;
+            // The detail spans the table in a row of its own, right under the row it belongs to.
+            return [
+                main,
+                h(
+                    'tr',
+                    mergeAttrs({ key: `${key}-detail`, id: detailId }, part('expansionRow')),
+                    h('td', mergeAttrs(part('expansionCell'), { colspan: String(Math.max(1, columns.length)) }), content(config.content!.rowExpansion!({ row, index: rows.offset + index })))
+                )
+            ];
         })
     );
 }

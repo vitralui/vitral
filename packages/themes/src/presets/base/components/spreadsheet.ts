@@ -25,6 +25,11 @@ export default {
         color: '{text.color}',
         errorColor: '{danger.color}'
     },
+    // A data bar is the accent, faint enough to read the number over.
+    dataBar: {
+        color: '{primary.color}',
+        opacity: '0.3'
+    },
     selection: {
         borderWidth: '2px',
         borderColor: '{primary.color}',

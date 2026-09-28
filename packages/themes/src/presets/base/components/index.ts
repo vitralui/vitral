@@ -22,6 +22,7 @@ import confirmdialog from './confirmdialog';
 import confirmpopup from './confirmpopup';
 import contextmenu from './contextmenu';
 import copybutton from './copybutton';
+import countdown from './countdown';
 import cropper from './cropper';
 import datagrid from './datagrid';
 import datatable from './datatable';
@@ -60,6 +61,7 @@ import kbd from './kbd';
 import knob from './knob';
 import label from './label';
 import listbox from './listbox';
+import masonry from './masonry';
 import megamenu from './megamenu';
 import menu from './menu';
 import menubar from './menubar';
@@ -76,6 +78,7 @@ import picklist from './picklist';
 import popover from './popover';
 import progressbar from './progressbar';
 import progressspinner from './progressspinner';
+import qrcode from './qrcode';
 import radiobutton from './radiobutton';
 import radiogroup from './radiogroup';
 import rating from './rating';
@@ -85,6 +88,7 @@ import scrolltop from './scrolltop';
 import select from './select';
 import selectbutton from './selectbutton';
 import sidebar from './sidebar';
+import signaturepad from './signaturepad';
 import skeleton from './skeleton';
 import slider from './slider';
 import speeddial from './speeddial';
@@ -95,6 +99,7 @@ import spreadsheet from './spreadsheet';
 import stackpanel from './stackpanel';
 import stat from './stat';
 import stepper from './stepper';
+import tableofcontents from './tableofcontents';
 import tabs from './tabs';
 import tag from './tag';
 import taskboard from './taskboard';
@@ -140,6 +145,7 @@ export const components = {
     confirmpopup,
     contextmenu,
     copybutton,
+    countdown,
     cropper,
     datagrid,
     datatable,
@@ -178,6 +184,7 @@ export const components = {
     knob,
     label,
     listbox,
+    masonry,
     megamenu,
     menu,
     menubar,
@@ -194,6 +201,7 @@ export const components = {
     popover,
     progressbar,
     progressspinner,
+    qrcode,
     radiobutton,
     radiogroup,
     rating,
@@ -203,6 +211,7 @@ export const components = {
     select,
     selectbutton,
     sidebar,
+    signaturepad,
     skeleton,
     slider,
     speeddial,
@@ -213,6 +222,7 @@ export const components = {
     stackpanel,
     stat,
     stepper,
+    tableofcontents,
     tabs,
     tag,
     taskboard,

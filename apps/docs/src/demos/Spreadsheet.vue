@@ -13,6 +13,7 @@ export const meta: DemoMeta = {
 import DemoSection from '../DemoSection.vue';
 import DefaultSheet from './Spreadsheet/DefaultSheet.vue';
 import FormulaErrors from './Spreadsheet/FormulaErrors.vue';
+import ConditionalFormats from './Spreadsheet/ConditionalFormats.vue';
 import Formulas from './Spreadsheet/Formulas.vue';
 import ReadOnly from './Spreadsheet/ReadOnly.vue';
 import TheToolbar from './Spreadsheet/TheToolbar.vue';
@@ -27,6 +28,7 @@ import WhereTheKeyboardIs from './Spreadsheet/WhereTheKeyboardIs.vue';
         title="Formulas"
         description="Sixty-three of them: SUM, AVERAGE, MIN, MAX, COUNT and COUNTIF, IF and IFERROR, the text ones, INDEX, MATCH and VLOOKUP, and dates as the days every spreadsheet counts in."
     ><Formulas /></DemoSection>
+    <DemoSection title="Conditional formatting" description="`conditional-formats` gives cells a look from what they hold. A highlight tests the value — `>`, `>=`, `<`, `<=`, `=`, `<>`, `between`, `contains`, `empty`, `notEmpty`, `error`, or a function — and takes a style or a `tone` from the theme. A colour scale shades numbers from lowest to highest, and a data bar measures each against the range's highest. They are worked out as the sheet is drawn, so type a new number and they follow; where two rules disagree, the earlier wins."><ConditionalFormats /></DemoSection>
     <DemoSection title="When a formula cannot answer" description="An error is a value: it travels through arithmetic, and `IFERROR` catches it."><FormulaErrors /></DemoSection>
     <DemoSection
         title="The toolbar"

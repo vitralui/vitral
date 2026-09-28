@@ -27,6 +27,7 @@ import {
     defaultModels,
     hasActiveFilter,
     isComposite,
+    isExpanded,
     loadRequest,
     modeOf,
     linesOf,
@@ -408,6 +409,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             const shut = models.collapsedGroups ?? [];
             change({ collapsedGroups: shut.includes(key) ? shut.filter((k) => k !== key) : [...shut, key] });
         },
+        toggleExpansion(key) {
+            const open = models.expandedRows ?? [];
+            change({ expandedRows: isExpanded(open, key) ? open.filter((k) => String(k) !== String(key)) : [...open, key] });
+        },
         scrolled(event) {
             if (!current.group || echo) return;
             tableBus.publish(current.group, { kind: 'scroll', source: id, left: (event.currentTarget as HTMLElement).scrollLeft });
@@ -669,7 +674,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
 const pickModels = (config: Partial<DataGridConfig>): Partial<DataGridModels> => {
     const out: Partial<DataGridModels> = {};
-    for (const key of ['first', 'rows', 'sortField', 'sortOrder', 'multiSortMeta', 'filters', 'selection', 'columnLayout'] as const) {
+    for (const key of ['first', 'rows', 'sortField', 'sortOrder', 'multiSortMeta', 'filters', 'selection', 'columnLayout', 'expandedRows'] as const) {
         if (config[key] !== undefined) (out as Record<string, unknown>)[key] = config[key];
     }
     return out;

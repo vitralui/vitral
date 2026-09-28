@@ -5,6 +5,8 @@ import EditorButton from './EditorButton.vue';
 import EditorColorPicker from './EditorColorPicker.vue';
 import EditorContent from './EditorContent.vue';
 import EditorCount from './EditorCount.vue';
+import EditorFind from './EditorFind.vue';
+import EditorFindButton from './EditorFindButton.vue';
 import EditorFooter from './EditorFooter.vue';
 import EditorImageButton from './EditorImageButton.vue';
 import EditorLinkPanel from './EditorLinkPanel.vue';
@@ -23,6 +25,8 @@ const parts = {
     ImageButton: EditorImageButton,
     TableMenu: EditorTableMenu,
     LinkPanel: EditorLinkPanel,
+    Find: EditorFind,
+    FindButton: EditorFindButton,
     Content: EditorContent,
     BubbleMenu: EditorBubbleMenu,
     Footer: EditorFooter,
@@ -51,6 +55,8 @@ export {
     EditorImageButton,
     EditorTableMenu,
     EditorLinkPanel,
+    EditorFind,
+    EditorFindButton,
     EditorContent,
     EditorBubbleMenu,
     EditorFooter,

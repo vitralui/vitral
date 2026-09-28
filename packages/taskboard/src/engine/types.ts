@@ -160,6 +160,14 @@ export interface TaskboardConfig extends Partial<TaskboardModels> {
     disabledField?: string;
     /** The field that marks a card locked: clickable but not movable. Defaults to `'locked'`. */
     lockedField?: string;
+    /**
+     * Shows only some cards: words looked for in each card's text and
+     * numbers (case and accents aside), or a function that keeps a card. The
+     * counts are of the cards shown. Cards cannot be dragged while a filter
+     * hides some, since a drop between two cards would say nothing about
+     * where it goes among the hidden ones.
+     */
+    filter?: string | ((item: unknown) => boolean) | null;
     /** Last word on a drop. Return false to refuse it. */
     canDrop?: (context: TaskboardDropContext) => boolean;
     /** Cards can be dragged (pointer, touch or keyboard). Defaults to true. */

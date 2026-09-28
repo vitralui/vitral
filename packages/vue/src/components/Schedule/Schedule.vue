@@ -178,6 +178,7 @@ function passThroughMap(): PassThrough {
 
 const inputs = (): ScheduleConfig => ({
     events: toRaw(props.events),
+    filter: props.filter,
     resources: toRaw(props.resources),
     views: props.views,
     toolbar: props.toolbar,
@@ -252,6 +253,7 @@ watch(
 );
 watch(
     () => [
+        props.filter,
         props.views,
         props.toolbar,
         props.timeZone,

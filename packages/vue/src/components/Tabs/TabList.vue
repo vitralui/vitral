@@ -22,10 +22,16 @@ const { rootAttrs, controlAttrs } = useSplitAttrs();
 const rootRef = ref<HTMLElement | null>(null);
 const orientation = computed(() => tabs?.orientation() ?? 'horizontal');
 const scrollable = computed(() => tabs?.scrollable() ?? false);
-const buttons = computed(() => (scrollable.value ? (tabs?.scrollButtons() ?? 'sides') : 'none'));
+/**
+ * Whether the tabs are longer than the strip. Measured against the whole
+ * strip rather than the scroller between the buttons: the buttons take room
+ * themselves, so measuring inside them would show and hide them in turn.
+ */
+const overflowing = ref(false);
+const buttons = computed(() => (scrollable.value && overflowing.value ? (tabs?.scrollButtons() ?? 'sides') : 'none'));
 /** Together at one end, the pair stays put and a button that has nowhere to go is disabled rather than hidden. */
 const grouped = computed(() => buttons.value === 'start' || buttons.value === 'end');
-const state = computed(() => ({ orientation: orientation.value, scrollable: scrollable.value }));
+const state = computed(() => ({ orientation: orientation.value, scrollable: scrollable.value, overflowing: overflowing.value }));
 
 // ---- scrolling ---------------------------------------------------------------
 // A button at each end that still has tabs out of sight, and only there. The
@@ -46,7 +52,20 @@ function progress(): { done: number; room: number } {
     return { done: rtl() ? -el.scrollLeft : el.scrollLeft, room: el.scrollWidth - el.clientWidth };
 }
 
+const stripRef = ref<HTMLElement | null>(null);
+
+function updateOverflow() {
+    const strip = stripRef.value;
+    const list = listRef.value;
+    if (!scrollable.value || !strip || !list) {
+        overflowing.value = false;
+        return;
+    }
+    overflowing.value = vertical() ? list.scrollHeight > strip.clientHeight + 1 : list.scrollWidth > strip.clientWidth + 1;
+}
+
 function updateArrows() {
+    updateOverflow();
     if (!scrollable.value) {
         canBack.value = canForward.value = false;
         return;
@@ -123,6 +142,7 @@ onMounted(() => {
             updateArrows();
         });
         observer.observe(rootRef.value);
+        if (stripRef.value) observer.observe(stripRef.value);
         // Tabs added or relabelled change how much there is to scroll.
         if (listRef.value) observer.observe(listRef.value);
     }
@@ -144,7 +164,7 @@ const indicatorStyle = computed(() => {
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('tablist', state))">
+    <div ref="stripRef" v-bind="mergeProps(rootAttrs, part('tablist', state))">
         <span v-if="buttons === 'start'" v-bind="part('navGroup', { orientation, end: 'start' })">
             <template v-for="dir in ([-1, 1] as const)" :key="dir">
                 <button

@@ -1,0 +1,19 @@
+{
+    "props": {
+        "penColor": "A cor da tinta; a do tema (a cor do texto) caso contrário.",
+        "penWidth": "A largura da tinta com pressão média, nas unidades do pad. O padrão é a do tema, 2.5.",
+        "thinning": "O quanto a pressão muda a largura, de 0 a 1: em 0.5 a linha vai de metade a uma vez e meia `penWidth`. A pressão é a da própria caneta ou, sem ela, calculada pela velocidade — mais devagar é mais largo. 0 desenha uma linha de largura única. O padrão é 0.5.",
+        "smoothing": "Quanto do tremor da mão é suavizado, de 0 a 1. Mais alto é mais suave, e fica um pouco mais atrás da mão. O padrão é 0.5.",
+        "taper": "Comprimento em que cada ponta do traço afina até virar um ponto, nas unidades do pad: um valor para as duas, ou `[início, fim]`. O padrão é 0.",
+        "pressure": "Usa a pressão da própria caneta quando ela informa uma; false calcula pela velocidade em qualquer dispositivo. O padrão é true.",
+        "minDistance": "Pontos mais perto do anterior que isto, nas unidades do pad, são ignorados. O padrão é 1.5.",
+        "height": "Qualquer medida CSS; a do tema (`10rem`) caso contrário.",
+        "readonly": "Mostra a assinatura e não aceita mais tinta.",
+        "placeholder": "As palavras acima da linha enquanto o pad está vazio; o “Assine aqui” do locale caso contrário. `false` para nenhuma.",
+        "showControls": "Os botões de desfazer e limpar no canto. O padrão é true."
+    },
+    "emits": {
+        "begin": "Um traço começou.",
+        "end": "Um traço terminou; o model tem a assinatura com ele."
+    }
+}

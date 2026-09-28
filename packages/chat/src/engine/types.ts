@@ -70,6 +70,8 @@ export interface ChatMessage {
      * token — a screen reader cannot follow a stream and should not try.
      */
     streaming?: boolean;
+    /** Read `content` as Markdown, or as plain text; the chat's `markdown` decides when unset. */
+    markdown?: boolean;
     /** What went wrong, shown in the message's place. */
     error?: string;
     /** The reader can ask for this one again. */
@@ -161,6 +163,12 @@ export interface ChatConfig {
      * words to show instead ("Searching the docs…").
      */
     typing?: boolean | string;
+    /**
+     * Read messages as Markdown: bold, italic, code, links, lists, quotes and
+     * headings. It is drawn as elements, never as HTML, and only web and mail
+     * links are followed. A message's own `markdown` wins.
+     */
+    markdown?: boolean;
     /** The composer is there but cannot be used. */
     disabled?: boolean;
     /** No composer at all: a transcript. */

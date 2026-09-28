@@ -670,3 +670,59 @@
     flex: none;
     color: var(--vt-text-muted-color);
 }
+
+/* ---- find and replace -------------------------------------------------
+   The bar sits under the toolbar, over the text. The matches are painted
+   with highlights, so nothing is added to the document to show them. */
+
+.vt-editor-find {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-editor-find-gap);
+    padding: var(--vt-editor-find-padding);
+    background: var(--vt-editor-toolbar-background);
+    border-bottom: 1px solid var(--vt-editor-toolbar-border-color);
+}
+
+.vt-editor-find-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vt-editor-find-gap);
+}
+
+/* The replace row lines its field up under the find field, past the toggle. */
+.vt-editor-find-row-replace {
+    padding-inline-start: calc(var(--vt-editor-button-size) + var(--vt-editor-find-gap));
+}
+
+.vt-editor-find-field {
+    flex: 0 1 var(--vt-editor-find-field-width);
+    min-width: 8rem;
+}
+
+.vt-editor-find-toggle {
+    font-family: var(--vt-editor-code-font-family, ui-monospace, monospace);
+    font-size: 0.75rem;
+}
+
+.vt-editor-find-count {
+    min-width: 5.5rem;
+    padding-inline: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--vt-editor-button-color);
+    white-space: nowrap;
+}
+
+.vt-editor-find-count-empty {
+    color: var(--vt-danger-color);
+}
+
+::highlight(vt-find) {
+    background-color: var(--vt-editor-find-match-background);
+}
+
+::highlight(vt-find-current) {
+    background-color: var(--vt-editor-find-current-background);
+    color: var(--vt-editor-find-current-color);
+}

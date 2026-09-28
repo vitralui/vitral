@@ -1,0 +1,17 @@
+{
+    "description": "Um QR code desenhado como um único path SVG, codificado no navegador sem serviço e sem dependência: nítido em qualquer tamanho, imprimível e nomeado para um leitor de tela.",
+    "sections": {
+        "Basic": {
+            "title": "Básico",
+            "description": "Digite e o código acompanha. Ele escolhe a menor versão que cabe o texto, e o modo mais denso — dígitos, maiúsculas ou bytes — que o texto permite."
+        },
+        "Size and colour": {
+            "title": "Tamanho e cor",
+            "description": "`size` é qualquer medida CSS. Mantenha `color` mais escuro que `background`: a maioria das câmeras de celular não lê um código claro sobre fundo escuro."
+        },
+        "A logo in the middle": {
+            "title": "Um logo no meio",
+            "description": "Com uma `image` o código é gerado no nível H, que aguenta perder 30% dele, então o logo não esconde nada que o leitor precise. `imageSize` é a largura dele em relação à do código."
+        }
+    }
+}

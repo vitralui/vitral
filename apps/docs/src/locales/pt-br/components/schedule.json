@@ -28,6 +28,10 @@
         "Export to a calendar": {
             "title": "Exportar para um calendário",
             "description": "`exportICS()` entrega ao leitor os eventos como um arquivo iCalendar que o Google Agenda, o Outlook e o Calendário da Apple importam: um evento recorrente mantém a sua regra e as suas exceções em vez de ser escrito dia a dia, e um evento de dia inteiro continua uma data. `toICalendar()` devolve o texto em vez disso."
+        },
+        "Filtered": {
+            "title": "Filtrado",
+            "description": "`filter` mostra só alguns eventos: palavras, procuradas no título, na descrição e no local sem ligar para maiúsculas e acentos (“reuniao” encontra Reunião), ou uma função que mantém um evento. Os eventos em si ficam intactos, então limpar o filtro traz todos de volta, e a exportação iCalendar continua com cada um."
         }
     }
 }

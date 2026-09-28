@@ -5,6 +5,7 @@ import {
     createEditor as createEditorInstance,
     createEditorView,
     editorLinkAt,
+    editorKeyName,
     editorLinkHint,
     editorPalette,
     editorShortcutFor,
@@ -15,6 +16,7 @@ import {
     followEditorLink,
     formatMessage,
     isEmptyEditorDoc,
+    isMacPlatform,
     loadStyle,
     matchEditorPaletteColor,
     visuallyHidden,
@@ -32,6 +34,7 @@ import { defaultBubbleMenu, defaultToolbar, editorIcons } from './buttons';
 import { createBlockHandle, defaultBlockActions } from './block';
 import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
 import { createChipMenu } from './chips';
+import { createFindBar } from './find';
 import { createSlashMenu, defaultSlashCommands } from './slash';
 import { bubbleView, toolbarView, type ToolbarContext } from './render/toolbar';
 import type { TextEditorConfig, TextEditorHandle, EditorToolbarItem } from './types';
@@ -108,6 +111,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         if (update.docChanged) {
             current.on?.change?.({ html: editor.getHTML(), json: editor.getJSON(), text: editor.getText() });
         }
+        if (update.docChanged) findBar.sync();
         if (update.selectionChanged) {
             current.on?.['selection-change']?.({ empty: collapsed(), source: update.origin === 'user' ? 'user' : update.origin === 'history' ? 'history' : 'api' });
         }
@@ -280,6 +284,30 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         zIndex: current.zIndex
     });
 
+    // ---- find and replace ---------------------------------------------------------------------
+
+    const findBar = createFindBar({
+        editor,
+        view: () => view,
+        part,
+        locale,
+        editable,
+        render: () => render(),
+        id: `${id}-find`
+    });
+
+    // Ctrl/⌘+F finds and Ctrl+H (⌘+⌥+F on a Mac, where ⌘+H hides the app)
+    // replaces, anywhere in the editor — the text, the toolbar or the bar.
+    const onFindKey = (event: KeyboardEvent) => {
+        if (current.find === false) return;
+        const name = editorKeyName(event);
+        const replace = name === (isMacPlatform() ? 'Mod-Alt-f' : 'Mod-h');
+        if (name !== 'Mod-f' && !replace) return;
+        event.preventDefault();
+        findBar.open({ replace });
+    };
+    element.addEventListener('keydown', onFindKey);
+
     // ---- where a popup hangs from ---------------------------------------------------------------
 
     /** The caret's own rectangle, as an element popups can be anchored to. */
@@ -331,6 +359,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                     if (event.detail > 0) focus();
                 },
                 openLink: (event) => openLinkPanel(event),
+                openFind: () => (findBar.isOpen ? findBar.close() : findBar.open()),
                 openImage: (event) => openPanel(imagePanel, 'image', event),
                 openTable: (event) => openPanel(tablePanel, 'table', event),
                 openColor: (kind, event) => {
@@ -437,6 +466,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         root.attrs(part('root', { readonly: current.readonly, disabled: current.disabled, invalid: current.invalid }));
         root.render([
             current.hooks?.toolbar ? (current.hooks.toolbar() as Child) : current.toolbar === false ? null : toolbarView(drawn, toolbarGroups()),
+            findBar.view(),
             contentView(),
             h('span', mergeAttrs({ key: 'caret', 'aria-hidden': 'true' }, part('caret'), { ref: (el: Element | null) => (caretEl = el as HTMLElement | null) })),
             h('span', { key: 'help', id: ids.help, style: visuallyHidden }, locale().editor.keyboardHelp),
@@ -507,9 +537,13 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         can,
         isActive: (name, attrs) => editor.isActive(name, attrs as never),
         focus,
+        openFind: (options) => findBar.open(options),
+        closeFind: () => findBar.close({ focusEditor: false }),
         refresh: render,
         destroy() {
             stop();
+            element.removeEventListener('keydown', onFindKey);
+            findBar.destroy();
             slashMenu.destroy();
             chipMenu.destroy();
             blockHandle.destroy();

@@ -13,6 +13,7 @@ import DemoSection from '../DemoSection.vue';
 import Agenda from './Schedule/Agenda.vue';
 import CustomToolbar from './Schedule/CustomToolbar.vue';
 import ExportIcs from './Schedule/ExportIcs.vue';
+import Filtered from './Schedule/Filtered.vue';
 import Month from './Schedule/Month.vue';
 import TimeZones from './Schedule/TimeZones.vue';
 import TimelineByResource from './Schedule/TimelineByResource.vue';
@@ -30,4 +31,5 @@ import Week from './Schedule/Week.vue';
     ><TimeZones /></DemoSection>
     <DemoSection title="Export to a calendar" description="`exportICS()` hands the reader the events as an iCalendar file that Google Calendar, Outlook and Apple Calendar import: a recurring event keeps its rule and its exceptions rather than being written out day by day, and an all-day one stays a date. `toICalendar()` returns the text instead."><ExportIcs /></DemoSection>
     <DemoSection title="Custom toolbar, content and revert" description="The toolbar and the event content are slots. Hours run 08:00–18:00 in 15-minute slots, and a move onto a weekend is reverted."><CustomToolbar /></DemoSection>
+    <DemoSection title="Filtered" description="`filter` shows only some events: words, looked for in the title, the description and the location with case and accents aside (“reuniao” finds Reunião), or a function that keeps an event. The events themselves are untouched, so clearing the filter brings them all back, and the iCalendar export still has every one."><Filtered /></DemoSection>
 </template>

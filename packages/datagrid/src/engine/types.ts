@@ -39,6 +39,8 @@ export interface DataGridColumn<T = Row> {
     filterMatchMode?: string;
     /** A column of selection controls: checkboxes with a select-all (`multiple`) or radios (`single`). */
     selectionMode?: 'single' | 'multiple';
+    /** A column of buttons that open each row's detail, drawn by `content.rowExpansion`. */
+    expander?: boolean;
     align?: 'left' | 'center' | 'right';
     hidden?: boolean;
     /** This column can be resized; every column can when the table says so. */
@@ -93,13 +95,15 @@ export interface RowsPerPageContext extends PageContext {
  * component passes its slots through here; a page with no framework hands in
  * nodes it made, or nothing, and the table draws its own.
  */
-export interface DataGridContent {
+export interface DataGridContent<T = Row> {
     /** The bar above the table, beside the column list. */
     header?: () => Content;
     /** The bar below it. */
     footer?: () => Content;
     /** What an empty table says, instead of the message. */
     empty?: () => Content;
+    /** A row's detail, drawn across the table under the row once its expander opens it. */
+    rowExpansion?: (context: { row: T; index: number }) => Content;
     loadingIcon?: () => Content;
     /** Drawn instead of the built-in paginator, where that one would be. */
     paginator?: (context: PageContext) => Content;
@@ -160,6 +164,8 @@ export interface DataGridModels {
     columnLayout: ColumnLayout;
     /** The keys of the groups the reader has shut, when the grid is grouped. */
     collapsedGroups: string[];
+    /** The keys (by `dataKey`) of the rows whose detail is open. */
+    expandedRows: (string | number)[];
 }
 
 export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
@@ -247,7 +253,7 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /** Prefix of the ids the table gives its elements; generated when unset. */
     id?: string;
     /** What the host draws itself. */
-    content?: DataGridContent;
+    content?: DataGridContent<T>;
     /** For a Content-Security-Policy: the nonce of the injected stylesheet. */
     nonce?: string;
     /** A CSS cascade layer to put the stylesheet in. */

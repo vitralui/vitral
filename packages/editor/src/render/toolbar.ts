@@ -1,4 +1,4 @@
-import { formatEditorShortcut, type EditorColor, type Locale } from '@vitral/core';
+import { ariaEditorShortcut, formatEditorShortcut, type EditorColor, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
 import { editorButtons, shortcutCommands } from '../buttons';
@@ -31,6 +31,8 @@ export interface ToolbarActions {
     tip: (element: Element | null, text: string) => void;
     command: (name: string, args: readonly unknown[], event: MouseEvent) => void;
     openLink: (event: MouseEvent) => void;
+    /** Opens or shuts the find bar. */
+    openFind: () => void;
     openImage: (event: MouseEvent) => void;
     openTable: (event: MouseEvent) => void;
     openColor: (kind: 'color' | 'highlight', event: MouseEvent) => void;
@@ -94,6 +96,21 @@ function openerView(context: ToolbarContext, item: 'image' | 'table'): Child {
     );
 }
 
+/** The button that opens the find bar. */
+function findView(context: ToolbarContext): Child {
+    const name = context.locale.editor.find;
+    return h(
+        'button',
+        mergeAttrs({ key: 'find', type: 'button' }, context.part('button'), {
+            'aria-label': name,
+            'aria-keyshortcuts': ariaEditorShortcut('Mod-f'),
+            ref: (element: Element | null) => context.on.tip(element, `${name} (${formatEditorShortcut('Mod-f')})`),
+            onClick: () => context.on.openFind()
+        }),
+        iconView('search', context.part('buttonIcon'))
+    );
+}
+
 /** The text and highlight pickers: a button showing the colour in hand. */
 function colorView(context: ToolbarContext, kind: 'color' | 'highlight'): Child {
     const { part, locale } = context;
@@ -137,7 +154,9 @@ export function toolbarView(context: ToolbarContext, groups: EditorToolbarItem[]
                           ? colorView(context, item)
                           : item === 'image' || item === 'table'
                             ? openerView(context, item)
-                            : buttonView(context, item as EditorButtonCommand)
+                            : item === 'find'
+                              ? findView(context)
+                              : buttonView(context, item as EditorButtonCommand)
                 )
             )
         )

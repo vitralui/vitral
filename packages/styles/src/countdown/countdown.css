@@ -1,0 +1,40 @@
+.vt-countdown {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--vt-countdown-gap);
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-countdown-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: var(--vt-countdown-tile-min-width);
+    padding: var(--vt-countdown-tile-padding);
+    background: var(--vt-countdown-tile-background);
+    border-radius: var(--vt-countdown-tile-border-radius);
+}
+
+.vt-countdown-value {
+    font-size: var(--vt-countdown-value-font-size);
+    font-weight: var(--vt-countdown-value-font-weight);
+    line-height: 1.1;
+    color: var(--vt-countdown-value-color);
+}
+
+.vt-countdown-label {
+    font-size: var(--vt-countdown-label-font-size);
+    color: var(--vt-countdown-label-color);
+    text-transform: lowercase;
+}
+
+.vt-countdown-separator {
+    align-self: center;
+    color: var(--vt-countdown-separator-color);
+}
+
+/* As words: `2 days 3 hours 4 minutes`, in the line it sits in. */
+.vt-countdown-text {
+    display: inline;
+}

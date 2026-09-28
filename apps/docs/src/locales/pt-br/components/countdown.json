@@ -1,0 +1,17 @@
+{
+    "description": "O tempo que falta até um momento, em blocos ou em palavras, no idioma do leitor e anunciado a um leitor de tela sem uma palavra a cada segundo.",
+    "sections": {
+        "Basic": {
+            "title": "Básico",
+            "description": "`to` é uma Date, uma string ISO ou um timestamp. Os nomes das unidades vêm do navegador, no idioma do locale, e uma unidade inicial zerada é omitida."
+        },
+        "Words, units and a pause": {
+            "title": "Palavras, unidades e pausa",
+            "description": "`variant=\"text\"` escreve como uma linha. `units` escolhe em que contar — aqui só minutos e segundos, então uma hora e meia vira 90 minutos. `paused` para o relógio onde está, e `end` dispara quando chega lá."
+        },
+        "Drawn your own way": {
+            "title": "Desenhado do seu jeito",
+            "description": "O slot padrão recebe o que falta e se acabou, e desenha o resto sozinho."
+        }
+    }
+}

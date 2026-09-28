@@ -191,3 +191,35 @@ describe('createChat', () => {
         expect(el.innerHTML).toBe('');
     });
 });
+
+describe('a chat read as Markdown', () => {
+    const md = '**Tokens** first:\n\n1. Pick a preset\n2. Run `vt gen`\n\n[docs](https://vitral.dev) [bad](javascript:alert(1)) <img src=x onerror=alert(1)>';
+
+    it('draws the Markdown as elements, never as HTML', async () => {
+        const { el } = mount({ markdown: true, messages: [{ id: 1, role: 'assistant', content: md }] });
+        await settle();
+        const bubble = el.querySelector('.vt-chat-bubble')!;
+        expect(bubble.classList).toContain('vt-chat-markdown');
+        expect(bubble.querySelector('strong')!.textContent).toBe('Tokens');
+        expect([...bubble.querySelectorAll('ol li')].map((li) => li.textContent)).toEqual(['Pick a preset', 'Run vt gen']);
+        expect(bubble.querySelector('code')!.textContent).toBe('vt gen');
+        expect([...bubble.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual(['https://vitral.dev']);
+        expect(bubble.querySelector('img')).toBeNull();
+        expect(bubble.textContent).toContain('<img src=x');
+        await expectNoA11yViolations(el);
+    });
+
+    it('keeps plain text unless asked, and a message can say otherwise', async () => {
+        const { el } = mount({ messages: [{ id: 1, role: 'assistant', content: md }, { id: 2, role: 'assistant', content: '**yes**', markdown: true }] });
+        await settle();
+        const [plain, marked] = [...el.querySelectorAll('.vt-chat-bubble')];
+        expect(plain!.querySelector('strong')).toBeNull();
+        expect(marked!.querySelector('strong')!.textContent).toBe('yes');
+    });
+
+    it('keeps the caret after the last word while streaming', async () => {
+        const { el } = mount({ markdown: true, messages: [{ id: 1, role: 'assistant', content: '- one\n- two', streaming: true }] });
+        await settle();
+        expect(el.querySelector('li:last-child .vt-chat-caret')).not.toBeNull();
+    });
+});

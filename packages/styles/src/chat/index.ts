@@ -30,6 +30,8 @@ export const chatStyle = defineStyle({
             { 'vt-chat-message-error': s.error, 'vt-chat-message-streaming': s.streaming }
         ],
         bubble: 'vt-chat-bubble',
+        /** Added to a bubble whose message is read as Markdown. */
+        markdown: 'vt-chat-markdown',
         caret: 'vt-chat-caret',
         meta: 'vt-chat-meta',
         time: 'vt-chat-time',

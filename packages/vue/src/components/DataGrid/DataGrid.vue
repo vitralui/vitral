@@ -62,6 +62,7 @@ const selection = defineModel<unknown>('selection');
 // order, the widths, what is hidden and what is pinned.
 const columnLayout = defineModel<ColumnLayoutLike | null>('columnLayout');
 const collapsedGroups = defineModel<string[] | null>('collapsedGroups');
+const expandedRows = defineModel<(string | number)[] | null>('expandedRows');
 const emit = defineEmits<DataGridEmits>();
 const slots = defineSlots<DataGridSlots>();
 
@@ -134,7 +135,8 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         minWidth: size(p.minWidth),
         width: size(p.width),
         pinned: p.pinned as 'left' | 'right' | undefined,
-        toggleable: p.toggleable === undefined ? !p.selectionMode : truthy(p.toggleable),
+        toggleable: p.toggleable === undefined ? !p.selectionMode && !p.expander : truthy(p.toggleable),
+        expander: truthy(p.expander),
         exportable: p.exportable === undefined ? undefined : truthy(p.exportable),
         exportValue: p.exportValue as DataGridColumn['exportValue'],
         exportHeader: p.exportHeader as string | undefined,
@@ -228,6 +230,10 @@ const slotContent = (): DataGridConfig['content'] => ({
             .filter(([, draw]) => !!draw)
             .map(([key, draw]) => [key, (state: PageContext) => node(String(key), () => (draw as (data?: unknown) => unknown)(state))])
     ),
+    // A row's detail, from the `expansion` slot, drawn under the row that opened it.
+    ...(slots.expansion
+        ? { rowExpansion: ({ row, index }: { row: unknown; index: number }) => node(`expansion:${index}:${String(props.dataKey ? (row as Record<string, unknown>)[props.dataKey] : index)}`, () => slots.expansion!({ data: row, index })) }
+        : {}),
     // The page size is Vitral's own select here: the table draws a native one
     // for a page with no framework, and this is the framework.
     rowsPerPage: (state: RowsPerPageContext) =>
@@ -289,7 +295,8 @@ const models = (): Partial<DataGridModels> => ({
     filters: (filters.value ?? {}) as DataGridModels['filters'],
     selection: selection.value,
     columnLayout: (columnLayout.value ?? {}) as DataGridModels['columnLayout'],
-    collapsedGroups: collapsedGroups.value ?? []
+    collapsedGroups: collapsedGroups.value ?? [],
+    expandedRows: expandedRows.value ?? []
 });
 
 const inputs = (): DataGridConfig => ({
@@ -354,6 +361,7 @@ function published(state: DataGridModels) {
     selection.value = state.selection;
     columnLayout.value = state.columnLayout as ColumnLayoutLike;
     collapsedGroups.value = state.collapsedGroups;
+    expandedRows.value = state.expandedRows;
     writing = false;
 }
 
@@ -434,7 +442,7 @@ watch(
 
 // The models: what the application changed, which is not what the table just published.
 watch(
-    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, filters.value, selection.value, columnLayout.value, collapsedGroups.value],
+    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, filters.value, selection.value, columnLayout.value, collapsedGroups.value, expandedRows.value],
     () => {
         if (writing || !table) return;
         const state = table.state();
@@ -448,6 +456,7 @@ watch(
         if (selection.value !== state.selection) next.selection = selection.value;
         if (columnLayout.value && columnLayout.value !== state.columnLayout) next.columnLayout = columnLayout.value as DataGridModels['columnLayout'];
         if (collapsedGroups.value && collapsedGroups.value !== state.collapsedGroups) next.collapsedGroups = collapsedGroups.value;
+        if (expandedRows.value && expandedRows.value !== state.expandedRows) next.expandedRows = expandedRows.value;
         if (Object.keys(next).length) push(next);
     },
     { deep: true }

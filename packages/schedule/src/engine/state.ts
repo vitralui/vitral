@@ -10,6 +10,7 @@ import {
     isBusinessTime,
     isValidTimeZone,
     isSameDay,
+    normalizeText,
     minutesOfDay,
     parseTime,
     snapMinutes,
@@ -109,7 +110,16 @@ export interface Override {
     resourceId?: string | number | null;
 }
 
-/** Everything on in the period, with whatever the reader has moved since. */
+/** Whether an event passes the schedule's filter. */
+export function matchesScheduleFilter(event: ScheduleEvent, filter: ScheduleConfig['filter'], locale?: string): boolean {
+    if (!filter) return true;
+    if (typeof filter === 'function') return filter(event);
+    const words = normalizeText(filter, locale).split(/\s+/).filter(Boolean);
+    if (!words.length) return true;
+    const text = normalizeText([event.title, event.description, event.location].filter((v) => typeof v === 'string').join(' '), locale);
+    return words.every((word) => text.includes(word));
+}
+
 /**
  * The occurrences in the range, in the zone the calendar is drawn in.
  *
@@ -123,7 +133,8 @@ export function occurrencesOf(config: ScheduleConfig, range: { start: Date; end:
     const zone = settings.timeZone;
     const from = fromZone(range.start, zone);
     const to = fromZone(range.end, zone);
-    return expandEvents(config.events ?? [], from, to, settings.defaultDuration).map((occurrence) => {
+    const events = config.filter ? (config.events ?? []).filter((event) => matchesScheduleFilter(event, config.filter, config.locale?.code)) : (config.events ?? []);
+    return expandEvents(events, from, to, settings.defaultDuration).map((occurrence) => {
         const override = overrides.get(occurrence.key);
         const shown = override ? { ...occurrence, ...override } : occurrence;
         if (!zone || shown.allDay) return shown;

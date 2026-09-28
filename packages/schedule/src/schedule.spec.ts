@@ -406,3 +406,16 @@ describe('what it says to a reader who cannot see it', () => {
         });
     });
 });
+
+describe('a filtered schedule', () => {
+    it('draws only the events that match the words, accents and case aside', () => {
+        const { titles } = mount({ filter: 'REVIE', events: [...events, { id: 5, title: 'Revisão', start: new Date(2026, 2, 9, 11, 0), description: 'review do trimestre' }] });
+        expect(titles().sort()).toEqual(['Review', 'Revisão']);
+        handle!.update({ filter: 'revisao' });
+        expect(titles()).toEqual(['Revisão']);
+        handle!.update({ filter: (event: ScheduleEvent) => !!event.allDay });
+        expect(titles()).toEqual(['Offsite']);
+        handle!.update({ filter: '' });
+        expect(titles()).toHaveLength(5);
+    });
+});

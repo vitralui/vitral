@@ -1,0 +1,10 @@
+{
+    "props": {
+        "columns": "Um número fixo de colunas; caso contrário, quantas couberem em `minColumnWidth`.",
+        "minColumnWidth": "Qualquer medida CSS; a do tema (`15rem`) caso contrário.",
+        "gap": "Qualquer medida CSS; a do tema (`1rem`) caso contrário."
+    },
+    "slots": {
+        "default": "Os itens, um elemento cada, na ordem de leitura."
+    }
+}

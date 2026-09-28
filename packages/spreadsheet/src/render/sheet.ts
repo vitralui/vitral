@@ -1,6 +1,7 @@
 import type { Locale } from '@vitral/core';
 import { h, mergeAttrs, type Child, type Props } from '@vitral/dom';
-import { columnLabel, formatRange, formatRef, normalizeRange } from '../engine/a1';
+import { columnLabel, formatRange, formatRef, keyOf, normalizeRange } from '../engine/a1';
+import { conditionalLooks } from '../engine/conditional';
 import { formulaReferences } from '../engine/references';
 import type { Metrics, Selection, Window } from '../engine/state';
 import type { Sheet } from '../engine/sheet';
@@ -255,27 +256,42 @@ function resizerView(context: ViewContext, axis: 'column' | 'row', index: number
 function cellsView(context: ViewContext): Child {
     const { sheet, metrics, window, part, on, ids, selection, range, fill, editing } = context;
     const lines: Child[] = [];
+    const rules = context.config.conditionalFormats;
+    const looks = rules?.length ? conditionalLooks(rules, (address) => sheet.value(address)) : null;
     for (let row = window.firstRow; row <= window.lastRow; row++) {
         const cells: Child[] = [];
         for (let col = window.firstColumn; col <= window.lastColumn; col++) {
             const address = { row, col };
             const value = sheet.value(address);
             const format = sheet.format(address);
+            const look = looks?.get(keyOf(address));
+            const text = editing && editing.address.row === row && editing.address.col === col ? '' : sheet.display(address);
             const selected = row >= range.from.row && row <= range.to.row && col >= range.from.col && col <= range.to.col;
             cells.push(
                 h(
                     'div',
-                    mergeAttrs({ key: `c${col}` }, part('cell', { kind: kindOf(value), align: format?.align, bold: format?.bold, italic: format?.italic }), {
+                    mergeAttrs({ key: `c${col}` }, part('cell', { kind: kindOf(value), align: format?.align, bold: format?.bold ?? look?.bold, italic: format?.italic ?? look?.italic, tone: look?.tone }), {
                         role: 'gridcell',
                         id: cellId(ids, address),
                         'aria-colindex': col + 1,
                         'aria-selected': selected ? 'true' : 'false',
                         'aria-readonly': context.config.readonly ? 'true' : undefined,
-                        style: { left: px(metrics.columns.offset(col)), width: px(metrics.columns.size(col)) },
+                        style: {
+                            left: px(metrics.columns.offset(col)),
+                            width: px(metrics.columns.size(col)),
+                            background: look?.background,
+                            color: look?.color
+                        },
                         onPointerdown: (event: PointerEvent) => on.cellDown(address, event),
                         onDblclick: () => on.cellDouble(address)
                     }),
-                    editing && editing.address.row === row && editing.address.col === col ? '' : sheet.display(address)
+                    // A data bar sits behind the words, so they are put in a box above it.
+                    ...(look?.bar !== undefined
+                        ? [
+                              h('span', mergeAttrs({ key: 'bar', 'aria-hidden': 'true' }, part('dataBar'), { style: { width: `${look.bar * 100}%`, background: look.barColor } })),
+                              h('span', mergeAttrs({ key: 'text' }, part('cellText')), text)
+                          ]
+                        : [text])
                 )
             );
         }

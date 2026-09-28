@@ -1,0 +1,13 @@
+{
+    "props": {
+        "items": "O sumário, quando você o tem; caso contrário é lido de `source`.",
+        "source": "Onde ler os títulos: um seletor ou um elemento. O padrão é o documento.",
+        "selector": "Quais títulos ler, por seletor. O padrão é `'h2, h3'`.",
+        "offset": "Pixels do topo da vista onde um título conta como alcançado: a altura de um cabeçalho fixo. O padrão é 80.",
+        "title": "Um título sobre a lista; o “Nesta página” do locale caso contrário. `false` para nenhum.",
+        "smooth": "Rola até um título suavemente quando seu link é seguido. O padrão é true."
+    },
+    "emits": {
+        "navigate": "Um link foi seguido."
+    }
+}

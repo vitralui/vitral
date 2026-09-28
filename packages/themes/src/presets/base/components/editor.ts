@@ -48,6 +48,16 @@ export default {
         activeBackground: '{highlight.background}',
         disabledOpacity: '{disabledOpacity}'
     },
+    // The find bar: every match washed in yellow, the one in hand in orange,
+    // the way a browser's own find shows them.
+    find: {
+        padding: '0.375rem',
+        gap: '0.25rem',
+        fieldWidth: '14rem',
+        matchBackground: 'color-mix(in srgb, {yellow.300} 55%, transparent)',
+        currentBackground: '{orange.300}',
+        currentColor: '{surface.950}'
+    },
     // The handle beside a block sits in a gutter down the leading edge: the
     // gutter is as wide as the handle plus the padding the text would have had.
     blockHandle: {

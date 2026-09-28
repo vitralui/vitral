@@ -164,6 +164,7 @@ const inputs = (): ChatConfig => ({
     suggestions: toRaw(props.suggestions),
     emptyMessage: props.emptyMessage,
     typing: props.typing,
+    markdown: props.markdown,
     disabled: props.disabled,
     readonly: props.readonly,
     allowAttachments: props.allowAttachments,
@@ -221,7 +222,7 @@ watch(
     { deep: true }
 );
 watch(
-    () => [draft.value, open.value, props.variant, props.typing, props.disabled, props.readonly, props.allowAttachments, props.accept, props.maxRows, props.sendOnEnter, props.height, props.placeholder, props.emptyMessage],
+    () => [draft.value, open.value, props.variant, props.typing, props.markdown, props.disabled, props.readonly, props.allowAttachments, props.accept, props.maxRows, props.sendOnEnter, props.height, props.placeholder, props.emptyMessage],
     () => push(inputs())
 );
 watch(

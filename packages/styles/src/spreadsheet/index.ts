@@ -7,6 +7,8 @@ export interface SpreadsheetCellState {
     align?: 'left' | 'center' | 'right';
     bold?: boolean;
     italic?: boolean;
+    /** A conditional rule's tone. */
+    tone?: string;
 }
 
 /** How many colours the outlines cycle through before starting again. */
@@ -59,8 +61,12 @@ export const spreadsheetStyle = defineStyle({
                 'vt-spreadsheet-cell-error': s.kind === 'error',
                 'vt-spreadsheet-cell-bold': s.bold,
                 'vt-spreadsheet-cell-italic': s.italic
-            }
+            },
+            s.tone && `vt-spreadsheet-cell-${s.tone}`
         ],
+        /** A data bar, behind the words of a cell a rule measures. */
+        dataBar: 'vt-spreadsheet-data-bar',
+        cellText: 'vt-spreadsheet-cell-text',
         /** One per rectangle a formula being typed mentions, coloured in the order they were written. */
         reference: (s: { index?: number }) => ['vt-spreadsheet-reference', `vt-spreadsheet-reference-${((s.index ?? 0) % REFERENCE_COLOURS) + 1}`],
         range: 'vt-spreadsheet-range',

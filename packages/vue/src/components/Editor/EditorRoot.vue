@@ -3,9 +3,11 @@ import {
     ariaEditorShortcut,
     createEditor,
     editorPalette,
+    editorKeyName,
     editorShortcutFor,
     endOfEditorDoc,
     formatEditorShortcut,
+    isMacPlatform,
     type EditorCommandArgs,
     type EditorCommandName,
     type EditorContent,
@@ -13,7 +15,7 @@ import {
     type EditorNode,
     type EditorView
 } from '@vitral/core';
-import { createBlockHandle, createChipMenu, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type ChipMenu, type SlashMenu } from '@vitral/editor';
+import { createBlockHandle, createChipMenu, createFindBar, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type ChipMenu, type SlashMenu } from '@vitral/editor';
 import { editorStyle } from '@vitral/styles';
 import { computed, getCurrentInstance, mergeProps, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
@@ -38,7 +40,8 @@ const props = withDefaults(defineProps<EditorRootProps>(), {
     // A boolean prop that is not given arrives as `false`, and both of these
     // are on unless they are turned off.
     slashMenu: true,
-    blockMenu: true
+    blockMenu: true,
+    find: true
 });
 const model = defineModel<string | null>();
 const json = defineModel<EditorJSON | null>('json');
@@ -76,6 +79,27 @@ let openLinkPanel: ((anchor: HTMLElement | null) => void) | null = null;
 
 const editable = computed(() => !props.readonly && !props.disabled);
 
+// Find and replace: the framework-free bar, drawn by an <EditorFind> part.
+let findRender: (() => void) | null = null;
+const findBar = createFindBar({
+    editor,
+    view: () => view.value,
+    part,
+    locale: () => locale.value,
+    editable: () => editable.value,
+    render: () => findRender?.(),
+    id: `${uid}-find`
+});
+
+function onFindKey(event: KeyboardEvent) {
+    if (!findRender || props.find === false) return;
+    const name = editorKeyName(event);
+    const replace = name === (isMacPlatform() ? 'Mod-Alt-f' : 'Mod-h');
+    if (name !== 'Mod-f' && !replace) return;
+    event.preventDefault();
+    findBar.open({ replace });
+}
+
 function emitContent(source: 'user' | 'api' | 'history') {
     const html = editor.getHTML();
     lastHTML = html;
@@ -92,6 +116,7 @@ const stop = editor.subscribe((update) => {
     state.value = update.state;
     if (update.selectionChanged) bubbleDismissed.value = false;
     if (update.docChanged && !syncing) emitContent(update.origin);
+    if (update.docChanged) findBar.sync();
     if (update.selectionChanged) {
         const selection: EditorSelectionChangeEvent['selection'] = update.state.selection;
         const { anchor, head } = selection;
@@ -257,6 +282,11 @@ const ctx: EditorContext = {
     },
     registerLinkPanel(open) {
         openLinkPanel = open;
+    },
+    find: findBar,
+    registerFind(render) {
+        findRender = render;
+        if (!render) findBar.close({ focusEditor: false });
     }
 };
 
@@ -352,6 +382,7 @@ onBeforeUnmount(() => {
     slash?.destroy();
     chipMenu?.destroy();
     blockHandle?.destroy();
+    findBar.destroy();
     document.removeEventListener('pointerup', onDocumentPointerUp);
     document.removeEventListener('mouseup', onDocumentPointerUp);
 });
@@ -371,12 +402,15 @@ defineExpose({
     },
     can: ctx.can,
     isActive: ctx.isActive,
-    run
+    run,
+    /** Opens the find bar, with the replace row and a query when given. */
+    openFind: (options?: { replace?: boolean; query?: string }) => findBar.open(options),
+    closeFind: () => findBar.close({ focusEditor: false })
 });
 </script>
 
 <template>
-    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', rootState))" @mousedown="onRootMousedown">
+    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', rootState))" @mousedown="onRootMousedown" @keydown="onFindKey">
         <slot />
         <span :id="ids.help" v-bind="part('instructions')">{{ locale.editor.keyboardHelp }}</span>
         <div ref="caretRef" aria-hidden="true" v-bind="part('caret')" />

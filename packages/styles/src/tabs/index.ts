@@ -4,6 +4,8 @@ import css from './tabs.css?raw';
 export interface TabsState {
     orientation?: 'horizontal' | 'vertical';
     scrollable?: boolean;
+    /** The tabs are longer than the strip, so the scroll buttons show. */
+    overflowing?: boolean;
 }
 
 export interface TabsIndicatorState extends TabsState {
@@ -24,7 +26,7 @@ export const tabsStyle = defineStyle({
     css,
     classes: {
         root: (s: TabsState) => ['vt-tabs', { 'vt-tabs-vertical': s.orientation === 'vertical' }],
-        tablist: (s: TabsState) => ['vt-tabs-tablist', { 'vt-tabs-tablist-vertical': s.orientation === 'vertical', 'vt-tabs-tablist-scrollable': s.scrollable }],
+        tablist: (s: TabsState) => ['vt-tabs-tablist', { 'vt-tabs-tablist-vertical': s.orientation === 'vertical', 'vt-tabs-tablist-scrollable': s.scrollable, 'vt-tabs-tablist-overflowing': s.overflowing }],
         /** The strip itself, inside the tablist's border: it holds the tabs and the indicator, and scrolls. */
         content: (s: TabsState) => ['vt-tabs-content', { 'vt-tabs-content-vertical': s.orientation === 'vertical', 'vt-tabs-content-scrollable': s.scrollable }],
         list: (s: TabsState) => ['vt-tabs-list', { 'vt-tabs-list-vertical': s.orientation === 'vertical' }],

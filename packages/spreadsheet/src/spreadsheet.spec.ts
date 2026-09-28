@@ -540,3 +540,29 @@ describe('its toolbar', () => {
         await expectNoA11yViolations(document.body);
     });
 });
+
+describe('conditional formatting on the grid', () => {
+    it('draws a tone, a colour and a data bar from the rules', async () => {
+        const element = document.createElement('div');
+        document.body.appendChild(element);
+        const handle = createSpreadsheet(element, {
+            cells: { A1: 5, A2: 50, B1: 10, B2: 40 },
+            rows: 4,
+            columns: 3,
+            conditionalFormats: [
+                { range: 'A1:A2', when: { op: '>', value: 10 }, style: { tone: 'warn' } },
+                { type: 'dataBar', range: 'B1:B2', color: 'teal' }
+            ]
+        });
+        await new Promise((r) => setTimeout(r, 0));
+        const grid = element.querySelector<HTMLElement>('[role="grid"]')!;
+        const cell = (a: string) => element.querySelector<HTMLElement>(`#${grid.id}-${Number(a.slice(1)) - 1}-${a.charCodeAt(0) - 65}`)!;
+        expect(cell('A2').classList).toContain('vt-spreadsheet-cell-warn');
+        expect(cell('A1').classList).not.toContain('vt-spreadsheet-cell-warn');
+        const bar = cell('B1').querySelector<HTMLElement>('.vt-spreadsheet-data-bar')!;
+        expect(bar.style.width).toBe('25%');
+        expect(bar.style.background).toContain('teal');
+        expect(cell('B1').textContent).toBe('10');
+        handle.destroy();
+    });
+});

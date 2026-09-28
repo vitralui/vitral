@@ -20,6 +20,10 @@
         "A figure per column": {
             "title": "Um número por coluna",
             "description": "`summary` soma um campo dos cartões de cada coluna — os story points aqui — e o mostra ao lado da contagem, como faz ao lado da de cada raia. `type` o torna uma média, um mínimo ou um máximo, e `format` o escreve. Mova um cartão e os números acompanham."
+        },
+        "Filtered": {
+            "title": "Filtrado",
+            "description": "`filter` mostra só alguns cartões: palavras, procuradas no texto e nos números de cada cartão sem ligar para maiúsculas e acentos (“revisao” encontra Revisão), ou uma função que mantém um cartão. As contagens são dos cartões mostrados. Enquanto um filtro esconde alguns cartões eles não podem ser arrastados — soltar entre dois cartões visíveis não diria nada sobre onde fica entre os escondidos — e pegar um avisa isso."
         }
     }
 }

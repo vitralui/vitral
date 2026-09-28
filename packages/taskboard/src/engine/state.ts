@@ -3,6 +3,7 @@ import {
     columnCount,
     formatMessage,
     getField,
+    normalizeText,
     positionOf,
     wipAllows,
     wipState,
@@ -98,6 +99,28 @@ export function entriesOf(config: TaskboardConfig, settings: BoardSettings, lane
         return (config.columns ?? []).flatMap((column) => (column.items ?? []).map((item) => ({ item, column: column.key as BoardKey, lane: laneOf(item, config, lanes) })));
     }
     return (config.items ?? []).map((item) => ({ item, column: getField(item, settings.columnField) as BoardKey, lane: laneOf(item, config, lanes) }));
+}
+
+/** Whether a filter is on: words that are not blank, or a function. */
+export const isFiltering = (filter: TaskboardConfig['filter']): boolean => typeof filter === 'function' || (typeof filter === 'string' && filter.trim() !== '');
+
+/**
+ * Whether a card passes the board's filter. Words are looked for in the
+ * card's own text and numbers — every word somewhere, case and accents aside.
+ */
+export function matchesTaskboardFilter(item: unknown, filter: TaskboardConfig['filter'], locale?: string): boolean {
+    if (!isFiltering(filter)) return true;
+    if (typeof filter === 'function') return filter(item);
+    const words = normalizeText(filter, locale).split(/\s+/).filter(Boolean);
+    const values = item !== null && typeof item === 'object' ? Object.values(item as Record<string, unknown>) : [item];
+    const text = normalizeText(
+        values
+            .flat()
+            .filter((v) => typeof v === 'string' || typeof v === 'number')
+            .join(' '),
+        locale
+    );
+    return words.every((word) => text.includes(word));
 }
 
 /** A card moved to another cell takes that cell's column and lane with it. */

@@ -1,0 +1,36 @@
+/* Until the items are measured — the server's render, the first frame — they
+   sit in CSS columns, which look nearly the same; then each is placed. */
+.vt-masonry {
+    position: relative;
+    /* Placed items are out of the flow and give the box no width of their
+       own, so in a flex row it would shrink to nothing: it takes the row. */
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    columns: var(--vt-masonry-min-column-width);
+    column-gap: var(--vt-masonry-gap);
+}
+
+.vt-masonry > * {
+    break-inside: avoid;
+    margin-bottom: var(--vt-masonry-gap);
+}
+
+.vt-masonry-laid {
+    columns: auto;
+}
+
+.vt-masonry-laid > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    margin: 0;
+    transition: translate var(--vt-masonry-transition-duration) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-masonry-laid > * {
+        transition: none;
+    }
+}

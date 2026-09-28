@@ -1,0 +1,12 @@
+{
+    "props": {
+        "value": "O que o código diz: um link, uma configuração de Wi-Fi, qualquer texto.",
+        "ecc": "Quanto do código pode se perder e ainda ser lido: `L` 7%, `M` 15%, `Q` 25%, `H` 30%. O padrão é `M`, e `H` com uma `image` por cima.",
+        "margin": "Quadrados claros em volta do código, que o leitor precisa para achá-lo. O padrão é 4.",
+        "size": "Qualquer medida CSS; a do tema (`10rem`) caso contrário.",
+        "color": "A cor dos quadrados escuros. Mantenha mais escura que `background`, ou celulares não vão ler.",
+        "image": "Um logo no meio.",
+        "imageSize": "A largura do logo, como fração da do código. O padrão é 0.22.",
+        "label": "Nomeia o código para um leitor de tela; caso contrário, o valor que ele guarda."
+    }
+}

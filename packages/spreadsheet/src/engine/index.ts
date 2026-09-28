@@ -6,6 +6,7 @@
 export * from './types';
 export { columnIndex, columnLabel, cellKey, fromKey, formatRange, formatRef, keyOf, normalizeRange, offsetRef, parseRange, parseRef, rangeArea, rangeCells, rangeColumns, rangeContains, rangeRows, sameAddress, singleRange } from './a1';
 export { compare, dateFromSerial, flatten, numberFromText, numbers, serialFromDate, serialFromParts, toBoolean, toNumber, toText } from './coerce';
+export { conditionalLooks, testCondition, type ColorScaleRule, type ConditionalLook, type ConditionalRule, type ConditionOperator, type ConditionStyle, type ConditionTest, type ConditionTone, type DataBarRule, type HighlightRule } from './conditional';
 export { createDependencies, referencesOf, type Dependencies } from './deps';
 export { evaluate, type EvalContext } from './evaluate';
 export { functions, type FunctionContext, type SheetFunction, type Thunk } from './functions';

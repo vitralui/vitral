@@ -26,6 +26,7 @@
         "column-pin": "Uma coluna foi fixada numa borda, ou solta."
     },
     "slots": {
-        "default": "Os `<Column>`s."
+        "default": "Os `<Column>`s.",
+        "expansion": "O detalhe de uma linha expandida, numa linha inteira abaixo dela. Recebe `data` e `index`; uma coluna com `expander` mostra o botão que abre e fecha."
     }
 }

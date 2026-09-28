@@ -1,0 +1,15 @@
+{
+    "props": {
+        "to": "O momento até o qual contar: uma Date, uma string ISO ou um timestamp.",
+        "units": "As unidades a mostrar, da maior para a menor. O padrão é dias, horas, minutos e segundos.",
+        "variant": "Blocos, ou uma linha de palavras. O padrão é `'tiles'`.",
+        "hideLeadingZeros": "Omite as unidades iniciais que estão em zero: nada de “0 dias” um dia antes. O padrão é true.",
+        "paused": "Para o relógio onde está."
+    },
+    "emits": {
+        "end": "O momento chegou."
+    },
+    "slots": {
+        "default": "Substitui o desenho todo: recebe o que falta."
+    }
+}

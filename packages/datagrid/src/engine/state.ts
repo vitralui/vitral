@@ -52,7 +52,8 @@ export const defaultModels = (): DataGridModels => ({
     filters: {},
     selection: null,
     columnLayout: {},
-    collapsedGroups: []
+    collapsedGroups: [],
+    expandedRows: []
 });
 
 /** The columns as declared, before the reader's layout: hidden ones are already out. */
@@ -193,6 +194,13 @@ export const allSelectedState = (config: DataGridConfig, models: DataGridModels,
 /** The key a row is drawn under: its `dataKey` field, or where it sits. */
 export const rowKey = (config: DataGridConfig, row: unknown, index: number, offset: number): string | number =>
     config.dataKey ? String(getField(row, config.dataKey)) : offset + index;
+
+/** What a row's open detail is remembered by: its `dataKey` value as it is, so `[7]` means the row whose id is 7. */
+export const expansionKey = (config: DataGridConfig, row: unknown, index: number, offset: number): string | number =>
+    config.dataKey ? (getField(row, config.dataKey) as string | number) : offset + index;
+
+/** Whether a key is among the open ones, a number and its text being the same key. */
+export const isExpanded = (keys: readonly (string | number)[] | undefined, key: string | number): boolean => (keys ?? []).some((k) => String(k) === String(key));
 
 /** The text of a cell that draws itself no other way. */
 export function cellText(value: unknown, locale?: string): string {

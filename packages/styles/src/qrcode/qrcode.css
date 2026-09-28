@@ -1,0 +1,34 @@
+.vt-qrcode {
+    position: relative;
+    display: inline-block;
+    width: var(--vt-qrcode-size);
+    max-width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    line-height: 0;
+    background: var(--vt-qrcode-background);
+    border-radius: var(--vt-qrcode-border-radius);
+}
+
+.vt-qrcode-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.vt-qrcode-modules {
+    fill: var(--vt-qrcode-color);
+}
+
+/* A logo in the middle, on a patch of its own; the high error correction it asks for reads through it. */
+.vt-qrcode-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-sizing: border-box;
+    padding: 2%;
+    object-fit: contain;
+    background: var(--vt-qrcode-image-background);
+    border-radius: var(--vt-qrcode-image-border-radius);
+    translate: -50% -50%;
+}

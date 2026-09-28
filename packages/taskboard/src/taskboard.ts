@@ -27,9 +27,11 @@ import {
     entriesOf,
     initialCollapsed,
     isDisabled,
+    isFiltering,
     isLocked,
     labelOf,
     lanesOf,
+    matchesTaskboardFilter,
     otherCount,
     publicPosition,
     refusalOf,
@@ -156,6 +158,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
     /** The cards as they are drawn: with the move in progress applied, unless it would be refused. */
     function shown(): BoardEntry[] {
         const list = entries();
+        if (isFiltering(current.filter)) return list.filter((entry) => matchesTaskboardFilter(entry.item, current.filter, locale().code));
         if (!drag || !drag.to || drag.refused) return list;
         const at = dragAt();
         return at < 0 ? list : moveCard(list, at, drag.to).entries;
@@ -211,7 +214,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
 
     const movable = (item: unknown): boolean => {
         const set = settings();
-        if (!set.dragdrop || set.disabled || isDisabled(item, set) || isLocked(item, set)) return false;
+        if (!set.dragdrop || set.disabled || isDisabled(item, set) || isLocked(item, set) || isFiltering(current.filter)) return false;
         const entry = entries().find((candidate) => candidate.item === item);
         return !columnOf(current, entry?.column as BoardKey)?.locked;
     };
@@ -229,7 +232,8 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         const at = list.findIndex((entry) => entry.item === item);
         if (at < 0 || set.disabled || !set.dragdrop || isDisabled(item, set)) return false;
         if (!movable(item)) {
-            announce(formatMessage(locale().aria.taskboardLocked, { item: labelOf(item, set) }));
+            const filtered = isFiltering(current.filter) && !isLocked(item, set);
+            announce(formatMessage(filtered ? locale().aria.taskboardFiltered : locale().aria.taskboardLocked, { item: labelOf(item, set) }));
             return false;
         }
         const from = positionOf(list, at)!;

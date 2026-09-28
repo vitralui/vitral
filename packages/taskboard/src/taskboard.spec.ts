@@ -287,3 +287,17 @@ describe('what it says to a reader who cannot see it', () => {
         expect(element.querySelector(`#${handleEl.getAttribute('aria-describedby')}`)?.textContent).toContain('Space');
     });
 });
+
+describe('a filtered board', () => {
+    it('shows only the cards that match, counts them, and holds them still', () => {
+        const { allCards, counts, card, status } = mount({ filter: 'SPEC' });
+        expect(allCards().map((el) => el.textContent?.trim())).toEqual(['Write the spec', 'Read the spec']);
+        expect(counts()).toEqual(['2', '0', '0']);
+        key(card('Write the spec'), ' ');
+        expect(status()).toBe('Clear the filter to move Write the spec');
+        handle!.update({ filter: (item: unknown) => (item as Card).id > 2 });
+        expect(allCards().map((el) => el.textContent?.trim())).toEqual(['Ship it', 'Celebrate']);
+        handle!.update({ filter: '  ' });
+        expect(allCards()).toHaveLength(4);
+    });
+});

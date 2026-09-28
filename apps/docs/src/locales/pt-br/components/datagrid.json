@@ -35,6 +35,10 @@
         "Loading as skeleton rows": {
             "title": "Carregando como linhas de esqueleto",
             "description": "`loading-mode=\"skeleton\"` desenha a espera como linhas provisórias nas próprias células da tabela — o mesmo espaçamento, tamanho, alinhamento e colunas fixas —, então nada se move quando as linhas chegam. São tantas quanto a página tem, ou `skeleton-rows`. Uma coluna desenha a sua com o slot `#skeleton`, como o nome aqui; as outras desenham uma barra da altura de uma linha, e a coluna de seleção a caixa que o checkbox vai ser."
+        },
+        "Rows that open": {
+            "title": "Linhas que abrem",
+            "description": "Uma coluna com `expander` desenha o botão que abre uma linha, e o slot `#expansion` desenha o que abre abaixo dela, na largura toda — aqui as linhas de um pedido. O botão diz se a linha está aberta e qual região controla. `v-model:expandedRows` são as chaves das linhas abertas, por `data-key`, para a aplicação abrir uma por conta própria ou lembrá-las."
         }
     }
 }

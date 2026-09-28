@@ -1,6 +1,7 @@
 import { formatMessage, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
+import { parseChatMarkdown, type ChatBlock, type ChatInline } from '../engine/markdown';
 import { formatSize, groupMessages, initialsOf, showsAvatars, sideOf, type ChatGroup } from '../engine/state';
 import type { ChatAttachment, ChatConfig, ChatMessage, ChatMessageAction, ChatToolCall, ChatVariant, Content } from '../engine/types';
 
@@ -134,12 +135,62 @@ function actionView(context: ViewContext, action: ChatMessageAction, message: Ch
     );
 }
 
+function inlineView(nodes: ChatInline[]): Child[] {
+    return nodes.map((node) => {
+        switch (node.type) {
+            case 'text':
+                return node.text;
+            case 'br':
+                return h('br');
+            case 'code':
+                return h('code', {}, node.text);
+            case 'strong':
+                return h('strong', {}, ...inlineView(node.children));
+            case 'em':
+                return h('em', {}, ...inlineView(node.children));
+            case 'link':
+                return h('a', { href: node.href, target: '_blank', rel: 'noopener noreferrer nofollow' }, ...inlineView(node.children));
+        }
+    });
+}
+
+/**
+ * The blocks as elements. The caret goes inside the last block that holds
+ * text, so it sits after the last word rather than on a line of its own.
+ */
+function markdownView(blocks: ChatBlock[], caret: Child): Child[] {
+    const last = blocks.length - 1;
+    return blocks.map((block, i) => {
+        const tail = i === last ? caret : null;
+        switch (block.type) {
+            case 'paragraph':
+                return h('p', {}, ...inlineView(block.children), tail);
+            case 'heading':
+                // A heading inside a message must not outrank the page's own.
+                return h('p', { class: 'vt-chat-heading', 'data-level': block.level }, h('strong', {}, ...inlineView(block.children)), tail);
+            case 'code':
+                return h('pre', block.language ? { 'data-language': block.language } : {}, h('code', {}, block.text), tail);
+            case 'quote':
+                return h('blockquote', {}, ...markdownView(block.children, tail));
+            case 'list':
+                return h(
+                    block.ordered ? 'ol' : 'ul',
+                    block.ordered && block.start !== 1 ? { start: block.start } : {},
+                    ...block.items.map((item, j) => h('li', {}, ...inlineView(item), j === block.items.length - 1 ? tail : null))
+                );
+        }
+    });
+}
+
 function messageView(context: ViewContext, message: ChatMessage, index: number): Child {
     const { part, locale, on, config, ids, tabIndex } = context;
     const side = sideOf(message.role);
     const custom = config.slots?.message?.({ message, index });
     const time = timeText(message.at, locale);
     const body = message.error ?? message.content ?? '';
+    const markdown = !message.error && !!body && (message.markdown ?? config.markdown ?? false);
+    // The caret follows the last character while the answer arrives.
+    const caret = message.streaming ? h('span', mergeAttrs({ key: 'caret', 'aria-hidden': 'true' }, part('caret'))) : null;
     const actions = actionsFor(config, locale, message);
 
     return h(
@@ -158,10 +209,8 @@ function messageView(context: ViewContext, message: ChatMessage, index: number):
                   body || message.streaming
                       ? h(
                             'div',
-                            mergeAttrs({ key: 'bubble' }, part('bubble')),
-                            body,
-                            // The caret follows the last character while the answer arrives.
-                            message.streaming ? h('span', mergeAttrs({ key: 'caret', 'aria-hidden': 'true' }, part('caret'))) : null
+                            mergeAttrs({ key: 'bubble' }, part('bubble'), markdown ? part('markdown') : {}),
+                            ...(markdown ? markdownView(parseChatMarkdown(body), caret) : [body, caret])
                         )
                       : null,
                   message.attachments?.length

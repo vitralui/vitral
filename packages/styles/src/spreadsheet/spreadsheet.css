@@ -359,6 +359,46 @@
     font-style: italic;
 }
 
+/* ---- conditional formatting ----
+   A rule's tone takes the theme's subtle colours for it, the way a tag does. */
+
+.vt-spreadsheet-cell-success {
+    background: var(--vt-success-subtle-background);
+    color: var(--vt-success-subtle-color);
+}
+
+.vt-spreadsheet-cell-info {
+    background: var(--vt-info-subtle-background);
+    color: var(--vt-info-subtle-color);
+}
+
+.vt-spreadsheet-cell-warn {
+    background: var(--vt-warn-subtle-background);
+    color: var(--vt-warn-subtle-color);
+}
+
+.vt-spreadsheet-cell-danger {
+    background: var(--vt-danger-subtle-background);
+    color: var(--vt-danger-subtle-color);
+}
+
+.vt-spreadsheet-data-bar {
+    position: absolute;
+    inset-block: 3px;
+    inset-inline-start: 0;
+    border-radius: 0 2px 2px 0;
+    background: var(--vt-spreadsheet-data-bar-color);
+    opacity: var(--vt-spreadsheet-data-bar-opacity);
+    pointer-events: none;
+}
+
+.vt-spreadsheet-cell-text {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* ---- what a formula is reading ----
    A formula being typed outlines every place it mentions, each rectangle in
    its own colour, so `=B4*C4` shows which B4 and which C4 before it is

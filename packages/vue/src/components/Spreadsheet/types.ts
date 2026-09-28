@@ -4,6 +4,21 @@ import type { BaseProps } from '../../base/types';
 // SFC compiler reads them to generate the runtime prop definitions, and it
 // resolves a relative file where it may not resolve a package alias.
 
+/** A conditional rule: a highlight where a test passes, a colour scale, or a data bar. */
+export type ConditionalRuleLike =
+    | {
+          type?: 'highlight';
+          /** Where it applies: `'B2:B20'`. */
+          range: string;
+          /** `{ op: '>', value: 100 }`, or a function of the value. Operators: `>` `>=` `<` `<=` `=` `<>` `between` `contains` `empty` `notEmpty` `error`. */
+          when:
+              | { op: '>' | '>=' | '<' | '<=' | '=' | '<>' | 'between' | 'contains' | 'empty' | 'notEmpty' | 'error'; value?: string | number | boolean; to?: number }
+              | ((value: unknown, address: CellAddressLike) => boolean);
+          style: { tone?: 'success' | 'info' | 'warn' | 'danger'; background?: string; color?: string; bold?: boolean; italic?: boolean };
+      }
+    | { type: 'colorScale'; range: string; colors: [string, string] | [string, string, string]; min?: number; max?: number }
+    | { type: 'dataBar'; range: string; color?: string; min?: number; max?: number };
+
 /** Where a cell is: zero-based, row then column. */
 export interface CellAddressLike {
     row: number;
@@ -63,6 +78,11 @@ export interface SpreadsheetProps extends BaseProps {
      * names. The `toolbar` slot replaces the bar with parts of your own.
      */
     toolbar?: boolean | SpreadsheetToolbarItemLike[][];
+    /**
+     * Looks cells take from what they hold: highlights where a test passes,
+     * colour scales and data bars. They follow the numbers as they change.
+     */
+    conditionalFormats?: ConditionalRuleLike[];
     /** The bar over the grid that shows the address and the formula. On by default. */
     formulaBar?: boolean;
     /** The currency a cell formatted as money is written in. Defaults to the locale's. */

@@ -199,6 +199,9 @@ export interface DataGridSlots {
     loadingicon?: () => unknown;
     paginatorstart?: (props: DataGridPageEvent) => unknown;
     paginatorend?: (props: DataGridPageEvent) => unknown;
+    /** A row's detail, drawn under it once its `expander` column opens it. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expansion?: (props: { data: any; index: number }) => unknown;
 }
 
 export interface ColumnProps {
@@ -230,7 +233,11 @@ export interface ColumnProps {
     /** The match mode a new filter value on this column uses when `filters` does not say. */
     filterMatchMode?: string;
     hidden?: boolean;
-    /** In a TreeTable, the column that holds the expand toggle and the indentation. The first column by default. */
+    /**
+     * In a DataGrid, a column of buttons that open each row's detail (the
+     * `expansion` slot). In a TreeTable, the column that holds the expand
+     * toggle and the indentation, the first column by default.
+     */
     expander?: boolean;
     /** Include this column in a DataGrid's CSV export. Defaults to true for a column with a `field` or an `exportValue`. */
     exportable?: boolean;

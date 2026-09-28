@@ -32,6 +32,10 @@
         "Under each answer": {
             "title": "Abaixo de cada resposta",
             "description": "`message-actions` coloca botões abaixo de cada mensagem concluída: `copy`, `regenerate`, `like` e `dislike` já vêm prontos, e ações suas ficam ao lado deles. Uma avaliação aparece pressionada enquanto a mensagem a carrega como `feedback`, que a aplicação define quando `message-action` relata o toque. A cópia já aconteceu nesse momento, mostra um visto e é anunciada."
+        },
+        "Answers in Markdown": {
+            "title": "Respostas em Markdown",
+            "description": "`markdown` lê as mensagens como Markdown — negrito, itálico, código, listas, citações, títulos e links — e desenha como elementos, nunca como HTML, então nada numa mensagem pode rodar ou mudar o estilo da página. Só links web e de e-mail são seguidos. Uma resposta ainda chegando é lida como está: um bloco de código não fechado é um bloco de código até ali. O `markdown` da própria mensagem vence o do chat."
         }
     }
 }

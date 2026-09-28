@@ -32,6 +32,8 @@ export interface DataGridRowState {
     selected?: boolean;
     /** A placeholder row, drawn while the table loads as `skeleton`. */
     skeleton?: boolean;
+    /** Its detail is open under it. */
+    expanded?: boolean;
 }
 
 export interface DataGridSkeletonState {
@@ -101,7 +103,14 @@ export const datagridStyle = defineStyle({
         filterField: 'vt-field vt-field-sm vt-field-fluid vt-datagrid-filter-field',
         filterInput: 'vt-datagrid-filter-input',
         tbody: 'vt-datagrid-tbody',
-        row: (s: DataGridRowState) => ['vt-datagrid-row', { 'vt-datagrid-row-selectable': s.selectable, 'vt-datagrid-row-selected': s.selected, 'vt-datagrid-row-skeleton': s.skeleton }],
+        row: (s: DataGridRowState) => [
+            'vt-datagrid-row',
+            { 'vt-datagrid-row-selectable': s.selectable, 'vt-datagrid-row-selected': s.selected, 'vt-datagrid-row-skeleton': s.skeleton, 'vt-datagrid-row-expanded': s.expanded }
+        ],
+        expander: (s: { expanded?: boolean }) => ['vt-datagrid-expander', { 'vt-datagrid-expander-expanded': s.expanded }],
+        expanderIcon: (s: { expanded?: boolean }) => ['vt-datagrid-expander-icon', { 'vt-datagrid-expander-icon-expanded': s.expanded }],
+        expansionRow: 'vt-datagrid-expansion-row',
+        expansionCell: 'vt-datagrid-expansion-cell',
         bodyCell: (s: DataGridCellState) => ['vt-datagrid-body-cell', align(s), pinned(s)],
         selectionCell: 'vt-datagrid-selection-cell',
         checkbox: 'vt-datagrid-checkbox',

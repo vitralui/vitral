@@ -1,0 +1,13 @@
+{
+    "description": "Itens de alturas diferentes em colunas sem buracos sob os curtos, dispostos na ordem de leitura, para que teclado e leitor de tela vão da esquerda para a direita como o olho.",
+    "sections": {
+        "Cards": {
+            "title": "Cards",
+            "description": "Cada item vai para a coluna mais curta até ali. Redimensione a janela: há tantas colunas quantas cabem em `min-column-width`, e um item que cresce (abra um) empurra os de baixo."
+        },
+        "A fixed number of columns": {
+            "title": "Um número fixo de colunas",
+            "description": "`columns` fixa a quantidade, e `gap` o espaço entre elas. As imagens são medidas de novo conforme carregam."
+        }
+    }
+}

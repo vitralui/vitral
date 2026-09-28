@@ -35,10 +35,11 @@ export type EditorToolbarItem =
     | 'link'
     | 'undo'
     | 'redo'
-    | 'clear';
+    | 'clear'
+    | 'find';
 
 /** The commands a plain button can run. */
-export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table'>;
+export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'find'>;
 
 /** One entry of the menu a slash opens. */
 /** Something a chip trigger offers: who or what the chip will stand for. */
@@ -129,6 +130,12 @@ export interface TextEditorConfig {
      * once. Chips can also be put in with `run('insertChip', { id, label, kind })`.
      */
     chips?: ChipTrigger | ChipTrigger[];
+    /**
+     * Find and replace: Ctrl/⌘+F opens the bar over the text, Ctrl+H (⌘+⌥+F
+     * on a Mac) opens it with the replace row. On by default; `false` leaves
+     * those keys to the browser. The `find` toolbar item opens it too.
+     */
+    find?: boolean;
     /** The most characters the document may hold. */
     maxLength?: number | null;
     /** Milliseconds of quiet before an edit starts a new undo step. */
@@ -188,6 +195,9 @@ export interface TextEditorHandle {
     can(name: string, ...args: unknown[]): boolean;
     isActive(name: string, attrs?: Record<string, unknown>): boolean;
     focus(): void;
+    /** Opens the find bar, with the replace row and a query when given. */
+    openFind(options?: { replace?: boolean; query?: string }): void;
+    closeFind(): void;
     /** Draws again, for anything that changed underneath. */
     refresh(): void;
     destroy(): void;

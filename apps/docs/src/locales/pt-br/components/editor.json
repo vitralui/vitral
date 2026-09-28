@@ -33,6 +33,10 @@
         "Composed from parts": {
             "title": "Composto por partes",
             "description": "`Editor.Root`, `Editor.Toolbar`, `Editor.Button`, `Editor.Content`, `Editor.BubbleMenu`, `Editor.Footer` e `Editor.Count`, também exportados como `EditorRoot`, `EditorToolbar`… compartilham um só editor; `useEditor()` chega até ele a partir dos seus próprios componentes."
+        },
+        "Find and replace": {
+            "title": "Localizar e substituir",
+            "description": "Ctrl+F (⌘F) abre a barra sobre o texto e Ctrl+H (⌘⌥F) abre com a linha de substituir; o item `find` da barra de ferramentas também. Cada resultado fica em amarelo e o atual em laranja, pintados com highlights em vez de escritos no documento, então o desfazer, o cursor e um leitor de tela veem só o texto. Diferenciar maiúsculas, palavra inteira e expressão regular — onde `$1` funciona na substituição — são botões ao lado do campo. Enter vai ao próximo resultado e Shift+Enter ao anterior; uma substituição mantém a formatação das palavras que substitui, e Substituir tudo é um passo só para desfazer. `:find=\"false\"` deixa as teclas para o navegador."
         }
     }
 }
