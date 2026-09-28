@@ -30,6 +30,15 @@ export interface DataGridHeaderCellState extends DataGridCellState {
 export interface DataGridRowState {
     selectable?: boolean;
     selected?: boolean;
+    /** A placeholder row, drawn while the table loads as `skeleton`. */
+    skeleton?: boolean;
+}
+
+export interface DataGridSkeletonState {
+    /** The box a selection control will be, instead of a bar of text. */
+    box?: boolean;
+    /** That box is a radio's. */
+    round?: boolean;
 }
 
 const align = (s: DataGridCellState) => ({ 'vt-datagrid-align-center': s.align === 'center', 'vt-datagrid-align-right': s.align === 'right' });
@@ -92,7 +101,7 @@ export const datagridStyle = defineStyle({
         filterField: 'vt-field vt-field-sm vt-field-fluid vt-datagrid-filter-field',
         filterInput: 'vt-datagrid-filter-input',
         tbody: 'vt-datagrid-tbody',
-        row: (s: DataGridRowState) => ['vt-datagrid-row', { 'vt-datagrid-row-selectable': s.selectable, 'vt-datagrid-row-selected': s.selected }],
+        row: (s: DataGridRowState) => ['vt-datagrid-row', { 'vt-datagrid-row-selectable': s.selectable, 'vt-datagrid-row-selected': s.selected, 'vt-datagrid-row-skeleton': s.skeleton }],
         bodyCell: (s: DataGridCellState) => ['vt-datagrid-body-cell', align(s), pinned(s)],
         selectionCell: 'vt-datagrid-selection-cell',
         checkbox: 'vt-datagrid-checkbox',
@@ -114,6 +123,8 @@ export const datagridStyle = defineStyle({
         loadingMask: 'vt-datagrid-loading-mask',
         loadingIcon: 'vt-datagrid-loading-icon',
         loadingText: 'vt-sr-only',
+        /** What a placeholder cell holds: a bar a line of text tall, or a control's box. */
+        skeleton: (s: DataGridSkeletonState) => ['vt-datagrid-skeleton', { 'vt-datagrid-skeleton-box': s.box, 'vt-datagrid-skeleton-round': s.round }],
         selectionHeaderText: 'vt-sr-only'
     }
 });

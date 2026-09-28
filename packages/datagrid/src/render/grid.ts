@@ -137,10 +137,16 @@ function footerBar<T>(context: ViewContext<T>): Child {
     return own === null ? null : h('div', mergeAttrs({ key: 'footer' }, context.part('footer')), own);
 }
 
+/** Whether the table waits as placeholder rows rather than under the mask. */
+const skeletonShown = <T,>(context: ViewContext<T>) => context.busy && context.config.loadingMode === 'skeleton';
+
 /** Over the table while it waits, named for a reader who cannot see it turn. */
 function loadingMask<T>(context: ViewContext<T>): Child {
     if (!context.busy) return null;
     const { part, locale } = context;
+    // The placeholder rows are hidden from assistive technology, so the wait is
+    // still said, with nothing drawn over them.
+    if (skeletonShown(context)) return h('div', mergeAttrs({ key: 'loading' }, part('loadingText'), { role: 'status' }), locale.loading);
     return h(
         'div',
         mergeAttrs({ key: 'loading' }, part('loadingMask'), { role: 'status' }),
@@ -355,6 +361,7 @@ const filterText = (filters: FilterMeta, column: ResolvedColumn) => {
 function bodyView<T>(context: ViewContext<T>): Child {
     const { columns, config, part, locale, rows } = context;
     const selectable = !!config.selectionMode;
+    if (skeletonShown(context)) return skeletonBody(context);
     if (!rows.page.length) {
         return h(
             'tbody',
@@ -433,6 +440,53 @@ function bodyView<T>(context: ViewContext<T>): Child {
                 )
             );
         })
+    );
+}
+
+/**
+ * How many placeholder rows: as many as are drawn now, so fetching again does
+ * not change the table's height; with none, a page's worth, or five.
+ */
+function skeletonCount<T>(context: ViewContext<T>): number {
+    const { config, lines, models } = context;
+    if (config.skeletonRows !== undefined) return Math.max(0, Math.floor(config.skeletonRows));
+    if (lines.length) return lines.length;
+    return config.paginator ? models.rows : 5;
+}
+
+/** A bar's width, between 40% and 90%: uneven, as text is, and the same on every render. */
+const barWidth = (row: number, column: number) => `${40 + ((row * 7 + column * 3) % 11) * 5}%`;
+
+/**
+ * The rows the table will have, drawn in the parts a row is drawn in — the
+ * same cells, alignment, pinning and column styles — so the placeholder is
+ * the table's own shape rather than a picture of it.
+ */
+function skeletonBody<T>(context: ViewContext<T>): Child {
+    const { columns, part } = context;
+    return h(
+        'tbody',
+        mergeAttrs({ key: 'tbody' }, part('tbody')),
+        Array.from({ length: skeletonCount(context) }, (_, index) =>
+            h(
+                'tr',
+                mergeAttrs({ key: `skeleton-${index}` }, part('row', { skeleton: true }), { 'aria-hidden': 'true' }),
+                columns.map((column, position) =>
+                    h(
+                        'td',
+                        mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), column.selectionMode ? part('selectionCell') : {}, {
+                            style: { ...stickyStyle(column), ...column.column.bodyStyle },
+                            class: column.column.bodyClass
+                        }),
+                        content(column.column.skeleton?.({ column: column.column, index })) ??
+                            (column.selectionMode
+                                ? // The box the control will be, where the control will be.
+                                  h('span', part('checkbox'), h('span', part('skeleton', { box: true, round: column.selectionMode === 'single' })))
+                                : h('span', mergeAttrs(part('skeleton'), { style: { width: barWidth(index, position) } })))
+                    )
+                )
+            )
+        )
     );
 }
 

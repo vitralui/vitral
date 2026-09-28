@@ -82,7 +82,7 @@ type ColumnSlotFn = (props: Record<string, unknown>) => VNode[];
 interface ColumnDef {
     key: string;
     props: Record<string, unknown>;
-    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter', ColumnSlotFn>>;
+    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton', ColumnSlotFn>>;
 }
 
 // Template attributes arrive as written: `sort-field`, and `sortable` as ''.
@@ -145,6 +145,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         body: own.body && ((context: CellContext) => node(`body:${def.key}:${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p }))),
         headerContent: own.header && (() => node(`header:${def.key}`, () => own.header!({ column: p }))),
         footerContent: own.footer && (() => node(`footer:${def.key}`, () => own.footer!({ column: p }))),
+        skeleton: own.skeleton && ((context: { index: number }) => node(`skeleton:${def.key}:${context.index}`, () => own.skeleton!({ column: p, index: context.index }))),
         filterContent:
             own.filter &&
             (() =>
@@ -301,6 +302,8 @@ const inputs = (): DataGridConfig => ({
     lazy: props.lazy,
     totalRecords: props.totalRecords,
     loading: props.loading,
+    loadingMode: props.loadingMode,
+    skeletonRows: props.skeletonRows,
     paginator: props.paginator,
     rowsPerPageOptions: props.rowsPerPageOptions,
     pageLinkSize: props.pageLinkSize,
@@ -393,7 +396,7 @@ function push(next: Partial<DataGridConfig>) {
 
 // Deep, over the reactive props (not their raw objects), so a change made in place is seen too.
 watch(
-    () => [props.value, columns.value, props.dataSource, props.lazy, props.totalRecords, props.loading, props.group],
+    () => [props.value, columns.value, props.dataSource, props.lazy, props.totalRecords, props.loading, props.loadingMode, props.skeletonRows, props.group],
     () => push(inputs()),
     { deep: true }
 );

@@ -31,6 +31,10 @@
         "Export to CSV": {
             "title": "Exportar para CSV",
             "description": "`exportCSV()` entrega ao leitor um arquivo com cada linha que os filtros deixam passar, nas colunas e na ordem em exibição — ou da página, ou da seleção. `exportValue` escreve uma coluna do seu jeito (aqui uma data como o dia ISO), um valor que rodaria como fórmula numa planilha é desarmado, e o arquivo abre no Excel com os acentos intactos. `toCSV()` devolve o texto em vez disso."
+        },
+        "Loading as skeleton rows": {
+            "title": "Carregando como linhas de esqueleto",
+            "description": "`loading-mode=\"skeleton\"` desenha a espera como linhas provisórias nas próprias células da tabela — o mesmo espaçamento, tamanho, alinhamento e colunas fixas —, então nada se move quando as linhas chegam. São tantas quanto a página tem, ou `skeleton-rows`. Uma coluna desenha a sua com o slot `#skeleton`, como o nome aqui; as outras desenham uma barra da altura de uma linha, e a coluna de seleção a caixa que o checkbox vai ser."
         }
     }
 }

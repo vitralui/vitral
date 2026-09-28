@@ -6,6 +6,8 @@
         "dataSource": "As linhas vêm de uma fonte de dados, local ou remota, em vez de `value`.",
         "lazy": "Nada é calculado aqui: mudanças de ordenação, filtro e página são emitidas (`lazy-load`) para a aplicação responder.",
         "totalRecords": "O total de todas as páginas quando `lazy`.",
+        "loadingMode": "Como a tabela espera. `'mask'` a cobre com um indicador de carregamento e mantém as linhas que tinha; `'skeleton'` desenha linhas provisórias nas próprias células — mesmo espaçamento, tamanho, alinhamento e colunas fixas —, então ela tem a forma que terá quando as linhas chegarem. Um `<Column>` desenha a sua com o slot `#skeleton`.",
+        "skeletonRows": "Quantas linhas provisórias o esqueleto desenha. Por padrão, tantas quantas a página tem agora, então uma tabela que busca de novo mantém a altura; sem nenhuma, uma página inteira quando paginada, e 5 quando não.",
         "removableSort": "Um terceiro clique numa coluna ordenada a tira da ordenação.",
         "filterDisplay": "`'row'` põe uma caixa de filtro sob o cabeçalho de cada coluna filtrável.",
         "filterDelay": "Milissegundos a esperar depois da digitação antes de consultar de novo uma tabela lazy ou uma fonte de dados.",

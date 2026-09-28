@@ -65,6 +65,12 @@ export interface DataGridColumn<T = Row> {
     footerContent?: (context: { column: DataGridColumn<T> }) => Content;
     /** Draws the filter control for this column, instead of the text box. */
     filterContent?: (context: { column: DataGridColumn<T>; value: unknown; setValue: (value: unknown) => void }) => Content;
+    /**
+     * Draws the cell of a placeholder row, when the table loads as `skeleton`.
+     * Without it, a bar the height of a line of text; a selection column draws
+     * the box its control will be.
+     */
+    skeleton?: (context: { column: DataGridColumn<T>; index: number }) => Content;
 }
 
 /** Where the table is in its pages, for whatever a host draws around it. */
@@ -178,6 +184,18 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     lazy?: boolean;
     totalRecords?: number;
     loading?: boolean;
+    /**
+     * How the table waits. `'mask'` covers it with a spinner and keeps the rows
+     * it had; `'skeleton'` draws placeholder rows in its own cells instead, so
+     * the table has the shape it will have when the rows arrive.
+     */
+    loadingMode?: 'mask' | 'skeleton';
+    /**
+     * How many placeholder rows a skeleton draws. By default, as many as the
+     * page holds now, so a table that is fetching again does not change height;
+     * with none, a page's worth when paginated, and 5 when not.
+     */
+    skeletonRows?: number;
 
     paginator?: boolean;
     rowsPerPageOptions?: number[];

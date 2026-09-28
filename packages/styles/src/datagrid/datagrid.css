@@ -472,7 +472,65 @@
     color: var(--vt-datagrid-loading-icon-color);
 }
 
+/*
+ * A placeholder row's cell. The bar is a line box tall, so a placeholder row is
+ * exactly as tall as a row of one line of text at every size; what shows is
+ * the Skeleton's fill, a type size tall, centred in it, with its sweep.
+ */
+.vt-datagrid-skeleton {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    /* Where `lh` is not known (Safari before 16.4), about a line. */
+    height: 1.5em;
+    height: 1lh;
+    vertical-align: top;
+}
+
+.vt-datagrid-skeleton::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    inset-block: 0.25em;
+    inset-block: calc((1lh - 1em) / 2);
+    background-color: var(--vt-skeleton-background, var(--vt-content-hover-background));
+    background-image: linear-gradient(90deg, transparent, var(--vt-skeleton-highlight, transparent), transparent);
+    background-repeat: no-repeat;
+    background-size: 200% 100%;
+    border-radius: var(--vt-skeleton-border-radius, var(--vt-border-radius-sm));
+    animation: vt-datagrid-skeleton-sweep var(--vt-skeleton-animation-duration, 1.4s) ease-in-out infinite;
+}
+
+/* In the checkbox's own box, so it sits where the control will. */
+.vt-datagrid-skeleton-box {
+    display: block;
+    height: 100%;
+}
+
+.vt-datagrid-skeleton-box::before {
+    inset: 0;
+    border-radius: var(--vt-datagrid-checkbox-border-radius);
+}
+
+.vt-datagrid-skeleton-round::before {
+    border-radius: 50%;
+}
+
+@keyframes vt-datagrid-skeleton-sweep {
+    from {
+        background-position: 150% 0;
+    }
+    to {
+        background-position: -50% 0;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .vt-datagrid-skeleton::before {
+        animation: none;
+        background-image: none;
+    }
+
     .vt-datagrid-row,
     .vt-datagrid-sort-button,
     .vt-datagrid-sort-icon-idle,

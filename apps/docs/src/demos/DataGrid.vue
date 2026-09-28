@@ -18,6 +18,7 @@ import ExportCsv from './DataGrid/ExportCsv.vue';
 import GroupedRows from './DataGrid/GroupedRows.vue';
 import MultipleSort from './DataGrid/MultipleSort.vue';
 import SharedColumns from './DataGrid/SharedColumns.vue';
+import SkeletonLoading from './DataGrid/SkeletonLoading.vue';
 import SortFilterPageSelect from './DataGrid/SortFilterPageSelect.vue';
 </script>
 
@@ -30,4 +31,5 @@ import SortFilterPageSelect from './DataGrid/SortFilterPageSelect.vue';
     <DemoSection title="From a data source" description="The rows come from `createDataSource({ load })`, a stand-in for a server that answers in 450 ms. The table asks it for one page at a time with the sort and the search; a slow answer that arrives after a newer one is thrown away."><DataSource /></DemoSection>
     <DemoSection title="Export to CSV" description="`exportCSV()` hands the reader a file of every row the filters let through, in the columns and order on show — or of the page, or of the selection. `exportValue` writes a column its own way (here a date as the ISO day), a value that would run as a formula in a spreadsheet is defused, and the file opens in Excel with its accents intact. `toCSV()` returns the text instead."><ExportCsv /></DemoSection>
     <DemoSection title="Empty and loading"><EmptyAndLoading /></DemoSection>
+    <DemoSection title="Loading as skeleton rows" description="`loading-mode=&quot;skeleton&quot;` draws the wait as placeholder rows in the table's own cells — the same padding, size, alignment and pinned columns — so nothing moves when the rows arrive. There are as many as the page holds, or `skeleton-rows`. A column draws its own placeholder with the `#skeleton` slot, as the name does here; the others draw a bar a line tall, and the selection column the box its checkbox will be."><SkeletonLoading /></DemoSection>
 </template>

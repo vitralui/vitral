@@ -66,6 +66,19 @@ export interface DataGridProps extends BaseProps {
     /** The total across pages when `lazy`. */
     totalRecords?: number;
     loading?: boolean;
+    /**
+     * How the table waits. `'mask'` covers it with a spinner and keeps the rows it had;
+     * `'skeleton'` draws placeholder rows in its own cells instead — same padding, size,
+     * alignment and pinned columns — so it has the shape it will have when the rows arrive.
+     * A `<Column>` draws its own placeholder with the `#skeleton` slot.
+     */
+    loadingMode?: 'mask' | 'skeleton';
+    /**
+     * How many placeholder rows a skeleton draws. By default, as many as the page holds now,
+     * so a table fetching again keeps its height; with none, a page's worth when paginated,
+     * and 5 when not.
+     */
+    skeletonRows?: number;
 
     paginator?: boolean;
     rowsPerPageOptions?: number[];
@@ -239,4 +252,6 @@ export interface ColumnSlots {
     footer?: (props: { column: Record<string, unknown> }) => unknown;
     /** A custom filter control. Set `filterModel.value` (then call `filterCallback()` if the object is not reactive). */
     filter?: (props: { field: string; filterModel: FilterConstraintLike | CompositeFilterLike | undefined; filterCallback: () => void }) => unknown;
+    /** A cell of a placeholder row, while a DataGrid loads as `skeleton`: `index` is the row's. Without it, a bar a line of text tall. */
+    skeleton?: (props: { column: Record<string, unknown>; index: number }) => unknown;
 }

@@ -284,6 +284,40 @@ describe('DataGrid', () => {
         expect(document.querySelector('[role="status"]')?.textContent).toContain('Loading…');
     });
 
+    it('draws its loading state as placeholder rows of its own columns, a column drawing its own through #skeleton', () => {
+        const columns = () => [
+            h(Column, { field: 'name', header: 'Name' }, { skeleton: ({ index }: { index: number }) => h('i', { class: 'mine' }, `placeholder ${index}`) }),
+            h(Column, { field: 'age', header: 'Age', align: 'right' })
+        ];
+        const { table, bodyRows } = mountTable({ loading: true, loadingMode: 'skeleton', value: [], paginator: true, rows: 4 }, columns);
+        expect(document.querySelector('.vt-datagrid-loading-mask')).toBeNull();
+        expect(bodyRows()).toHaveLength(4);
+        expect(bodyRows().every((row) => row.getAttribute('aria-hidden') === 'true' && row.classList.contains('vt-datagrid-row-skeleton'))).toBe(true);
+        expect(bodyRows().map((row) => row.cells[0]!.querySelector('.mine')?.textContent)).toEqual(['placeholder 0', 'placeholder 1', 'placeholder 2', 'placeholder 3']);
+        const age = bodyRows()[0]!.cells[1]!;
+        expect(age.classList).toContain('vt-datagrid-body-cell');
+        expect(age.classList).toContain('vt-datagrid-align-right');
+        expect(age.querySelector('.vt-datagrid-skeleton')).not.toBeNull();
+        expect(table().getAttribute('aria-busy')).toBe('true');
+        expect(document.querySelector('[role="status"]')?.textContent).toBe('Loading…');
+        expect(table().querySelector('.vt-datagrid-empty-cell')).toBeNull();
+    });
+
+    it('draws the rows once they arrive', async () => {
+        const loading = ref(true);
+        mountVt(
+            defineComponent(
+                () => () =>
+                    h(DataGrid, { 'aria-label': 'People', value: loading.value ? [] : people, loading: loading.value, loadingMode: 'skeleton', skeletonRows: 3 }, { default: defaultColumns })
+            )
+        );
+        expect(document.querySelectorAll('tbody tr.vt-datagrid-row-skeleton')).toHaveLength(3);
+        loading.value = false;
+        await nextTick();
+        expect(document.querySelectorAll('tbody tr.vt-datagrid-row-skeleton')).toHaveLength(0);
+        expect(document.querySelectorAll('tbody tr')).toHaveLength(people.length);
+    });
+
     it('says when there is nothing to show', () => {
         const { column } = mountTable({ value: [], emptyMessage: 'No people yet' });
         expect(column(0)).toEqual(['No people yet']);
@@ -301,6 +335,9 @@ describe('DataGrid', () => {
         await expectNoA11yViolations();
         document.body.innerHTML = '';
         mountTable({ loading: true, caption: 'People', 'aria-label': undefined });
+        await expectNoA11yViolations();
+        document.body.innerHTML = '';
+        mountTable({ loading: true, loadingMode: 'skeleton' });
         await expectNoA11yViolations();
         document.body.innerHTML = '';
         mountTable({ value: [] });

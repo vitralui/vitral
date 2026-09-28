@@ -324,6 +324,106 @@ describe('what the host draws itself', () => {
     });
 });
 
+describe('loading as skeleton rows', () => {
+    const skeletonRows = (element: HTMLElement) => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr.vt-datagrid-row-skeleton'));
+
+    it('keeps the mask by default', () => {
+        const { element, column } = mount({ loading: true });
+        expect(element.querySelector('.vt-datagrid-loading-mask')).not.toBeNull();
+        expect(skeletonRows(element)).toHaveLength(0);
+        expect(column(0)).toEqual(people.map((p) => p.name));
+    });
+
+    it('draws placeholder rows in the cells a row is drawn in, with no mask over them', () => {
+        const { element, rows, table } = mount({ loading: true, loadingMode: 'skeleton', size: 'small', columns: [...columns.slice(0, 2), { ...columns[2]!, pinned: 'right', bodyClass: 'mine', bodyStyle: { color: 'red' } }] });
+        expect(element.querySelector('.vt-datagrid-loading-mask')).toBeNull();
+        expect(rows()).toHaveLength(people.length);
+        for (const row of rows()) {
+            expect(row.classList).toContain('vt-datagrid-row');
+            expect(row.classList).toContain('vt-datagrid-row-skeleton');
+            expect(row.getAttribute('aria-hidden')).toBe('true');
+            expect(Array.from(row.cells).every((cell) => cell.classList.contains('vt-datagrid-body-cell'))).toBe(true);
+            expect(row.textContent).toBe('');
+        }
+        const age = rows()[0]!.cells[2]!;
+        expect(age.classList).toContain('vt-datagrid-align-right');
+        expect(age.classList).toContain('vt-datagrid-pinned-right');
+        expect(age.classList).toContain('mine');
+        expect(age.style.position).toBe('sticky');
+        expect(age.style.color).toBe('red');
+        expect(element.classList).toContain('vt-datagrid-sm');
+        expect(table().getAttribute('aria-busy')).toBe('true');
+        const status = element.querySelector('[role="status"]')!;
+        expect(status.textContent).toBe('Loading…');
+        expect(status.classList).toContain('vt-sr-only');
+    });
+
+    it('draws a bar a line tall, as wide as it likes but the same on every render', () => {
+        const { element, rows } = mount({ loading: true, loadingMode: 'skeleton' });
+        const widths = () => rows().map((row) => Array.from(row.querySelectorAll<HTMLElement>('.vt-datagrid-skeleton')).map((bar) => bar.style.width));
+        const before = widths();
+        expect(before.flat().every((width) => /^\d+%$/.test(width) && parseInt(width) >= 40 && parseInt(width) <= 90)).toBe(true);
+        expect(new Set(before.flat()).size).toBeGreaterThan(1);
+        handle!.update({ stripedRows: true });
+        expect(widths()).toEqual(before);
+        expect(element.querySelector('.vt-datagrid-skeleton-box')).toBeNull();
+    });
+
+    it("draws a selection control's box where the control will be", () => {
+        const { rows } = mount({ loading: true, loadingMode: 'skeleton', selectionMode: 'multiple', columns: [{ selectionMode: 'multiple' }, ...columns] });
+        const cell = rows()[0]!.cells[0]!;
+        expect(cell.classList).toContain('vt-datagrid-selection-cell');
+        expect(cell.querySelector('.vt-datagrid-checkbox > .vt-datagrid-skeleton-box')).not.toBeNull();
+        expect(cell.querySelector('input')).toBeNull();
+    });
+
+    it("uses a column's own placeholder", () => {
+        const seen: number[] = [];
+        const { rows } = mount({
+            loading: true,
+            loadingMode: 'skeleton',
+            columns: [
+                {
+                    ...columns[0]!,
+                    skeleton: ({ index }: { index: number }) => {
+                        seen.push(index);
+                        return `row ${index}`;
+                    }
+                },
+                ...columns.slice(1)
+            ]
+        });
+        expect(rows().map((row) => row.cells[0]!.textContent)).toEqual(people.map((_, index) => `row ${index}`));
+        expect(seen).toEqual([0, 1, 2, 3, 4]);
+        expect(rows()[0]!.cells[1]!.querySelector('.vt-datagrid-skeleton')).not.toBeNull();
+    });
+
+    it('counts the rows on the page, a page when there are none, and five when not paged', () => {
+        expect(mount({ loading: true, loadingMode: 'skeleton', paginator: true, rows: 3 }).rows()).toHaveLength(3);
+        handle!.destroy();
+        expect(mount({ loading: true, loadingMode: 'skeleton', value: [], paginator: true, rows: 8 }).rows()).toHaveLength(8);
+        handle!.destroy();
+        expect(mount({ loading: true, loadingMode: 'skeleton', value: [] }).rows()).toHaveLength(5);
+        handle!.destroy();
+        expect(mount({ loading: true, loadingMode: 'skeleton', skeletonRows: 2 }).rows()).toHaveLength(2);
+    });
+
+    it('says nothing is there only once it has finished looking', () => {
+        const { element, rows, column } = mount({ loading: true, loadingMode: 'skeleton', value: [] });
+        expect(element.querySelector('.vt-datagrid-empty-cell')).toBeNull();
+        expect(rows().every((row) => row.classList.contains('vt-datagrid-row-skeleton'))).toBe(true);
+        handle!.update({ loading: false, value: people });
+        expect(element.querySelector('.vt-datagrid-row-skeleton')).toBeNull();
+        expect(element.querySelector('[role="status"]')).toBeNull();
+        expect(column(0)).toEqual(people.map((p) => p.name));
+    });
+
+    it('has no accessibility violations', async () => {
+        mount({ loading: true, loadingMode: 'skeleton', selectionMode: 'multiple', columns: [{ selectionMode: 'multiple' }, ...columns] });
+        await expectNoA11yViolations();
+    });
+});
+
 describe('its columns', () => {
     it('are drawn in the order the layout gives, without what it hides', () => {
         const { headings } = mount({ columnLayout: { order: ['age', 'name'], hidden: ['city'] } });
