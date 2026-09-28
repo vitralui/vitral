@@ -130,6 +130,20 @@ function onInput(event: Event) {
     emit('input', { originalEvent: event, value: typed.value });
 }
 
+/**
+ * A character that cannot be part of a number is refused as it is typed —
+ * the field showed "ab12c" until it lost focus. Digits, the locale's
+ * separators and the minus sign go through; pasted or dropped text is read by
+ * `parse`, which takes what it can.
+ */
+function onBeforeinput(event: InputEvent) {
+    if (!editable.value || !event.data) return;
+    if (!event.inputType.startsWith('insert') || event.inputType === 'insertFromPaste' || event.inputType === 'insertFromDrop') return;
+    const { decimalSeparator, groupSeparator } = formatter.value;
+    const allowed = (ch: string) => /[0-9\s\u00a0\u202f\-−]/.test(ch) || ch === decimalSeparator || ch === groupSeparator;
+    if (![...event.data].every(allowed)) event.preventDefault();
+}
+
 function onKeydown(event: KeyboardEvent) {
     if (!editable.value) return;
     switch (event.key) {
@@ -249,6 +263,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), blur: () => inputRef.value?
             :aria-valuetext="valueText"
             :aria-invalid="invalid ? 'true' : undefined"
             @input="onInput"
+            @beforeinput="onBeforeinput"
             @keydown="onKeydown"
             @focus="emit('focus', $event)"
             @blur="onBlur"

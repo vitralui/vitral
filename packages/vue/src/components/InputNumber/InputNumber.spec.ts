@@ -59,6 +59,21 @@ describe('InputNumber', () => {
         expect(input().value).toBe('2,500.5');
     });
 
+    it('refuses a character that cannot be part of a number as it is typed, and lets a paste be read', async () => {
+        const { input } = mountNumber({ modelValue: 1 });
+        const insert = (data: string, inputType = 'insertText') => {
+            const event = new InputEvent('beforeinput', { data, inputType, bubbles: true, cancelable: true });
+            input().dispatchEvent(event);
+            return event.defaultPrevented;
+        };
+        expect(insert('a')).toBe(true);
+        expect(insert('5')).toBe(false);
+        expect(insert('.')).toBe(false);
+        expect(insert(',')).toBe(false);
+        expect(insert('-')).toBe(false);
+        expect(insert('R$ 10', 'insertFromPaste')).toBe(false);
+    });
+
     it('commits on Enter', async () => {
         const { input, type, value } = mountNumber();
         await type('42');
