@@ -25,6 +25,16 @@ export interface TaskboardColumn {
     color?: string;
 }
 
+export interface TaskboardSummary {
+    /** The field (a dotted path) holding each card's number. */
+    field: string;
+    type?: 'sum' | 'average' | 'min' | 'max';
+    /** A template over `{value}`: `'{value} pts'`. The number alone otherwise. */
+    format?: string;
+    /** `Intl.NumberFormat` options for the number. At most one decimal otherwise. */
+    numberFormat?: Intl.NumberFormatOptions;
+}
+
 export interface TaskboardLane {
     key: TaskboardKey;
     title?: string;
@@ -128,6 +138,12 @@ export interface TaskboardModels {
 export interface TaskboardConfig extends Partial<TaskboardModels> {
     /** The columns, in order. With no `items`, each carries its own cards. */
     columns?: TaskboardColumn[];
+    /**
+     * A figure beside each column's (and lane's) count, worked out from a
+     * field of its cards: `{ field: 'points', format: '{value} pts' }` for
+     * the story points in each column. The sum unless `type` says otherwise.
+     */
+    summary?: TaskboardSummary;
     /** The cards as one flat list; each names its column in `columnField`. */
     items?: unknown[];
     /** The field of a flat item that holds its column's key. Defaults to `'column'`. */

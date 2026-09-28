@@ -19,6 +19,17 @@ export default {
         activeBackground: 'transparent',
         borderRadius: '{borderRadius.sm}'
     },
+    // The buttons at the ends of a scrollable strip.
+    navButton: {
+        size: '2rem',
+        color: '{text.mutedColor}',
+        hoverColor: '{text.color}',
+        hoverBackground: '{content.hoverBackground}',
+        borderRadius: '{borderRadius.sm}'
+    },
+    navGroup: {
+        gap: '0.125rem'
+    },
     indicator: {
         color: '{primary.color}',
         width: '1rem',

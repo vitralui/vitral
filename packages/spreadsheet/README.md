@@ -21,8 +21,9 @@ is worked out from it — so it survives `JSON`, comes back the same, and can be
 tested without a document in sight.
 
 - **Formulas**: the usual operators with the usual strengths, rectangles
-  (`A1:C9`), `$` to pin a reference, and sixty-three functions — `SUM`,
-  `AVERAGE`, `IF`, `COUNTIF`, `VLOOKUP`, `INDEX`, `MATCH`, the text ones, and
+  (`A1:C9`), `$` to pin a reference, and ninety-eight functions — `SUM`,
+  `AVERAGE`, `IF`, `IFS`, `SWITCH`, `SUMIFS`, `COUNTIFS`, `XLOOKUP`, `VLOOKUP`,
+  `INDEX`, `MATCH`, the statistics a report asks for, the text ones, and
   dates counted the way every spreadsheet counts them.
 - **Only what changed**: an edit works out the cells that followed from it,
   not the sheet.

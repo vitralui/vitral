@@ -146,7 +146,8 @@ export function buildCartesian(input: SceneInput): ChartScene {
 
     if (stacked) {
         for (const kind of ['bar', 'area', 'line'] as const) {
-            const members = visible.filter((s) => stackKind(markOf(s)) === kind);
+            // A trend is drawn over its series, never stacked on the others.
+            const members = visible.filter((s) => stackKind(markOf(s)) === kind && s.trendOf === undefined);
             if (!members.length) continue;
             const rows = members.map((s) => pointsAt[s.index]!.map((p) => p?.y ?? null));
             for (let i = 0; i < rows.length; i++) while (rows[i]!.length < columnCount) rows[i]!.push(null);
@@ -550,7 +551,7 @@ export function buildCartesian(input: SceneInput): ChartScene {
         const bases: (Pt | null)[] = [];
         const markers: SceneMarker[] = [];
         const labels: SceneLabel[] = [];
-        const size = perSeries(o.markers?.size, s.index, 0);
+        const size = s.trendOf === undefined ? perSeries(o.markers?.size, s.index, 0) : 0;
         pointsAt[s.index]!.forEach((p, i) => {
             if (!p || p.y === null) {
                 tops.push(null);
@@ -566,12 +567,12 @@ export function buildCartesian(input: SceneInput): ChartScene {
             data.push({ series: s.index, index: p.index, column: i, x: pt[0], y: pt[1], r: 6, value: p.y, text: formatY(p.y, s.index, i), label: formatCategory(i), color });
             if (!inView(i)) return;
             if (size > 0) markers.push({ x: pt[0], y: pt[1], size, shape: shapeOf(s.index), fill: markerColors?.length ? perSeries(markerColors, s.index, color) : color, stroke: typeof strokeColors === 'string' ? strokeColors : perSeries(strokeColors, s.index, undefined as unknown as string), strokeWidth: o.markers?.strokeWidth ?? 2 });
-            if (labelsOn(s.index)) {
+            if (labelsOn(s.index) && s.trendOf === undefined) {
                 const label = dataLabel(p.y, s.index, i, pt[0], pt[1] - 10);
                 if (label) labels.push(label);
             }
         });
-        const curve = perSeries(o.stroke?.curve, s.index, 'smooth' as ChartCurve);
+        const curve = s.trendOf === undefined ? perSeries(o.stroke?.curve, s.index, 'smooth' as ChartCurve) : ('straight' as ChartCurve);
         const fillType = perSeries(o.fill?.type, s.index, 'solid');
         const isArea = m === 'area';
         const baseline = stack && stack.some((v) => v.from !== 0) ? bases : zeroOf(a);
@@ -594,8 +595,8 @@ export function buildCartesian(input: SceneInput): ChartScene {
                       gradient: fillType === 'gradient' ? { vertical: g?.type !== 'horizontal', from: g?.opacityFrom ?? 0.5, to: g?.opacityTo ?? 0.05, stops: [g?.stops?.[0] ?? 0, g?.stops?.[1] ?? 100] } : undefined
                   }
                 : undefined,
-            width: o.stroke?.show === false ? 0 : perSeries(o.stroke?.width, s.index, 2),
-            dash: perSeries(o.stroke?.dashArray, s.index, 0),
+            width: o.stroke?.show === false && !s.stroke ? 0 : (s.stroke?.width ?? perSeries(o.stroke?.width, s.index, 2)),
+            dash: s.stroke?.dash ?? perSeries(o.stroke?.dashArray, s.index, 0),
             cap: o.stroke?.lineCap ?? 'round',
             markers,
             labels
@@ -924,7 +925,17 @@ export function buildCartesian(input: SceneInput): ChartScene {
         own?: string
     ): SceneAnnotation['label'] =>
         l?.text
-            ? { x: x + (l.offsetX ?? 0), y: y + (l.offsetY ?? 0), text: l.text, anchor: l.textAnchor ?? anchor, baseline, style: l.style, borderColor: l.borderColor, fill: l.style?.background ?? own }
+            ? {
+                  x: x + (l.offsetX ?? 0),
+                  y: y + (l.offsetY ?? 0),
+                  text: l.text,
+                  anchor: l.textAnchor ?? anchor,
+                  baseline,
+                  style: l.style,
+                  borderColor: l.borderColor,
+                  fill: l.style?.background ?? own,
+                  chip: l.background ?? o.annotations?.labelBackground ?? true
+              }
             : undefined;
 
     /** Annotations are read against the plot, so they stop at its edges. */

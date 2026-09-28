@@ -388,6 +388,8 @@ export interface ChartPlotOptions {
 
 export interface ChartAnnotationLabel {
     text?: string;
+    /** Draw the label on a chip, the default; `false` draws the words alone, in the annotation's colour. */
+    background?: boolean;
     position?: 'left' | 'center' | 'right' | 'top' | 'bottom';
     textAnchor?: 'start' | 'middle' | 'end';
     offsetX?: number;
@@ -398,6 +400,8 @@ export interface ChartAnnotationLabel {
 
 export interface ChartAnnotations {
     position?: 'front' | 'back';
+    /** Every label on a chip, the default; `false` for words alone. A label's own `background` wins. */
+    labelBackground?: boolean;
     yaxis?: { y: number; y2?: number; yAxisIndex?: number; borderColor?: string; fillColor?: string; opacity?: number; strokeDashArray?: number; width?: string; label?: ChartAnnotationLabel }[];
     xaxis?: { x: number | string; x2?: number | string; borderColor?: string; fillColor?: string; opacity?: number; strokeDashArray?: number; label?: ChartAnnotationLabel }[];
     points?: { x: number | string; y: number; yAxisIndex?: number; seriesIndex?: number; marker?: { size?: number; fillColor?: string; strokeColor?: string; strokeWidth?: number }; label?: ChartAnnotationLabel }[];
@@ -514,8 +518,26 @@ export type ChartPointInput =
     | [x: number | string, open: number, high: number, low: number, close: number]
     | { x: number | string | Date; y: number | null | number[]; z?: number; /** A bullet chart's mark to beat. */ target?: number; /** A sunburst's parent node, by name. */ parent?: string; fillColor?: string; goals?: unknown };
 
+/** A trend drawn over a series, as a line of its own that the legend and the tooltip name. */
+export interface ChartTrendline {
+    /** `'linear'` (least squares, the default), `'exponential'`, or `'movingAverage'` over `period` points. */
+    type?: 'linear' | 'exponential' | 'movingAverage';
+    /** Points a moving average takes. Defaults to 3. */
+    period?: number;
+    /** Defaults to the series' name followed by the locale's word for a trend. */
+    name?: string;
+    /** Any CSS colour. Defaults to the palette's entry at the trend's place, after every series given — `colors` sets it as for any series. */
+    color?: string;
+    /** Defaults to 2. */
+    width?: number;
+    /** Defaults to 5; 0 draws it solid. */
+    dashArray?: number;
+}
+
 export interface ChartSeriesInput {
     name?: string;
+    /** A trend drawn over this series: `{ type: 'linear' }`, or just `true` for that. */
+    trendline?: boolean | ChartTrendline;
     /** The mark for this series, in a combined chart (`line` over `bar`). */
     type?: ChartType;
     color?: string;

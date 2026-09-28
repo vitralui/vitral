@@ -27,6 +27,10 @@ export interface FormMessages {
     equals: string;
     /** A rule that returned `false` without a message of its own. */
     invalid: string;
+    /** A number with a fraction where `integer` wants a whole one. */
+    integer: string;
+    /** A value `oneOf` does not allow. */
+    oneOf: string;
 }
 
 export const defaultFormMessages: FormMessages = {
@@ -41,7 +45,9 @@ export const defaultFormMessages: FormMessages = {
     email: 'Enter an email address like name@example.com.',
     url: 'Enter a web address like https://example.com.',
     equals: 'This has to match {field}.',
-    invalid: 'Enter a valid value.'
+    invalid: 'Enter a valid value.',
+    integer: 'Enter a whole number.',
+    oneOf: 'Choose one of the options given.'
 };
 
 /** Fills `{name}` placeholders; an unknown one is left as written. */

@@ -249,7 +249,8 @@ export interface SceneAnnotation {
     opacity: number;
     dash: number;
     marker?: SceneMarker;
-    label?: SceneText & { borderColor?: string; fill?: string };
+    /** `chip` is false for words drawn without a box, in `fill` rather than on it. */
+    label?: SceneText & { borderColor?: string; fill?: string; chip?: boolean };
 }
 
 export interface SceneColumn {

@@ -101,4 +101,19 @@ describe('Popover', () => {
         await open();
         await expectNoA11yViolations();
     });
+
+    it('draws no arrow by default, one when asked, and one for every popup when the app asks', async () => {
+        const plain = mountPopover();
+        await plain.open();
+        expect(plain.panel()!.querySelector('.vt-overlay-arrow')).toBeNull();
+        plain.wrapper.unmount();
+
+        const asked = mountPopover({ arrow: true });
+        await asked.open();
+        expect(asked.panel()!.querySelector('.vt-overlay-arrow')).not.toBeNull();
+        asked.op.value?.hide();
+        await nextTick();
+        asked.wrapper.unmount();
+    });
 });
+

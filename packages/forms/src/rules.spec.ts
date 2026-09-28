@@ -109,6 +109,44 @@ describe('rules', () => {
     });
 
     it('gathers every rule on one object', () => {
-        expect(Object.keys(rules).sort()).toEqual(['custom', 'email', 'equalsField', 'max', 'maxLength', 'min', 'minLength', 'pattern', 'required', 'url']);
+        expect(Object.keys(rules).sort()).toEqual(['custom', 'email', 'equalsField', 'integer', 'max', 'maxLength', 'min', 'minLength', 'oneOf', 'pattern', 'required', 'url', 'when']);
+    });
+});
+
+describe('the rules added in 0.3', () => {
+    it('integer wants a whole number, and leaves empty values to required', () => {
+        const rule = rules.integer();
+        for (const value of [3, '42', -7, 0]) expect(check(rule, value)).toBeUndefined();
+        expect(check(rule, 3.5)).toBe(defaultFormMessages.integer);
+        expect(check(rule, 'abc')).toBe(defaultFormMessages.invalid);
+        expect(check(rule, '')).toBeUndefined();
+    });
+
+    it('oneOf allows only the values given, compared by value, every item of a list', () => {
+        const rule = rules.oneOf(['basic', 'pro', { id: 1 }]);
+        expect(check(rule, 'pro')).toBeUndefined();
+        expect(check(rule, { id: 1 })).toBeUndefined();
+        expect(check(rule, 'enterprise')).toBe(defaultFormMessages.oneOf);
+        expect(check(rule, ['basic', 'pro'])).toBeUndefined();
+        expect(check(rule, ['basic', 'gold'])).toBe(defaultFormMessages.oneOf);
+        expect(check(rules.oneOf(['a'], 'Pick {values}'), 'b')).toBe('Pick a');
+    });
+
+    it('when applies its rules only while the condition holds, first message first', () => {
+        const rule = rules.when((values: { kind?: string }) => values.kind === 'company', [rules.required('Enter the tax id'), rules.minLength(14)], { deps: ['kind'] });
+        expect(rule.deps).toEqual(['kind']);
+        expect(check(rule, '', { kind: 'person' })).toBeUndefined();
+        expect(check(rule, '', { kind: 'company' })).toBe('Enter the tax id');
+        expect(check(rule, '123', { kind: 'company' })).toBe(fillMessage(defaultFormMessages.minLength, { min: 14 }));
+        expect(check(rule, '12345678000190', { kind: 'company' })).toBeUndefined();
+    });
+
+    it('when waits for an async rule, and carries the deps of the rules it holds', async () => {
+        const taken = rules.custom(async (v: string) => (v === 'admin' ? 'Taken' : true));
+        const rule = rules.when(() => true, [taken, rules.equalsField('other')]);
+        expect(rule.deps).toEqual(['other']);
+        await expect(check(rule, 'admin', { other: 'admin' })).resolves.toBe('Taken');
+        await expect(check(rule, 'ana', { other: 'ana' })).resolves.toBeUndefined();
+        await expect(check(rule, 'ana', { other: 'bia' })).resolves.toBe('This has to match other.');
     });
 });

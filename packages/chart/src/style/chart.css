@@ -396,6 +396,12 @@
     fill: var(--vt-chart-annotation-label-color);
 }
 
+/* Words with no chip under them: the chart's own text colour, unless the annotation lends one. */
+.vt-chart-annotation-label-bare {
+    fill: var(--vt-text-color);
+    font-weight: 500;
+}
+
 .vt-chart-annotation-label-box {
     fill: var(--vt-chart-annotation-label-background);
     stroke: var(--vt-chart-annotation-label-border-color);

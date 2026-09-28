@@ -11,7 +11,7 @@ import {
     type BoardPosition,
     type Locale
 } from '@vitral/core';
-import type { Refusal, TaskboardColumn, TaskboardConfig, TaskboardKey, TaskboardLane, TaskboardModels, TaskboardPosition } from './types';
+import type { Refusal, TaskboardColumn, TaskboardConfig, TaskboardKey, TaskboardLane, TaskboardModels, TaskboardPosition, TaskboardSummary } from './types';
 
 /**
  * What a board holds, worked out from what it was told: which lanes there are,
@@ -138,6 +138,32 @@ export const otherCount = (entries: readonly BoardEntry[], column: BoardKey, lan
     cellEntries(entries, column, lane).filter((cell) => cell.at !== at).length;
 
 export const countOf = (entries: readonly BoardEntry[], column: TaskboardColumn): number => columnCount(entries, column.key as BoardKey);
+
+/**
+ * The summary figure of the cards a filter keeps — a column's, or a lane's —
+ * formatted for the locale; null with no summary asked for or no number to
+ * work it out from.
+ */
+export function summaryOf(entries: readonly BoardEntry[], keep: (entry: BoardEntry) => boolean, summary: TaskboardSummary | undefined, locale: Locale): string | null {
+    if (!summary) return null;
+    const values = entries
+        .filter(keep)
+        .map((entry) => getField(entry.item, summary.field))
+        .map((value) => (typeof value === 'string' && value.trim() !== '' ? Number(value) : value))
+        .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+    const type = summary.type ?? 'sum';
+    if (!values.length && type !== 'sum') return null;
+    const value =
+        type === 'average'
+            ? values.reduce((a, b) => a + b, 0) / values.length
+            : type === 'min'
+              ? Math.min(...values)
+              : type === 'max'
+                ? Math.max(...values)
+                : values.reduce((a, b) => a + b, 0);
+    const text = new Intl.NumberFormat(locale.code, summary.numberFormat ?? { maximumFractionDigits: 1 }).format(value);
+    return summary.format ? summary.format.replace(/\{value\}/g, text) : text;
+}
 export const wipOf = (entries: readonly BoardEntry[], column: TaskboardColumn) => wipState(countOf(entries, column), column.wipLimit);
 export const laneCount = (entries: readonly BoardEntry[], lane: TaskboardLane): number => entries.filter((entry) => entry.lane === lane.key).length;
 

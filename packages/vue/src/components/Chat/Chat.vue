@@ -171,6 +171,7 @@ const inputs = (): ChatConfig => ({
     maxRows: props.maxRows,
     sendOnEnter: props.sendOnEnter,
     height: props.height,
+    messageActions: toRaw(props.messageActions),
     locale: config.locale,
     unstyled: unstyled(),
     pt: passThroughMap(),
@@ -188,7 +189,8 @@ const events: ChatConfig['on'] = {
         open.value = value;
         emit('open-change', value);
     },
-    'at-bottom-change': (value) => emit('at-bottom-change', value)
+    'at-bottom-change': (value) => emit('at-bottom-change', value),
+    'message-action': (event) => emit('message-action', event)
 };
 
 onMounted(() => {
@@ -214,7 +216,7 @@ function push(next: Partial<ChatConfig>) {
 
 // Deep, over the reactive props (not their raw objects), so a message changed in place is seen too.
 watch(
-    () => [props.messages, props.suggestions, attachments.value],
+    () => [props.messages, props.suggestions, attachments.value, props.messageActions],
     () => push(inputs()),
     { deep: true }
 );

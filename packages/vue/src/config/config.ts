@@ -12,6 +12,7 @@ import {
 } from '@vitral/core';
 import { registerIcons, type IconDef } from '@vitral/icons';
 import { createThemeManager, Ink, type BorderStrength, type ColorScheme, type Preset, type ThemeManager, type ThemeOptions } from '@vitral/themes';
+import type { TourConfig, TourHandle } from '@vitral/tour';
 import { inject, reactive, type InjectionKey } from 'vue';
 import type { GlobalPassThrough, InputVariant } from '../base/types';
 import type { ConfirmEvents, DialogEvents, ToastEvents } from './services';
@@ -32,8 +33,19 @@ export interface VitralThemeConfig {
     storageKey?: string | false;
 }
 
+/**
+ * What every tour in the application starts from — `<Tour>`, `useTour()` and
+ * `useGlobalTour()` alike: `{ showProgress: true, progressStyle: 'dots',
+ * dismissableMask: false }`. A tour's own props and options go over it.
+ */
+export type TourDefaults = Omit<TourConfig, 'steps' | 'slots' | 'on' | 'locale' | 'unstyled' | 'pt' | 'classes' | 'nonce' | 'cssLayer' | 'overlayTarget' | 'zIndex'>;
+
 export interface VitralConfig extends BaseConfig {
     pt: GlobalPassThrough;
+    /** Reactive: what every tour starts from. */
+    tour: TourDefaults;
+    /** Reactive: whether anchored popups draw a pointer to their anchor unless one says otherwise. */
+    overlayArrow: boolean;
     inputVariant: InputVariant;
     /** Wrap component styles in `@layer <name>`, so application CSS wins without `!important`. */
     cssLayer: string | false;
@@ -62,6 +74,14 @@ export interface VitralOptions {
      * `icons` from `@vitral/icons/registry` for the whole set.
      */
     icons?: readonly IconDef[] | Readonly<Record<string, IconDef>>;
+    /** What every tour starts from: `{ showProgress: true, dismissableMask: false }`. */
+    tour?: TourDefaults;
+    /**
+     * Popups that hang from something — Popover, ConfirmPopup, HoverCard,
+     * Menu and TieredMenu opened as popups, tooltips — draw a pointer to it.
+     * Off by default; each one's `arrow` says otherwise for itself.
+     */
+    overlayArrow?: boolean;
 }
 
 export interface VitralContext {
@@ -79,6 +99,8 @@ export interface VitralContext {
     confirm: EventBus<ConfirmEvents>;
     /** The channel `useDialog()` opens `<DynamicDialog>` through. */
     dialog: EventBus<DialogEvents>;
+    /** The application's own tour, made by the first `useGlobalTour()` and ended with the app. */
+    globalTour: TourHandle | null;
 }
 
 export const VitralKey: InjectionKey<VitralContext> = Symbol('vitral');
@@ -93,7 +115,9 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
         zIndex: { ...defaultZIndex, ...options.zIndex },
         inputVariant: options.inputVariant ?? 'outlined',
         cssLayer: options.cssLayer ?? false,
-        csp: options.csp ?? {}
+        csp: options.csp ?? {},
+        tour: options.tour ?? {},
+        overlayArrow: options.overlayArrow ?? false
     }) as VitralConfig;
 
     if (options.icons) registerIcons(options.icons);
@@ -113,7 +137,7 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
 
     const styles = createStyleRegistry({ nonce: config.csp.nonce, cssLayer: config.cssLayer });
 
-    return { config, theme, styles, toast: createEventBus<ToastEvents>(), confirm: createEventBus<ConfirmEvents>(), dialog: createEventBus<DialogEvents>() };
+    return { config, theme, styles, toast: createEventBus<ToastEvents>(), confirm: createEventBus<ConfirmEvents>(), dialog: createEventBus<DialogEvents>(), globalTour: null };
 }
 
 let fallback: VitralContext | null = null;

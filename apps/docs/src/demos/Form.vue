@@ -14,6 +14,7 @@ export const meta: DemoMeta = {
 import DemoSection from '../DemoSection.vue';
 import AsyncValidation from './Form/AsyncValidation.vue';
 import BlurOrSubmit from './Form/BlurOrSubmit.vue';
+import ConditionalRules from './Form/ConditionalRules.vue';
 import ErrorSummary from './Form/ErrorSummary.vue';
 import EveryControl from './Form/EveryControl.vue';
 import FieldArrays from './Form/FieldArrays.vue';
@@ -32,6 +33,11 @@ import WithoutFramework from './Form/WithoutFramework.vue';
         title="Validate on blur or on submit"
         description="`validate-on` says when a field is first checked: `submit` (the default), `blur`, `change` or `input`. Checking on blur tells people early; checking on submit never interrupts them. A field can choose its own."
     ><BlurOrSubmit /></DemoSection>
+
+    <DemoSection
+        title="Rules that depend on other fields"
+        description="`rules.when(condition, rules)` applies its rules only while the condition holds — the tax id is asked of a company alone, and `deps` checks it again when the kind changes. `rules.integer()` wants a whole number and `rules.oneOf()` one of the values given. Submit as it is, then switch to Company."
+    ><ConditionalRules /></DemoSection>
 
     <p class="demo-lead">
         Rules cover a field at a time; a schema covers the form. <code>@vitral/forms</code> ships adapters for Zod, Yup, Valibot, Superstruct and anything carrying

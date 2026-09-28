@@ -149,8 +149,14 @@ describe('createChat', () => {
         expect(el.classList.contains('vt-chat-widget-root')).toBe(true);
         expect(launcher.getAttribute('aria-expanded')).toBe('false');
         expect(document.querySelector('.vt-chat-panel')).toBeNull();
+        // A drawn icon either way: a chat bubble shut, a cross open.
+        const drawn = () => el.querySelector('.vt-chat-launcher svg')?.innerHTML ?? '';
+        const shut = drawn();
+        expect(shut).not.toBe('');
 
         launcher.click();
+        expect(drawn()).not.toBe('');
+        expect(drawn()).not.toBe(shut);
         expect(openChange).toHaveBeenCalledWith(true);
         const panel = document.querySelector('.vt-chat-panel')!;
         expect(panel).not.toBeNull();

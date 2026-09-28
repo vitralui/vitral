@@ -18,6 +18,8 @@ export const aliases = {
     '@vitral/datagrid': pkg('datagrid'),
     '@vitral/chat/engine': pkg('chat', 'engine/index'),
     '@vitral/chat': pkg('chat'),
+    '@vitral/tour/engine': pkg('tour', 'engine/index'),
+    '@vitral/tour': pkg('tour'),
     '@vitral/schedule/engine': pkg('schedule', 'engine/index'),
     '@vitral/schedule': pkg('schedule'),
     '@vitral/taskboard/engine': pkg('taskboard', 'engine/index'),

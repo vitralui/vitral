@@ -320,7 +320,9 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
     // ---- derived values
 
     const optionsOf = memo((options: ChartOptions | undefined, type: ChartType, width: number, _v: number) => resolveChartOptions(options, type, width));
-    const seriesOf = memo((series: ChartSeries | undefined, type: ChartType, labels: string[] | undefined, _v: number) => normalizeSeries(series, type, labels));
+    const seriesOf = memo((series: ChartSeries | undefined, type: ChartType, labels: string[] | undefined, _v: number) =>
+        normalizeSeries(series, type, labels, (name) => formatMessage(locale().chart.trend, { series: name }).trim())
+    );
     const sceneOf = memo(
         (
             type: ChartType,

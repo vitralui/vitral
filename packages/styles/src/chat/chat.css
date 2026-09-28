@@ -179,6 +179,47 @@
     outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
 }
 
+/* A message's own buttons: quiet until they are wanted. */
+.vt-chat-message-actions {
+    display: inline-flex;
+    gap: 0.125rem;
+}
+
+.vt-chat-message-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    justify-content: center;
+    padding: 0 0.25rem;
+    border: 0;
+    border-radius: var(--vt-border-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.vt-chat-message-action:hover {
+    background: var(--vt-chat-hover-background);
+}
+
+.vt-chat-message-action:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+}
+
+.vt-chat-message-action .vt-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.vt-chat-message-action-pressed,
+.vt-chat-message-action-copied {
+    color: var(--vt-primary-color);
+}
+
 /* ---- the avatar ---- */
 
 .vt-chat-avatar {

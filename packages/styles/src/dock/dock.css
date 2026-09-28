@@ -21,10 +21,12 @@
     backdrop-filter: blur(12px);
 }
 
-/* The shelf keeps its thickness; a magnified item grows out of it, away from
-   the edge the dock sits on, and pushes its neighbours along. Growing the real
-   size — not a transform — is what keeps the item under the pointer the one
-   that is magnified, instead of a scaled neighbour covering it. */
+/* The shelf keeps its thickness and its length: a magnified item grows out of
+   it, away from the edge the dock sits on, and along it from its own centre,
+   a negative margin taking back what it grew so its neighbours stay put and
+   the dock does not stretch under the pointer. Growing the real size — not a
+   transform — and drawing the most magnified on top is what keeps the item
+   under the pointer the one that is magnified. */
 .vt-dock-bottom .vt-dock-list,
 .vt-dock-top .vt-dock-list {
     height: calc(var(--vt-dock-item-size) + 2 * var(--vt-dock-padding) + 2px);
@@ -45,19 +47,36 @@
 
 .vt-dock-item {
     --vt-dock-scale: 1;
+    /* Half of what the item grew, given back on each side along the dock. */
+    --_give-back: calc(var(--vt-dock-item-size) * (1 - var(--vt-dock-scale)) / 2);
+    position: relative;
     flex-shrink: 0;
+    transition: margin var(--vt-dock-transition-duration) ease-out;
+}
+
+.vt-dock-bottom .vt-dock-item,
+.vt-dock-top .vt-dock-item {
+    margin-inline: var(--_give-back);
+}
+
+.vt-dock-left .vt-dock-item,
+.vt-dock-right .vt-dock-item {
+    margin-block: var(--_give-back);
 }
 
 .vt-dock-magnify .vt-dock-item-active {
     --vt-dock-scale: var(--vt-dock-item-active-scale);
+    z-index: 3;
 }
 
 .vt-dock-magnify .vt-dock-item-near {
     --vt-dock-scale: var(--vt-dock-item-near-scale);
+    z-index: 2;
 }
 
 .vt-dock-magnify .vt-dock-item-far {
     --vt-dock-scale: var(--vt-dock-item-far-scale);
+    z-index: 1;
 }
 
 .vt-dock-action {
@@ -107,6 +126,7 @@
         --vt-dock-scale: 1;
     }
 
+    .vt-dock-item,
     .vt-dock-action,
     .vt-dock-action .vt-icon {
         transition: none;

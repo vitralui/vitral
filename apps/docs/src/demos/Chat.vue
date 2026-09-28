@@ -16,6 +16,7 @@ import Captions from './Chat/Captions.vue';
 import Copilot from './Chat/Copilot.vue';
 import DefaultChat from './Chat/DefaultChat.vue';
 import FailedAnswer from './Chat/FailedAnswer.vue';
+import MessageActions from './Chat/MessageActions.vue';
 import TwoPeople from './Chat/TwoPeople.vue';
 import Widget from './Chat/Widget.vue';
 </script>
@@ -27,5 +28,6 @@ import Widget from './Chat/Widget.vue';
     <DemoSection title="A copilot beside the work" description="`variant=&quot;copilot&quot;`: a narrow column, no bubbles and no avatars, for a panel that sits next to what is being written."><Copilot /></DemoSection>
     <DemoSection title="Captions" description="`variant=&quot;captions&quot;`: a running transcript rather than a conversation — no bubbles, no sides, the speaker's name in front, and the line still being recognised carrying the caret."><Captions /></DemoSection>
     <DemoSection title="A widget" description="`variant=&quot;widget&quot;`: a launcher, and the thread in a panel that opens over the page. The launcher says whether the panel is open, and names itself either way."><Widget /></DemoSection>
+    <DemoSection title="Under each answer" description="`message-actions` puts buttons under each settled message: `copy`, `regenerate`, `like` and `dislike` are built in, and actions of your own go beside them. A rating shows as pressed while the message carries it as its `feedback`, which the application sets when `message-action` reports the press. Copying has already happened by then, shows a tick, and is announced."><MessageActions /></DemoSection>
     <DemoSection title="When an answer fails" description="A message with an `error` takes its place in the thread, and `retryable` puts the ask-again button under it."><FailedAnswer /></DemoSection>
 </template>

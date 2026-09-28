@@ -39,6 +39,7 @@ import {
     type ResolvedColumn
 } from './engine/state';
 import type { Content, Row, RowsPerPageContext, DataGridConfig, DataGridModels } from './engine/types';
+import { toCSV, type DataGridCsvOptions } from './engine/export';
 import { chooserView, gridView, type DataGridActions, type ViewContext } from './render/grid';
 
 /**
@@ -61,9 +62,23 @@ export interface DataGridHandle<T = Row> {
     refresh(): void;
     /** Asks the data source again, for rows that changed where they came from. */
     reload(): void;
+    /**
+     * The table as CSV, in the columns and order on show. `scope` is every row
+     * the filters let through (the default), the page on show, or the
+     * selection; with a data source or `lazy`, "every row" is the rows loaded.
+     */
+    toCSV(options?: DataGridExportOptions): string;
+    /** Hands the reader the CSV as a file to save, `table.csv` unless `filename` says otherwise. */
+    exportCSV(options?: DataGridExportOptions & { filename?: string }): void;
     /** Removes everything this table added to the element. */
     destroy(): void;
     readonly element: HTMLElement;
+}
+
+export interface DataGridExportOptions extends DataGridCsvOptions {
+    scope?: 'all' | 'page' | 'selection';
+    /** Start the file with a byte-order mark, which is what makes Excel read UTF-8. Defaults to true for `exportCSV`. */
+    bom?: boolean;
 }
 
 let counter = 0;
@@ -594,6 +609,16 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         chooser.update();
     }
 
+    function csv(options: DataGridExportOptions = {}): string {
+        const columns = tableColumns(current, withShared());
+        const rows = resolveRows(current, models, applied, remote);
+        const scope = options.scope ?? 'all';
+        const selection = models.selection;
+        const chosen = scope === 'page' ? rows.page : scope === 'selection' ? ((Array.isArray(selection) ? selection : selection ? [selection] : []) as T[]) : rows.all;
+        const text = toCSV(chosen, columns, options);
+        return options.bom ? `\ufeff${text}` : text;
+    }
+
     joinGroup();
     render();
     requestRows();
@@ -617,6 +642,21 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         state: () => ({ ...models }),
         refresh: render,
         reload: requestSource,
+        toCSV: csv,
+        exportCSV(options = {}) {
+            if (typeof document === 'undefined') return;
+            const text = csv({ ...options, bom: false });
+            const blob = new Blob([options.bom === false ? '' : '\ufeff', text], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = options.filename ?? 'table.csv';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url));
+        },
         destroy() {
             clearTimeout(filterTimer);
             stopGroup?.();

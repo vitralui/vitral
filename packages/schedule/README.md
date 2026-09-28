@@ -30,7 +30,9 @@ schedule.destroy();
 A pointer drags events, their end edge, and empty time. Every change is shown
 at once and reported with a `revert()`, so an application that refuses one puts
 it back. Recurring events are expanded from an RRULE; all dates are local, and
-nothing here converts time zones.
+nothing here converts time zones. `toICalendar()` and `exportICS()` write the
+events out as an `.ics` file, rules and exceptions kept, for any other
+calendar to import.
 
 `@vitral/schedule/engine` is the arithmetic on its own: which views, which
 period, what is on in it, and what everything is called. No DOM, no timers.

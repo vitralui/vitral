@@ -1,0 +1,8 @@
+.vt-copybutton {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.vt-copybutton-copied .vt-icon {
+    color: var(--vt-copybutton-copied-color);
+}

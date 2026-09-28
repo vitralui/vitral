@@ -324,5 +324,7 @@
     "Read the installation guide": "Ler o guia de instalação",
     "Star on GitHub": "Dar uma estrela no GitHub",
     "Package manager: {name}": "Gerenciador de pacotes: {name}",
-    "Package manager": "Gerenciador de pacotes"
+    "Package manager": "Gerenciador de pacotes",
+    "Tour": "Tour",
+    "Guided tours with steps that wait, skip and move on by themselves": "Tours guiados com passos que esperam, pulam e avançam sozinhos"
 }

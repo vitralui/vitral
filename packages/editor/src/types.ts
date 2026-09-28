@@ -100,8 +100,11 @@ export interface TextEditorConfig {
     maxLength?: number | null;
     /** Milliseconds of quiet before an edit starts a new undo step. */
     historyDelay?: number;
-    /** Shows the character count (and the limit, where there is one). */
-    showCount?: boolean;
+    /**
+     * Shows a count under the text: `true` or `'characters'` for characters
+     * (and the limit, where there is one), `'words'` for words, `'both'` for both.
+     */
+    showCount?: boolean | 'characters' | 'words' | 'both';
     readonly?: boolean;
     disabled?: boolean;
     invalid?: boolean;

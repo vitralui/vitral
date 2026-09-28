@@ -12,6 +12,7 @@ export const meta: DemoMeta = {
 import DemoSection from '../DemoSection.vue';
 import Agenda from './Schedule/Agenda.vue';
 import CustomToolbar from './Schedule/CustomToolbar.vue';
+import ExportIcs from './Schedule/ExportIcs.vue';
 import Month from './Schedule/Month.vue';
 import TimeZones from './Schedule/TimeZones.vue';
 import TimelineByResource from './Schedule/TimelineByResource.vue';
@@ -27,5 +28,6 @@ import Week from './Schedule/Week.vue';
         title="The same instants, read somewhere else"
         description="Three fixed instants, drawn in whichever zone is chosen. Nothing about the events changes — only which hour and which day the grid puts them at, so the nightly build crosses into the day before or the day after depending on where you are standing. Click an event: what comes back is the instant it always was."
     ><TimeZones /></DemoSection>
+    <DemoSection title="Export to a calendar" description="`exportICS()` hands the reader the events as an iCalendar file that Google Calendar, Outlook and Apple Calendar import: a recurring event keeps its rule and its exceptions rather than being written out day by day, and an all-day one stays a date. `toICalendar()` returns the text instead."><ExportIcs /></DemoSection>
     <DemoSection title="Custom toolbar, content and revert" description="The toolbar and the event content are slots. Hours run 08:00–18:00 in 15-minute slots, and a move onto a weekend is reverted."><CustomToolbar /></DemoSection>
 </template>

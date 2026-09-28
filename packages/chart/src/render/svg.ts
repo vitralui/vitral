@@ -136,8 +136,13 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
      * end put it half outside. The words follow the chip once it has moved, so
      * they are placed from the box rather than from the anchor it started at.
      */
+    /** Boxes already given out in this layer: a label that would land on one moves off it. */
+    const taken: { x: number; y: number; width: number; height: number }[] = [];
+    const overlaps = (a: { x: number; y: number; width: number; height: number }, b: typeof a) =>
+        a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
     const labelLayout = (a: SceneAnnotation) => {
         const l = a.label!;
+        const chip = l.chip !== false;
         const size = parseFloat(l.style?.fontSize ?? '') || 11;
         const width = l.text.length * size * 0.6 + 10;
         const height = size + 6;
@@ -147,15 +152,26 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
         };
         const p = scene.plot;
         const x = Math.max(p.x, Math.min(wanted.x, p.x + p.width - width));
-        const y = Math.max(p.y, Math.min(wanted.y, p.y + p.height - height));
+        const clampY = (value: number) => Math.max(p.y, Math.min(value, p.y + p.height - height));
+        let y = clampY(wanted.y);
+        // Two lines at the same value — a session's low that is also the last
+        // close — would put one label on the other. The later one steps away,
+        // up first and then down, until it is clear of every one before it.
+        for (let step = 1; step <= 8 && taken.some((t) => overlaps(t, { x, y, width, height })); step++) {
+            const up = clampY(wanted.y - Math.ceil(step / 2) * (height + 2));
+            const down = clampY(wanted.y + Math.ceil(step / 2) * (height + 2));
+            y = step % 2 ? up : down;
+        }
+        taken.push({ x, y, width, height });
         return {
-            box: { x: round(x), y: round(y), width: round(width), height: round(height), rx: 3, style: { fill: l.fill, stroke: l.borderColor } },
+            box: chip ? { x: round(x), y: round(y), width: round(width), height: round(height), rx: 3, style: { fill: l.fill, stroke: l.borderColor } } : null,
             text: {
                 x: round(x + width / 2),
                 y: round(y + height / 2),
                 'text-anchor': 'middle',
                 'dominant-baseline': 'central',
-                style: { fontSize: l.style?.fontSize, fontWeight: l.style?.fontWeight as string | undefined, fontFamily: l.style?.fontFamily, fill: l.style?.color }
+                // Without its chip the words take the annotation's colour, which is what the chip was.
+                style: { fontSize: l.style?.fontSize, fontWeight: l.style?.fontWeight as string | undefined, fontFamily: l.style?.fontFamily, fill: l.style?.color ?? (chip ? undefined : l.fill) }
             }
         };
     };
@@ -176,7 +192,10 @@ export function annotationsView({ scene, part }: ViewContext, layer: 'back' | 'f
                 a.label
                     ? (() => {
                           const { box, text } = labelLayout(a);
-                          return [s('rect', { ...part('annotationLabelBox'), ...box }), s('text', { ...part('annotationLabel'), ...text }, a.label!.text)];
+                          return [
+                              box ? s('rect', { ...part('annotationLabelBox'), ...box }) : null,
+                              s('text', { ...part('annotationLabel', { chip: !!box }), ...text }, a.label!.text)
+                          ];
                       })()
                     : null
             );

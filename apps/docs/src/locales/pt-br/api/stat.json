@@ -1,0 +1,16 @@
+{
+    "props": {
+        "value": "Um número é formatado para a locale com `format`; uma string é mostrada como está.",
+        "format": "Opções de `Intl.NumberFormat` para `value`: `{ style: 'currency', currency: 'BRL' }`, `{ notation: 'compact' }`.",
+        "delta": "A variação, como razão: `0.125` é +12,5%. Uma string é mostrada como está, e então `trend` diz para que lado foi.",
+        "deltaFormat": "Opções de `Intl.NumberFormat` para `delta`. O padrão é uma porcentagem com sinal e uma casa decimal.",
+        "trend": "Para que lado foi; deduzido do sinal de um `delta` numérico caso contrário.",
+        "invert": "Cair é a boa notícia: custos, erros, tempo de carregamento.",
+        "caption": "Ao lado da variação: `'vs mês passado'`.",
+        "loading": "Mantém o layout e mostra um marcador no lugar do número."
+    },
+    "slots": {
+        "value": "Substitui o número formatado.",
+        "chart": "Abaixo de tudo: um sparkline, um medidor."
+    }
+}

@@ -52,6 +52,7 @@ import {
     type Override,
     type ScheduleSettings
 } from './engine/state';
+import { toICalendar, type ICalendarOptions } from './engine/ical';
 import type { Occurrence, ScheduleCell, ScheduleConfig, ScheduleModels, ScheduleViewName } from './engine/types';
 import { moreView } from './render/more';
 import { scheduleView, type ViewActions, type ViewContext } from './render/index';
@@ -84,6 +85,10 @@ export interface ScheduleHandle {
     setView(view: ScheduleViewName): void;
     /** Puts the keyboard on the grid cell that holds the tab stop. */
     focus(): void;
+    /** The events it was given, as an iCalendar file's text. */
+    toICalendar(options?: ICalendarOptions): string;
+    /** Hands the reader the events as an `.ics` file to import elsewhere, `calendar.ics` unless `filename` says otherwise. */
+    exportICS(options?: ICalendarOptions & { filename?: string }): void;
     /** Removes everything this schedule added to the element. */
     destroy(): void;
     readonly element: HTMLElement;
@@ -101,6 +106,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     let announcement = '';
     /** What the reader has moved since the events were handed over. */
     const overrides = new Map<string, Override>();
+    const ical = (options: ICalendarOptions = {}) => toICalendar(current.events ?? [], { defaultDuration: current.defaultDuration, ...options });
     let drag: { key: string; kind: 'move' | 'resize'; origin: Occurrence; anchor: ScheduleCell & { at: Date }; preview: Override } | null = null;
     let selecting: { anchor: ScheduleCell; head: ScheduleCell; via: 'pointer' | 'keyboard' } | null = null;
     let focus = { date: new Date(0), resource: 0 };
@@ -673,6 +679,19 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         today: goToday,
         setView,
         focus: focusGridCell,
+        toICalendar: ical,
+        exportICS(options = {}) {
+            if (typeof document === 'undefined') return;
+            const url = URL.createObjectURL(new Blob([ical(options)], { type: 'text/calendar;charset=utf-8' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = options.filename ?? 'calendar.ics';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url));
+        },
         destroy() {
             clearInterval(clock);
             cellDrag.cancel();

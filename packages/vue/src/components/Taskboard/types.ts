@@ -38,6 +38,15 @@ export interface TaskboardDropContext {
     to: TaskboardPosition;
 }
 
+export interface TaskboardSummary {
+    /** The field (a dotted path) holding each card's number. */
+    field: string;
+    type?: 'sum' | 'average' | 'min' | 'max';
+    /** A template over `{value}`: `'{value} pts'`. */
+    format?: string;
+    numberFormat?: Intl.NumberFormatOptions;
+}
+
 export interface TaskboardProps extends BaseProps {
     /** The columns, in order. With no `items`, each carries its own cards (`v-model:columns`). */
     columns?: TaskboardColumn[];
@@ -47,6 +56,8 @@ export interface TaskboardProps extends BaseProps {
     columnField?: string;
     /** The field that places a card in a swimlane; set it to split the board into lanes. */
     laneField?: string;
+    /** A figure beside each column's and lane's count, from a field of its cards: `{ field: 'points', format: '{value} pts' }`. */
+    summary?: TaskboardSummary;
     /** The lanes, in order. Without them, the lanes are the distinct values of `laneField`, in order of appearance. */
     lanes?: TaskboardLane[];
     /** The field that identifies a card. Defaults to `'id'`. */

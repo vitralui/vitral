@@ -54,7 +54,7 @@ export const chartStyle = defineStyle({
         radarTick: 'vt-chart-radar-tick',
         radarArea: 'vt-chart-radar-area',
         annotation: (s: { kind?: string }) => ['vt-chart-annotation', `vt-chart-annotation-${s.kind}`],
-        annotationLabel: 'vt-chart-annotation-label',
+        annotationLabel: (s: { chip?: boolean }) => ['vt-chart-annotation-label', { 'vt-chart-annotation-label-bare': s.chip === false }],
         annotationLabelBox: 'vt-chart-annotation-label-box',
         crosshair: 'vt-chart-crosshair',
         crosshairBand: 'vt-chart-crosshair-band',

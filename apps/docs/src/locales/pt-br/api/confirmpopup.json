@@ -1,7 +1,8 @@
 {
     "props": {
         "group": "Responde só às chamadas de `useConfirm().require()` enviadas com o mesmo `group` e um `target`.",
-        "placement": "Onde abre em relação ao alvo. O padrão é `'bottom'`."
+        "placement": "Onde abre em relação ao alvo. O padrão é `'bottom'`.",
+        "arrow": "Uma seta do painel apontando para o que o abriu, no lado em que o painel acabar. Caso contrário, vale o `overlayArrow` do plugin, que é desligado."
     },
     "slots": {
         "message": "Substitui a mensagem; ela continua descrevendo o popup."

@@ -135,6 +135,9 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         width: size(p.width),
         pinned: p.pinned as 'left' | 'right' | undefined,
         toggleable: p.toggleable === undefined ? !p.selectionMode : truthy(p.toggleable),
+        exportable: p.exportable === undefined ? undefined : truthy(p.exportable),
+        exportValue: p.exportValue as DataGridColumn['exportValue'],
+        exportHeader: p.exportHeader as string | undefined,
         headerClass: normalizeClass(p.headerClass) || undefined,
         bodyClass: normalizeClass(p.bodyClass) || undefined,
         headerStyle: normalizeStyle(p.headerStyle) as Record<string, string> | undefined,
@@ -474,6 +477,10 @@ onBeforeUnmount(() => {
 
 defineExpose({
     reload: () => table?.reload(),
+    /** The table as CSV; see `@vitral/datagrid`'s `toCSV`. */
+    toCSV: (options?: Parameters<DataGridHandle['toCSV']>[0]) => table?.toCSV(options) ?? '',
+    /** Hands the reader the table as a CSV file. */
+    exportCSV: (options?: Parameters<DataGridHandle['exportCSV']>[0]) => table?.exportCSV(options),
     /** The framework-free table underneath, for anything this component does not expose. */
     table: () => table
 });

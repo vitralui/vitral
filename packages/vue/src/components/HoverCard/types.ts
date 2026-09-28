@@ -1,6 +1,8 @@
 import type { BaseProps, OverlayPlacement } from '../../base/types';
 
 export interface HoverCardProps extends BaseProps {
+    /** A pointer from the panel to what opened it, on whichever side the panel ends up. The plugin's `overlayArrow` otherwise, which is off. */
+    arrow?: boolean;
     /** Milliseconds the pointer (or keyboard focus) rests before the card opens. Defaults to 700. */
     openDelay?: number;
     /** Milliseconds after the pointer leaves before it closes. Defaults to 300. */

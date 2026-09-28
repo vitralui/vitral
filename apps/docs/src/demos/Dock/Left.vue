@@ -12,5 +12,8 @@ const apps: MenuItem[] = [
 </script>
 
 <template>
-    <Dock :model="apps" position="left" aria-label="Apps (vertical)" />
+    <!-- A desktop, with the dock against its left edge. -->
+    <div style="display: flex; align-items: center; width: 100%; height: 26rem; border-radius: 8px; background: linear-gradient(135deg, var(--vt-primary-100), var(--vt-primary-300))">
+        <Dock :model="apps" position="left" aria-label="Apps (vertical)" />
+    </div>
 </template>

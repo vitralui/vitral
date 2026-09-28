@@ -21,7 +21,8 @@ describe('the generated options module', () => {
             cssLayer: false,
             inputVariant: 'outlined',
             direction: 'ltr',
-            unstyled: false
+            unstyled: false,
+            tour: {}
         });
     });
 

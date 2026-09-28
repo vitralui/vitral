@@ -41,6 +41,8 @@ provide(TabsKey, {
     unstyled: () => props.unstyled,
     orientation: () => props.orientation,
     lazy: () => props.lazy,
+    scrollable: () => props.scrollable,
+    scrollButtons: () => props.scrollButtons ?? 'sides',
     active,
     tabStop,
     activeElement: () => tabs.find((tab) => tab.value() === active.value)?.el.value ?? null,

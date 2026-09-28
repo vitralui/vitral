@@ -30,7 +30,9 @@ table.destroy();
 Sorting (single or multiple), filtering by column or across fields, paging,
 single and multiple selection, lazy loading and data sources, columns the
 reader resizes, moves, pins and hides, tables that share one column layout, and
-a column layout that is plain data an application can store and hand back.
+a column layout that is plain data an application can store and hand back —
+and `toCSV()` / `exportCSV()` to write what is on show (every filtered row,
+the page, or the selection) as a file a spreadsheet opens safely.
 
 Everything the reader can change is state the table keeps and publishes through
 `change`, so a host can bind it. A cell, a header, a footer or a filter a host

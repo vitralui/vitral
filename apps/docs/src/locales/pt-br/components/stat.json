@@ -1,0 +1,8 @@
+{
+    "description": "Um número que vale uma olhada — o que é, quanto é e para que lado foi — formatado para a locale, com a variação lida em palavras.",
+    "sections": {
+        "A row of figures": { "title": "Uma fileira de números", "description": "`delta` é uma razão: `0.125` é +12,5%. A seta e a cor não são lidas em voz alta, então a variação é dita em palavras." },
+        "When down is good": { "title": "Quando cair é bom", "description": "`invert` para custos, erros e tempos de carregamento: uma queda aparece na cor boa, ainda apontando para baixo." },
+        "With a sparkline": { "title": "Com um sparkline", "description": "O slot `chart` fica abaixo do número." }
+    }
+}

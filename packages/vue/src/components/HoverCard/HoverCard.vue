@@ -15,7 +15,7 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 defineOptions({ name: 'VtHoverCard' });
 
-const props = withDefaults(defineProps<HoverCardProps>(), { unstyled: undefined, openDelay: 700, closeDelay: 300, placement: 'bottom', offset: 8 });
+const props = withDefaults(defineProps<HoverCardProps>(), { unstyled: undefined, arrow: undefined, openDelay: 700, closeDelay: 300, placement: 'bottom', offset: 8 });
 const overlayTarget = useOverlayTarget();
 const emit = defineEmits<HoverCardEmits>();
 defineSlots<HoverCardSlots>();
@@ -31,6 +31,7 @@ useOverlay({
     anchor: triggerRef,
     overlay: cardRef,
     placement: () => props.placement,
+    arrow: () => props.arrow,
     offset: props.offset,
     onEscape: () => hide()
 });

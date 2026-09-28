@@ -2,7 +2,7 @@ import { formatMessage, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
 import { formatSize, groupMessages, initialsOf, showsAvatars, sideOf, type ChatGroup } from '../engine/state';
-import type { ChatAttachment, ChatConfig, ChatMessage, ChatToolCall, ChatVariant, Content } from '../engine/types';
+import type { ChatAttachment, ChatConfig, ChatMessage, ChatMessageAction, ChatToolCall, ChatVariant, Content } from '../engine/types';
 
 /**
  * The conversation as plain objects: a scrolling log of runs of messages and
@@ -20,6 +20,7 @@ export interface ChatActions {
     logKeydown: (event: KeyboardEvent) => void;
     focusMessage: (index: number) => void;
     retry: (message: ChatMessage) => void;
+    messageAction: (action: ChatMessageAction, message: ChatMessage) => void;
     suggest: (text: string) => void;
     pickFiles: () => void;
     filesPicked: (files: File[]) => void;
@@ -41,6 +42,8 @@ export interface ViewContext {
     /** The reader has scrolled away from the newest message. */
     away: boolean;
     announcement: string;
+    /** The message whose text was just copied, which shows a tick for a moment. */
+    copied?: string | number | null;
     on: ChatActions;
     /** Keeps the log and the composer reachable from the handle. */
     refs: { log: (el: Element | null) => void; input: (el: Element | null) => void; file: (el: Element | null) => void };
@@ -97,12 +100,47 @@ function toolView(context: ViewContext, tool: ChatToolCall, index: number): Chil
     );
 }
 
+/** The actions a message shows: the built-in ones filled in, and only those meant for its speaker. */
+export function actionsFor(config: ChatConfig, locale: Locale, message: ChatMessage): ChatMessageAction[] {
+    if (message.streaming || message.error) return [];
+    return (config.messageActions ?? [])
+        .map((action): ChatMessageAction => {
+            const given = typeof action === 'string' ? { id: action } : action;
+            if (given.id === 'copy') return { icon: 'copy', label: locale.chat.copy, ...given };
+            if (given.id === 'regenerate') return { icon: 'refresh', label: locale.chat.regenerate, ...given };
+            // A rating is a toggle, pressed while the message carries it as its feedback.
+            if (given.id === 'like') return { icon: 'thumbsUp', label: locale.chat.like, pressed: (m: ChatMessage) => m.feedback === 'like', ...given };
+            if (given.id === 'dislike') return { icon: 'thumbsDown', label: locale.chat.dislike, pressed: (m: ChatMessage) => m.feedback === 'dislike', ...given };
+            return given;
+        })
+        .filter((action) => (action.roles ?? ['assistant']).includes(message.role) && (action.id !== 'copy' || !!message.content));
+}
+
+function actionView(context: ViewContext, action: ChatMessageAction, message: ChatMessage): Child {
+    const { part, on, locale } = context;
+    const copied = action.id === 'copy' && context.copied === message.id;
+    const label = copied ? locale.chat.copied : (action.label ?? action.id);
+    const pressed = typeof action.pressed === 'function' ? action.pressed(message) : action.pressed;
+    return h(
+        'button',
+        mergeAttrs({ key: `a-${action.id}`, type: 'button' }, part('messageAction', { pressed: !!pressed, copied }), {
+            'aria-label': action.showLabel ? undefined : label,
+            title: action.showLabel ? undefined : label,
+            'aria-pressed': pressed === undefined ? undefined : pressed ? 'true' : 'false',
+            onClick: () => on.messageAction(action, message)
+        }),
+        action.icon ? icon(copied ? 'check' : action.icon) : null,
+        action.showLabel || !action.icon ? label : null
+    );
+}
+
 function messageView(context: ViewContext, message: ChatMessage, index: number): Child {
     const { part, locale, on, config, ids, tabIndex } = context;
     const side = sideOf(message.role);
     const custom = config.slots?.message?.({ message, index });
     const time = timeText(message.at, locale);
     const body = message.error ?? message.content ?? '';
+    const actions = actionsFor(config, locale, message);
 
     return h(
         'div',
@@ -140,14 +178,15 @@ function messageView(context: ViewContext, message: ChatMessage, index: number):
                             )
                         )
                       : null,
-                  time || message.retryable
+                  time || message.retryable || actions.length
                       ? h(
                             'div',
                             mergeAttrs({ key: 'meta' }, part('meta')),
-                            time ? h('time', part('time'), time) : null,
+                            time ? h('time', mergeAttrs({ key: 'time' }, part('time')), time) : null,
                             message.retryable
-                                ? h('button', mergeAttrs({ type: 'button' }, part('retry'), { onClick: () => on.retry(message) }), icon('refresh'), locale.chat.retry)
-                                : null
+                                ? h('button', mergeAttrs({ key: 'retry', type: 'button' }, part('retry'), { onClick: () => on.retry(message) }), icon('refresh'), locale.chat.retry)
+                                : null,
+                            actions.length ? h('span', mergeAttrs({ key: 'actions' }, part('messageActions')), ...actions.map((a) => actionView(context, a, message))) : null
                         )
                       : null
               ]

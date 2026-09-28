@@ -1,0 +1,8 @@
+{
+    "description": "Fatos sobre uma coisa como rótulos e valores — um pedido, um perfil — num <dl> de verdade, em colunas que se dobram em uma quando a lista é estreita.",
+    "sections": {
+        "Columns": { "title": "Colunas", "description": "As colunas respondem à largura da própria lista, não à da janela: num painel estreito elas se dobram em uma." },
+        "Bordered": { "title": "Com bordas", "description": "Cada fato numa célula de um bloco só, com um valor desenhado por um slot e uma ação ao lado do título." },
+        "Label beside the value": { "title": "Rótulo ao lado do valor" }
+    }
+}

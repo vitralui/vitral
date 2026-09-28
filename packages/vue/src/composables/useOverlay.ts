@@ -13,6 +13,8 @@ export interface UseOverlayOptions {
     offset?: number;
     matchWidth?: boolean;
     flip?: boolean;
+    /** Draw a pointer to the anchor; the plugin's `overlayArrow` when left unset. */
+    arrow?: MaybeRefOrGetter<boolean | undefined>;
     zIndexKey?: keyof ZIndexConfig;
     onEscape?: (event: KeyboardEvent) => void;
     onPointerDownOutside?: (event: PointerEvent) => void;
@@ -27,9 +29,10 @@ export interface UseOverlayOptions {
  */
 export function useOverlay(options: UseOverlayOptions): void {
     const { config } = useVitral();
+    const arrow = () => toValue(options.arrow) ?? config.overlayArrow;
     watch(
-        () => options.overlay.value,
-        (el, _previous, onCleanup) => {
+        () => [options.overlay.value, arrow()] as const,
+        ([el], _previous, onCleanup) => {
             if (!el) return;
             const cleanups: (() => void)[] = [];
             const anchor = toValue(options.anchor);
@@ -48,7 +51,8 @@ export function useOverlay(options: UseOverlayOptions): void {
                         placement: toValue(options.placement) ?? 'bottom-start',
                         offset: options.offset,
                         matchWidth: options.matchWidth,
-                        flip: options.flip
+                        flip: options.flip,
+                        withArrow: arrow()
                     })
                 );
             }

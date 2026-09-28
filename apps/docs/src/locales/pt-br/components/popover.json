@@ -1,7 +1,17 @@
 {
     "description": "Um diálogo não modal ancorado ao que o abriu, que fecha com Escape, um clique fora ou saindo com Tab.",
     "sections": {
-        "Share": { "title": "Compartilhar", "description": "Um flyout com um campo e um botão dentro." },
-        "Placement": { "title": "Posicionamento", "description": "`placement` escolhe o lado; ele inverte quando não há espaço." }
+        "Share": {
+            "title": "Compartilhar",
+            "description": "Um flyout com um campo e um botão dentro."
+        },
+        "Placement": {
+            "title": "Posicionamento",
+            "description": "`placement` escolhe o lado; ele inverte quando não há espaço."
+        },
+        "Arrows": {
+            "title": "Setas",
+            "description": "Desligada por padrão: `arrow` dá a um Popover, um ConfirmPopup, um HoverCard, um Menu ou TieredMenu em popup e a um tooltip uma seta apontando para o que o abriu, com o fundo e a borda do próprio painel. Ela fica no lado em que o painel acabou — inclusive quando ele vira por falta de espaço. `overlayArrow: true` no plugin a liga para todos, e `arrow: false` ainda a desliga para um."
+        }
     }
 }

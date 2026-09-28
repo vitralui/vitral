@@ -1,0 +1,10 @@
+{
+    "props": {
+        "keys": "O atalho: `'mod+k'`, `'shift+enter'`, ou as teclas como array. `mod` é ⌘ num Mac e Ctrl nos outros, e os modificadores são desenhados como cada plataforma os desenha. O slot padrão o substitui por uma tecla só.",
+        "separator": "Desenhado entre as teclas. O padrão é nenhum num Mac, onde ⌘⇧P se lê como um só, e `'+'` nos outros.",
+        "platform": "De qual plataforma usar os nomes; `'auto'` (o padrão) pergunta ao navegador depois de montado."
+    },
+    "slots": {
+        "default": "O texto de uma tecla, no lugar de `keys`."
+    }
+}

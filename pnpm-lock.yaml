@@ -275,6 +275,24 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/tour:
+    dependencies:
+      '@vitral/controls':
+        specifier: workspace:*
+        version: link:../controls
+      '@vitral/core':
+        specifier: workspace:*
+        version: link:../core
+      '@vitral/dom':
+        specifier: workspace:*
+        version: link:../dom
+      '@vitral/icons':
+        specifier: workspace:*
+        version: link:../icons
+      '@vitral/styles':
+        specifier: workspace:*
+        version: link:../styles
+
   packages/vue:
     dependencies:
       '@vitral/chart':
@@ -316,6 +334,9 @@ importers:
       '@vitral/themes':
         specifier: workspace:*
         version: link:../themes
+      '@vitral/tour':
+        specifier: workspace:*
+        version: link:../tour
       vue:
         specifier: ^3.5.0
         version: 3.5.42(typescript@5.9.3)

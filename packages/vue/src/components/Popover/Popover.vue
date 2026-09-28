@@ -16,6 +16,7 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 defineOptions({ name: 'VtPopover', inheritAttrs: false });
 
 const props = withDefaults(defineProps<PopoverProps>(), {
+    arrow: undefined,
     unstyled: undefined,
     placement: 'bottom-start',
     dismissable: true,
@@ -41,6 +42,7 @@ useOverlay({
     anchor: target,
     overlay: panelRef,
     placement: () => props.placement,
+    arrow: () => props.arrow,
     offset: props.offset,
     onEscape: () => {
         if (props.closeOnEscape) hide();

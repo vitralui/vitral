@@ -1,4 +1,5 @@
-import type { ChartPointInput, ChartSeries, ChartSeriesInput, ChartType } from './types';
+import { trendValues } from './trend';
+import type { ChartPointInput, ChartSeries, ChartSeriesInput, ChartTrendline, ChartType } from './types';
 
 /** One data point, whatever shape it came in. */
 export interface ChartPoint {
@@ -28,6 +29,10 @@ export interface NormalizedSeries {
     group?: string;
     hidden: boolean;
     points: ChartPoint[];
+    /** A trend line drawn for the series at this index. */
+    trendOf?: number;
+    /** A line's own look, over the per-series options: what a trend line is drawn with. */
+    stroke?: { width?: number; dash?: number };
 }
 
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -80,7 +85,12 @@ function point(input: ChartPointInput, index: number, type: ChartType): ChartPoi
  * slices, named by `labels`) becomes one series per value for a pie or a
  * donut, and a single series otherwise.
  */
-export function normalizeSeries(series: ChartSeries | null | undefined, type: ChartType, labels: string[] = []): NormalizedSeries[] {
+export function normalizeSeries(
+    series: ChartSeries | null | undefined,
+    type: ChartType,
+    labels: string[] = [],
+    trendName: (series: string) => string = (name) => `${name} trend`.trim()
+): NormalizedSeries[] {
     if (!series || !series.length) return [];
     if (typeof series[0] === 'number' || series[0] === null) {
         const values = series as number[];
@@ -89,7 +99,8 @@ export function normalizeSeries(series: ChartSeries | null | undefined, type: Ch
         }
         return [{ index: 0, name: '', hidden: false, points: values.map((v, i) => point(v, i, type)) }];
     }
-    return (series as ChartSeriesInput[]).map((s, i) => ({
+    const inputs = series as ChartSeriesInput[];
+    const out: NormalizedSeries[] = inputs.map((s, i) => ({
         index: i,
         name: s.name ?? '',
         type: s.type,
@@ -98,6 +109,41 @@ export function normalizeSeries(series: ChartSeries | null | undefined, type: Ch
         hidden: !!s.hidden,
         points: (s.data ?? []).map((p, j) => point(p, j, s.type ?? type))
     }));
+    // Trends go after every series given, so an option given per series by
+    // position still lands on the series it was written for.
+    inputs.forEach((s, i) => {
+        if (!s.trendline) return;
+        const trend = trendOf(out[i]!, s.trendline === true ? {} : s.trendline, out.length, trendName);
+        if (trend) out.push(trend);
+    });
+    return out;
+}
+
+/** The line a series' trend is drawn as, point for point over the series. */
+function trendOf(source: NormalizedSeries, options: ChartTrendline, index: number, name: (series: string) => string): NormalizedSeries | null {
+    // The trend is fitted along x when x is a number (a scatter, a time axis), and along the positions otherwise.
+    const numeric = source.points.every((p) => typeof p.x === 'number') && source.points.some((p) => p.x !== p.index);
+    const ordered = numeric ? [...source.points].sort((a, b) => (a.x as number) - (b.x as number)) : source.points;
+    const xs = ordered.map((p) => (numeric ? (p.x as number) : p.index));
+    const ys = trendValues(
+        xs,
+        ordered.map((p) => p.y),
+        options.type,
+        options.period
+    );
+    if (ys.every((y) => y === null)) return null;
+    return {
+        index,
+        name: options.name ?? name(source.name),
+        type: 'line',
+        // Its own colour, or the palette's next: a trend is a line of its own, told apart from its series.
+        color: options.color,
+        group: source.group,
+        hidden: source.hidden,
+        trendOf: source.index,
+        stroke: { width: options.width ?? 2, dash: options.dashArray ?? 5 },
+        points: ordered.map((p, i) => ({ index: p.index, x: p.x, y: ys[i] === null ? null : Math.round(ys[i]! * 1e6) / 1e6 }))
+    };
 }
 
 /** What the x values are: all numbers (or dates), or categories. */

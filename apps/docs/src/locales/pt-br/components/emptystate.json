@@ -1,0 +1,8 @@
+{
+    "description": "O que mostrar onde ainda não há nada, ou onde algo acabou de terminar: um ícone, uma linha dizendo o que aconteceu e o que fazer em seguida.",
+    "sections": {
+        "Basic": { "title": "Básico" },
+        "Results": { "title": "Resultados", "description": "Uma `severity` transforma uma ausência num desfecho: o ícone e a sua cor a acompanham." },
+        "Small, and aligned to the start": { "title": "Pequeno e alinhado ao início", "description": "Para um painel ou uma tabela sem linhas: `size=\"small\"` e `align=\"start\"`." }
+    }
+}

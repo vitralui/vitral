@@ -1,0 +1,25 @@
+{
+    "description": "Um tour guiado sobre a página, conduzido por props ou pelo código, com passos que esperam, pulam, avançam sozinhos e lembram onde o leitor parou.",
+    "sections": {
+        "Basic": {
+            "title": "Básico",
+            "description": "`v-model:open` o inicia e o encerra. As setas movem entre os passos, Escape o encerra, e cada popover é um diálogo que um leitor de tela lê quando chega."
+        },
+        "Progress, sides and the overlay": {
+            "title": "Progresso, lados e a sobreposição",
+            "description": "`progressStyle` desenha o progresso como texto, pontos ou uma barra; `side` e `align` posicionam o popover; `overlayClickBehavior=\"nextStep\"` faz um toque na página escurecida avançar."
+        },
+        "Steps that wait and move on by themselves": {
+            "title": "Passos que esperam e avançam sozinhos",
+            "description": "`advanceOn` avança quando o leitor faz o que o passo pede, `beforeShow` é aguardado antes de um passo aparecer, `waitFor` espera por um elemento que ainda não está lá, e `when` deixa de fora um passo que não se aplica."
+        },
+        "From code": {
+            "title": "Pelo código",
+            "description": "`useTour()` devolve o próprio tour — `drive()`, `moveNext()`, `highlight()`, `destroy()` — e aqui `highlight()` mostra um elemento sozinho."
+        },
+        "One tour for the whole app": {
+            "title": "Um tour para o app inteiro",
+            "description": "`useGlobalTour()` devolve o tour da própria aplicação, o mesmo a partir de qualquer componente: ele pertence ao app e não à página que o iniciou, então um onboarding que passa por várias telas continua através das trocas de rota. A opção `tour` do plugin define de onde todo tour parte — `<Tour>`, `useTour()` e este — e as props de cada tour ficam por cima."
+        }
+    }
+}

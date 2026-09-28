@@ -253,8 +253,229 @@ export const functions: Record<string, SheetFunction> = {
             if (compare(range.values[row * range.cols]!, needle) === 0) return range.values[row * range.cols + c] ?? null;
         }
         return NA;
-    })
+    }),
+    HLOOKUP: eager((args) => {
+        const needle = scalar(args[0] ?? null);
+        const range = asRange(args[1]);
+        if (isError(range)) return range;
+        const row = one(args[2] ?? 1);
+        if (isError(row)) return row;
+        const r = (row as number) - 1;
+        if (r < 0 || r >= range.rows) return errorValue('#REF!');
+        for (let col = 0; col < range.cols; col++) {
+            if (compare(range.values[col]!, needle) === 0) return range.values[r * range.cols + col] ?? null;
+        }
+        return NA;
+    }),
+    /** `XLOOKUP(needle, where, what, [if not found])`: the modern lookup, either way round. */
+    XLOOKUP: (args) => {
+        const needle = scalar(args[0]?.() ?? null);
+        const where = asRange(args[1]?.());
+        const what = asRange(args[2]?.());
+        if (isError(where)) return where;
+        if (isError(what)) return what;
+        const at = where.values.findIndex((value) => compare(value, needle) === 0);
+        if (at < 0) return args[3] ? args[3]() : NA;
+        // A column looked up returns the row of `what`; a row returns its column.
+        if (what.rows === where.rows && where.cols === 1) {
+            if (what.cols === 1) return what.values[at] ?? null;
+            return { rows: 1, cols: what.cols, values: what.values.slice(at * what.cols, (at + 1) * what.cols) };
+        }
+        if (what.cols === where.cols && where.rows === 1) {
+            if (what.rows === 1) return what.values[at] ?? null;
+            return { rows: what.rows, cols: 1, values: Array.from({ length: what.rows }, (_, r) => what.values[r * what.cols + at] ?? null) };
+        }
+        return what.values[at] ?? null;
+    },
+    CHOOSE: (args) => {
+        const index = one(args[0]?.());
+        if (isError(index)) return index;
+        const pick = args[Math.floor(index)];
+        return index >= 1 && pick ? pick() : VALUE;
+    },
+
+    // ---- conditions over several ranges
+    SUMIFS: eager((args) => overPicked(args[0], args.slice(1), (list) => list.reduce((a, b) => a + b, 0))),
+    AVERAGEIF: eager((args) => overPicked(args[2] ?? args[0], [args[0] ?? null, args[1] ?? null], average)),
+    AVERAGEIFS: eager((args) => overPicked(args[0], args.slice(1), average)),
+    MAXIFS: eager((args) => overPicked(args[0], args.slice(1), (list) => (list.length ? Math.max(...list) : 0))),
+    MINIFS: eager((args) => overPicked(args[0], args.slice(1), (list) => (list.length ? Math.min(...list) : 0))),
+    COUNTIFS: eager((args) => pickedAll(args).length),
+
+    // ---- statistics
+    LARGE: eager((args) => nth(args, (a, b) => b - a)),
+    SMALL: eager((args) => nth(args, (a, b) => a - b)),
+    STDEV: eager((args) => spread(args, 1, Math.sqrt)),
+    STDEVP: eager((args) => spread(args, 0, Math.sqrt)),
+    VAR: eager((args) => spread(args, 1, (v) => v)),
+    VARP: eager((args) => spread(args, 0, (v) => v)),
+    /** `RANK(value, range, [ascending])`: 1 for the largest, unless told to count from the smallest. */
+    RANK: eager((args) => {
+        const value = one(args[0]);
+        const list = numbers([args[1] ?? null]);
+        const ascending = toBoolean(scalar(args[2] ?? false));
+        const error = firstError([value, ascending]) ?? (isError(list) ? list : null);
+        if (error) return error;
+        const v = value as number;
+        if (!(list as number[]).includes(v)) return NA;
+        return (list as number[]).filter((n) => (ascending ? n < v : n > v)).length + 1;
+    }),
+    SUMPRODUCT: eager((args) => {
+        const ranges = args.map(flatten);
+        const length = ranges[0]?.length ?? 0;
+        if (ranges.some((r) => r.length !== length)) return VALUE;
+        let total = 0;
+        for (let i = 0; i < length; i++) {
+            let product = 1;
+            for (const range of ranges) {
+                const value = range[i]!;
+                if (isError(value)) return value;
+                product *= typeof value === 'number' ? value : 0;
+            }
+            total += product;
+        }
+        return total;
+    }),
+    LOG: eager((args) => pair(one(args[0]), one(args[1] ?? 10), (value, base) => (value <= 0 || base <= 0 || base === 1 ? VALUE : Math.log(value) / Math.log(base)))),
+    ISEVEN: eager((args) => apply(one(args[0]), (value) => Math.trunc(value) % 2 === 0)),
+    ISODD: eager((args) => apply(one(args[0]), (value) => Math.abs(Math.trunc(value) % 2) === 1)),
+
+    // ---- more logic
+    XOR: eager((args) => {
+        let count = 0;
+        for (const value of args.flatMap(flatten)) {
+            if (value === null) continue;
+            const truth = toBoolean(value);
+            if (isError(truth)) return truth;
+            if (truth) count++;
+        }
+        return count % 2 === 1;
+    }),
+    /** `IFS(test1, value1, test2, value2, …)`: the first test that holds; only its value is worked out. */
+    IFS: (args) => {
+        for (let i = 0; i + 1 < args.length; i += 2) {
+            const condition = toBoolean(scalar(args[i]!()));
+            if (isError(condition)) return condition;
+            if (condition) return args[i + 1]!();
+        }
+        return NA;
+    },
+    /** `SWITCH(value, case1, result1, …, [default])`. */
+    SWITCH: (args) => {
+        const value = scalar(args[0]?.() ?? null);
+        if (isError(value)) return value;
+        let i = 1;
+        for (; i + 1 < args.length; i += 2) {
+            if (compare(scalar(args[i]!()), value) === 0) return args[i + 1]!();
+        }
+        return i < args.length ? args[i]!() : NA;
+    },
+    ISNA: eager((args) => {
+        const value = scalar(args[0] ?? null);
+        return isError(value) && value.error === '#N/A';
+    }),
+    IFNA: (args) => {
+        const value = args[0]?.() ?? null;
+        const v = scalar(value);
+        return isError(v) && v.error === '#N/A' ? (args[1]?.() ?? null) : value;
+    },
+
+    // ---- more text
+    PROPER: eager((args) => apply(text(args[0]), (value) => value.toLowerCase().replace(/(^|[^\p{L}'])(\p{L})/gu, (_, before: string, letter: string) => before + letter.toUpperCase()))),
+    EXACT: eager((args) => pair(text(args[0]), text(args[1]), (a, b) => a === b)),
+    SEARCH: eager((args) => {
+        const needle = text(args[0]);
+        const haystack = text(args[1]);
+        const error = firstError([needle, haystack]);
+        if (error) return error;
+        const at = (haystack as string).toLowerCase().indexOf((needle as string).toLowerCase(), Math.max(0, one(args[2] ?? 1) as number) - 1);
+        return at < 0 ? VALUE : at + 1;
+    }),
+    REPLACE: eager((args) => {
+        const source = text(args[0]);
+        const start = one(args[1]);
+        const count = one(args[2]);
+        const insert = text(args[3]);
+        const error = firstError([source, start, count, insert]);
+        if (error) return error;
+        const from = Math.max(0, (start as number) - 1);
+        return (source as string).slice(0, from) + (insert as string) + (source as string).slice(from + Math.max(0, count as number));
+    }),
+
+    // ---- more dates
+    /** `EDATE(start, months)`: the same day, some months on; the end of a shorter month when it has no such day. */
+    EDATE: eager((args) => pair(one(args[0]), one(args[1]), (serial, months) => shiftMonths(serial, months, false))),
+    /** `EOMONTH(start, months)`: the last day of the month some months on. */
+    EOMONTH: eager((args) => pair(one(args[0]), one(args[1]), (serial, months) => shiftMonths(serial, months, true))),
+    DAYS: eager((args) => pair(one(args[0]), one(args[1]), (end, start) => Math.floor(end) - Math.floor(start))),
+    /** Monday to Friday between two dates, both counted. */
+    NETWORKDAYS: eager((args) =>
+        pair(one(args[0]), one(args[1]), (a, b) => {
+            const [from, to, sign] = a <= b ? [Math.floor(a), Math.floor(b), 1] : [Math.floor(b), Math.floor(a), -1];
+            let count = 0;
+            for (let serial = from; serial <= to; serial++) {
+                const day = dateFromSerial(serial).getUTCDay();
+                if (day !== 0 && day !== 6) count++;
+            }
+            return count * sign;
+        })
+    ),
+    HOUR: eager((args) => apply(one(args[0]), (serial) => dateFromSerial(serial).getUTCHours())),
+    MINUTE: eager((args) => apply(one(args[0]), (serial) => dateFromSerial(serial).getUTCMinutes()))
 };
+
+const average = (list: number[]) => (list.length ? list.reduce((a, b) => a + b, 0) / list.length : errorValue('#DIV/0!'));
+
+/** The places every range-and-criterion pair picks, as `COUNTIFS` reads its arguments. */
+function pickedAll(pairs: Argument[]): number[] {
+    let chosen: number[] | null = null;
+    for (let i = 0; i + 1 < pairs.length; i += 2) {
+        const these = new Set<number>(picked(pairs[i] ?? null, scalar(pairs[i + 1] ?? null)));
+        chosen = chosen ? chosen.filter((index: number) => these.has(index)) : [...these];
+    }
+    return chosen ? chosen.sort((a, b) => a - b) : [];
+}
+
+/** The numbers of `source` at the places the criteria pick, handed to `fn`. */
+function overPicked(source: Argument | undefined, criteria: Argument[], fn: (list: number[]) => number | CellError): number | CellError {
+    const values = flatten(source ?? null);
+    const list: number[] = [];
+    for (const index of pickedAll(criteria)) {
+        const value = values[index];
+        if (isError(value)) return value;
+        if (typeof value === 'number') list.push(value);
+    }
+    return fn(list);
+}
+
+/** `LARGE`/`SMALL`: the k-th number in an order. */
+function nth(args: Argument[], order: (a: number, b: number) => number): number | CellError {
+    const list = numbers([args[0] ?? null]);
+    if (isError(list)) return list;
+    const k = one(args[1]);
+    if (isError(k)) return k;
+    const sorted = [...list].sort(order);
+    const at = Math.floor(k) - 1;
+    return at >= 0 && at < sorted.length ? sorted[at]! : errorValue('#VALUE!');
+}
+
+/** Variance over a sample (`less` 1) or a population (`less` 0), then `fn` of it. */
+function spread(args: Argument[], less: 0 | 1, fn: (variance: number) => number): number | CellError {
+    const list = numbers(args);
+    if (isError(list)) return list;
+    if (list.length - less <= 0) return errorValue('#DIV/0!');
+    const mean = list.reduce((a, b) => a + b, 0) / list.length;
+    return fn(list.reduce((total, value) => total + (value - mean) ** 2, 0) / (list.length - less));
+}
+
+function shiftMonths(serial: number, months: number, endOfMonth: boolean): number {
+    const date = dateFromSerial(Math.floor(serial));
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + Math.trunc(months);
+    const last = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    const day = endOfMonth ? last : Math.min(date.getUTCDate(), last);
+    return serialFromParts(year, month + 1, day);
+}
 
 /** A function over a value that may be an error, which passes the error on. */
 function apply<T, R>(value: T | CellError, fn: (value: T) => R | CellError): R | CellError {

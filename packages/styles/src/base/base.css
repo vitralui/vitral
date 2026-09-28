@@ -455,3 +455,49 @@ img[data-vt-replacing] {
     }
 }
 
+
+/*
+ * The pointer from a popup to what it belongs to, when one is asked for: a
+ * square turned on its corner, half of it under the popup's edge. It takes the
+ * popup's own fill and border, so it looks right on any panel in any theme,
+ * and the positioner puts it wherever the popup ended up — flipped included.
+ */
+.vt-overlay-with-arrow {
+    overflow: visible;
+}
+
+.vt-overlay-arrow {
+    position: absolute;
+    box-sizing: border-box;
+    width: var(--vt-overlay-arrow-size);
+    height: var(--vt-overlay-arrow-size);
+    background: inherit;
+    border: inherit;
+    border-radius: 0;
+    rotate: 45deg;
+    pointer-events: none;
+}
+
+[data-placement^='bottom'] > .vt-overlay-arrow {
+    top: calc(var(--vt-overlay-arrow-size) / -2);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+[data-placement^='top'] > .vt-overlay-arrow {
+    bottom: calc(var(--vt-overlay-arrow-size) / -2);
+    border-top-color: transparent;
+    border-left-color: transparent;
+}
+
+[data-placement^='right'] > .vt-overlay-arrow {
+    left: calc(var(--vt-overlay-arrow-size) / -2);
+    border-top-color: transparent;
+    border-right-color: transparent;
+}
+
+[data-placement^='left'] > .vt-overlay-arrow {
+    right: calc(var(--vt-overlay-arrow-size) / -2);
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}

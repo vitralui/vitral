@@ -177,6 +177,7 @@ const inputs = (): TaskboardConfig => ({
     items: props.items === undefined ? undefined : toRaw(props.items),
     columnField: props.columnField,
     laneField: props.laneField,
+    summary: toRaw(props.summary),
     lanes: toRaw(props.lanes),
     dataKey: props.dataKey,
     cardLabel: props.cardLabel,
@@ -238,7 +239,7 @@ function push(next: Partial<TaskboardConfig>) {
 
 // Deep, over the reactive props (not their raw objects), so a change made in place is seen too.
 watch(
-    () => [props.columns, props.items, props.lanes],
+    () => [props.columns, props.items, props.lanes, props.summary],
     () => push(inputs()),
     { deep: true }
 );

@@ -219,6 +219,13 @@ export interface ColumnProps {
     hidden?: boolean;
     /** In a TreeTable, the column that holds the expand toggle and the indentation. The first column by default. */
     expander?: boolean;
+    /** Include this column in a DataGrid's CSV export. Defaults to true for a column with a `field` or an `exportValue`. */
+    exportable?: boolean;
+    /** What a DataGrid's export writes for a row, in place of the field's value. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    exportValue?: (row: any) => unknown;
+    /** The column's heading in a DataGrid's export, in place of `header`. */
+    exportHeader?: string;
     headerClass?: unknown;
     headerStyle?: unknown;
     bodyClass?: unknown;

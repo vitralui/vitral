@@ -15,6 +15,6 @@ import Left from './Dock/Left.vue';
 </script>
 
 <template>
-    <DemoSection title="Bottom" class="stack"><Bottom /></DemoSection>
+    <DemoSection title="Bottom"><Bottom /></DemoSection>
     <DemoSection title="Left"><Left /></DemoSection>
 </template>

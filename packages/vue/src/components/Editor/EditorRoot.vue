@@ -307,6 +307,7 @@ function attachMenus() {
         editor,
         host: () => rootRef.value,
         caretRect: () => view.value?.selectionRect() ?? null,
+        content: () => contentEl.value ?? null,
         actions: () => (Array.isArray(props.blockMenu) ? props.blockMenu : defaultBlockActions(locale.value)),
         part,
         locale: () => locale.value,

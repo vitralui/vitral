@@ -1,5 +1,5 @@
 {
-    "description": "Uma planilha com motor de fórmulas próprio e sem dependências: referências A1, sessenta e três funções e recálculo só do que mudou.",
+    "description": "Uma planilha com motor de fórmulas próprio e sem dependências: referências A1, noventa e oito funções e recálculo só do que mudou.",
     "sections": {
         "Default": { "title": "Padrão", "description": "Digite nela, arraste a alça no canto da seleção para preencher e veja os totais acompanharem. Comece uma fórmula — `=B2*C2` — e cada célula que ela lê fica contornada onde está." },
         "What comes back": { "title": "O que volta", "description": "`v-model` é o que foi digitado, indexado por A1 — as fórmulas são fórmulas, e não o resultado delas." },

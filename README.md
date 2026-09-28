@@ -59,6 +59,7 @@ each component injects its own CSS the first time it renders. On Nuxt, add
 | [`@vitral/taskboard`](https://www.npmjs.com/package/@vitral/taskboard) | The task board: lanes, moves, limits, and drag and drop a keyboard can do |
 | [`@vitral/editor`](https://www.npmjs.com/package/@vitral/editor) | The rich text editor's interface: toolbar, panels, the slash menu and the block handle |
 | [`@vitral/spreadsheet`](https://www.npmjs.com/package/@vitral/spreadsheet) | The spreadsheet: cells, A1 references, formulas and the graph between them |
+| [`@vitral/tour`](https://www.npmjs.com/package/@vitral/tour) | Guided tours, with steps that wait, skip, move on by themselves and remember where the reader got to |
 | [`@vitral/forms`](https://www.npmjs.com/package/@vitral/forms) | Form state, validation and schema resolvers |
 
 Vue 3 is the first target. Everything that does not need a framework lives in

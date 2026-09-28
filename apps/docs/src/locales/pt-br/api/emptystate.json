@@ -1,0 +1,12 @@
+{
+    "props": {
+        "icon": "O padrão é o ícone da severidade, ou uma bandeja vazia. `false` não desenha nenhum.",
+        "severity": "Transforma a ausência num resultado: `success` depois de algo dar certo, `danger` quando não deu. O ícone assume a cor da severidade.",
+        "align": "O padrão é `'center'`.",
+        "headingLevel": "Faz do título um cabeçalho deste nível, para que ocupe o seu lugar na estrutura da página."
+    },
+    "slots": {
+        "default": "Substitui a descrição.",
+        "actions": "Botões abaixo do texto: o que fazer a respeito."
+    }
+}

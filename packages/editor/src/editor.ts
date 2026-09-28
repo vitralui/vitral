@@ -255,6 +255,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         editor,
         host: () => element,
         caretRect: () => view?.selectionRect() ?? null,
+        content: () => contentEl,
         actions: () => (Array.isArray(current.blockMenu) ? current.blockMenu : defaultBlockActions(locale())),
         part,
         locale,
@@ -375,8 +376,14 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
     function countText(): string {
         const words = locale().editor;
         const count = editor.characterCount();
-        if (current.maxLength) return formatMessage(words.charactersLimit, { count, limit: current.maxLength });
-        return formatMessage(count === 1 ? words.character : words.characters, { count });
+        const characters = current.maxLength
+            ? formatMessage(words.charactersLimit, { count, limit: current.maxLength })
+            : formatMessage(count === 1 ? words.character : words.characters, { count });
+        const mode = current.showCount === true ? 'characters' : current.showCount;
+        if (mode === 'characters' || !mode) return characters;
+        const wordCount = editor.wordCount();
+        const wordText = formatMessage(wordCount === 1 ? words.word : words.words, { count: wordCount });
+        return mode === 'words' ? wordText : `${wordText} · ${characters}`;
     }
 
     function contentView(): Child {

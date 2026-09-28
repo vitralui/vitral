@@ -9,11 +9,13 @@
     align-items: flex-start;
 }
 
-/* Holds the tab strip and the indicator, which is measured against it. */
+/* The tablist's frame: its border, and the scroll buttons either side of the strip. */
 .vt-tabs-tablist {
     position: relative;
     display: flex;
+    align-items: center;
     flex-shrink: 0;
+    min-width: 0;
     padding: var(--vt-tabs-tablist-padding);
     border-bottom: var(--vt-tabs-tablist-border-width) solid var(--vt-tabs-tablist-border-color);
 }
@@ -22,6 +24,92 @@
     flex-direction: column;
     border-bottom: 0;
     border-inline-end: var(--vt-tabs-tablist-border-width) solid var(--vt-tabs-tablist-border-color);
+}
+
+/* Holds the tabs and the indicator, which is measured against it. */
+.vt-tabs-content {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.vt-tabs-content-vertical {
+    flex-direction: column;
+}
+
+/* Scrolls without a scrollbar: the buttons and the arrow keys are the way along. */
+.vt-tabs-content-scrollable {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+
+.vt-tabs-content-scrollable::-webkit-scrollbar {
+    display: none;
+}
+
+.vt-tabs-content-scrollable.vt-tabs-content-vertical {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+}
+
+.vt-tabs-content-scrollable .vt-tabs-list {
+    flex-shrink: 0;
+}
+
+.vt-tabs-nav-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-tabs-nav-button-size);
+    height: var(--vt-tabs-nav-button-size);
+    padding: 0;
+    color: var(--vt-tabs-nav-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-tabs-nav-button-border-radius);
+    cursor: pointer;
+    transition:
+        color var(--vt-transition-duration),
+        background-color var(--vt-transition-duration);
+}
+
+.vt-tabs-nav-button[hidden] {
+    display: inline-flex;
+    visibility: hidden;
+}
+
+.vt-tabs-nav-button:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-tabs-nav-group {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: var(--vt-tabs-nav-group-gap);
+}
+
+.vt-tabs-nav-group-vertical {
+    flex-direction: column;
+}
+
+.vt-tabs-nav-button:not(:disabled):hover {
+    color: var(--vt-tabs-nav-button-hover-color);
+    background: var(--vt-tabs-nav-button-hover-background);
+}
+
+/* Upright, a scrollable strip takes the height the Tabs are given and scrolls
+   within it, rather than growing to fit every tab. */
+.vt-tabs-tablist-vertical.vt-tabs-tablist-scrollable {
+    align-self: stretch;
+    min-height: 0;
+    max-height: 100%;
 }
 
 .vt-tabs-list {
@@ -155,7 +243,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .vt-tabs-content-scrollable {
+        scroll-behavior: auto;
+    }
+
     .vt-tabs-tab,
+    .vt-tabs-nav-button,
     .vt-tabs-indicator-animated {
         transition: none;
     }

@@ -32,6 +32,10 @@
         "Using the form without a framework": {
             "title": "Usando o formulário sem framework",
             "description": "O estado, as regras e as verificações assíncronas são o @vitral/forms, que não desenha nada e não importa nenhum framework; as partes de Form são um wrapper sobre ele. createForm() guarda os valores e os erros, register() diz como um campo se chama e o que ele precisa ser, e subscribe() informa cada mudança. O formulário abaixo o liga a três inputs comuns à mão — que é tudo o que um adaptador para React ou Angular faria; o código dele mostra como."
+        },
+        "Rules that depend on other fields": {
+            "title": "Regras que dependem de outros campos",
+            "description": "`rules.when(condition, rules)` aplica as suas regras só enquanto a condição vale — o documento fiscal é pedido só de uma empresa, e `deps` o verifica de novo quando o tipo muda. `rules.integer()` quer um número inteiro e `rules.oneOf()` um dos valores dados. Envie como está, depois troque para Company."
         }
     }
 }

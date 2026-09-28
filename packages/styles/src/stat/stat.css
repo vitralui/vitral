@@ -1,0 +1,128 @@
+.vt-stat {
+    --_value-font-size: var(--vt-stat-value-font-size);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-stat-gap);
+    min-width: 0;
+}
+
+.vt-stat-sm {
+    --_value-font-size: var(--vt-stat-sm-value-font-size);
+}
+
+.vt-stat-lg {
+    --_value-font-size: var(--vt-stat-lg-value-font-size);
+}
+
+.vt-stat-header {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-stat-header-gap);
+    min-width: 0;
+}
+
+.vt-stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--vt-stat-icon-box-size);
+    height: var(--vt-stat-icon-box-size);
+    color: var(--vt-stat-icon-color);
+    background: var(--vt-stat-icon-background);
+    border-radius: var(--vt-stat-icon-border-radius);
+}
+
+.vt-stat-icon > .vt-icon {
+    width: var(--vt-stat-icon-size);
+    height: var(--vt-stat-icon-size);
+}
+
+.vt-stat-label {
+    overflow: hidden;
+    font-size: var(--vt-stat-label-font-size);
+    font-weight: var(--vt-stat-label-font-weight);
+    color: var(--vt-stat-label-color);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.vt-stat-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--vt-stat-value-gap);
+}
+
+.vt-stat-value {
+    font-size: var(--_value-font-size);
+    font-weight: var(--vt-stat-value-font-weight);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--vt-stat-value-line-height);
+    color: var(--vt-stat-value-color);
+}
+
+.vt-stat-affix {
+    font-size: var(--vt-stat-affix-font-size);
+    font-weight: var(--vt-stat-affix-font-weight);
+    color: var(--vt-stat-affix-color);
+}
+
+.vt-stat-prefix {
+    margin-inline-end: 0.125em;
+}
+
+.vt-stat-suffix {
+    margin-inline-start: 0.125em;
+}
+
+.vt-stat-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vt-stat-delta-gap);
+    padding: var(--vt-stat-delta-padding);
+    font-size: var(--vt-stat-delta-font-size);
+    font-weight: var(--vt-stat-delta-font-weight);
+    font-variant-numeric: tabular-nums;
+    border-radius: var(--vt-stat-delta-border-radius);
+}
+
+.vt-stat-delta > .vt-icon {
+    width: var(--vt-stat-delta-icon-size);
+    height: var(--vt-stat-delta-icon-size);
+}
+
+.vt-stat-delta-good {
+    color: var(--vt-success-subtle-color);
+    background: var(--vt-success-subtle-background);
+}
+
+.vt-stat-delta-bad {
+    color: var(--vt-danger-subtle-color);
+    background: var(--vt-danger-subtle-background);
+}
+
+.vt-stat-delta-neutral {
+    color: var(--vt-secondary-subtle-color);
+    background: var(--vt-secondary-subtle-background);
+}
+
+.vt-stat-caption {
+    font-size: var(--vt-stat-caption-font-size);
+    color: var(--vt-stat-caption-color);
+}
+
+.vt-stat-chart {
+    margin-top: 0.25rem;
+}
+
+/* While loading, the figure is a bar the height of a line of it. */
+.vt-stat-placeholder {
+    display: inline-block;
+    width: 6ch;
+    height: 1em;
+    vertical-align: middle;
+    background: var(--vt-skeleton-background, var(--vt-content-hover-background));
+    border-radius: var(--vt-stat-delta-border-radius);
+}

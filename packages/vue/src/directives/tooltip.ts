@@ -14,6 +14,8 @@ export interface TooltipDirectiveOptions {
     /** Milliseconds before it hides once the pointer leaves. */
     hideDelay?: number;
     disabled?: boolean;
+    /** A pointer to the element it describes. The plugin's `overlayArrow` otherwise, which is off. */
+    arrow?: boolean;
 }
 
 export type TooltipDirectiveValue = string | TooltipDirectiveOptions | null | undefined;
@@ -51,6 +53,7 @@ function optionsOf(binding: DirectiveBinding<TooltipDirectiveValue>): TooltipOpt
         hideDelay: options.hideDelay ?? 0,
         disabled: options.disabled ?? false,
         zIndex: context?.config.zIndex.tooltip ?? 1100,
+        arrow: options.arrow ?? context?.config.overlayArrow ?? false,
         rootAttrs: partAttrs('root', context),
         textAttrs: partAttrs('text', context)
     };

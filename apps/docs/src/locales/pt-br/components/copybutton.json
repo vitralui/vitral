@@ -1,0 +1,7 @@
+{
+    "description": "Um botão que copia texto para a área de transferência, responde com um visto por um momento e avisa um leitor de tela que deu certo.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "Sem `label` ele mostra só o ícone, chamado “Copiar”. `value` pode ser uma função, e ela pode esperar." },
+        "Beside a field": { "title": "Ao lado de um campo" }
+    }
+}

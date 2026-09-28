@@ -2,9 +2,9 @@ import { isMirrored } from './direction';
 import {
     arrowDown, arrowLeft, arrowLeftRight, arrowRight, arrowUp, arrowUpDown, bell, calendar, check, chevronDown, chevronLeft, chevronRight, chevronsDown,
     chevronsLeft, chevronsRight, chevronsUp, chevronUp, circle, clock, close, copy, download, error, externalLink, eye, eyeOff, file,
-    filter, folder, folderOpen, grip, home, image, info, lock, maximize, menu, minus, moon, moreHorizontal, moreVertical, move,
+    filter, folder, folderOpen, grip, home, image, inbox, info, lock, maximize, menu, minus, moon, moreHorizontal, moreVertical, move,
     pause, pencil, play, plus, refresh, restore, rotateLeft, rotateRight, search, selection, sidebar, sliders, sort, spinner, star, starFill,
-    success, sun, terminal, trash, upload, user, warning, zoomIn, zoomOut
+    success, sun, terminal, trash, trendingDown, trendingUp, upload, user, warning, zoomIn, zoomOut
 } from './icons/index';
 import { ICON_STROKE_WIDTH, ICON_VIEWBOX, type IconDef } from './types';
 
@@ -21,7 +21,7 @@ export const baseIcons: readonly IconDef[] = [
     arrowUp, arrowDown, arrowLeft, arrowRight, arrowLeftRight, arrowUpDown, sort, filter, menu, moreHorizontal, moreVertical, eye, eyeOff,
     home, folder, folderOpen, file, star, starFill, trash, pencil, copy, externalLink, upload, download, user,
     sliders, bell, sun, moon, grip, sidebar, refresh, circle, maximize, restore, zoomIn, zoomOut, rotateLeft,
-    play, pause, image, terminal, lock, move, selection, rotateRight
+    play, pause, image, terminal, lock, move, selection, rotateRight, inbox, trendingUp, trendingDown
 ];
 
 // Built on first use rather than at import, so the module has no side effect

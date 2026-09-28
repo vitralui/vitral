@@ -46,6 +46,7 @@ export const componentNames = [
     'ConfirmDialog',
     'ConfirmPopup',
     'ContextMenu',
+    'CopyButton',
     'Cropper',
     'DataGrid',
     'DataGridEmpty',
@@ -62,6 +63,7 @@ export const componentNames = [
     'DataView',
     'DatePicker',
     'DateRange',
+    'DescriptionList',
     'Dialog',
     'Divider',
     'Dock',
@@ -82,6 +84,7 @@ export const componentNames = [
     'EditorTableMenu',
     'EditorToolbar',
     'EditorToolbarGroup',
+    'EmptyState',
     'Fieldset',
     'FileUpload',
     'FloatLabel',
@@ -113,6 +116,7 @@ export const componentNames = [
     'InputPassword',
     'InputTag',
     'InputText',
+    'Kbd',
     'Knob',
     'Label',
     'Listbox',
@@ -155,6 +159,7 @@ export const componentNames = [
     'SplitterPanel',
     'Spreadsheet',
     'StackPanel',
+    'Stat',
     'Step',
     'StepItem',
     'StepList',
@@ -183,6 +188,7 @@ export const componentNames = [
     'ToggleButton',
     'ToggleSwitch',
     'Toolbar',
+    'Tour',
     'Tree',
     'TreeSelect',
     'TreeTable',
@@ -201,12 +207,14 @@ export const composableNames = [
     'useFocusTrap',
     'useForm',
     'useFormField',
+    'useGlobalTour',
     'useLocale',
     'useModal',
     'useOverlay',
     'useOverlayTarget',
     'useTheme',
-    'useToast'
+    'useToast',
+    'useTour'
 ] as const;
 
 export const directiveNames = [

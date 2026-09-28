@@ -21,7 +21,8 @@ const candles = Array.from({ length: 45 }, (_, i) => {
 const live = ref(false);
 const price = ref<ChartSeries>([{ name: 'VTRL', data: candles.map((c) => ({ x: c.x, y: c.y })) }]);
 const volume = ref<ChartSeries>([{ name: 'Volume', data: candles.map((c) => ({ x: c.x, y: c.volume })) }]);
-const session = ref({ prevClose: candles[candles.length - 2]!.y[3], high: candles[candles.length - 1]!.y[1], low: candles[candles.length - 2]!.y[3] });
+// The session is the last candle: its own high and low, against the close before it.
+const session = ref({ prevClose: candles[candles.length - 2]!.y[3], high: candles[candles.length - 1]!.y[1], low: candles[candles.length - 1]!.y[2] });
 
 const tickWalk = seeded(23);
 let ticker = 0;
@@ -60,9 +61,11 @@ const priceOptions = computed<ChartOptions>(() => ({
         yaxis: [
             // Dashed, so a line read off the session is never mistaken for one
             // the data drew; the chips take each line's own colour.
+            // Prev close on the left, the session's range on the right: two lines
+            // that meet never put their words on top of each other.
             { y: session.value.prevClose, borderColor: 'var(--vt-chart-8)', strokeDashArray: 4, label: { text: `Prev close ${money(session.value.prevClose)}`, position: 'left' } },
             { y: session.value.high, borderColor: 'var(--vt-chart-3)', strokeDashArray: 4, label: { text: `High ${money(session.value.high)}` } },
-            { y: session.value.low, borderColor: 'var(--vt-chart-6)', strokeDashArray: 4, label: { text: `Low ${money(session.value.low)}`, position: 'left' } }
+            { y: session.value.low, borderColor: 'var(--vt-chart-6)', strokeDashArray: 4, label: { text: `Low ${money(session.value.low)}` } }
         ]
     }
 }));

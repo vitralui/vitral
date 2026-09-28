@@ -46,6 +46,7 @@ export const taskboardStyle = defineStyle({
         header: (s: TaskboardColumnState) => column('vt-taskboard-header', s),
         accent: 'vt-taskboard-accent',
         title: 'vt-taskboard-title',
+        summary: 'vt-taskboard-summary',
         count: (s: { wip?: TaskboardWip }) => ['vt-taskboard-count', s.wip && s.wip !== 'under' && `vt-taskboard-count-${s.wip}`],
         handle: (s: { grabbed?: boolean }) => ['vt-taskboard-handle', { 'vt-taskboard-handle-grabbed': s.grabbed }],
         toggle: 'vt-taskboard-toggle',

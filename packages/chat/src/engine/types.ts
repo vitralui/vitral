@@ -77,11 +77,36 @@ export interface ChatMessage {
     attachments?: ChatAttachment[];
     toolCalls?: ChatToolCall[];
     citations?: ChatCitation[];
+    /** What the reader thought of an answer, which the built-in `like` and `dislike` actions show as pressed. */
+    feedback?: 'like' | 'dislike' | null;
 }
 
 export interface ChatSendPayload {
     text: string;
     attachments: ChatAttachment[];
+}
+
+/**
+ * A button under a message: copy it, ask again, rate it. `'copy'`,
+ * `'regenerate'`, `'like'` and `'dislike'` are built in and may be given by
+ * name; anything else is the application's. Every press is reported through
+ * `message-action`.
+ */
+/** The actions a chat draws by name. */
+export type ChatBuiltInAction = 'copy' | 'regenerate' | 'like' | 'dislike';
+
+export interface ChatMessageAction {
+    id: string;
+    /** The button's name, and its tooltip when it shows only an icon. */
+    label?: string;
+    /** A registered icon name. */
+    icon?: string;
+    /** A toggle, pressed or not for this message: a thumbs up that stays up. */
+    pressed?: boolean | ((message: ChatMessage) => boolean);
+    /** Whose messages it goes under. Defaults to the assistant's. */
+    roles?: ChatRole[];
+    /** Shows the label beside the icon. */
+    showLabel?: boolean;
 }
 
 export interface ChatEvents {
@@ -101,6 +126,8 @@ export interface ChatEvents {
     'open-change'?: (open: boolean) => void;
     /** The reader scrolled away from the newest message, or came back to it. */
     'at-bottom-change'?: (atBottom: boolean) => void;
+    /** A message's action was pressed. `copy` has already copied by then. */
+    'message-action'?: (event: { action: string; message: ChatMessage }) => void;
 }
 
 export interface ChatSlots {
@@ -118,6 +145,8 @@ export interface ChatSlots {
 
 export interface ChatConfig {
     messages?: ChatMessage[];
+    /** Buttons under each message: `['copy', 'regenerate', 'like', 'dislike']`, or actions of your own. */
+    messageActions?: (ChatMessageAction | ChatBuiltInAction)[];
     /** What the composer holds. Give it back on `draft-change` to control it. */
     draft?: string;
     variant?: ChatVariant;

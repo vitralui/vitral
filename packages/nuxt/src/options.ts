@@ -1,4 +1,4 @@
-import type { ColorScheme, Direction, InputVariant } from '@vitral/vue';
+import type { ColorScheme, Direction, InputVariant, TourDefaults } from '@vitral/vue';
 
 // The module's options, plus the two pure things it does with them: write the
 // file the runtime plugin reads, and work out which components to register.
@@ -40,6 +40,8 @@ export interface VitralModuleOptions {
      */
     direction: Direction;
     unstyled: boolean;
+    /** What every tour starts from: `{ showProgress: true, dismissableMask: false }`. */
+    tour: TourDefaults;
     /** Prefix for the registered component names: `'Vt'` gives `<VtButton>`, `''` gives `<Button>`. */
     prefix: string;
     /** Register every component globally. Turn it off to import them by hand. */
@@ -58,6 +60,7 @@ export const defaults: VitralModuleOptions = {
     inputVariant: 'outlined',
     direction: 'ltr',
     unstyled: false,
+    tour: {},
     prefix: 'Vt',
     components: true,
     composables: true
@@ -99,7 +102,8 @@ export function optionsTemplate(options: VitralModuleOptions, directives: readon
         cssLayer: options.cssLayer,
         inputVariant: options.inputVariant,
         direction: options.direction,
-        unstyled: options.unstyled
+        unstyled: options.unstyled,
+        tour: options.tour
     };
 
     return [

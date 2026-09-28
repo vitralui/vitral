@@ -1,0 +1,13 @@
+{
+    "props": {
+        "columns": "Lado a lado numa lista larga; elas se dobram em uma quando a lista é estreita. O padrão é 1.",
+        "layout": "Rótulo acima do valor (o padrão), ou ao lado dele.",
+        "bordered": "Cada item numa célula de um bloco só, com bordas.",
+        "emptyValue": "Mostrado para um item sem valor. O padrão é um travessão.",
+        "labelWidth": "A largura dos rótulos no layout horizontal.",
+        "headingLevel": "Faz do título um cabeçalho deste nível."
+    },
+    "slots": {
+        "extra": "Ao lado do título: um botão de editar."
+    }
+}

@@ -24,7 +24,8 @@ export default defineNuxtPlugin({
             unstyled: options.unstyled,
             inputVariant: options.inputVariant,
             direction: options.direction,
-            cssLayer: options.cssLayer
+            cssLayer: options.cssLayer,
+            tour: options.tour
         });
 
         for (const [name, directive] of Object.entries(directives)) nuxtApp.vueApp.directive(name, directive);

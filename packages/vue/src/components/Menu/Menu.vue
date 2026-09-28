@@ -16,7 +16,7 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 defineOptions({ name: 'VtMenu', inheritAttrs: false });
 
-const props = withDefaults(defineProps<MenuProps>(), { unstyled: undefined, model: () => [], appendTo: 'body', placement: 'bottom-start' });
+const props = withDefaults(defineProps<MenuProps>(), { unstyled: undefined, arrow: undefined, model: () => [], appendTo: 'body', placement: 'bottom-start' });
 const overlayTarget = useOverlayTarget(() => props.appendTo);
 const emit = defineEmits<MenuEmits>();
 defineSlots<MenuSlots>();
@@ -97,6 +97,7 @@ useOverlay({
     anchor: () => target.value,
     overlay: overlayRef,
     placement: () => props.placement,
+    arrow: () => props.arrow,
     zIndexKey: 'menu',
     onEscape: () => hide(true),
     onPointerDownOutside: () => hide(false)

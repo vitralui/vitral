@@ -1,8 +1,23 @@
 {
     "description": "Vistas que dividem um mesmo lugar na página, trocadas por uma lista de abas.",
     "sections": {
-        "Basic": { "title": "Básico" },
-        "Vertical": { "title": "Vertical" },
-        "Manual activation": { "title": "Ativação manual", "description": "Com `select-on-focus` desligado, as setas só movem o foco; Enter ou Espaço selecionam." }
+        "Basic": {
+            "title": "Básico"
+        },
+        "Scrollable": {
+            "title": "Com rolagem",
+            "description": "`scrollable` deixa as abas que não cabem rolarem pela faixa, na horizontal ou na vertical. Os botões avançam quase uma página por vez; `scroll-buttons` coloca um em cada ponta (`sides`, o padrão, cada um visível só enquanto houver mais naquele sentido), os dois juntos no início (`start`) ou no fim (`end`), ou nenhum (`none`). A aba selecionada sempre é trazida à vista — pressione End nas abas para vê-la acompanhar."
+        },
+        "Vertical": {
+            "title": "Vertical"
+        },
+        "Styles": {
+            "title": "Estilos",
+            "description": "Um componente, cinco visuais: a seleção com fundo tingido, um sublinhado da largura da aba, pílulas preenchidas, um controle segmentado e abas com ícone e contador. Cada um é o componente com os tokens trocados só naquela instância via `dt` — a trilha do segmentado soma um estilo via `pt` — então um preset dá o mesmo visual a todos os Tabs definindo os mesmos tokens."
+        },
+        "Manual activation": {
+            "title": "Ativação manual",
+            "description": "Com `select-on-focus` desligado, as setas só movem o foco; Enter ou Espaço selecionam."
+        }
     }
 }

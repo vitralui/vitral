@@ -19,7 +19,7 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 
 defineOptions({ name: 'VtConfirmPopup' });
 
-const props = withDefaults(defineProps<ConfirmPopupProps>(), { unstyled: undefined, placement: 'bottom' });
+const props = withDefaults(defineProps<ConfirmPopupProps>(), { unstyled: undefined, arrow: undefined, placement: 'bottom' });
 const overlayTarget = useOverlayTarget();
 defineSlots<ConfirmPopupSlots>();
 
@@ -45,6 +45,7 @@ useOverlay({
     anchor: target,
     overlay: panelRef,
     placement: () => props.placement,
+    arrow: () => props.arrow,
     offset: 8,
     onEscape: () => dismiss(),
     onPointerDownOutside: () => dismiss(false)

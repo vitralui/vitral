@@ -28,6 +28,8 @@ export interface MenuItem {
 }
 
 export interface MenuProps extends BaseProps {
+    /** A pointer from the panel to what opened it, on whichever side the panel ends up. The plugin's `overlayArrow` otherwise, which is off. */
+    arrow?: boolean;
     model?: MenuItem[];
     /** A popup menu, opened by `toggle(event)` / `show(event)` and anchored to the event's element. */
     popup?: boolean;

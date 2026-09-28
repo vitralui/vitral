@@ -72,6 +72,7 @@ const annotationLabel = obj({
     offsetX: num(0),
     offsetY: num(0),
     borderColor: color(),
+    background: bool(undefined, 'Draw the label on a chip; off, the words alone, in the annotation colour'),
     style: obj({ fontSize: size(), fontWeight: either([str(), num()]), color: color(), background: color() })
 });
 const axisLabels = (formatter: string) =>
@@ -357,6 +358,7 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
     }),
     annotations: obj({
         position: oneOf(['front', 'back'] as const, 'front'),
+        labelBackground: bool(true, 'Every label on a chip; a label of its own can say otherwise'),
         yaxis: list(
             obj({ y: num(), y2: num(), yAxisIndex: num(0), borderColor: color(), fillColor: color(), opacity: num(0.15), strokeDashArray: num(4), width: size('100%'), label: annotationLabel }),
             []

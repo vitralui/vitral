@@ -1,0 +1,103 @@
+.vt-emptystate {
+    --_padding: var(--vt-emptystate-padding);
+    --_icon-size: var(--vt-emptystate-icon-size);
+    --_icon-box-size: var(--vt-emptystate-icon-box-size);
+    --_title-font-size: var(--vt-emptystate-title-font-size);
+    --_icon-bg: var(--vt-emptystate-icon-background);
+    --_icon-fg: var(--vt-emptystate-icon-color);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vt-emptystate-gap);
+    box-sizing: border-box;
+    padding: var(--_padding);
+    text-align: center;
+}
+
+.vt-emptystate-start {
+    align-items: flex-start;
+    text-align: start;
+}
+
+.vt-emptystate-sm {
+    --_padding: var(--vt-emptystate-sm-padding);
+    --_icon-size: var(--vt-emptystate-sm-icon-size);
+    --_icon-box-size: var(--vt-emptystate-sm-icon-box-size);
+    --_title-font-size: var(--vt-emptystate-sm-title-font-size);
+}
+
+.vt-emptystate-lg {
+    --_padding: var(--vt-emptystate-lg-padding);
+    --_icon-size: var(--vt-emptystate-lg-icon-size);
+    --_icon-box-size: var(--vt-emptystate-lg-icon-box-size);
+    --_title-font-size: var(--vt-emptystate-lg-title-font-size);
+}
+
+/* The result of something — it worked, it failed — rather than an absence. */
+.vt-emptystate-success {
+    --_icon-bg: var(--vt-success-subtle-background);
+    --_icon-fg: var(--vt-success-subtle-color);
+}
+
+.vt-emptystate-info {
+    --_icon-bg: var(--vt-info-subtle-background);
+    --_icon-fg: var(--vt-info-subtle-color);
+}
+
+.vt-emptystate-warn {
+    --_icon-bg: var(--vt-warn-subtle-background);
+    --_icon-fg: var(--vt-warn-subtle-color);
+}
+
+.vt-emptystate-danger {
+    --_icon-bg: var(--vt-danger-subtle-background);
+    --_icon-fg: var(--vt-danger-subtle-color);
+}
+
+.vt-emptystate-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--_icon-box-size);
+    height: var(--_icon-box-size);
+    color: var(--_icon-fg);
+    background: var(--_icon-bg);
+    border-radius: var(--vt-emptystate-icon-border-radius);
+}
+
+.vt-emptystate-icon > .vt-icon {
+    width: var(--_icon-size);
+    height: var(--_icon-size);
+}
+
+.vt-emptystate-title {
+    max-width: var(--vt-emptystate-text-max-width);
+    margin: 0;
+    font-size: var(--_title-font-size);
+    font-weight: var(--vt-emptystate-title-font-weight);
+    color: var(--vt-emptystate-title-color);
+}
+
+.vt-emptystate-description {
+    max-width: var(--vt-emptystate-text-max-width);
+    margin: 0;
+    color: var(--vt-emptystate-description-color);
+}
+
+.vt-emptystate-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: inherit;
+    gap: var(--vt-emptystate-actions-gap);
+    margin-top: var(--vt-emptystate-actions-margin-top);
+}
+
+.vt-emptystate-start .vt-emptystate-actions {
+    justify-content: flex-start;
+}
+
+.vt-emptystate:not(.vt-emptystate-start) .vt-emptystate-actions {
+    justify-content: center;
+}

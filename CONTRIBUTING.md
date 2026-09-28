@@ -34,6 +34,7 @@ ends — in the terminal. Anything added or changed under
 | `@vitral/taskboard`    | The task board: engine (lanes, moves, limits) and `createTaskboard`                          | none      |
 | `@vitral/editor`       | The rich text editor's interface over core's editor engine: `createTextEditor`               | none      |
 | `@vitral/spreadsheet`  | The spreadsheet: engine (A1, formulas, the dependency graph) and `createSpreadsheet`         | none      |
+| `@vitral/tour`         | The guided tour: engine (placement, progress, the overlay's shape) and `createTour`          | none      |
 | `@vitral/vue`          | Components, composables, directives, the plugin                                              | Vue       |
 | `@vitral/nuxt`         | The Nuxt module: configuration, auto-imports, server-rendered styles, the scheme cookie      | Nuxt      |
 | `apps/docs`            | The documentation site                                                                       | Vue       |

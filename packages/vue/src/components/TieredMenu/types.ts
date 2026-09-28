@@ -2,6 +2,8 @@ import type { BaseProps, OverlayPlacement } from '../../base/types';
 import type { MenuItem } from '../Menu/types';
 
 export interface TieredMenuProps extends BaseProps {
+    /** A pointer from the panel to what opened it, on whichever side the panel ends up. The plugin's `overlayArrow` otherwise, which is off. */
+    arrow?: boolean;
     /** The items; an item's `items` open as a submenu beside it, to any depth. */
     model?: MenuItem[];
     /** A popup menu, opened by `toggle(event)` / `show(event)` and anchored to the event's element. */

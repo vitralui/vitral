@@ -172,5 +172,59 @@ export function custom<T = unknown>(test: (value: T, context: RuleContext) => Ru
     return withMeta(rule, { deps: options.deps });
 }
 
+/** A whole number (or text that reads as one): `3`, not `3.5`. */
+export function integer(msg?: RuleMessage): Rule {
+    return (value, ctx) => {
+        if (isEmptyValue(value)) return undefined;
+        const n = comparable(value);
+        if (n === undefined) return message(undefined, 'invalid', ctx);
+        return Number.isInteger(n) ? undefined : message(msg, 'integer', ctx);
+    };
+}
+
+/**
+ * One of the values given — compared by value, so `oneOf([{ id: 1 }])`
+ * accepts an equal object. A list passes when every item in it is allowed.
+ */
+export function oneOf(values: readonly unknown[], msg?: RuleMessage): Rule {
+    return (value, ctx) => {
+        if (isEmptyValue(value)) return undefined;
+        const allowed = (item: unknown) => values.some((v) => isEqual(v, item));
+        const ok = Array.isArray(value) ? value.every(allowed) : allowed(value);
+        return ok ? undefined : message(msg, 'oneOf', ctx, { values: values.join(', ') });
+    };
+}
+
+/**
+ * Rules that apply only while `condition` holds:
+ * `when((values) => values.kind === 'company', [required(), minLength(14)])`.
+ * The rules run in order and the first message wins, waiting for any that are
+ * async. `deps` names the fields the condition reads, so a change to one of
+ * them validates this field again.
+ */
+export function when<Values = Record<string, unknown>>(
+    condition: (values: Values, context: RuleContext<Values>) => boolean,
+    list: readonly Rule[],
+    options: { deps?: readonly string[] } = {}
+): Rule {
+    const rule: Rule = (value, ctx) => {
+        if (!condition(ctx.values as Values, ctx as RuleContext<Values>)) return undefined;
+        const run = (from: number): RuleResult | Promise<RuleResult> => {
+            for (let i = from; i < list.length; i++) {
+                const result = list[i]!(value, ctx);
+                if (result instanceof Promise) return result.then((settled) => (failed(settled) ? outcome(settled, ctx) : run(i + 1)));
+                if (failed(result)) return outcome(result, ctx);
+            }
+            return undefined;
+        };
+        return run(0);
+    };
+    const deps = [...(options.deps ?? []), ...list.flatMap((r) => r.deps ?? [])];
+    return withMeta(rule, { deps: deps.length ? deps : undefined });
+}
+
+const failed = (result: RuleResult) => result === false || (typeof result === 'string' && result !== '');
+const outcome = (result: RuleResult, ctx: RuleContext): RuleResult => (result === false ? message(undefined, 'invalid', ctx) : result);
+
 /** The built-in rules, as one object: `rules.required()`, `rules.email()`. */
-export const rules = { required, minLength, maxLength, min, max, pattern, email, url, equalsField, custom };
+export const rules = { required, minLength, maxLength, min, max, pattern, email, url, equalsField, integer, oneOf, when, custom };

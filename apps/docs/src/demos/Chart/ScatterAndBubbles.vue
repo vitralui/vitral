@@ -14,7 +14,8 @@ const scatterOptions: ChartOptions = {
     xaxis: { title: { text: 'Hours of practice' } },
     yaxis: { title: { text: 'Score' } },
     markers: { shape: ['circle', 'diamond'], size: 8 },
-    annotations: { yaxis: [{ y: 70, label: { text: 'Pass mark' } }] }
+    // `background: false` writes the label on the plot, in the line's colour, without a chip.
+    annotations: { yaxis: [{ y: 70, borderColor: 'var(--vt-chart-3)', label: { text: 'Pass mark', background: false } }] }
 };
 
 const bubbles: ChartSeries = [

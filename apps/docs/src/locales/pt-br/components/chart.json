@@ -97,6 +97,10 @@
         "Using the chart without a framework": {
             "title": "Usando o gráfico sem framework",
             "description": "O gráfico é o @vitral/chart, que não tem framework nenhum dentro; <Chart> é uma camada fina em volta dele. createChart(element, { type, series, options }) desenha em qualquer elemento e devolve um handle: update, on, zoomX, exportSvg, destroy. Este aqui é montado numa <div> simples pelo módulo abaixo."
+        },
+        "Trend lines": {
+            "title": "Linhas de tendência",
+            "description": "`trendline` numa série desenha a sua tendência como uma linha própria, numa cor própria e nomeada por ela na legenda e no tooltip: `true` para uma reta ajustada por mínimos quadrados, `'exponential'`, ou uma `'movingAverage'` sobre alguns pontos. Ela vem depois de todas as séries dadas, então `colors` e opções escritas por série mantêm os seus lugares, e uma tendência fica com a próxima cor — ou com a que o seu `color` indicar."
         }
     }
 }

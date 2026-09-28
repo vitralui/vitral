@@ -1,0 +1,10 @@
+{
+    "props": {
+        "value": "O que é copiado, ou uma função que o devolve (e ela pode esperar).",
+        "label": "Sem um, o botão mostra só o ícone, chamado \"Copiar\".",
+        "copiedLabel": "Mostrado no lugar de `label` por um momento depois de copiar.",
+        "timeout": "Quanto tempo o visto fica, em milissegundos. O padrão é 2000.",
+        "severity": "O padrão é `'secondary'`.",
+        "variant": "O padrão é `'text'`."
+    }
+}

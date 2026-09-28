@@ -1,0 +1,269 @@
+/* The layer covers the screen but takes no press itself: the overlay's path
+   takes presses where it is painted, the popover takes its own, and the hole
+   lets them through to the element. */
+.vt-tour {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.vt-tour-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.vt-tour-overlay-path {
+    fill: var(--vt-tour-overlay-color);
+    fill-rule: evenodd;
+    opacity: var(--vt-tour-overlay-opacity);
+    pointer-events: visiblePainted;
+    cursor: default;
+}
+
+.vt-tour-popover {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-tour-popover-gap);
+    box-sizing: border-box;
+    width: max-content;
+    max-width: min(var(--vt-tour-popover-width), calc(100vw - 1rem));
+    padding: var(--vt-tour-popover-padding);
+    color: var(--vt-tour-popover-color);
+    background: var(--vt-tour-popover-background);
+    border: 1px solid var(--vt-tour-popover-border-color);
+    border-radius: var(--vt-tour-popover-border-radius);
+    box-shadow: var(--vt-tour-popover-shadow);
+    pointer-events: auto;
+}
+
+/* The popover takes the keyboard only so a screen reader reads it as it
+   arrives; it is not something a reader tabs to, so it wears no ring. The
+   buttons inside it do. */
+.vt-tour-popover:focus {
+    outline: none;
+}
+
+.vt-tour-popover-centered {
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+
+.vt-tour-animated .vt-tour-popover {
+    animation: vt-tour-in var(--vt-tour-transition-duration) ease-out;
+}
+
+@keyframes vt-tour-in {
+    from {
+        opacity: 0;
+    }
+}
+
+/* A square turned on its corner, half of it tucked behind the popover. */
+.vt-tour-arrow {
+    position: absolute;
+    width: var(--vt-tour-arrow-size);
+    height: var(--vt-tour-arrow-size);
+    background: inherit;
+    border: inherit;
+    rotate: 45deg;
+}
+
+.vt-tour-arrow[hidden],
+.vt-tour-popover-centered .vt-tour-arrow,
+.vt-tour-popover:not([data-placement]) .vt-tour-arrow {
+    display: none;
+}
+
+.vt-tour-popover[data-placement^='bottom'] .vt-tour-arrow {
+    top: calc(var(--vt-tour-arrow-size) / -2 - 1px);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.vt-tour-popover[data-placement^='top'] .vt-tour-arrow {
+    bottom: calc(var(--vt-tour-arrow-size) / -2 - 1px);
+    border-top-color: transparent;
+    border-left-color: transparent;
+}
+
+.vt-tour-popover[data-placement^='right'] .vt-tour-arrow {
+    left: calc(var(--vt-tour-arrow-size) / -2 - 1px);
+    border-top-color: transparent;
+    border-right-color: transparent;
+}
+
+.vt-tour-popover[data-placement^='left'] .vt-tour-arrow {
+    right: calc(var(--vt-tour-arrow-size) / -2 - 1px);
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+.vt-tour-close-button {
+    position: absolute;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--vt-tour-close-button-size);
+    height: var(--vt-tour-close-button-size);
+    padding: 0;
+    color: var(--vt-tour-close-button-color);
+    background: transparent;
+    border: 0;
+    border-radius: var(--vt-tour-close-button-border-radius);
+    cursor: pointer;
+}
+
+.vt-tour-close-button:hover {
+    color: var(--vt-tour-close-button-hover-color);
+    background: var(--vt-tour-close-button-hover-background);
+}
+
+.vt-tour-close-button:focus-visible,
+.vt-tour-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-tour-close-button .vt-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.vt-tour-image {
+    display: block;
+    width: 100%;
+    border-radius: var(--vt-tour-image-border-radius);
+}
+
+.vt-tour-title {
+    margin: 0;
+    padding-inline-end: calc(var(--vt-tour-close-button-size) - 0.25rem);
+    font-size: var(--vt-tour-title-font-size);
+    font-weight: var(--vt-tour-title-font-weight);
+    color: var(--vt-tour-title-color);
+}
+
+.vt-tour-description {
+    color: var(--vt-tour-description-color);
+    line-height: var(--vt-tour-description-line-height);
+}
+
+/* Only the title keeps the close button's corner; a step without one hands it to the text. */
+.vt-tour-close-button + .vt-tour-description {
+    padding-inline-end: calc(var(--vt-tour-close-button-size) - 0.25rem);
+}
+
+.vt-tour-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-tour-footer-gap);
+    margin-top: var(--vt-tour-footer-margin-top);
+}
+
+.vt-tour-progress {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: var(--vt-tour-progress-font-size);
+    color: var(--vt-tour-progress-color);
+}
+
+.vt-tour-dots {
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--vt-tour-dot-gap);
+}
+
+.vt-tour-dot {
+    width: var(--vt-tour-dot-size);
+    height: var(--vt-tour-dot-size);
+    background: var(--vt-tour-dot-background);
+    border-radius: 50%;
+    transition: background-color var(--vt-tour-transition-duration);
+}
+
+.vt-tour-dot-active {
+    background: var(--vt-tour-dot-active-background);
+}
+
+.vt-tour-bar {
+    flex: 1 1 auto;
+    height: var(--vt-tour-bar-height);
+    overflow: hidden;
+    background: var(--vt-tour-bar-background);
+    border-radius: var(--vt-tour-bar-border-radius);
+}
+
+.vt-tour-bar-fill {
+    height: 100%;
+    background: var(--vt-tour-bar-fill-background);
+    border-radius: inherit;
+    transition: width var(--vt-tour-transition-duration);
+}
+
+.vt-tour-footer-buttons {
+    display: flex;
+    gap: var(--vt-tour-footer-gap);
+    margin-inline-start: auto;
+}
+
+.vt-tour-button {
+    padding: var(--vt-tour-button-padding);
+    font: inherit;
+    font-size: var(--vt-tour-button-font-size);
+    font-weight: var(--vt-tour-button-font-weight);
+    line-height: 1.25;
+    white-space: nowrap;
+    border: var(--vt-tour-button-border-width) solid;
+    border-radius: var(--vt-tour-button-border-radius);
+    cursor: pointer;
+}
+
+.vt-tour-button:disabled {
+    opacity: var(--vt-disabled-opacity);
+    cursor: default;
+}
+
+.vt-tour-next-button {
+    color: var(--vt-tour-next-button-color);
+    background: var(--vt-tour-next-button-background);
+    border-color: var(--vt-tour-next-button-border-color);
+}
+
+.vt-tour-next-button:not(:disabled):hover {
+    background: var(--vt-tour-next-button-hover-background);
+}
+
+.vt-tour-previous-button {
+    color: var(--vt-tour-previous-button-color);
+    background: var(--vt-tour-previous-button-background);
+    border-color: var(--vt-tour-previous-button-border-color);
+}
+
+.vt-tour-previous-button:not(:disabled):hover {
+    background: var(--vt-tour-previous-button-hover-background);
+}
+
+/* The element being explained. It is not moved or restyled: the hole in the
+   overlay is what shows it, so it keeps its own look and place. */
+.vt-tour-inert-element,
+.vt-tour-inert-element * {
+    pointer-events: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-tour-animated .vt-tour-popover {
+        animation: none;
+    }
+
+    .vt-tour-dot,
+    .vt-tour-bar-fill {
+        transition: none;
+    }
+}

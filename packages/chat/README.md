@@ -33,6 +33,14 @@ reader is already at the bottom — scrolling someone away from what they were
 reading is the one thing an auto-scrolling log must never do. When they have
 scrolled off, a button offers to take them back.
 
+## Under a message
+
+`messageActions` puts buttons under each settled message: `'copy'`,
+`'regenerate'`, `'like'` and `'dislike'` are built in, and anything else — a
+quote, a share — is the application's. Every press is reported through
+`message-action`; a rating shows as pressed while the message carries it as
+its `feedback`. Copying shows a tick for a moment and is announced.
+
 ## Shapes
 
 `variant` decides the shape, not the colours:

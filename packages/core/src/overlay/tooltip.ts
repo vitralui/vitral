@@ -15,6 +15,8 @@ export interface TooltipOptions {
     offset?: number;
     /** The stacking base; tooltips opened later still go on top. */
     zIndex?: number;
+    /** A pointer from the tooltip to its host, on whichever side the tooltip ends up. */
+    arrow?: boolean;
     /** Attributes for the tooltip element and its text: the classes from the style's class map, pass-through. */
     rootAttrs?: Record<string, string | undefined>;
     textAttrs?: Record<string, string | undefined>;
@@ -98,7 +100,7 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
 
     function place() {
         release?.();
-        release = el ? anchorTo(host, el, { placement: options.placement, offset: options.offset }) : null;
+        release = el ? anchorTo(host, el, { placement: options.placement, offset: options.offset, withArrow: !!options.arrow }) : null;
     }
 
     function show() {

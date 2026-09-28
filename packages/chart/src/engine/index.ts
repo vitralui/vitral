@@ -13,3 +13,4 @@ export * from './build';
 export * from './interaction';
 export * from './group';
 export * from './a11y';
+export * from './trend';

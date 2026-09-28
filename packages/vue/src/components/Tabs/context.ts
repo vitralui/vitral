@@ -13,6 +13,8 @@ export interface TabsContext {
     unstyled: () => boolean | undefined;
     orientation: () => 'horizontal' | 'vertical';
     lazy: () => boolean;
+    scrollable: () => boolean;
+    scrollButtons: () => 'sides' | 'start' | 'end' | 'none';
     /** The selected value: the model, or the first enabled tab while the model is empty. */
     active: ComputedRef<TabValue | undefined>;
     /** The tab that is in the tab order: the selected one, or the first enabled one. */

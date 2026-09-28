@@ -1,7 +1,7 @@
-import type { ChatAttachment, ChatCitation, ChatMessage, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant } from '@vitral/chat';
+import type { ChatAttachment, ChatBuiltInAction, ChatCitation, ChatMessage, ChatMessageAction, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant } from '@vitral/chat';
 import type { BaseProps } from '../../base/types';
 
-export type { ChatAttachment, ChatCitation, ChatMessage, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant };
+export type { ChatAttachment, ChatBuiltInAction, ChatCitation, ChatMessage, ChatMessageAction, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant };
 
 export interface ChatProps extends BaseProps {
     /** The thread. `v-model:messages` is not offered: what is said is the application's to decide. */
@@ -24,6 +24,8 @@ export interface ChatProps extends BaseProps {
     sendOnEnter?: boolean;
     /** Height of the thread's scroller. Defaults to `'28rem'`. */
     height?: string;
+    /** Buttons under each message: `['copy', 'regenerate', 'like', 'dislike']`, or actions of your own, reported by `message-action`. */
+    messageActions?: (ChatMessageAction | ChatBuiltInAction)[];
 }
 
 export interface ChatEmits {
@@ -38,6 +40,8 @@ export interface ChatEmits {
     'open-change': [open: boolean];
     /** The reader left the newest message, or came back to it. */
     'at-bottom-change': [atBottom: boolean];
+    /** A message's action was pressed; `copy` has already copied. */
+    'message-action': [event: { action: string; message: ChatMessage }];
 }
 
 export interface ChatSlots {

@@ -6,7 +6,7 @@ Vitral's `Form.*` parts run on, and it works on its own.
 - Values with nested and array paths, dirty, touched and validated state per field, submit state.
 - Validation on submit, blur, change or input, per form and per field, with debounce and revalidation after the first check.
 - Async rules with stale runs aborted, cross-field checks, field arrays that carry their items' state.
-- Built-in rules (required, min/max length, min/max, pattern, email, url, equals-field, custom).
+- Built-in rules (required, min/max length, min/max, integer, one-of, pattern, email, url, equals-field, custom), and `when` for rules that apply only while a condition holds.
 - Resolvers for Zod, Yup, Valibot, Superstruct, Standard Schema or a plain function, with no dependency on any of them.
 
 ```ts

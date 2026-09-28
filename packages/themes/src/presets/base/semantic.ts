@@ -129,7 +129,9 @@ export const semantic: TokenTree = {
         select: { borderRadius: '{borderRadius.md}', shadow: '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08)' },
         popover: { borderRadius: '{borderRadius.md}', padding: '0.75rem', shadow: '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08)' },
         modal: { borderRadius: '{borderRadius.xl}', padding: '1.25rem', shadow: '0 20px 40px -8px rgba(0, 0, 0, 0.25)' },
-        navigation: { shadow: '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08)' }
+        navigation: { shadow: '0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08)' },
+        /** The pointer a popup can draw to its anchor. */
+        arrow: { size: '0.75rem' }
     },
 
     navigation: {

@@ -1,7 +1,7 @@
 import { cellEntries, formatMessage, visuallyHidden, type BoardEntry, type Locale } from '@vitral/core';
 import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
-import { countOf, countText, isDisabled, isLocked, laneCount, labelOf, wipOf, type BoardSettings } from '../engine/state';
+import { countOf, countText, isDisabled, isLocked, laneCount, labelOf, summaryOf, wipOf, type BoardSettings } from '../engine/state';
 import type { Content, TaskboardColumn, TaskboardConfig, TaskboardLane } from '../engine/types';
 
 /**
@@ -147,6 +147,7 @@ function columnHeader(context: ViewContext, column: TaskboardColumn): Child {
             column.wipLimit !== undefined ? `${count}/${column.wipLimit}` : String(count)
         ),
         h('span', { key: 'count-text', id: context.ids.count(column.key), style: visuallyHidden }, countText(context.entries, column, locale)),
+        summaryView(context, (entry) => entry.column === column.key),
         settings.reorderColumns && !collapsed
             ? h(
                   'button',
@@ -191,9 +192,16 @@ function laneHeader(context: ViewContext, lane: TaskboardLane): Child {
             : null,
         content(context.config.content?.laneHeader?.({ lane, count, collapsed, toggle: () => context.on.toggleLane(lane) })) ?? [
             h('span', mergeAttrs({ key: 'title' }, part('laneTitle')), name),
-            h('span', mergeAttrs({ key: 'count' }, part('laneCount')), `(${count})`)
+            h('span', mergeAttrs({ key: 'count' }, part('laneCount')), `(${count})`),
+            summaryView(context, (entry) => entry.lane === lane.key)
         ]
     );
+}
+
+/** The figure a summary asks for, beside a column's or a lane's count. */
+function summaryView(context: ViewContext, keep: (entry: ViewContext['entries'][number]) => boolean): Child {
+    const text = summaryOf(context.entries, keep, context.config.summary, context.locale);
+    return text === null ? null : h('span', mergeAttrs({ key: 'summary' }, context.part('summary')), text);
 }
 
 function cellView(context: ViewContext, column: TaskboardColumn, lane: TaskboardLane | undefined, row: number, rows: number): Child {

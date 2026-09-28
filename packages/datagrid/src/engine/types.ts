@@ -54,6 +54,12 @@ export interface DataGridColumn<T = Row> {
     bodyStyle?: Record<string, string>;
     /** Draws the cell. Without it, the field's value is shown as text. */
     body?: (context: CellContext<T>) => Content;
+    /** Include this column in `toCSV()` and `exportCSV()`. Defaults to true for a column with a `field` or an `exportValue`. */
+    exportable?: boolean;
+    /** What an export writes for a row, in place of the field's value: a formatted date, a name for an id. */
+    exportValue?: (row: T) => unknown;
+    /** The column's heading in an export, in place of `header`. */
+    exportHeader?: string;
     /** Draws the header, beside or instead of `header`. */
     headerContent?: (context: { column: DataGridColumn<T> }) => Content;
     footerContent?: (context: { column: DataGridColumn<T> }) => Content;

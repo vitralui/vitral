@@ -12,6 +12,11 @@ export const Vitral: Plugin<[VitralOptions?]> = {
         app.provide(VitralKey, context);
         app.config.globalProperties.$vitral = context;
         context.theme?.mount();
+        // The application's tour outlives every component, but not the app.
+        app.onUnmount?.(() => {
+            context.globalTour?.destroy();
+            context.globalTour = null;
+        });
     }
 };
 

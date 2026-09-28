@@ -1,0 +1,8 @@
+{
+    "description": "Uma tecla ou um atalho como aparece no teclado de quem lê: ⌘ num Mac, Ctrl em todo o resto, e cada símbolo ainda nomeado para um leitor de tela.",
+    "sections": {
+        "Shortcuts": { "title": "Atalhos", "description": "`mod` é a tecla de comando da plataforma. A página pergunta ao navegador em que plataforma está depois de montada, para que a renderização no servidor e a primeira pintura concordem." },
+        "Platforms": { "title": "Plataformas", "description": "`platform` fixa os nomes, para documentação escrita sobre uma plataforma só." },
+        "Sizes and single keys": { "title": "Tamanhos e teclas avulsas" }
+    }
+}

@@ -117,6 +117,8 @@ export interface Locale {
     /** The chart's text. */
     chart: {
         noData: string;
+        /** A trend line's name in the legend and the tooltip. `{series}` */
+        trend: string;
         total: string;
         size: string;
         open: string;
@@ -216,6 +218,14 @@ export interface Locale {
         /** Opens and closes the widget's panel. */
         openChat: string;
         closeChat: string;
+        /** A message's copy button, and what it says once it has copied. */
+        copy: string;
+        copied: string;
+        /** Asks for a different answer to the same question. */
+        regenerate: string;
+        /** Rates an answer. */
+        like: string;
+        dislike: string;
     };
 
     /** The rich-text editor's text. */
@@ -373,12 +383,27 @@ export interface Locale {
         /** `{field}` */
         equals: string;
         invalid: string;
+        /** A number with a fraction where a whole one is wanted. */
+        integer: string;
+        /** A value that is not one of those allowed. */
+        oneOf: string;
         /** The heading of the error summary. */
         summaryTitle: string;
         /** One line of the error summary. `{label}`, `{message}` */
         summaryItem: string;
         /** Read beside a field whose check is running. */
         validating: string;
+    };
+    /** The guided tour's popover. */
+    tour: {
+        next: string;
+        previous: string;
+        done: string;
+        close: string;
+        /** `{current}`, `{total}` */
+        progress: string;
+        /** Names a step's popover when it has no title. `{current}`, `{total}` */
+        step: string;
     };
     aria: {
         close: string;
@@ -551,6 +576,13 @@ export interface Locale {
         taskboardNoLane: string;
         /** An empty task board cell. */
         taskboardEmpty: string;
+        /** A copy button with no label of its own. */
+        copy: string;
+        /** Announced once a copy button has copied. */
+        copied: string;
+        /** A figure's change, read in place of its arrow. `{value}` */
+        increase: string;
+        decrease: string;
     };
 }
 
@@ -633,6 +665,7 @@ export const en: Locale = {
     },
     chart: {
         noData: 'No data to show',
+        trend: '{series} trend',
         total: 'Total',
         size: 'Size',
         open: 'Open',
@@ -709,7 +742,12 @@ export const en: Locale = {
         toolDone: 'done',
         toolFailed: 'failed',
         openChat: 'Open chat',
-        closeChat: 'Close chat'
+        closeChat: 'Close chat',
+        copy: 'Copy',
+        copied: 'Copied',
+        regenerate: 'Regenerate',
+        like: 'Good answer',
+        dislike: 'Bad answer'
     },
     editor: {
         toolbar: 'Formatting',
@@ -857,9 +895,19 @@ export const en: Locale = {
         url: 'Enter a web address like https://example.com.',
         equals: 'This has to match {field}.',
         invalid: 'Enter a valid value.',
+        integer: 'Enter a whole number.',
+        oneOf: 'Choose one of the options given.',
         summaryTitle: 'There is a problem',
         summaryItem: '{label}: {message}',
         validating: 'Checking…'
+    },
+    tour: {
+        next: 'Next',
+        previous: 'Previous',
+        done: 'Done',
+        close: 'Close tour',
+        progress: '{current} of {total}',
+        step: 'Step {current} of {total}'
     },
     aria: {
         close: 'Close',
@@ -972,7 +1020,11 @@ export const en: Locale = {
         taskboardColumnDropped: 'Column {column} dropped at position {position} of {count}',
         taskboardColumnCancelled: 'Move cancelled. Column {column} is back at position {position} of {count}',
         taskboardNoLane: 'Other',
-        taskboardEmpty: 'No cards'
+        taskboardEmpty: 'No cards',
+        copy: 'Copy',
+        copied: 'Copied',
+        increase: 'Up {value}',
+        decrease: 'Down {value}'
     }
 };
 
@@ -1051,6 +1103,7 @@ export const ptBR: Locale = {
     },
     chart: {
         noData: 'Sem dados para exibir',
+        trend: 'Tendência de {series}',
         total: 'Total',
         size: 'Tamanho',
         open: 'Abertura',
@@ -1127,7 +1180,12 @@ export const ptBR: Locale = {
         toolDone: 'concluído',
         toolFailed: 'falhou',
         openChat: 'Abrir conversa',
-        closeChat: 'Fechar conversa'
+        closeChat: 'Fechar conversa',
+        copy: 'Copiar',
+        copied: 'Copiado',
+        regenerate: 'Gerar de novo',
+        like: 'Boa resposta',
+        dislike: 'Resposta ruim'
     },
     editor: {
         toolbar: 'Formatação',
@@ -1275,9 +1333,19 @@ export const ptBR: Locale = {
         url: 'Digite um endereço como https://exemplo.com.',
         equals: 'Tem de ser igual a {field}.',
         invalid: 'Digite um valor válido.',
+        integer: 'Digite um número inteiro.',
+        oneOf: 'Escolha uma das opções dadas.',
         summaryTitle: 'Há um problema',
         summaryItem: '{label}: {message}',
         validating: 'Verificando…'
+    },
+    tour: {
+        next: 'Próximo',
+        previous: 'Anterior',
+        done: 'Concluir',
+        close: 'Fechar tour',
+        progress: '{current} de {total}',
+        step: 'Passo {current} de {total}'
     },
     aria: {
         close: 'Fechar',
@@ -1390,6 +1458,10 @@ export const ptBR: Locale = {
         taskboardColumnDropped: 'Coluna {column} solta na posição {position} de {count}',
         taskboardColumnCancelled: 'Movimento cancelado. A coluna {column} voltou para a posição {position} de {count}',
         taskboardNoLane: 'Outros',
-        taskboardEmpty: 'Nenhum cartão'
+        taskboardEmpty: 'Nenhum cartão',
+        copy: 'Copiar',
+        copied: 'Copiado',
+        increase: 'Alta de {value}',
+        decrease: 'Queda de {value}'
     }
 };

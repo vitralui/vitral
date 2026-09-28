@@ -1,13 +1,9 @@
 /* A multi-line field: the shared `.vt-field` chrome, stretched around a textarea. */
 .vt-textarea {
+    position: relative;
     align-items: stretch;
     cursor: text;
-    /*
-     * The browser draws the resize grip at the textarea's own bottom-right
-     * corner, so the textarea has to reach the field's corner or the grip
-     * floats a padding's width inside it. The side padding moves in with the
-     * text instead of sitting on the wrapper.
-     */
+    /* The side padding moves in with the text, so the textarea reaches the field's edges. */
     padding-inline: 0;
 }
 
@@ -26,7 +22,54 @@
     min-height: var(--vt-control-min-height);
     line-height: inherit;
     padding-inline: var(--vt-form-field-padding-x);
-    resize: var(--vt-textarea-resize);
+    /* The browser's own grip is replaced by the field's. */
+    resize: none;
+}
+
+/* The grip in the field's end corner: two strokes, drawn by the library so
+   every browser and every theme shows the same one. */
+.vt-textarea-resizer {
+    position: absolute;
+    inset-block-end: var(--vt-textarea-resizer-inset);
+    inset-inline-end: var(--vt-textarea-resizer-inset);
+    display: flex;
+    width: var(--vt-textarea-resizer-size);
+    height: var(--vt-textarea-resizer-size);
+    color: var(--vt-textarea-resizer-color);
+    cursor: ns-resize;
+    touch-action: none;
+}
+
+.vt-textarea-resizer svg {
+    width: 100%;
+    height: 100%;
+}
+
+.vt-textarea-resizer:hover,
+.vt-textarea-resizing .vt-textarea-resizer {
+    color: var(--vt-textarea-resizer-hover-color);
+}
+
+.vt-textarea-resizer-horizontal {
+    cursor: ew-resize;
+}
+
+.vt-textarea-resizer-both {
+    cursor: nwse-resize;
+}
+
+/* Right to left, the corner is the bottom-left and the strokes lean the other way. */
+[dir='rtl'] .vt-textarea-resizer svg {
+    transform: scaleX(-1);
+}
+
+[dir='rtl'] .vt-textarea-resizer-both {
+    cursor: nesw-resize;
+}
+
+/* While dragging, the page does not select text under the pointer. */
+.vt-textarea-resizing {
+    user-select: none;
 }
 
 /* Grows with its content: the script sets the height, so no scrollbar and no handle. */

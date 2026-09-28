@@ -15,5 +15,5 @@
  *   follows whatever preset the page is themed with.
  */
 export * from './engine/index';
-export { createDataGrid, type DataGridHandle } from './grid';
+export { createDataGrid, type DataGridExportOptions, type DataGridHandle } from './grid';
 export { iconView, gridView, type DataGridActions, type ViewContext } from './render/grid';

@@ -5,7 +5,7 @@ export const meta: DemoMeta = {
     title: 'Spreadsheet',
     category: 'Data',
     description:
-        'A spreadsheet with its own formula engine and no dependency: A1 references, sixty-three functions and recalculation of only what changed.'
+        'A spreadsheet with its own formula engine and no dependency: A1 references, ninety-eight functions and recalculation of only what changed.'
 };
 </script>
 

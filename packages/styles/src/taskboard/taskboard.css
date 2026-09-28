@@ -119,6 +119,13 @@
     white-space: nowrap;
 }
 
+.vt-taskboard-summary {
+    font-size: var(--vt-taskboard-count-font-size);
+    font-variant-numeric: tabular-nums;
+    color: var(--vt-text-muted-color);
+    white-space: nowrap;
+}
+
 .vt-taskboard-count-at {
     background: var(--vt-taskboard-count-at-background);
     color: var(--vt-taskboard-count-at-color);

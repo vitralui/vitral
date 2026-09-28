@@ -318,6 +318,10 @@ defineExpose({
     today: () => schedule?.today(),
     setView: (target: ScheduleViewName) => schedule?.setView(target),
     focus: () => schedule?.focus(),
+    /** The events as an iCalendar file's text. */
+    toICalendar: (options?: Parameters<ScheduleHandle['toICalendar']>[0]) => schedule?.toICalendar(options) ?? '',
+    /** Hands the reader the events as an `.ics` file. */
+    exportICS: (options?: Parameters<ScheduleHandle['exportICS']>[0]) => schedule?.exportICS(options),
     /** The framework-free schedule underneath, for anything this component does not expose. */
     schedule: () => schedule
 });

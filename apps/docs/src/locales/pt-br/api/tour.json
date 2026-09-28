@@ -1,0 +1,19 @@
+{
+    "props": {
+        "animate": "Move o destaque de passo em passo. O padrão é true.",
+        "allowClose": "Escape, o botão de fechar e um toque na sobreposição encerram o tour. O padrão é true.",
+        "stagePadding": "O espaço em volta do elemento, em pixels. O padrão é 2, para que o destaque o contorne de perto.",
+        "stageRadius": "O canto do recorte. O padrão é o canto do próprio elemento, somado ao espaço em volta.",
+        "allowKeyboardControl": "O padrão é true.",
+        "progressText": "`'{current} de {total}'`; o da locale caso contrário.",
+        "allowHtml": "Títulos e descrições são HTML. Só para texto que você escreveu.",
+        "elementTimeout": "Quanto tempo um passo espera o seu elemento aparecer, em milissegundos.",
+        "storageKey": "Lembra onde o leitor parou, e se terminou, sob esta chave.",
+        "options": "Todo o resto que `createTour` aceita: os hooks, `storage`, `dir`.",
+        "dismissableMask": "`false` impede que um toque na sobreposição encerre o tour, como na máscara de um dialog. O padrão é true.",
+        "arrow": "Uma seta do popover apontando para o elemento. Desligada por padrão."
+    },
+    "slots": {
+        "content": "Desenhado no popover abaixo da descrição, em todo passo."
+    }
+}

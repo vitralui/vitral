@@ -21,12 +21,14 @@ import command from './command';
 import confirmdialog from './confirmdialog';
 import confirmpopup from './confirmpopup';
 import contextmenu from './contextmenu';
+import copybutton from './copybutton';
 import cropper from './cropper';
 import datagrid from './datagrid';
 import datatable from './datatable';
 import dataview from './dataview';
 import datepicker from './datepicker';
 import daterange from './daterange';
+import descriptionlist from './descriptionlist';
 import dialog from './dialog';
 import divider from './divider';
 import dock from './dock';
@@ -34,6 +36,7 @@ import dockpanel from './dockpanel';
 import drawer from './drawer';
 import dynamicdialog from './dynamicdialog';
 import editor from './editor';
+import emptystate from './emptystate';
 import fieldset from './fieldset';
 import fileupload from './fileupload';
 import floatlabel from './floatlabel';
@@ -53,6 +56,7 @@ import inputotp from './inputotp';
 import inputpassword from './inputpassword';
 import inputtag from './inputtag';
 import inputtext from './inputtext';
+import kbd from './kbd';
 import knob from './knob';
 import label from './label';
 import listbox from './listbox';
@@ -89,6 +93,7 @@ import splitter from './splitter';
 import splitview from './splitview';
 import spreadsheet from './spreadsheet';
 import stackpanel from './stackpanel';
+import stat from './stat';
 import stepper from './stepper';
 import tabs from './tabs';
 import tag from './tag';
@@ -103,6 +108,7 @@ import togglebutton from './togglebutton';
 import toggleswitch from './toggleswitch';
 import toolbar from './toolbar';
 import tooltip from './tooltip';
+import tour from './tour';
 import tree from './tree';
 import treeselect from './treeselect';
 import treetable from './treetable';
@@ -133,12 +139,14 @@ export const components = {
     confirmdialog,
     confirmpopup,
     contextmenu,
+    copybutton,
     cropper,
     datagrid,
     datatable,
     dataview,
     datepicker,
     daterange,
+    descriptionlist,
     dialog,
     divider,
     dock,
@@ -146,6 +154,7 @@ export const components = {
     drawer,
     dynamicdialog,
     editor,
+    emptystate,
     fieldset,
     fileupload,
     floatlabel,
@@ -165,6 +174,7 @@ export const components = {
     inputpassword,
     inputtag,
     inputtext,
+    kbd,
     knob,
     label,
     listbox,
@@ -201,6 +211,7 @@ export const components = {
     splitview,
     spreadsheet,
     stackpanel,
+    stat,
     stepper,
     tabs,
     tag,
@@ -215,6 +226,7 @@ export const components = {
     toggleswitch,
     toolbar,
     tooltip,
+    tour,
     tree,
     treeselect,
     treetable,

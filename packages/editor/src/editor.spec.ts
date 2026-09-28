@@ -95,6 +95,14 @@ describe('an editor with no framework in it', () => {
         expect(element.querySelector('.vt-editor-count')?.textContent).toBe('5 of 100 characters');
     });
 
+    it('counts words, or words and characters, when told to', () => {
+        const words = mount({ showCount: 'words', content: '<p>Hello there world</p>' });
+        expect(words.element.querySelector('.vt-editor-count')?.textContent).toBe('3 words');
+        handle?.destroy();
+        const both = mount({ showCount: 'both', content: '<p>One</p>' });
+        expect(both.element.querySelector('.vt-editor-count')?.textContent).toBe('1 word · 3 characters');
+    });
+
     it('speaks the locale it is given', () => {
         const { toolbar } = mount({ locale: ptBR });
         expect(toolbar()!.getAttribute('aria-label')).toBe('Formatação');

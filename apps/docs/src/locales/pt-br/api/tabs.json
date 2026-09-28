@@ -2,6 +2,8 @@
     "props": {
         "orientation": "Abas acima dos painéis (o padrão) ou ao lado deles.",
         "lazy": "Renderiza um painel só enquanto sua aba está selecionada.",
-        "selectOnFocus": "Seleciona uma aba assim que as setas chegam nela: a ativação automática do APG, e o padrão. Desligado, as setas só movem o foco e Enter/Espaço selecionam."
+        "selectOnFocus": "Seleciona uma aba assim que as setas chegam nela: a ativação automática do APG, e o padrão. Desligado, as setas só movem o foco e Enter/Espaço selecionam.",
+        "scrollable": "As abas que não cabem rolam pela faixa, com um botão em cada ponta que ainda tem mais para mostrar; a aba selecionada é sempre trazida à vista.",
+        "scrollButtons": "Onde ficam os botões de uma faixa rolável: um em cada ponta (`'sides'`, o padrão), os dois juntos no início ou no fim, ou nenhum — as setas do teclado, a roda do mouse e o toque ainda rolam."
     }
 }

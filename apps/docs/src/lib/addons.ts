@@ -86,6 +86,15 @@ export const addons: AddonEntry[] = [
         component: 'chat'
     },
     {
+        id: 'tour',
+        name: '@vitral/tour',
+        title: 'Tour',
+        note: 'Guided tours with steps that wait, skip and move on by themselves',
+        icon: 'route',
+        to: '/components/tour',
+        component: 'tour'
+    },
+    {
         id: 'forms',
         name: '@vitral/forms',
         title: 'Form',

@@ -34,6 +34,8 @@ export const chatStyle = defineStyle({
         meta: 'vt-chat-meta',
         time: 'vt-chat-time',
         retry: 'vt-chat-retry',
+        messageActions: 'vt-chat-message-actions',
+        messageAction: (s: { pressed?: boolean; copied?: boolean }) => ['vt-chat-message-action', { 'vt-chat-message-action-pressed': s.pressed, 'vt-chat-message-action-copied': s.copied }],
         tools: 'vt-chat-tools',
         tool: 'vt-chat-tool',
         toolSummary: 'vt-chat-tool-summary',

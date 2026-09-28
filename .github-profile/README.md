@@ -56,6 +56,7 @@ itself. No framework inside any of them:
 | [`@vitral/spreadsheet`](https://vitralui.github.io/vitral/components/spreadsheet/) | A formula engine, A1 references and a dependency graph |
 | [`@vitral/editor`](https://vitralui.github.io/vitral/components/editor/) | Rich text with a slash menu and block actions |
 | [`@vitral/chat`](https://vitralui.github.io/vitral/components/chat/) | Threads, streaming answers, and the tools an agent reached for |
+| [`@vitral/tour`](https://vitralui.github.io/vitral/components/tour/) | Guided tours, with steps that wait, skip and move on by themselves |
 | [`@vitral/forms`](https://vitralui.github.io/vitral/components/form/) | Values, validation and submit state |
 
 Because an addon has no framework in it, the same chart can be drawn by Vue, by

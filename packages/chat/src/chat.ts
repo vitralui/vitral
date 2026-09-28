@@ -2,7 +2,16 @@ import { en, isClient, loadStyle, type Locale } from '@vitral/core';
 import { createOverlay } from '@vitral/controls';
 import { createRoot, h, iconNode, mergeAttrs, partResolver, type Child, type VElement } from '@vitral/dom';
 // Aliased: this module has a `send` of its own, and a bare `x` reads as a variable.
-import { close as closeIcon, getIcon, messageSquare as messageSquareIcon, paperclip as paperclipIcon, registerIcons, send as sendIcon } from '@vitral/icons';
+import {
+    close as closeIcon,
+    getIcon,
+    messageSquare as messageSquareIcon,
+    paperclip as paperclipIcon,
+    registerIcons,
+    send as sendIcon,
+    thumbsDown as thumbsDownIcon,
+    thumbsUp as thumbsUpIcon
+} from '@vitral/icons';
 import { baseStyle, chatStyle } from '@vitral/styles';
 import { announcementOf, messageKeyTarget, showsAvatars } from './engine/state';
 import type { ChatAttachment, ChatConfig, ChatMessage, ChatVariant } from './engine/types';
@@ -65,7 +74,8 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
     // The composer and the launcher draw icons that are not in the base set,
     // so the addon brings its own rather than leaving an application to work
     // out which names it has to register before a chat will draw.
-    registerIcons([paperclipIcon, sendIcon, closeIcon, messageSquareIcon]);
+    registerIcons([paperclipIcon, sendIcon, closeIcon, messageSquareIcon, thumbsUpIcon, thumbsDownIcon]);
+    // `copy`, `check` and `refresh`, which the other built-in message actions draw, are in the base set.
 
     // ---- what is on screen
 
@@ -135,6 +145,10 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         retry(message) {
             emit('retry', message);
         },
+        messageAction(action, message) {
+            if (action.id === 'copy') void copy(message);
+            emit('message-action', { action: action.id, message });
+        },
         suggest(text) {
             emit('suggestion', text);
         },
@@ -167,6 +181,39 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         }
     };
 
+    /** The message just copied, which wears a tick until the timer takes it off. */
+    let copied: string | number | null = null;
+    let copiedTimer: ReturnType<typeof setTimeout> | undefined;
+    async function copy(message: ChatMessage) {
+        const text = message.content ?? '';
+        try {
+            if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) throw new Error('No clipboard here');
+            await navigator.clipboard.writeText(text);
+        } catch {
+            return;
+        }
+        if (destroyed) return;
+        copied = message.id;
+        say(locale().chat.copied);
+        clearTimeout(copiedTimer);
+        copiedTimer = setTimeout(() => {
+            copied = null;
+            render();
+        }, 2000);
+        render();
+    }
+
+    /** Says something through the live region: emptied first, so the same words twice are read twice. */
+    function say(words: string) {
+        announcement = '';
+        render();
+        Promise.resolve().then(() => {
+            if (destroyed) return;
+            announcement = words;
+            render();
+        });
+    }
+
     /** The composer grows with what is typed, up to `maxRows`, and then scrolls. */
     function grow() {
         if (!inputEl) return;
@@ -194,6 +241,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         tabIndex: Math.min(tabIndex, Math.max(0, messages().length - 1)),
         away,
         announcement,
+        copied,
         on: actions,
         refs: {
             log: (el) => (logEl = el as HTMLElement | null),
@@ -258,7 +306,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
                     ref: (el: Element | null) => (launcherEl = el as HTMLElement | null),
                     onClick: actions.toggleOpen
                 }),
-                custom !== null && custom !== undefined ? (custom as Child) : iconNode(getIcon(open ? 'x' : 'messageSquare'))
+                custom !== null && custom !== undefined ? (custom as Child) : iconNode(getIcon(open ? 'close' : 'messageSquare'))
             )
         ];
     }
@@ -326,6 +374,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         destroy() {
             if (destroyed) return;
             destroyed = true;
+            clearTimeout(copiedTimer);
             panel.destroy();
             root.clear();
             logEl = null;

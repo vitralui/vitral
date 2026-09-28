@@ -6,7 +6,8 @@
         "readonly": "Sem campo de composição: uma transcrição.",
         "maxRows": "Linhas até onde o campo de composição cresce antes de rolar. O padrão é 6.",
         "sendOnEnter": "Enter envia e Shift+Enter quebra a linha. False inverte os dois.",
-        "height": "Altura da área rolável da conversa. O padrão é `'28rem'`."
+        "height": "Altura da área rolável da conversa. O padrão é `'28rem'`.",
+        "messageActions": "Botões abaixo de cada mensagem: `['copy', 'regenerate', 'like', 'dislike']`, ou ações suas, relatadas por `message-action`."
     },
     "slots": {
         "header": "Acima da conversa: um título, um seletor de modelo, um botão de fechar.",
@@ -15,5 +16,8 @@
         "empty": "Substitui o que é mostrado enquanto nada foi dito.",
         "launcher": "O botão que abre o widget.",
         "default": "As partes escritas como filhos."
+    },
+    "emits": {
+        "message-action": "A ação de uma mensagem foi pressionada; `copy` já copiou."
     }
 }

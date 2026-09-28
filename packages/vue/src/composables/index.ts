@@ -7,6 +7,8 @@ export * from './useDirection';
 export * from './useEditor';
 export * from './useForm';
 export * from './useFormField';
+export * from './useGlobalTour';
 export * from './useModal';
 export * from './useOverlayTarget';
 export * from './useToast';
+export * from './useTour';

@@ -15,8 +15,11 @@ const apps: MenuItem[] = [
 </script>
 
 <template>
-    <div style="display: flex; align-items: flex-end; justify-content: center; height: 10rem; border-radius: 8px; background: linear-gradient(135deg, var(--vt-primary-100), var(--vt-primary-300))">
-        <Dock :model="apps" aria-label="Apps" style="margin-bottom: 0.75rem" />
+    <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%">
+        <!-- A desktop, with the dock resting on its bottom edge. -->
+        <div style="display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 12rem; border-radius: 8px; background: linear-gradient(135deg, var(--vt-primary-100), var(--vt-primary-300))">
+            <Dock :model="apps" aria-label="Apps" />
+        </div>
+        <small style="color: var(--vt-text-muted-color)">Last opened: {{ last }}</small>
     </div>
-    <small style="color: var(--vt-text-muted-color)">Last opened: {{ last }}</small>
 </template>

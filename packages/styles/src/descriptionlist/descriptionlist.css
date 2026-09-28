@@ -1,0 +1,121 @@
+/* The list answers to its own width, not the window's: in a narrow side panel
+   the columns fold into one even on a wide screen. */
+.vt-descriptionlist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-descriptionlist-gap);
+    container-type: inline-size;
+    min-width: 0;
+}
+
+.vt-descriptionlist-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vt-descriptionlist-header-gap);
+}
+
+.vt-descriptionlist-title {
+    margin: 0;
+    font-size: var(--vt-descriptionlist-title-font-size);
+    font-weight: var(--vt-descriptionlist-title-font-weight);
+    color: var(--vt-descriptionlist-title-color);
+}
+
+.vt-descriptionlist-extra {
+    display: flex;
+    gap: var(--vt-descriptionlist-header-gap);
+    margin-inline-start: auto;
+}
+
+.vt-descriptionlist-list {
+    display: grid;
+    grid-template-columns: repeat(var(--vt-descriptionlist-columns, 1), minmax(0, 1fr));
+    gap: var(--vt-descriptionlist-list-row-gap) var(--vt-descriptionlist-list-column-gap);
+    margin: 0;
+}
+
+.vt-descriptionlist-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-descriptionlist-item-gap);
+    min-width: 0;
+    grid-column: span min(var(--vt-descriptionlist-span, 1), var(--vt-descriptionlist-columns, 1));
+}
+
+.vt-descriptionlist-horizontal .vt-descriptionlist-item {
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.vt-descriptionlist-horizontal .vt-descriptionlist-label {
+    flex: 0 0 var(--vt-descriptionlist-label-width);
+}
+
+.vt-descriptionlist-label {
+    min-width: 0;
+    font-size: var(--vt-descriptionlist-label-font-size);
+    font-weight: var(--vt-descriptionlist-label-font-weight);
+    color: var(--vt-descriptionlist-label-color);
+}
+
+.vt-descriptionlist-value {
+    min-width: 0;
+    margin: 0;
+    color: var(--vt-descriptionlist-value-color);
+    overflow-wrap: anywhere;
+}
+
+/* Bordered: every fact in a cell of one table-like block. */
+.vt-descriptionlist-bordered .vt-descriptionlist-list {
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--vt-descriptionlist-item-border-color);
+    border-radius: var(--vt-descriptionlist-item-border-radius);
+}
+
+.vt-descriptionlist-bordered .vt-descriptionlist-item {
+    padding: var(--vt-descriptionlist-item-padding);
+    box-shadow:
+        -1px 0 0 var(--vt-descriptionlist-item-border-color),
+        0 -1px 0 var(--vt-descriptionlist-item-border-color);
+}
+
+.vt-descriptionlist-striped .vt-descriptionlist-item:nth-child(even) {
+    background: var(--vt-descriptionlist-item-striped-background);
+}
+
+.vt-descriptionlist-striped:not(.vt-descriptionlist-bordered) .vt-descriptionlist-item {
+    padding: var(--vt-descriptionlist-item-padding);
+    border-radius: var(--vt-descriptionlist-item-border-radius);
+}
+
+.vt-descriptionlist-sm {
+    font-size: 0.8125rem;
+}
+
+.vt-descriptionlist-lg {
+    font-size: 1rem;
+}
+
+@container (max-width: 32rem) {
+    .vt-descriptionlist-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vt-descriptionlist-item {
+        grid-column: auto;
+    }
+}
+
+/* A label beside its value needs less room than two columns do, so it keeps its place longer. */
+@container (max-width: 20rem) {
+    .vt-descriptionlist-horizontal .vt-descriptionlist-item {
+        flex-direction: column;
+    }
+
+    .vt-descriptionlist-horizontal .vt-descriptionlist-label {
+        flex-basis: auto;
+    }
+}
