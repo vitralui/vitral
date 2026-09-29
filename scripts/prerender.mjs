@@ -280,7 +280,12 @@ try {
             ready = result?.result?.value === true;
         }
         await sleep(150);
-        const html = (await send('Runtime.evaluate', { expression: 'document.documentElement.outerHTML', returnByValue: true }))?.result?.value;
+        // What the browser added while rendering (the preloads Vite inserts, a
+        // link's resolved address) names this server. Left in, the published
+        // page asks for localhost, and the browser asks the reader's leave to
+        // reach "other apps and services on this device".
+        const local = `http://localhost:${port}`;
+        const html = (await send('Runtime.evaluate', { expression: 'document.documentElement.outerHTML', returnByValue: true }))?.result?.value?.replaceAll(local, '');
         if (!html || !ready) throw new Error(`${route} never rendered`);
 
         const out = route === '/' ? join(dist, 'index.html') : join(dist, route.slice(1), 'index.html');
@@ -289,7 +294,7 @@ try {
 
         // The text versions are the English pages: what reads them reads English.
         const read = pages.includes(route) ? (await send('Runtime.evaluate', { expression: readPage, returnByValue: true }))?.result?.value : null;
-        if (read) texts.push({ route, ...JSON.parse(read) });
+        if (read) texts.push({ route, ...JSON.parse(read.replaceAll(local, origin)) });
         if ((i + 1) % 25 === 0 || i === routes.length - 1) console.log(`  ${i + 1}/${routes.length} pages`);
     }
     console.log(`Prerendered ${routes.length} pages in ${Math.round((Date.now() - started) / 1000)}s.`);
