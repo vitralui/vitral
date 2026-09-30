@@ -24,6 +24,14 @@ around them: the toolbar and its buttons, the block type, the colour swatches,
 the link, image and table panels, the floating toolbar over a selection, the
 menu a `/` opens in an empty block, and the handle beside a block.
 
+Formulas are written in LaTeX and drawn: the toolbar's formula button and the
+slash menu open a panel with the source, the formula drawn as it is typed and
+the usual ones ready-made; a number or a letter of a formula pressed in the
+text is edited where it stands. The drawing is outlines laid out here, not
+text set by the browser, so it is the same everywhere and prints as it looks.
+`math: false` switches the editing off, `math: { templates, inlineEdit }`
+shapes it, and `createMathTools` attaches the same to an editor of your own.
+
 A slash menu entry is `{ id, label, description, icon, command }` or carries a
 `run` of its own, so an application can offer whatever it likes; the same goes
 for the block handle's actions. What a framework component draws better — a

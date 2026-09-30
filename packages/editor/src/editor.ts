@@ -34,6 +34,7 @@ import { defaultBubbleMenu, defaultToolbar, editorIcons } from './buttons';
 import { createBlockHandle, defaultBlockActions } from './block';
 import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
 import { createChipMenu } from './chips';
+import { createMathTools, defaultMathTemplates } from './math';
 import { createFindBar } from './find';
 import { createSlashMenu, defaultSlashCommands } from './slash';
 import { bubbleView, toolbarView, type ToolbarContext } from './render/toolbar';
@@ -97,7 +98,8 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
     const editor: EditorInstance = createEditorInstance({
         content: current.content ?? '',
         maxLength: current.maxLength ?? null,
-        historyDelay: current.historyDelay
+        historyDelay: current.historyDelay,
+        mathOutput: typeof current.math === 'object' ? current.math.output : undefined
     });
 
     const editable = () => !current.readonly && !current.disabled;
@@ -251,11 +253,32 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         zIndex: current.zIndex
     });
 
+    // ---- formulas ---------------------------------------------------------------------------------
+
+    const mathOn = () => current.math !== false;
+    const mathOptions = () => (typeof current.math === 'object' ? current.math : {});
+    const mathTools = createMathTools({
+        editor,
+        view: () => view,
+        content: () => contentEl,
+        anchor: () => caretEl,
+        place: placeCaret,
+        templates: () => mathOptions().templates ?? defaultMathTemplates(locale()),
+        inlineEdit: () => mathOptions().inlineEdit !== false,
+        part,
+        locale,
+        enabled: () => mathOn() && editable(),
+        focus: () => view?.focus(),
+        id: `${id}-math`,
+        overlayTarget: current.overlayTarget,
+        zIndex: current.zIndex
+    });
+
     const slashMenu = createSlashMenu({
         editor,
         content: () => contentEl,
         anchor: () => caretEl,
-        commands: () => (Array.isArray(current.slashMenu) ? current.slashMenu : defaultSlashCommands(locale())),
+        commands: () => (Array.isArray(current.slashMenu) ? current.slashMenu : defaultSlashCommands(locale()).filter((command) => command.id !== 'math' || mathOn())),
         part,
         locale,
         enabled: () => current.slashMenu !== false && editable(),
@@ -265,6 +288,8 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         zIndex: current.zIndex,
         onRun: (command) => {
             if (command.run) command.run(handle);
+            // The formula panel takes the keyboard itself: it opens where the caret was left.
+            else if (command.command?.[0] === 'math') return mathTools.open();
             else if (command.command) run(command.command[0], ...command.command.slice(1));
             focus();
         }
@@ -362,6 +387,11 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                 openFind: () => (findBar.isOpen ? findBar.close() : findBar.open()),
                 openImage: (event) => openPanel(imagePanel, 'image', event),
                 openTable: (event) => openPanel(tablePanel, 'table', event),
+                openMath: (event) => {
+                    closePanels();
+                    // On a formula it hangs from the formula; for a new one, from the button.
+                    mathTools.open(editor.isActive('math') ? null : (event.currentTarget as HTMLElement));
+                },
                 openColor: (kind, event) => {
                     colorKind = kind;
                     openPanel(colorPanel, kind, event);
@@ -415,7 +445,11 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
 
     // ---- drawing --------------------------------------------------------------------------------
 
-    const toolbarGroups = (): EditorToolbarItem[][] => (Array.isArray(current.toolbar) ? current.toolbar : defaultToolbar);
+    /** The groups of the toolbar, without the formula button where formulas are off. */
+    const toolbarGroups = (): EditorToolbarItem[][] => {
+        const groups = Array.isArray(current.toolbar) ? current.toolbar : defaultToolbar;
+        return mathOn() ? groups : groups.map((group) => group.filter((item) => item !== 'math')).filter((group) => group.length);
+    };
 
     function countText(): string {
         const words = locale().editor;
@@ -445,6 +479,8 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                 'aria-invalid': current.invalid ? 'true' : undefined,
                 'aria-placeholder': current.placeholder || undefined,
                 'data-placeholder': current.placeholder || undefined,
+                // How a formula answers a press, which is what its look under the pointer follows.
+                'data-math-edit': mathOn() && editable() ? (mathOptions().inlineEdit === false ? 'panel' : 'inline') : undefined,
                 contenteditable: editable() ? 'true' : 'false',
                 tabindex: current.disabled ? '-1' : '0',
                 spellcheck: 'true',
@@ -480,6 +516,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         syncBubble();
         renderPanels();
         blockHandle.sync();
+        mathTools.sync();
     }
 
     function attachView() {
@@ -492,6 +529,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             selectedClass: 'vt-editor-node-selected',
             emptyClass: 'vt-editor-content-empty',
             chipClass: (kind) => (current.unstyled ? undefined : ['vt-editor-chip', kind ? `vt-editor-chip-${kind}` : ''].filter(Boolean).join(' ')),
+            mathClass: ({ display, pending }) => (current.unstyled ? undefined : ['vt-editor-math', display ? 'vt-editor-math-display' : '', pending ? 'vt-editor-math-pending' : ''].filter(Boolean).join(' ')),
             // Ctrl/⌘+K opens the link editor, over the caret.
             handleKey: (_name, binding) => {
                 if (binding?.[0] !== 'link' || !editable()) return false;
@@ -514,9 +552,10 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             current = { ...current, ...next };
             if (content) editor.setContent(current.content ?? '', { emit: false });
             if ('maxLength' in next) editor.maxLength = current.maxLength ?? null;
+            if ('math' in next) editor.mathOutput = mathOptions().output ?? 'drawing';
             render();
         },
-        getHTML: () => editor.getHTML(),
+        getHTML: (options) => editor.getHTML(options),
         getJSON: () => editor.getJSON(),
         getText: () => editor.getText(),
         getMarkdown: () => editor.getMarkdown(),
@@ -546,6 +585,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             findBar.destroy();
             slashMenu.destroy();
             chipMenu.destroy();
+            mathTools.destroy();
             blockHandle.destroy();
             [...panels(), bubble].forEach((overlay) => overlay.destroy());
             blockSelect?.destroy();

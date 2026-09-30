@@ -1,6 +1,6 @@
-import type { BlockAction, ChipSuggestion, ChipTrigger, SlashCommand } from '@vitral/editor';
+import type { BlockAction, ChipSuggestion, ChipTrigger, MathTemplate, SlashCommand } from '@vitral/editor';
 
-export type { ChipSuggestion, ChipTrigger };
+export type { ChipSuggestion, ChipTrigger, MathTemplate };
 import type { BaseProps, IconProp, InputVariant, OverlayPlacement } from '../../base/types';
 
 /** A mark in the JSON document. */
@@ -12,7 +12,7 @@ export interface EditorJSONMark {
 /** The JSON document (`v-model:json`): nodes in the ProseMirror/TipTap shape. */
 export interface EditorJSON {
     type: string;
-    attrs?: { level?: number; language?: string | null; start?: number; checked?: boolean; src?: string; alt?: string; title?: string | null };
+    attrs?: { level?: number; language?: string | null; start?: number; checked?: boolean; src?: string; alt?: string; title?: string | null; latex?: string; display?: boolean };
     content?: EditorJSON[];
     text?: string;
     marks?: EditorJSONMark[];
@@ -43,13 +43,33 @@ export type EditorToolbarItem =
     | 'link'
     | 'image'
     | 'table'
+    | 'math'
     | 'undo'
     | 'redo'
     | 'clear'
     | 'find';
 
 /** The commands a plain `<EditorButton>` can run. */
-export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'find'>;
+export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'math' | 'find'>;
+
+/** How formulas are edited, where the defaults are not what is wanted. */
+export interface EditorMathOptions {
+    /** The ready-made formulas the panel offers: `{ id, label, latex }` each. The usual ones when left out; none for an empty list. */
+    templates?: MathTemplate[];
+    /**
+     * Whether a number, a letter or a sign of a formula pressed in the text is
+     * edited where it stands, in a box over it. Defaults to true; `false`
+     * opens the panel instead, with that piece of the formula selected.
+     */
+    inlineEdit?: boolean;
+    /**
+     * How a formula is written into the model's HTML: `'drawing'` (the
+     * default) puts its drawing inside it, so the HTML shows the formula
+     * anywhere; `'source'` writes the LaTeX alone — far smaller to store —
+     * to be drawn where it is shown, with `renderMathIn` from `@vitral/core`.
+     */
+    output?: 'drawing' | 'source';
+}
 
 export interface EditorSelectionChangeEvent {
     /** Where the selection starts and ends (anchor and head), as `{ path, offset }` positions. */
@@ -93,6 +113,16 @@ export interface EditorProps extends BaseProps {
      * return a promise, for a search on the server.
      */
     chips?: ChipTrigger | ChipTrigger[];
+    /**
+     * Formulas, written in LaTeX and drawn: the toolbar's formula button, the
+     * slash menu's entry, the panel a formula is written in, and editing one
+     * by pressing it in the text. Defaults to true. `false` still draws the
+     * formulas a document has, and takes away every way of making or changing
+     * one. An object chooses the ready-made formulas the panel offers
+     * (`templates`) and whether a value is edited where it stands
+     * (`inlineEdit`).
+     */
+    math?: boolean | EditorMathOptions;
     /**
      * Find and replace: Ctrl/⌘+F opens the bar over the text, Ctrl+H (⌘+⌥+F
      * on a Mac) with the replace row. Needs an `<EditorFind>` part, which the

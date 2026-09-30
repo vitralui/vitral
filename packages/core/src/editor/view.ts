@@ -6,6 +6,7 @@ import { editorColorStyle, sanitizeUrl } from './sanitize';
 import { caret, isCollapsed, selectionRange, type EditorSelection } from './state';
 import { deleteBetween, deleteForward, fragmentText, insertContent, insertText, linkAt } from './commands';
 import { createTooltip, type TooltipHandle, type TooltipOptions } from '../overlay/tooltip';
+import { isMathLoaded, loadMath, paintMath as drawInto } from '../math';
 import { formatMessage } from '../locale/locale';
 
 // The bridge between an editor and a `contenteditable` element. The element
@@ -33,6 +34,8 @@ export interface EditorViewOptions {
     emptyClass?: string;
     /** Classes on an inline chip, given its kind, so a theme can dress one kind apart from another. */
     chipClass?: (kind: string | null | undefined) => string | undefined;
+    /** Classes on a formula's element. */
+    mathClass?: (state: { display: boolean; pending: boolean }) => string | undefined;
     /**
      * The tooltip over a link while the text can be changed, saying how to
      * follow it (a click there only places the caret). Given the address,
@@ -84,10 +87,13 @@ function isFiller(node: Node): boolean {
     return node.nodeType === 1 && (node as Element).hasAttribute(FILLER);
 }
 
-/** An inline chip's element: one character to every count, and nothing inside it is text to read. */
+/** An inline chip's element, or a formula's: one character to every count, and nothing inside it is text to read. */
 function isChip(node: Node): boolean {
-    return node.nodeType === 1 && (node as Element).hasAttribute('data-chip');
+    return node.nodeType === 1 && ((node as Element).hasAttribute('data-chip') || (node as Element).hasAttribute('data-math'));
 }
+
+/** On a formula that is showing its source because the renderer has not arrived. */
+const MATH_PENDING = 'data-math-pending';
 
 export function createEditorView(root: HTMLElement, editor: EditorInstance, options: EditorViewOptions = {}): EditorView {
     const doc = root.ownerDocument;
@@ -138,7 +144,7 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
     function drawInline(host: HTMLElement, content: readonly EditorNode[]) {
         const nodes = groupInline<Node>(
             content,
-            (node) => (node.type === 'hardBreak' ? el('br') : node.type === 'chip' ? chipElement(node) : doc.createTextNode(node.text ?? '')),
+            (node) => (node.type === 'hardBreak' ? el('br') : node.type === 'chip' ? chipElement(node) : node.type === 'math' ? mathElement(node) : doc.createTextNode(node.text ?? '')),
             (mark, inner) => {
                 const e = markElement(mark);
                 e.append(...inner);
@@ -160,6 +166,65 @@ export function createEditorView(root: HTMLElement, editor: EditorInstance, opti
         if (cls) e.className = cls;
         e.textContent = label;
         return e;
+    }
+
+    /**
+     * A formula: not editable, like a chip, and drawn from its source. Every
+     * part of the drawing says which piece of the source it is, so a press on
+     * it can be turned into an edit of that piece.
+     */
+    function mathElement(node: EditorNode): HTMLElement {
+        const { latex = '', display } = node.attrs ?? {};
+        const e = el('span', { 'data-math': latex, contenteditable: 'false' });
+        if (display) e.setAttribute('data-display', 'true');
+        paintMath(e);
+        return e;
+    }
+
+    /** Draws a formula's element from its source, or shows the source until there is something to draw with. */
+    function paintMath(e: HTMLElement) {
+        const display = e.getAttribute('data-display') === 'true';
+        const ready = isMathLoaded();
+        const cls = options.mathClass?.({ display, pending: !ready });
+        if (cls) e.className = cls;
+        else e.removeAttribute('class');
+        if (!ready) {
+            e.setAttribute(MATH_PENDING, '');
+            e.textContent = e.getAttribute('data-math');
+            awaitMath();
+            return;
+        }
+        e.removeAttribute(MATH_PENDING);
+        drawInto(e, e.getAttribute('data-math') ?? '', { display, interactive: true });
+    }
+
+    // The renderer is loaded by the first formula that needs it. When it comes,
+    // the formulas that were showing their source are drawn where they stand:
+    // the document has not changed, so nothing else is.
+    let awaitingMath = false;
+    function awaitMath() {
+        if (awaitingMath) return;
+        awaitingMath = true;
+        loadMath().then(
+            () => {
+                if (destroyed) return;
+                quietly(() => root.querySelectorAll<HTMLElement>(`[${MATH_PENDING}]`).forEach(paintMath));
+            },
+            () => (awaitingMath = false)
+        );
+    }
+
+    /** Changes the DOM without the change being read back as something the user did. */
+    function quietly(change: () => void) {
+        const was = rendering;
+        rendering = true;
+        observer?.disconnect();
+        try {
+            change();
+        } finally {
+            if (!was) observer?.observe(root, { childList: true, subtree: true, characterData: true });
+            rendering = was;
+        }
     }
 
     function textblockElement(node: EditorNode): HTMLElement {

@@ -4,6 +4,7 @@ import { isEmptyDoc, parseEditorHTML, textToEditorDoc, toEditorHTML } from './ht
 import { applyEnterRule, applyInputRules } from './inputRules';
 import { editorDocFromJSON, editorDocToJSON } from './json';
 import { type EditorMarkAttrs, type EditorNode, type EditorNodeAttrs } from './model';
+import type { MathOutput } from '../math';
 import { editorPalette, type EditorColor } from './sanitize';
 import { clampSelection, createState, sameSelection, type EditorSelection, type EditorState } from './state';
 import { countCharacters, countWords, toEditorMarkdown, toEditorText } from './text';
@@ -16,6 +17,8 @@ export const editorCommands = {
     insertText: cmd.insertText,
     insertHardBreak: cmd.insertHardBreak,
     insertChip: cmd.insertChip,
+    insertMath: cmd.insertMath,
+    setMath: cmd.setMath,
     deleteSelection: cmd.deleteSelection,
     deleteBackward: cmd.deleteBackward,
     deleteForward: cmd.deleteForward,
@@ -109,6 +112,8 @@ export interface EditorOptions {
     palette?: readonly EditorColor[];
     /** Milliseconds within which consecutive typing is one undo step. */
     historyDelay?: number;
+    /** How `getHTML()` writes a formula: around its drawing (the default), or as its source alone. */
+    mathOutput?: MathOutput;
     onUpdate?: (update: EditorUpdate) => void;
 }
 
@@ -140,7 +145,8 @@ export interface EditorInstance {
     backspace(unit?: cmd.DeleteUnit): boolean;
     setSelection(selection: EditorSelection): void;
     setContent(content: EditorContent, options?: { emit?: boolean; resetHistory?: boolean; keepSelection?: boolean }): void;
-    getHTML(): string;
+    /** The document as HTML. Formulas are written as `mathOutput` says, unless `options.math` says otherwise for this call. */
+    getHTML(options?: { math?: MathOutput }): string;
     getJSON(): EditorNode;
     getText(): string;
     getMarkdown(): string;
@@ -148,6 +154,8 @@ export interface EditorInstance {
     characterCount(): number;
     wordCount(): number;
     maxLength: number | null;
+    /** How `getHTML()` writes a formula. Can be changed at any time. */
+    mathOutput: MathOutput;
     subscribe(listener: (update: EditorUpdate) => void): () => void;
     /** Ends the current undo group, so the next edit is a step of its own. */
     closeHistoryGroup(): void;
@@ -252,6 +260,7 @@ export function createEditor(options: EditorOptions = {}): EditorInstance {
         palette,
         commands,
         maxLength: options.maxLength ?? null,
+        mathOutput: options.mathOutput ?? 'drawing',
         run,
         can,
         isActive: (name, attrs) => cmd.isActive(state, name, attrs),
@@ -293,7 +302,7 @@ export function createEditor(options: EditorOptions = {}): EditorInstance {
             lastRule = null;
             if (opts.emit !== false) emit(previous, 'api');
         },
-        getHTML: () => toEditorHTML(state.doc, { palette }),
+        getHTML: (opts) => toEditorHTML(state.doc, { palette, math: opts?.math ?? editor.mathOutput }),
         getJSON: () => editorDocToJSON(state.doc),
         getText: () => toEditorText(state.doc),
         getMarkdown: () => toEditorMarkdown(state.doc),

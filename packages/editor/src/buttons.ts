@@ -24,6 +24,7 @@ import {
     pilcrow,
     quote,
     redo,
+    sigma,
     strikethrough,
     table,
     textColor,
@@ -86,7 +87,7 @@ export const defaultToolbar: EditorToolbarItem[][] = [
     ['bold', 'italic', 'underline', 'strike', 'code'],
     ['color', 'highlight'],
     ['bulletList', 'orderedList', 'taskList'],
-    ['blockquote', 'codeBlock', 'link', 'image', 'table', 'horizontalRule'],
+    ['blockquote', 'codeBlock', 'link', 'image', 'table', 'math', 'horizontalRule'],
     ['undo', 'redo', 'clear']
 ];
 
@@ -108,6 +109,7 @@ export const editorIcons: IconDef[] = [
     grip,
     highlighter,
     image,
+    sigma,
     table,
     textColor,
     trash

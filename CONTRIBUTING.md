@@ -170,6 +170,25 @@ bundler keeps only the icons an application imports.
   must also be in `baseIcons` (`packages/icons/src/runtime.ts`), which is what
   resolves without registration.
 
+## Formulas
+
+A formula is drawn from outlines the library carries, by a layout of its own
+(`packages/core/src/math`), so that no browser's text or mathematics comes into
+it. The outlines are in `glyphs.ts`, which is generated:
+
+```sh
+pip install fonttools
+python3 scripts/math-glyphs.py NotoSansMath-Regular.ttf 'NotoSans[wght].ttf'
+```
+
+A command that needs a glyph the file does not have yet is a line in that
+script's `chars`, and a run of it. The outlines are under the fonts' licence,
+the SIL Open Font License, which `packages/core/LICENSE.OFL` carries and the
+package ships. They are also the heavy part of the renderer, so it is loaded
+when the first formula needs drawing (`loadMath()`): nothing that imports the
+core pays for it, and anything that draws a formula must be ready to be told
+there is nothing to draw with yet.
+
 ## Accessibility
 
 A component is not done until its accessibility works. That means the role, an

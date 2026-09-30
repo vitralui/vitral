@@ -12,6 +12,22 @@
             "title": "Menu de barra e ações de bloco",
             "description": "Digite `/` no começo de uma palavra e os blocos são oferecidos, filtrados enquanto você digita; Enter ou um clique insere um. Ao lado do bloco em que está o cursor há uma alça, que abre duplicar, mover, transformar em texto e excluir. `slash-menu` e `block-menu` recebem entradas suas, ou `false` para nenhuma."
         },
+        "Formulas": {
+            "title": "Fórmulas",
+            "description": "Uma fórmula é escrita em LaTeX — `\\frac{a}{b}`, `\\sqrt{x}`, `x^2` — e desenhada. O botão Σ na barra de ferramentas e `/fórmula` abrem o painel: o código numa caixa, a fórmula desenhada acima dela enquanto você digita, e as mais comuns prontas em botões. No texto, clique num número ou numa letra de uma fórmula e ele é editado ali mesmo, com a fórmula redesenhada ao redor a cada tecla; Tab vai para o próximo valor, Enter confirma, Escape desfaz. Um clique em qualquer outro ponto da fórmula abre o painel com aquele trecho selecionado. O desenho é feito de contornos posicionados pelo Vitral, não de texto montado pelo navegador, então é igual em todos os navegadores e imprime como aparece; o HTML guarda o código em `data-math`."
+        },
+        "Formulas: your own, or none": {
+            "title": "Fórmulas: as suas, ou nenhuma",
+            "description": "`math` recebe `{ templates, inlineEdit }`: as fórmulas prontas que o painel oferece, e se um valor é editado onde está (`false` abre o painel no lugar). `:math=\"false\"` continua desenhando as fórmulas que o documento tem e tira todas as formas de criar ou alterar uma: sem botão, sem entrada no menu de barra, sem clique."
+        },
+        "Formulas: what comes out": {
+            "title": "Fórmulas: o que sai",
+            "description": "O HTML é por onde as fórmulas de um documento saem com ele. Por padrão cada uma vai com o seu desenho dentro, então o HTML as mostra em qualquer página e imprime como aparece — o botão abre o diálogo de impressão do navegador, que salva em PDF. `:math=\"{ output: 'source' }\"` grava só o LaTeX: uma fração do tamanho para armazenar, e `renderMathIn(element)`, do `@vitral/core`, desenha onde o documento é exibido. `getHTML({ math })` pede um ou outro a qualquer momento, `renderMathHTML(html, 'drawing' | 'source')` converte um HTML armazenado de um para o outro sem precisar de página, e `editorFormulas(doc)` lista as fórmulas como strings. JSON, texto puro e Markdown levam o LaTeX."
+        },
+        "Formulas: one on its own": {
+            "title": "Fórmulas: uma sozinha",
+            "description": "Fora do editor, uma fórmula é uma função do seu código. `renderMath(latex, { fontSize, color, display })`, do `@vitral/core`, devolve o SVG como arquivo: com tamanho em pixels e cor própria, que é o que uma biblioteca de PDF desenha (o `svg` do pdfmake, o pdfkit e o jsPDF com seus plugins de SVG) e o que um servidor consegue gerar sem navegador. `renderMathDataUri` devolve o mesmo como endereço para um `<img>`, e `renderMathPng` uma imagem, no navegador, para o que só aceita imagens. Sem `fontSize`, o desenho é o trecho de linha que uma página quer, dimensionado pelo texto ao redor."
+        },
         "Inline chips": {
             "title": "Chips inline",
             "description": "Um chip é uma peça só na linha — uma pessoa, uma tag, uma variável — que o cursor contorna e que um Backspace remove. `chips` recebe um gatilho por tipo: digite @ ou # e escolha na lista, que `items` pode preencher depois, a partir de um servidor. `run('insertChip', { id, label, kind })` insere um pelo código. O HTML guarda o que cada chip representa, em `data-chip`."

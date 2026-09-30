@@ -66,6 +66,7 @@ onMounted(() => {
         taskLabel: ctx.locale.value.editor.taskDone,
         selectedClass: cx('selectedNode'),
         chipClass: (kind) => cx('chip', { kind }),
+        mathClass: (state) => cx('math', state),
         // Over a link while writing: where it goes, and that Ctrl/⌘+click follows it.
         linkHint: (href) => tooltipOptions(vitral, { text: editorLinkHint(href, ctx.locale.value.editor.followLink), showDelay: 400 })
     });
@@ -97,6 +98,7 @@ onBeforeUnmount(() => {
         :aria-invalid="ctx.invalid.value ? 'true' : undefined"
         :aria-placeholder="ctx.placeholder.value || undefined"
         :data-placeholder="ctx.placeholder.value || undefined"
+        :data-math-edit="ctx.math.edit.value"
         :contenteditable="ctx.editable.value ? 'true' : 'false'"
         :tabindex="ctx.disabled.value ? -1 : 0"
         spellcheck="true"

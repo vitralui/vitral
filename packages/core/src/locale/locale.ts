@@ -297,6 +297,21 @@ export interface Locale {
         insert: string;
         invalidImageUrl: string;
         altRequired: string;
+        /** The formula editor: names the button and the panel it opens. */
+        math: string;
+        /** The box the formula is written in. */
+        mathSource: string;
+        /** Shown where the formula will be, while there is none. */
+        mathEmpty: string;
+        /** Sets the formula larger, with limits above and below their signs. */
+        mathDisplay: string;
+        /** Names the formulas the panel offers ready-made. */
+        mathTemplates: string;
+        removeMath: string;
+        /** Names the box that opens over a number or a letter of a formula pressed in the text. */
+        mathValue: string;
+        /** The ready-made formulas, by name. */
+        mathTemplateNames: Record<string, string>;
         /** The table menu. */
         insertTable: string;
         /** How many rows and columns a new table has. */
@@ -423,6 +438,29 @@ export interface Locale {
         /** Names a step's popover when it has no title. `{current}`, `{total}` */
         step: string;
     };
+    /**
+     * What the keys of a keyboard are called, where a shortcut is shown
+     * (`<Kbd>`): a key drawn as a symbol is read out by its name here, and a
+     * key drawn as a word is drawn with it.
+     */
+    keys: {
+        command: string;
+        control: string;
+        option: string;
+        shift: string;
+        enter: string;
+        escape: string;
+        tab: string;
+        space: string;
+        backspace: string;
+        delete: string;
+        up: string;
+        down: string;
+        left: string;
+        right: string;
+        pageUp: string;
+        pageDown: string;
+    };
     aria: {
         close: string;
         maximize: string;
@@ -451,6 +489,10 @@ export interface Locale {
         /** Names a breadcrumb's home item when it shows only an icon. */
         home: string;
         notifications: string;
+        /** What a carousel is called by a screen reader, in place of "region": `aria-roledescription`. */
+        carouselRole: string;
+        /** What one of its slides is called, in place of "group". */
+        slideRole: string;
         previousMonth: string;
         nextMonth: string;
         previousYear: string;
@@ -843,6 +885,37 @@ export const en: Locale = {
         imageAlt: 'Alternative text',
         imageAltHint: 'Describe the image for people who cannot see it.',
         insert: 'Insert',
+        math: 'Formula',
+        mathSource: 'Formula, in LaTeX',
+        mathEmpty: 'Type a formula, or choose one below',
+        mathDisplay: 'Larger, with limits above and below',
+        mathTemplates: 'Common formulas',
+        removeMath: 'Remove formula',
+        mathValue: 'Value in the formula',
+        mathTemplateNames: {
+            fraction: 'Fraction',
+            squareRoot: 'Square root',
+            root: 'Root',
+            power: 'Power',
+            subscript: 'Subscript',
+            sum: 'Sum',
+            product: 'Product',
+            integral: 'Integral',
+            limit: 'Limit',
+            parentheses: 'Tall parentheses',
+            matrix: 'Matrix',
+            cases: 'Cases',
+            quadratic: 'Quadratic formula',
+            times: 'Times',
+            divide: 'Divided by',
+            plusMinus: 'Plus or minus',
+            lessEqual: 'Less than or equal to',
+            greaterEqual: 'Greater than or equal to',
+            notEqual: 'Not equal to',
+            approximately: 'Approximately',
+            pi: 'Pi',
+            infinity: 'Infinity'
+        },
         invalidImageUrl: 'Enter an http or https address.',
         altRequired: 'Alternative text is required.',
         insertTable: 'Insert table',
@@ -879,7 +952,8 @@ export const en: Locale = {
             codeBlock: 'Code block',
             horizontalRule: 'Divider',
             table: 'Table',
-            image: 'Image'
+            image: 'Image',
+            math: 'Formula'
         },
         slashHints: {
             paragraph: 'Plain paragraph',
@@ -893,7 +967,8 @@ export const en: Locale = {
             codeBlock: 'Code, kept as written',
             horizontalRule: 'A line across the page',
             table: 'Rows and columns',
-            image: 'A picture from a link'
+            image: 'A picture from a link',
+            math: 'A formula, drawn: a fraction, a root, a sum'
         },
         blockActions: {
             duplicate: 'Duplicate',
@@ -961,6 +1036,24 @@ export const en: Locale = {
         progress: '{current} of {total}',
         step: 'Step {current} of {total}'
     },
+    keys: {
+        command: 'Command',
+        control: 'Control',
+        option: 'Option',
+        shift: 'Shift',
+        enter: 'Enter',
+        escape: 'Esc',
+        tab: 'Tab',
+        space: 'Space',
+        backspace: 'Backspace',
+        delete: 'Del',
+        up: 'Up',
+        down: 'Down',
+        left: 'Left',
+        right: 'Right',
+        pageUp: 'Page Up',
+        pageDown: 'Page Down'
+    },
     aria: {
         close: 'Close',
         maximize: 'Maximize',
@@ -986,6 +1079,8 @@ export const en: Locale = {
         breadcrumb: 'Breadcrumb',
         home: 'Home',
         notifications: 'Notifications',
+        carouselRole: 'carousel',
+        slideRole: 'slide',
         previousMonth: 'Previous month',
         nextMonth: 'Next month',
         previousYear: 'Previous year',
@@ -1308,6 +1403,37 @@ export const ptBR: Locale = {
         imageAlt: 'Texto alternativo',
         imageAltHint: 'Descreva a imagem para quem não pode vê-la.',
         insert: 'Inserir',
+        math: 'Fórmula',
+        mathSource: 'Fórmula, em LaTeX',
+        mathEmpty: 'Digite uma fórmula ou escolha uma abaixo',
+        mathDisplay: 'Maior, com limites acima e abaixo',
+        mathTemplates: 'Fórmulas comuns',
+        removeMath: 'Remover fórmula',
+        mathValue: 'Valor na fórmula',
+        mathTemplateNames: {
+            fraction: 'Fração',
+            squareRoot: 'Raiz quadrada',
+            root: 'Raiz',
+            power: 'Potência',
+            subscript: 'Índice',
+            sum: 'Somatório',
+            product: 'Produtório',
+            integral: 'Integral',
+            limit: 'Limite',
+            parentheses: 'Parênteses altos',
+            matrix: 'Matriz',
+            cases: 'Por casos',
+            quadratic: 'Fórmula de Bhaskara',
+            times: 'Vezes',
+            divide: 'Dividido por',
+            plusMinus: 'Mais ou menos',
+            lessEqual: 'Menor ou igual a',
+            greaterEqual: 'Maior ou igual a',
+            notEqual: 'Diferente de',
+            approximately: 'Aproximadamente',
+            pi: 'Pi',
+            infinity: 'Infinito'
+        },
         invalidImageUrl: 'Informe um endereço http ou https.',
         altRequired: 'O texto alternativo é obrigatório.',
         insertTable: 'Inserir tabela',
@@ -1344,7 +1470,8 @@ export const ptBR: Locale = {
             codeBlock: 'Bloco de código',
             horizontalRule: 'Divisória',
             table: 'Tabela',
-            image: 'Imagem'
+            image: 'Imagem',
+            math: 'Fórmula'
         },
         slashHints: {
             paragraph: 'Parágrafo simples',
@@ -1358,7 +1485,8 @@ export const ptBR: Locale = {
             codeBlock: 'Código, como foi escrito',
             horizontalRule: 'Uma linha atravessando a página',
             table: 'Linhas e colunas',
-            image: 'Uma imagem de um link'
+            image: 'Uma imagem de um link',
+            math: 'Uma fórmula desenhada: uma fração, uma raiz, um somatório'
         },
         blockActions: {
             duplicate: 'Duplicar',
@@ -1426,6 +1554,24 @@ export const ptBR: Locale = {
         progress: '{current} de {total}',
         step: 'Passo {current} de {total}'
     },
+    keys: {
+        command: 'Command',
+        control: 'Control',
+        option: 'Option',
+        shift: 'Shift',
+        enter: 'Enter',
+        escape: 'Esc',
+        tab: 'Tab',
+        space: 'Espaço',
+        backspace: 'Backspace',
+        delete: 'Del',
+        up: 'Seta para cima',
+        down: 'Seta para baixo',
+        left: 'Seta para a esquerda',
+        right: 'Seta para a direita',
+        pageUp: 'Page Up',
+        pageDown: 'Page Down'
+    },
     aria: {
         close: 'Fechar',
         maximize: 'Maximizar',
@@ -1451,6 +1597,8 @@ export const ptBR: Locale = {
         breadcrumb: 'Trilha de navegação',
         home: 'Início',
         notifications: 'Notificações',
+        carouselRole: 'carrossel',
+        slideRole: 'slide',
         previousMonth: 'Mês anterior',
         nextMonth: 'Próximo mês',
         previousYear: 'Ano anterior',

@@ -6,6 +6,7 @@ export {
     normalizeDoc as normalizeEditorDoc,
     inlineText as editorInlineText,
     makeChip as makeEditorChip,
+    makeMath as makeEditorMath,
     CHIP_CHAR as EDITOR_CHIP_CHAR,
     textblocks as editorTextblocks,
     comparePositions as compareEditorPositions,
@@ -33,8 +34,11 @@ export {
     activeMark as activeEditorMark,
     activeBlockType as activeEditorBlockType,
     linkAt as editorLinkAt,
+    mathAt as editorMathAt,
+    formulasIn as editorFormulas,
     deleteRange as editorDeleteRange,
     type EditorLinkInfo,
+    type EditorMathInfo,
     type DeleteUnit as EditorDeleteUnit
 } from './commands';
 export {

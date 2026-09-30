@@ -232,6 +232,69 @@
     background: var(--vt-editor-chip-variable-background);
 }
 
+/* A formula: a drawing in the line, one piece, and not a place for the caret.
+   It takes the text's size and colour; its place on the baseline is set on
+   the drawing itself. */
+.vt-editor-math {
+    display: inline-block;
+    padding: 0 0.125em;
+    white-space: nowrap;
+    border-radius: var(--vt-editor-math-border-radius);
+    user-select: all;
+    cursor: default;
+}
+
+.vt-editor-math > svg {
+    overflow: visible;
+}
+
+/* Its source, while there is nothing to draw it with yet. */
+.vt-editor-math-pending {
+    font-family: var(--vt-editor-math-pending-font-family);
+    font-size: 0.875em;
+    color: var(--vt-editor-math-pending-color);
+}
+
+/* Where formulas can be changed, a formula says so under the pointer, and a
+   value that would be edited where it stands says so more plainly. */
+.vt-editor-content[data-math-edit] .vt-editor-math {
+    cursor: pointer;
+}
+
+.vt-editor-content[data-math-edit] .vt-editor-math:hover,
+.vt-editor-math[data-editing] {
+    background: var(--vt-editor-math-hover-background);
+}
+
+.vt-editor-content[data-math-edit='inline'] .vt-editor-math [data-leaf] {
+    cursor: text;
+}
+
+.vt-editor-content[data-math-edit='inline'] .vt-editor-math [data-leaf]:hover > rect {
+    fill: var(--vt-editor-math-value-hover-background);
+}
+
+/* The box over a value being edited: placed and sized over it by the editor. */
+.vt-editor-math-input {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 0.25em;
+    font-family: var(--vt-editor-math-input-font-family);
+    line-height: 1;
+    color: var(--vt-editor-math-input-color);
+    text-align: center;
+    background: var(--vt-editor-math-input-background);
+    border: 1px solid var(--vt-editor-math-input-border-color);
+    border-radius: var(--vt-editor-math-border-radius);
+    outline: none;
+    box-shadow: var(--vt-editor-math-input-shadow);
+}
+
+.vt-editor-math-input:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
 .vt-editor-content mark {
     color: inherit;
     border-radius: 2px;
@@ -471,6 +534,76 @@
 .vt-editor-field-error {
     font-size: 0.75rem;
     color: var(--vt-form-field-invalid-border-color);
+}
+
+/* The formula panel: a popup of its own, so it is the same in every host. */
+.vt-editor-math-panel {
+    width: min(var(--vt-editor-math-panel-width), calc(100vw - 3rem));
+    padding: var(--vt-editor-panel-padding);
+}
+
+.vt-editor-math-preview {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: var(--vt-editor-math-preview-min-height);
+    padding: 0.5rem 0.75rem;
+    font-size: var(--vt-editor-math-preview-font-size);
+    overflow-x: auto;
+    border: 1px solid var(--vt-editor-math-preview-border-color);
+    border-radius: var(--vt-editor-math-border-radius);
+}
+
+.vt-editor-math-preview > svg,
+.vt-editor-math-template > svg {
+    display: block;
+    flex: none;
+}
+
+/* In the middle while it fits, and from the start once it has to be scrolled to be seen whole. */
+.vt-editor-math-preview > svg {
+    margin-inline: auto;
+}
+
+.vt-editor-math-preview-empty {
+    justify-content: center;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
+.vt-editor-math-templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    max-height: var(--vt-editor-math-templates-max-height);
+    overflow-y: auto;
+}
+
+.vt-editor-math-template {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: var(--vt-editor-math-template-size);
+    min-height: var(--vt-editor-math-template-size);
+    margin: 0;
+    padding: 0.125rem 0.375rem;
+    font: inherit;
+    font-size: var(--vt-editor-math-template-font-size);
+    color: inherit;
+    background: none;
+    border: 1px solid var(--vt-editor-math-template-border-color);
+    border-radius: var(--vt-editor-math-border-radius);
+    cursor: pointer;
+}
+
+.vt-editor-math-template:hover {
+    background: var(--vt-editor-math-template-hover-background);
+}
+
+.vt-editor-math-template:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
 }
 
 .vt-editor-check {

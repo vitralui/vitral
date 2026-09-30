@@ -26,6 +26,30 @@ export default {
         variableColor: '{warn.subtleColor}',
         variableFontFamily: '{fontFamilyMono}'
     },
+    // A formula: drawn in the text's own colour, with a quiet wash under the
+    // pointer to say it can be pressed and a stronger one on the value the
+    // press would edit. The box that opens over a value is a small field.
+    math: {
+        borderRadius: '{borderRadius.sm}',
+        hoverBackground: '{content.hoverBackground}',
+        valueHoverBackground: '{highlight.background}',
+        pendingColor: '{text.mutedColor}',
+        pendingFontFamily: '{fontFamilyMono}',
+        inputBackground: '{formField.background}',
+        inputColor: '{formField.color}',
+        inputBorderColor: '{primary.color}',
+        inputFontFamily: '{fontFamilyMono}',
+        inputShadow: '{overlay.popover.shadow}',
+        panelWidth: '24rem',
+        previewFontSize: '1.375rem',
+        previewMinHeight: '4rem',
+        previewBorderColor: '{content.borderColor}',
+        templateFontSize: '0.875rem',
+        templateSize: '2.25rem',
+        templatesMaxHeight: '7.5rem',
+        templateBorderColor: '{content.borderColor}',
+        templateHoverBackground: '{content.hoverBackground}'
+    },
     toolbar: {
         padding: '0.375rem',
         gap: '0.125rem',

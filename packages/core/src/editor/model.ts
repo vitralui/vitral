@@ -27,7 +27,9 @@ export type EditorNodeType =
     | 'text'
     | 'hardBreak'
     /** Something named inline — a person, a tag, a variable — that moves and deletes as one character. */
-    | 'chip';
+    | 'chip'
+    /** A formula inline, held as the LaTeX it was written in and drawn from it. One character, like a chip. */
+    | 'math';
 
 export type EditorMarkType = 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'link' | 'color' | 'highlight';
 
@@ -64,6 +66,10 @@ export interface EditorNodeAttrs {
     label?: string;
     /** `chip`: a category the look can follow (`'mention'`, `'tag'`, `'variable'`). */
     kind?: string | null;
+    /** `math`: the formula, in LaTeX (the subset `parseMath` reads). */
+    latex?: string;
+    /** `math`: set as a displayed formula — limits above and below their signs, fractions at full size. */
+    display?: boolean;
 }
 
 export interface EditorNode {
@@ -140,6 +146,7 @@ export const editorNodes = {
     t: (text: string, ...marks: EditorMark[]): EditorNode => (marks.length ? { type: 'text', text, marks: sortMarks(marks) } : { type: 'text', text }),
     br: (): EditorNode => ({ type: 'hardBreak' }),
     chip: (id: string, label = id, kind: string | null = null): EditorNode => makeChip({ id, label, kind }),
+    math: (latex: string, display = false): EditorNode => makeMath({ latex, display }),
     bold: (): EditorMark => ({ type: 'bold' }),
     italic: (): EditorMark => ({ type: 'italic' }),
     underline: (): EditorMark => ({ type: 'underline' }),
@@ -218,11 +225,19 @@ export function inlineLength(content: readonly EditorNode[] | undefined): number
 /** The character a chip stands as in a block's text: one unit, like the chip itself. */
 export const CHIP_CHAR = '\ufffc';
 
-/** The block's text, a hard break read as a newline and a chip as {@link CHIP_CHAR}, so offsets line up with positions. */
+/** A node that stands in a line as one character with nothing inside it for the caret: a chip, a formula. */
+export const isInlineAtom = (node: EditorNode | undefined | null): boolean => !!node && (node.type === 'chip' || node.type === 'math');
+
+/** The block's text, a hard break read as a newline and a chip or a formula as {@link CHIP_CHAR}, so offsets line up with positions. */
 export function inlineText(content: readonly EditorNode[] | undefined): string {
     let s = '';
-    for (const node of content ?? []) s += node.type === 'text' ? (node.text ?? '') : node.type === 'chip' ? CHIP_CHAR : '\n';
+    for (const node of content ?? []) s += node.type === 'text' ? (node.text ?? '') : isInlineAtom(node) ? CHIP_CHAR : '\n';
     return s;
+}
+
+/** A formula node with only the attributes a formula carries. */
+export function makeMath(attrs: { latex?: string; display?: boolean }): EditorNode {
+    return { type: 'math', attrs: { latex: String(attrs.latex ?? ''), display: attrs.display === true } };
 }
 
 /** A chip node with only the attributes a chip carries. */
@@ -272,6 +287,8 @@ export function normalizeInline(content: readonly EditorNode[] | undefined): Edi
             out.push({ type: 'hardBreak' });
         } else if (node.type === 'chip') {
             out.push(makeChip(node.attrs ?? {}));
+        } else if (node.type === 'math') {
+            out.push(makeMath(node.attrs ?? {}));
         }
     }
     return out;

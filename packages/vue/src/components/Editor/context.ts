@@ -60,6 +60,17 @@ export interface EditorContext {
     onContentFocus(event: FocusEvent): void;
     onContentBlur(event: FocusEvent): void;
     registerLinkPanel(open: ((anchor: HTMLElement | null) => void) | null): void;
+    /** Formulas: whether they can be made and changed here, how a press on one is answered, and the panel. */
+    math: {
+        /** Not switched off by the `math` prop. */
+        on: ComputedRef<boolean>;
+        /** On, and the text can be changed. */
+        enabled: ComputedRef<boolean>;
+        /** `'inline'` where a value is edited where it stands, `'panel'` where a press opens the panel, nothing where formulas are off. */
+        edit: ComputedRef<'inline' | 'panel' | undefined>;
+        /** Opens the formula panel: on the formula the selection is on, or for a new one, hung from `anchor`. */
+        open(anchor?: HTMLElement | null): void;
+    };
     /** The find bar: `@vitral/editor`'s, drawn by an `<EditorFind>` part. */
     find: FindBar;
     /** Whether an `<EditorFind>` is there to draw it, and the keys should open it. */

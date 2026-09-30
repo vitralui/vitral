@@ -83,6 +83,7 @@ export const componentNames = [
     'EditorFooter',
     'EditorImageButton',
     'EditorLinkPanel',
+    'EditorMathButton',
     'EditorRoot',
     'EditorTableMenu',
     'EditorToolbar',

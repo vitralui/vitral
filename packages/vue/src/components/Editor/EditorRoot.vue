@@ -15,7 +15,21 @@ import {
     type EditorNode,
     type EditorView
 } from '@vitral/core';
-import { createBlockHandle, createChipMenu, createFindBar, createSlashMenu, defaultBlockActions, defaultSlashCommands, type BlockHandle, type ChipMenu, type SlashMenu } from '@vitral/editor';
+import {
+    createBlockHandle,
+    createChipMenu,
+    createFindBar,
+    createMathTools,
+    createSlashMenu,
+    defaultBlockActions,
+    defaultMathTemplates,
+    defaultSlashCommands,
+    type BlockHandle,
+    type ChipMenu,
+    type CommandRunner,
+    type MathTools,
+    type SlashMenu
+} from '@vitral/editor';
 import { editorStyle } from '@vitral/styles';
 import { computed, getCurrentInstance, mergeProps, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
@@ -41,6 +55,7 @@ const props = withDefaults(defineProps<EditorRootProps>(), {
     // are on unless they are turned off.
     slashMenu: true,
     blockMenu: true,
+    math: true,
     find: true
 });
 const model = defineModel<string | null>();
@@ -58,7 +73,8 @@ const listens = (event: string) => !!instance?.vnode.props?.[event];
 const editor = createEditor({
     content: (model.value || json.value || '') as EditorContent,
     maxLength: props.maxLength ?? null,
-    historyDelay: props.historyDelay
+    historyDelay: props.historyDelay,
+    mathOutput: typeof props.math === 'object' && props.math ? props.math.output : undefined
 });
 const state = shallowRef(editor.state);
 const view = shallowRef<EditorView | null>(null);
@@ -78,6 +94,14 @@ let syncing = false;
 let openLinkPanel: ((anchor: HTMLElement | null) => void) | null = null;
 
 const editable = computed(() => !props.readonly && !props.disabled);
+
+const mathOptions = computed(() => (typeof props.math === 'object' && props.math ? props.math : {}));
+const mathEnabled = computed(() => props.math !== false && editable.value);
+const mathEdit = computed(() => (mathEnabled.value ? (mathOptions.value.inlineEdit === false ? 'panel' : 'inline') : undefined));
+watch(
+    () => mathOptions.value.output,
+    (output) => (editor.mathOutput = output ?? 'drawing')
+);
 
 // Find and replace: the framework-free bar, drawn by an <EditorFind> part.
 let findRender: (() => void) | null = null;
@@ -283,6 +307,12 @@ const ctx: EditorContext = {
     registerLinkPanel(open) {
         openLinkPanel = open;
     },
+    math: {
+        on: computed(() => props.math !== false),
+        enabled: mathEnabled,
+        edit: mathEdit,
+        open: (anchor) => mathTools?.open(anchor)
+    },
     find: findBar,
     registerFind(render) {
         findRender = render;
@@ -317,6 +347,7 @@ function onDocumentPointerUp() {
  */
 let slash: SlashMenu | null = null;
 let chipMenu: ChipMenu | null = null;
+let mathTools: MathTools | null = null;
 let blockHandle: BlockHandle | null = null;
 
 function attachMenus() {
@@ -335,18 +366,42 @@ function attachMenus() {
         overlayTarget: overlayTarget.value,
         zIndex: config.zIndex.overlay
     });
+    mathTools?.destroy();
+    mathTools = createMathTools({
+        editor,
+        view: () => view.value,
+        content: () => contentEl.value,
+        anchor: caretAnchor,
+        place: () => void caretAnchor(),
+        templates: () => mathOptions.value.templates ?? defaultMathTemplates(locale.value),
+        inlineEdit: () => mathOptions.value.inlineEdit !== false,
+        part,
+        locale: () => locale.value,
+        enabled: () => mathEnabled.value,
+        focus,
+        id: `${uid}-math`,
+        overlayTarget: overlayTarget.value,
+        zIndex: config.zIndex.overlay
+    });
     blockHandle?.destroy();
     slash = createSlashMenu({
         editor,
         content: () => contentEl.value,
         anchor: caretAnchor,
-        commands: () => (Array.isArray(props.slashMenu) ? props.slashMenu : defaultSlashCommands(locale.value)),
+        // The formula entry is there only where formulas are.
+        commands: () => (Array.isArray(props.slashMenu) ? props.slashMenu : defaultSlashCommands(locale.value).filter((command) => command.id !== 'math' || props.math !== false)),
         part,
         locale: () => locale.value,
         enabled: () => props.slashMenu !== false && editable.value,
         place: () => void caretAnchor(),
         overlayTarget: overlayTarget.value,
-        zIndex: config.zIndex.overlay
+        zIndex: config.zIndex.overlay,
+        onRun: (command) => {
+            // The formula panel is not a command of the document's: it opens here, where the caret was left.
+            if (command.command?.[0] === 'math') mathTools?.open();
+            else if (command.run) command.run(editor as unknown as CommandRunner);
+            else if (command.command) (editor.run as (name: string, ...args: unknown[]) => boolean)(command.command[0], ...command.command.slice(1));
+        }
     });
     blockHandle = createBlockHandle({
         editor,
@@ -363,6 +418,8 @@ function attachMenus() {
 }
 
 watch([() => props.slashMenu, () => props.blockMenu, () => props.chips, contentEl], attachMenus, { flush: 'post' });
+// Formulas switched off, or the text made read-only, with the panel open: it goes.
+watch(mathEnabled, (on) => !on && mathTools?.close());
 
 onMounted(() => {
     attachMenus();
@@ -381,6 +438,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     slash?.destroy();
     chipMenu?.destroy();
+    mathTools?.destroy();
     blockHandle?.destroy();
     findBar.destroy();
     document.removeEventListener('pointerup', onDocumentPointerUp);
@@ -393,7 +451,8 @@ defineExpose({
     commands: editor.commands,
     focus,
     blur: () => contentEl.value?.blur(),
-    getHTML: () => editor.getHTML(),
+    /** The document as HTML; `{ math: 'drawing' | 'source' }` says how formulas are written in this one. */
+    getHTML: (options?: { math?: 'drawing' | 'source' }) => editor.getHTML(options),
     getJSON: () => editor.getJSON(),
     getText: () => editor.getText(),
     getMarkdown: () => editor.getMarkdown(),

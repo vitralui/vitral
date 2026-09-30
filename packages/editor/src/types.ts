@@ -31,6 +31,7 @@ export type EditorToolbarItem =
     | 'codeBlock'
     | 'image'
     | 'table'
+    | 'math'
     | 'horizontalRule'
     | 'link'
     | 'undo'
@@ -39,7 +40,7 @@ export type EditorToolbarItem =
     | 'find';
 
 /** The commands a plain button can run. */
-export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'find'>;
+export type EditorButtonCommand = Exclude<EditorToolbarItem, 'blockType' | 'color' | 'highlight' | 'image' | 'table' | 'math' | 'find'>;
 
 /** One entry of the menu a slash opens. */
 /** Something a chip trigger offers: who or what the chip will stand for. */
@@ -67,6 +68,36 @@ export interface ChipTrigger {
     items: (query: string) => ChipSuggestion[] | Promise<ChipSuggestion[]>;
     /** Given to every chip this trigger makes, unless its suggestion says otherwise. */
     kind?: string;
+}
+
+/** A formula the formula panel offers ready-made, drawn on a button. */
+export interface MathTemplate {
+    /** Identifies it, and is what a host matches on. */
+    id: string;
+    /** What it is called: the button's name. */
+    label: string;
+    /** What pressing it writes into the formula. */
+    latex: string;
+}
+
+/** How formulas are edited, where the defaults are not what is wanted. */
+export interface EditorMathOptions {
+    /** The ready-made formulas the panel offers. The usual ones when left out; none for an empty list. */
+    templates?: MathTemplate[];
+    /**
+     * Whether a number, a letter or a sign of a formula pressed in the text is
+     * edited where it stands, in a box over it. On by default; off, a press
+     * anywhere on a formula opens the panel with that piece selected.
+     */
+    inlineEdit?: boolean;
+    /**
+     * How a formula is written into the HTML the editor hands back:
+     * `'drawing'` (the default) puts its drawing inside it, so the HTML shows
+     * the formula anywhere, with nothing of Vitral's on the page; `'source'`
+     * writes the LaTeX alone, which is far smaller to store, and is drawn
+     * where it is shown with `renderMathIn`. Either is read back the same.
+     */
+    output?: 'drawing' | 'source';
 }
 
 export interface SlashCommand {
@@ -131,6 +162,15 @@ export interface TextEditorConfig {
      */
     chips?: ChipTrigger | ChipTrigger[];
     /**
+     * Formulas: the toolbar's formula button, the slash menu's entry, the
+     * panel that writes one in LaTeX, and editing one by pressing it in the
+     * text. On by default; `false` leaves formulas already in the document
+     * drawn and takes every way of making or changing one away. An object says
+     * which ready-made formulas the panel offers and whether a value is edited
+     * where it stands. One can also be put in with `run('insertMath', { latex })`.
+     */
+    math?: boolean | EditorMathOptions;
+    /**
      * Find and replace: Ctrl/⌘+F opens the bar over the text, Ctrl+H (⌘+⌥+F
      * on a Mac) opens it with the replace row. On by default; `false` leaves
      * those keys to the browser. The `find` toolbar item opens it too.
@@ -182,8 +222,8 @@ export interface TextEditorEvents {
 /** The editor, as the outside sees it. */
 export interface TextEditorHandle {
     update(config: Partial<TextEditorConfig>): void;
-    /** The document as HTML. */
-    getHTML(): string;
+    /** The document as HTML. `math` says how formulas are written in this one, whatever the editor's own setting. */
+    getHTML(options?: { math?: 'drawing' | 'source' }): string;
     getJSON(): EditorNode;
     getText(): string;
     getMarkdown(): string;

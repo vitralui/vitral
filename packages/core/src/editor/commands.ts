@@ -10,6 +10,7 @@ import {
     inlineLength,
     inlineText,
     makeChip,
+    makeMath,
     isAtom,
     isCell,
     isItem,
@@ -370,6 +371,67 @@ export function insertChip(state: EditorState, attrs: { id?: string; label?: str
     const insert: EditorNode[] = [makeChip(attrs), ...(after === ' ' ? [] : [{ type: 'text' as const, text: ' ' }])];
     const node = withContent(cut.node, replaceInline(cut.node.content, cut.offset, cut.offset, insert));
     return finish(state, replaceAt(cut.doc, cut.path, [node]), { node, offset: cut.offset + 2 });
+}
+
+/**
+ * Puts a formula where the selection is, replacing what was selected. Not in a
+ * code block, where everything is text, and not an empty one.
+ */
+export function insertMath(state: EditorState, attrs: { latex: string; display?: boolean }): EditorState | null {
+    const { from } = selectionRange(state.selection);
+    const block = nodeAt(state.doc, from.path)!;
+    if (block.type === 'codeBlock' || !attrs.latex?.trim()) return null;
+    const cut = cutSelection(state);
+    const node = withContent(cut.node, replaceInline(cut.node.content, cut.offset, cut.offset, [makeMath(attrs)]));
+    return finish(state, replaceAt(cut.doc, cut.path, [node]), { node, offset: cut.offset + 1 });
+}
+
+export interface EditorMathInfo {
+    /** Where the formula is: its block, and its place in the block's text. */
+    path: number[];
+    offset: number;
+    latex: string;
+    display: boolean;
+}
+
+/** The formula the selection is on: the one it covers and nothing else, or the one the caret is right after. */
+export function mathAt(state: EditorState): EditorMathInfo | null {
+    const { from, to, empty } = selectionRange(state.selection);
+    if (!samePath(from.path, to.path)) return null;
+    const block = nodeAt(state.doc, from.path);
+    if (!block || !isTextblock(block)) return null;
+    const offset = empty ? from.offset - 1 : to.offset - from.offset === 1 ? from.offset : -1;
+    const node = offset < 0 ? undefined : sliceInline(block.content, offset, offset + 1)[0];
+    if (node?.type !== 'math') return null;
+    return { path: from.path, offset, latex: node.attrs?.latex ?? '', display: !!node.attrs?.display };
+}
+
+/** Every formula in the document, in the order it is read: where each is, and its source. */
+export function formulasIn(doc: EditorNode): EditorMathInfo[] {
+    const out: EditorMathInfo[] = [];
+    for (const block of textblocks(doc)) {
+        let offset = 0;
+        for (const node of block.node.content ?? []) {
+            if (node.type === 'math') out.push({ path: block.path, offset, latex: node.attrs?.latex ?? '', display: !!node.attrs?.display });
+            offset += node.type === 'text' ? (node.text ?? '').length : 1;
+        }
+    }
+    return out;
+}
+
+/**
+ * Changes the formula at a position: its source, how it is set, or both. A
+ * formula left with no source is taken out. The caret goes right after it.
+ */
+export function setMath(state: EditorState, at: EditorPosition, attrs: { latex?: string; display?: boolean }): EditorState | null {
+    const block = nodeAt(state.doc, at.path);
+    if (!block || !isTextblock(block)) return null;
+    const current = sliceInline(block.content, at.offset, at.offset + 1)[0];
+    if (current?.type !== 'math') return null;
+    const latex = attrs.latex ?? current.attrs?.latex ?? '';
+    const insert = latex.trim() ? [makeMath({ latex, display: attrs.display ?? !!current.attrs?.display })] : [];
+    const node = withContent(block, replaceInline(block.content, at.offset, at.offset + 1, insert));
+    return finish(state, replaceAt(state.doc, at.path, [node]), { node, offset: at.offset + insert.length });
 }
 
 /**
@@ -1020,6 +1082,8 @@ export function isActive(state: EditorState, name: string, attrs?: EditorMarkAtt
         }
         case 'link':
             return linkAt(state) !== null;
+        case 'math':
+            return mathAt(state) !== null;
         case 'paragraph':
         case 'heading':
         case 'codeBlock': {

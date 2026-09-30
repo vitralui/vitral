@@ -1,4 +1,4 @@
-import { makeChip, clampLevel, emptyParagraph, makeTextblock, normalizeDoc, type EditorMark, type EditorMarkType, type EditorNode, type EditorNodeType } from './model';
+import { makeChip, makeMath, clampLevel, emptyParagraph, makeTextblock, normalizeDoc, type EditorMark, type EditorMarkType, type EditorNode, type EditorNodeType } from './model';
 import { editorPalette, sanitizeLanguage, sanitizeUrl, type EditorColor } from './sanitize';
 
 const SIMPLE_MARKS = new Set(['bold', 'italic', 'underline', 'strike', 'code']);
@@ -35,6 +35,9 @@ function readInline(value: unknown, palette: readonly EditorColor[]): EditorNode
             const a = raw.attrs;
             const label = typeof a.label === 'string' ? a.label : typeof a.id === 'string' ? a.id : '';
             if (label) out.push(makeChip({ id: typeof a.id === 'string' ? a.id : label, label, kind: typeof a.kind === 'string' ? a.kind : null }));
+        } else if (raw.type === 'math' && isObject(raw.attrs)) {
+            // The source is text and is only ever read as a formula, so there is nothing in it to check.
+            if (typeof raw.attrs.latex === 'string' && raw.attrs.latex.trim()) out.push(makeMath({ latex: raw.attrs.latex, display: raw.attrs.display === true }));
         }
     }
     return out;

@@ -32,6 +32,15 @@ export const editorStyle = defineStyle({
         selectedNode: 'vt-editor-node-selected',
         /** An inline chip, by its kind: a mention, a tag, a variable. */
         chip: (s: { kind?: string | null }) => ['vt-editor-chip', s.kind && `vt-editor-chip-${s.kind}`],
+        /** A formula in the text: drawn, or showing its source while the renderer is on its way. */
+        math: (s: { display?: boolean; pending?: boolean }) => ['vt-editor-math', { 'vt-editor-math-display': s.display, 'vt-editor-math-pending': s.pending }],
+        /** The box over a value of a formula being edited where it stands. */
+        mathInput: 'vt-editor-math-input',
+        /** The formula panel: the formula drawn, and the ready-made ones on their buttons. */
+        mathPanel: 'vt-overlay vt-editor-math-panel',
+        mathPreview: (s: { empty?: boolean }) => ['vt-editor-math-preview', { 'vt-editor-math-preview-empty': s?.empty }],
+        mathTemplates: 'vt-editor-math-templates',
+        mathTemplate: 'vt-editor-math-template',
         /** The invisible element popups anchor to at the selection. */
         caret: 'vt-editor-caret',
         instructions: 'vt-sr-only',

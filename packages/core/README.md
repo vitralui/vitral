@@ -9,6 +9,7 @@ would use the same functions.
 - Data: `FilterService`, `sortData`, `queryData`, `createDataSource` for local and remote data, selection, trees, paging, virtualisation.
 - Dates and numbers: calendar maths, RRULE recurrence, scheduler layout, locale-aware formatting **and parsing**.
 - Text editing: the document model, commands and HTML/Markdown/JSON formats behind the Editor.
+- Formulas: LaTeX read and drawn as SVG outlines by a layout of its own, the same in every browser and with none (`renderMath`, `renderMathPng`, `renderMathIn`, `renderMathHTML`). The outlines are loaded when first needed, and are under the SIL Open Font License (`LICENSE.OFL`).
 - Locales: `en` and `pt-BR`.
 
 ```sh

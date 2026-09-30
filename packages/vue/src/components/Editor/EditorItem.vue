@@ -5,6 +5,7 @@ import EditorButton from './EditorButton.vue';
 import EditorColorPicker from './EditorColorPicker.vue';
 import EditorFindButton from './EditorFindButton.vue';
 import EditorImageButton from './EditorImageButton.vue';
+import EditorMathButton from './EditorMathButton.vue';
 import EditorTableMenu from './EditorTableMenu.vue';
 import type { EditorButtonCommand, EditorToolbarItem } from './types';
 
@@ -26,6 +27,8 @@ const rendered = computed(() => {
             return { is: EditorImageButton, attrs: {} };
         case 'table':
             return { is: EditorTableMenu, attrs: {} };
+        case 'math':
+            return { is: EditorMathButton, attrs: {} };
         case 'find':
             return { is: EditorFindButton, attrs: {} };
         default:

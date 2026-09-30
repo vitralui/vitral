@@ -6,7 +6,7 @@ import { clampLevel, inlineText, textblocks, type EditorMark, type EditorNode } 
 /** The document's text, a line per block (and per hard break). */
 export function toEditorText(doc: EditorNode): string {
     return textblocks(doc)
-        .map((b) => inlineText((b.node.content ?? []).map((node) => (node.type === 'chip' ? { type: 'text' as const, text: node.attrs?.label ?? '' } : node))))
+        .map((b) => inlineText((b.node.content ?? []).map((node) => (node.type === 'chip' ? { type: 'text' as const, text: node.attrs?.label ?? '' } : node.type === 'math' ? { type: 'text' as const, text: node.attrs?.latex ?? '' } : node))))
         .join('\n');
 }
 
@@ -51,6 +51,8 @@ function inlineMarkdown(content: readonly EditorNode[] | undefined): string {
             if (node.type === 'hardBreak') return '\\\n';
             // Markdown has no chip: its label stands in for it.
             if (node.type === 'chip') return escapeMarkdown(node.attrs?.label ?? '');
+            // A formula is written the way Markdown that knows formulas reads one: between dollars, two for a displayed one.
+            if (node.type === 'math') return node.attrs?.display ? `$$${node.attrs.latex ?? ''}$$` : `$${node.attrs?.latex ?? ''}$`;
             if (node.marks?.some((m) => m.type === 'code')) {
                 const text = node.text ?? '';
                 const fence = text.includes('`') ? '``' : '`';

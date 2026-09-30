@@ -60,6 +60,7 @@ export * from './number/slider';
 export * from './number/dial';
 export * from './color/color';
 export * from './editor';
+export * from './math';
 
 export * from './input/mask';
 export * from './input/password';

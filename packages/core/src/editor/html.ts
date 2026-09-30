@@ -9,12 +9,14 @@ import {
     removeFromSet,
     sameMark,
     makeChip,
+    makeMath,
     textToInline,
     type EditorMark,
     type EditorMarkType,
     type EditorNode,
     type EditorNodeType
 } from './model';
+import { mathToSvg, type MathOutput } from '../math';
 import { editorColorStyle, editorPalette, matchPaletteColor, sanitizeLanguage, sanitizeUrl, type EditorColor } from './sanitize';
 
 // ---- inline grouping ------------------------------------------------------------------
@@ -76,6 +78,13 @@ function keepSpaces(content: readonly EditorNode[]): EditorNode[] {
 
 export interface EditorHTMLOptions {
     palette?: readonly EditorColor[];
+    /**
+     * How a formula is written: `'drawing'` (the default) puts its drawing
+     * inside it, so the HTML shows the formula wherever it goes; `'source'`
+     * writes the LaTeX alone, which is far smaller and is drawn where it is
+     * shown (`renderMathIn`). Either reads back the same.
+     */
+    math?: MathOutput;
 }
 
 function markOpen(mark: EditorMark, palette: readonly EditorColor[]): [string, string] {
@@ -111,11 +120,24 @@ function chipHTML(node: EditorNode): string {
     return `<span data-chip="${escapeAttr(id)}"${kindAttr} contenteditable="false">${escapeText(label)}</span>`;
 }
 
+/**
+ * A formula as HTML: its source in `data-math`, which is how it is read back,
+ * around the drawing of it, so the HTML shows the formula wherever it goes —
+ * a page without the editor, a mail, a PDF. Before the renderer has been
+ * loaded (`loadMath()`) there is no drawing to put in, and the source stands
+ * in its place.
+ */
+function mathHTML(node: EditorNode, output: MathOutput = 'drawing'): string {
+    const { latex = '', display } = node.attrs ?? {};
+    const drawn = output === 'source' ? null : mathToSvg(latex, { display: !!display });
+    return `<span data-math="${escapeAttr(latex)}"${display ? ' data-display="true"' : ''} contenteditable="false">${drawn ?? escapeText(latex)}</span>`;
+}
+
 export function inlineToHTML(content: readonly EditorNode[] | undefined, options: EditorHTMLOptions = {}): string {
     const palette = options.palette ?? editorPalette;
     return groupInline(
         keepSpaces(content ?? []),
-        (node) => (node.type === 'hardBreak' ? '<br>' : node.type === 'chip' ? chipHTML(node) : escapeText(node.text ?? '')),
+        (node) => (node.type === 'hardBreak' ? '<br>' : node.type === 'chip' ? chipHTML(node) : node.type === 'math' ? mathHTML(node, options.math) : escapeText(node.text ?? '')),
         (mark, inner) => {
             const [open, close] = markOpen(mark, palette);
             return open + inner.join('') + close;
@@ -314,7 +336,7 @@ function cleanInline(nodes: EditorNode[]): EditorNode[] {
             atLineStart = true;
             continue;
         }
-        if (node.type === 'chip') {
+        if (node.type === 'chip' || node.type === 'math') {
             out.push(node);
             atLineStart = false;
             continue;
@@ -328,7 +350,7 @@ function cleanInline(nodes: EditorNode[]): EditorNode[] {
     const last = out[out.length - 1];
     if (last?.type === 'text') last.text = last.text!.replace(/ +$/, '');
     const texts = out.filter((n) => n.type === 'text');
-    if (!out.some((n) => n.type === 'hardBreak' || n.type === 'chip') && texts.every((n) => !n.text!.replace(/\u00a0/g, '').trim())) return [];
+    if (!out.some((n) => n.type === 'hardBreak' || n.type === 'chip' || n.type === 'math') && texts.every((n) => !n.text!.replace(/\u00a0/g, '').trim())) return [];
     return out.map((n) => (n.type === 'text' ? { ...n, text: n.text!.replace(/\u00a0/g, ' ') } : n)).filter((n) => n.type !== 'text' || n.text);
 }
 
@@ -462,6 +484,12 @@ function visit(node: Node, marks: EditorMark[], b: Builder, ctx: WalkContext) {
     if (el.hasAttribute('data-chip')) {
         const label = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
         b.chip(makeChip({ id: el.getAttribute('data-chip') || label, label, kind: el.getAttribute('data-kind') }));
+        return;
+    }
+    // A formula reads back from its source; the drawing inside it is not read at all.
+    if (el.hasAttribute('data-math')) {
+        const latex = el.getAttribute('data-math') ?? '';
+        if (latex.trim()) b.chip(makeMath({ latex, display: el.getAttribute('data-display') === 'true' }));
         return;
     }
     if (tag === 'p' || tag in HEADINGS) {

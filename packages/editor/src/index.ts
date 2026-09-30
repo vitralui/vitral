@@ -7,6 +7,7 @@
 export { createTextEditor } from './editor';
 export { createSlashMenu, defaultSlashCommands, type SlashMenu, type SlashMenuOptions } from './slash';
 export { createChipMenu, type ChipMenu, type ChipMenuOptions } from './chips';
+export { createMathTools, defaultMathTemplates, type MathTools, type MathToolsOptions } from './math';
 export { createFindBar, type FindBar, type FindBarOptions } from './find';
 export { createBlockHandle, defaultBlockActions, type BlockHandle, type BlockHandleOptions } from './block';
 export { editorButtons, editorIcons, shortcutCommands, defaultToolbar, defaultBubbleMenu, type EditorButtonSpec } from './buttons';

@@ -216,6 +216,8 @@ export function defaultSlashCommands(locale: Locale): SlashCommand[] {
         entry('codeBlock', 'codeBlock', ['toggleCodeBlock']),
         entry('horizontalRule', 'horizontalRule', ['insertHorizontalRule']),
         entry('table', 'table', ['insertTable', 3, 3, true]),
-        entry('image', 'image', ['insertImage', { src: '' }])
+        entry('image', 'image', ['insertImage', { src: '' }]),
+        // Not a command of the document's: the host opens its formula panel for it, and leaves it out where formulas are off.
+        entry('math', 'sigma', ['math'])
     ];
 }

@@ -35,6 +35,8 @@ export interface ToolbarActions {
     openFind: () => void;
     openImage: (event: MouseEvent) => void;
     openTable: (event: MouseEvent) => void;
+    /** Opens the formula panel: on the formula the selection is on, or for a new one. */
+    openMath: (event: MouseEvent) => void;
     openColor: (kind: 'color' | 'highlight', event: MouseEvent) => void;
     blockSelect: (element: Element | null) => void;
 }
@@ -43,7 +45,8 @@ export const iconView = (name: string, props?: Props): Child => iconNode(getIcon
 
 const OPENERS: Partial<Record<EditorToolbarItem, { icon: string; label: (words: Locale['editor']) => string; action: keyof ToolbarActions }>> = {
     image: { icon: 'image', label: (words) => words.image, action: 'openImage' },
-    table: { icon: 'table', label: (words) => words.table, action: 'openTable' }
+    table: { icon: 'table', label: (words) => words.table, action: 'openTable' },
+    math: { icon: 'sigma', label: (words) => words.math, action: 'openMath' }
 };
 
 /** One command's button: a toggle where the command has a pressed state. */
@@ -76,21 +79,25 @@ export function buttonView(context: ToolbarContext, item: EditorButtonCommand): 
     );
 }
 
-/** A button that opens a panel: the image and table pickers. */
-function openerView(context: ToolbarContext, item: 'image' | 'table'): Child {
+/** A button that opens a panel: the image and table pickers, the formula editor. */
+function openerView(context: ToolbarContext, item: 'image' | 'table' | 'math'): Child {
     const spec = OPENERS[item]!;
     const name = spec.label(context.locale.editor);
+    // The formula button is down while the selection is on a formula: pressed there, it changes that one.
+    const pressed = item === 'math' ? context.isActive('math') : undefined;
+    const disabled = !context.editable || (item === 'math' && context.isActive('codeBlock'));
     return h(
         'button',
-        mergeAttrs({ key: item, type: 'button' }, context.part('button', { disabled: !context.editable }), {
+        mergeAttrs({ key: item, type: 'button' }, context.part('button', { active: pressed, disabled }), {
             'aria-label': name,
             'aria-haspopup': 'dialog',
-            disabled: !context.editable,
+            'aria-pressed': pressed === undefined ? undefined : pressed ? 'true' : 'false',
+            disabled,
             ref: (element: Element | null) => {
                 context.ref(item)(element);
                 context.on.tip(element, name);
             },
-            onClick: (event: MouseEvent) => (spec.action === 'openImage' ? context.on.openImage(event) : context.on.openTable(event))
+            onClick: (event: MouseEvent) => (spec.action === 'openImage' ? context.on.openImage(event) : spec.action === 'openMath' ? context.on.openMath(event) : context.on.openTable(event))
         }),
         iconView(spec.icon, context.part('buttonIcon'))
     );
@@ -152,7 +159,7 @@ export function toolbarView(context: ToolbarContext, groups: EditorToolbarItem[]
                         ? blockSelectView(context)
                         : item === 'color' || item === 'highlight'
                           ? colorView(context, item)
-                          : item === 'image' || item === 'table'
+                          : item === 'image' || item === 'table' || item === 'math'
                             ? openerView(context, item)
                             : item === 'find'
                               ? findView(context)
@@ -169,7 +176,7 @@ export function bubbleView(context: ToolbarContext, items: EditorToolbarItem[]):
         'div',
         mergeAttrs({ role: 'toolbar' }, context.part('bubble'), { 'aria-label': context.locale.editor.toolbar }),
         items.map((item) =>
-            item === 'color' || item === 'highlight' ? colorView(context, item) : item === 'image' || item === 'table' ? openerView(context, item) : buttonView(context, item as EditorButtonCommand)
+            item === 'color' || item === 'highlight' ? colorView(context, item) : item === 'image' || item === 'table' || item === 'math' ? openerView(context, item) : buttonView(context, item as EditorButtonCommand)
         )
     );
 }

@@ -34,7 +34,8 @@
   "files": [
     "dist",
     "LICENSE",
-    "LICENSE.GPL"
+    "LICENSE.GPL",
+    "LICENSE.OFL"
   ],
   "publishConfig": {
     "access": "public"

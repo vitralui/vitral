@@ -10,6 +10,7 @@ import EditorFindButton from './EditorFindButton.vue';
 import EditorFooter from './EditorFooter.vue';
 import EditorImageButton from './EditorImageButton.vue';
 import EditorLinkPanel from './EditorLinkPanel.vue';
+import EditorMathButton from './EditorMathButton.vue';
 import EditorRoot from './EditorRoot.vue';
 import EditorTableMenu from './EditorTableMenu.vue';
 import EditorToolbar from './EditorToolbar.vue';
@@ -23,6 +24,7 @@ const parts = {
     BlockSelect: EditorBlockSelect,
     ColorPicker: EditorColorPicker,
     ImageButton: EditorImageButton,
+    MathButton: EditorMathButton,
     TableMenu: EditorTableMenu,
     LinkPanel: EditorLinkPanel,
     Find: EditorFind,
@@ -53,6 +55,7 @@ export {
     EditorBlockSelect,
     EditorColorPicker,
     EditorImageButton,
+    EditorMathButton,
     EditorTableMenu,
     EditorLinkPanel,
     EditorFind,
