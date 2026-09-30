@@ -137,7 +137,7 @@ function onFocusout(event: FocusEvent) {
 <template>
     <section
         ref="rootRef"
-        aria-roledescription="carousel"
+        :aria-roledescription="locale.aria.carouselRole"
         :aria-label="ariaLabel"
         v-bind="part('root', { orientation, stacked: stacked })"
         @pointerenter="held = true"
@@ -165,7 +165,7 @@ function onFocusout(event: FocusEvent) {
                             v-for="(item, index) in value.filter((_, i) => isVisible(i))"
                             :key="first"
                             role="group"
-                            aria-roledescription="slide"
+                            :aria-roledescription="locale.aria.slideRole"
                             :aria-label="formatMessage(locale.aria.slide, { index: first + 1, count: value.length })"
                             v-bind="part('item', { active: true })"
                         >
@@ -181,7 +181,7 @@ function onFocusout(event: FocusEvent) {
                         v-for="(item, index) in stacked ? [] : value"
                         :key="index"
                         role="group"
-                        aria-roledescription="slide"
+                        :aria-roledescription="locale.aria.slideRole"
                         :aria-label="formatMessage(locale.aria.slide, { index: index + 1, count: value.length })"
                         :aria-hidden="isVisible(index) ? undefined : 'true'"
                         :inert="isVisible(index) ? undefined : true"

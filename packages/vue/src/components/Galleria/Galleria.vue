@@ -158,7 +158,7 @@ defineExpose({ go });
                     </button>
                     <section
                         ref="rootRef"
-                        aria-roledescription="carousel"
+                        :aria-roledescription="locale.aria.carouselRole"
                         :aria-label="ariaLabel"
                         v-bind="part('root', { position: thumbnailsPosition })"
                         @pointerenter="held = true"
@@ -194,7 +194,7 @@ defineExpose({ go });
                                 v-if="count"
                                 :key="tx ? current : undefined"
                                 role="group"
-                                aria-roledescription="slide"
+                                :aria-roledescription="locale.aria.slideRole"
                                 :aria-label="formatMessage(locale.aria.slide, { index: current + 1, count })"
                                 v-bind="mergeProps(part('item', { dragging: swipe.dragging.value }), swipe.handlers)"
                                 :style="swipe.dragging.value ? { transform: `translateX(${swipe.offset.value}px)` } : undefined"

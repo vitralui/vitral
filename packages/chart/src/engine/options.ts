@@ -248,7 +248,7 @@ export const chartOptionsSchema: ChartObjectSchema = objectSchema({
         marker: obj({ show: bool(true) }),
         x: obj({ show: bool(true), formatter: template(), format: str(undefined, 'formatDate pattern for datetime x values') }),
         y: obj({ formatter: template('{value}'), title: obj({ formatter: template('{series}') }) }),
-        z: obj({ formatter: template('{value}'), title: str('Size') }),
+        z: obj({ formatter: template('{value}'), title: str(undefined, 'What the third value is called; the locale\'s word for size when left out') }),
         custom: template(undefined, 'A panel template with {title} and {rows}')
     }),
     plotOptions: obj({

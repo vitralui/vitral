@@ -19,4 +19,13 @@ describe('the caps of a shortcut', () => {
         expect(keyCaps('ctrl++', false).map((c) => c.label)).toEqual(['Ctrl', '+']);
         expect(keyCaps(' ctrl + s ', false).map((c) => c.label)).toEqual(['Ctrl', 'S']);
     });
+
+    it('calls the keys what the reader calls them: a symbol by its name, a word as the word', () => {
+        const names = { space: 'Espaço', up: 'Seta para cima', command: 'Comando' };
+        expect(keyCaps('shift+space', false, names)).toEqual([{ label: 'Shift' }, { label: 'Espaço' }]);
+        expect(keyCaps('up', false, names)).toEqual([{ label: '↑', spoken: 'Seta para cima' }]);
+        expect(keyCaps('mod+k', true, names)).toEqual([{ label: '⌘', spoken: 'Comando' }, { label: 'K' }]);
+        // A key with no name of its own, and one the names say nothing of, are as they were.
+        expect(keyCaps('ctrl+enter', false, names)).toEqual([{ label: 'Ctrl' }, { label: '↵', spoken: 'Enter' }]);
+    });
 });

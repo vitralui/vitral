@@ -254,6 +254,13 @@ describe('scenes', () => {
         const markers = s.marks[0]!.kind === 'points' ? s.marks[0]!.markers : [];
         expect(markers[1]!.size / markers[0]!.size).toBeCloseTo(2, 0);
         expect(s.data[1]!.extra?.[0]?.name).toBe('Size');
+        // The word is the locale's, unless the chart names the value itself.
+        const resolved = resolveChartOptions({}, 'bubble', 400);
+        const series = normalizeSeries([{ name: 'a', data: [{ x: 1, y: 1, z: 1 }] }], 'bubble', resolved.labels);
+        const inPortuguese = buildChartScene({ type: 'bubble', series, hidden: new Set(), options: resolved, width: 400, height: 300, locale: ptBR, window: {} });
+        expect(inPortuguese.data[0]!.extra?.[0]?.name).toBe(ptBR.chart.size);
+        expect(ptBR.chart.size).not.toBe('Size');
+        expect(scene('bubble', [{ name: 'a', data: [{ x: 1, y: 1, z: 1 }] }], { tooltip: { z: { title: 'Volume' } } }).scene.data[0]!.extra?.[0]?.name).toBe('Volume');
     });
 
     it('draws candles rising and falling', () => {
