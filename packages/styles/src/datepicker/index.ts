@@ -15,7 +15,7 @@ export interface DatePickerDayState {
 }
 
 export interface DatePickerPickerState {
-    level?: 'month' | 'year';
+    level?: 'day' | 'month' | 'year';
 }
 
 export interface DatePickerCellState {
@@ -37,6 +37,7 @@ export const datepickerStyle = defineStyle({
         title: 'vt-datepicker-title',
         monthButton: 'vt-datepicker-title-button vt-datepicker-month-button',
         yearButton: 'vt-datepicker-title-button vt-datepicker-year-button',
+        titleText: 'vt-datepicker-title-text',
         prevButton: 'vt-datepicker-prev',
         nextButton: 'vt-datepicker-next',
         grid: 'vt-datepicker-grid',

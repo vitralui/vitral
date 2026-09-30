@@ -15,6 +15,18 @@ export interface DatePickerProps extends BaseProps {
     showTodayButton?: boolean;
     /** A footer button that empties the value. */
     showClearButton?: boolean;
+    /**
+     * Whether the month in the calendar's title opens a grid of the twelve
+     * months. On by default; off, the month is only text and is reached by
+     * paging.
+     */
+    monthPicker?: boolean;
+    /**
+     * Whether the year in the calendar's title opens a grid of years. On by
+     * default; off, the year is only text. With the month grid off as well,
+     * the calendar can only be paged a month at a time.
+     */
+    yearPicker?: boolean;
     /** 0 = Sunday; defaults to the locale's `firstDayOfWeek`. */
     firstDayOfWeek?: number;
     placeholder?: string;

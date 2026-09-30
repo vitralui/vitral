@@ -10,7 +10,9 @@
         "firstDayOfWeek": "0 = domingo; o padrão é o `firstDayOfWeek` do locale.",
         "inline": "Mostra o calendário no lugar, sem caixa de texto nem popup.",
         "variant": "O padrão é o `inputVariant` do plugin.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "monthPicker": "Se o mês no título do calendário abre uma grade com os doze meses. Ligado por padrão; desligado, o mês é só texto e chega-se a ele paginando.",
+        "yearPicker": "Se o ano no título do calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, o calendário só pode ser percorrido um mês de cada vez."
     },
     "emits": {
         "dateSelect": "Um dia foi escolhido no calendário, ou digitado e confirmado."

@@ -61,9 +61,13 @@
 }
 
 /* The month and the year in the title are the way to the month and the year grids. */
+.vt-datepicker-title-button,
+.vt-datepicker-title-text {
+    padding: 0.125rem 0.375rem;
+}
+
 .vt-datepicker-title-button {
     margin: 0;
-    padding: 0.125rem 0.375rem;
     font: inherit;
     color: inherit;
     text-transform: inherit;
@@ -74,8 +78,9 @@
     transition: background-color var(--vt-datepicker-day-transition-duration);
 }
 
-/* The padding is the button's, not the title's: the text stays where the title's text was. */
-.vt-datepicker-title-button:first-child {
+/* The padding is the button's, not the title's: the text stays where the title's text was,
+   and stays there when a part of the title is only text. */
+.vt-datepicker-title > :first-child {
     margin-inline-start: -0.375rem;
 }
 

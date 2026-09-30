@@ -36,10 +36,42 @@
 
 /* The title holds the middle whether or not this month carries an arrow. */
 .vt-daterange-title {
+    display: flex;
     flex: 1;
+    align-items: center;
+    justify-content: center;
     font-size: var(--vt-daterange-title-font-size);
     font-weight: var(--vt-daterange-title-font-weight);
-    text-align: center;
+}
+
+/* The month and the year in a title are the way to the month and the year grids.
+   A part that is only text takes the same room, so the title reads the same either way. */
+.vt-daterange-title-button,
+.vt-daterange-title-text {
+    padding: 0.125rem 0.25rem;
+}
+
+.vt-daterange-title-button {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    border-radius: var(--vt-daterange-day-border-radius);
+    cursor: pointer;
+}
+
+.vt-daterange-title-button:not(:disabled):hover {
+    background: var(--vt-daterange-day-hover-background);
+}
+
+.vt-daterange-title-button:disabled {
+    cursor: default;
+}
+
+.vt-daterange-title-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
 }
 
 .vt-daterange-grid {
@@ -157,6 +189,88 @@
 }
 
 .vt-daterange-day:focus-visible .vt-daterange-day-label {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: -1px;
+}
+
+/* ---- the month and year grids ------------------------------------------ */
+
+/* It stands where the calendars stood and is given their size as it opens, so
+   the panel does not move under the pointer. The sizes here are for when it has
+   not been: one calendar's worth. */
+.vt-daterange-picker {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: calc(var(--vt-daterange-day-size) * 7);
+    min-height: calc(var(--vt-daterange-day-size) * 7);
+}
+
+.vt-daterange-picker-grid {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 0;
+}
+
+.vt-daterange-picker-row {
+    display: flex;
+    flex: 1 1 0;
+    gap: 2px;
+    min-height: 0;
+}
+
+.vt-daterange-cell {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Two calendars wide, a cell is wider than a name needs: the label stops short of it. */
+.vt-daterange-cell-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 6rem;
+    height: var(--vt-daterange-day-size);
+    border-radius: var(--vt-daterange-day-border-radius);
+    font-size: var(--vt-daterange-day-font-size);
+    font-variant-numeric: tabular-nums;
+    color: var(--vt-daterange-day-color);
+    user-select: none;
+}
+
+.vt-daterange-cell:not(.vt-daterange-cell-disabled):hover .vt-daterange-cell-label {
+    background: var(--vt-daterange-day-hover-background);
+}
+
+.vt-daterange-cell-selected .vt-daterange-cell-label,
+.vt-daterange-cell-selected:not(.vt-daterange-cell-disabled):hover .vt-daterange-cell-label {
+    color: var(--vt-daterange-end-color);
+    background: var(--vt-daterange-end-background);
+    font-weight: 600;
+}
+
+.vt-daterange-cell-current:not(.vt-daterange-cell-selected) .vt-daterange-cell-label {
+    box-shadow: inset 0 0 0 1px var(--vt-daterange-today-border-color);
+}
+
+.vt-daterange-cell-disabled {
+    cursor: default;
+}
+
+.vt-daterange-cell-disabled .vt-daterange-cell-label {
+    opacity: var(--vt-disabled-opacity);
+    text-decoration: line-through;
+}
+
+.vt-daterange-cell:focus-visible .vt-daterange-cell-label {
     outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
     outline-offset: -1px;
 }

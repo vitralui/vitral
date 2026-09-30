@@ -9,6 +9,7 @@ import {
     isSameDay,
     isSameMonth,
     monthGrid,
+    nearestSelectableDate,
     normalizeDateRange,
     pressRange,
     previewRange,
@@ -21,11 +22,13 @@ import {
 } from '@vitral/core';
 import { daterangeStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
+import { useCalendarLevels } from '../../base/useCalendarLevels';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import { useFocusTrap } from '../../composables/useFocusTrap';
 import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import Button from '../Button/Button.vue';
+import { Tooltip as vTooltip } from '../../directives/tooltip';
 import Icon from '../Icon/Icon.vue';
 import type { DateRangeEmits, DateRangeProps, DateRangeSlots } from './types';
 
@@ -43,6 +46,11 @@ import type { DateRangeEmits, DateRangeProps, DateRangeSlots } from './types';
  * the ends sort themselves, so dragging backwards needs no thought. While one
  * end is down, the day under the pointer or the keyboard is drawn as the other,
  * so the span is visible before it is committed.
+ *
+ * The month and the year in each calendar's title are buttons, as the date
+ * picker's are: they swap the calendars for a grid of months or of years, and
+ * the month chosen there is put where the title that was pressed is. The range
+ * is not touched on the way. `monthPicker` and `yearPicker` turn either off.
  */
 
 defineOptions({ name: 'VtDateRange', inheritAttrs: false });
@@ -57,6 +65,8 @@ const props = withDefaults(defineProps<DateRangeProps>(), {
     separator: '–',
     minDate: null,
     maxDate: null,
+    monthPicker: true,
+    yearPicker: true,
     placement: 'bottom-start',
     appendTo: 'body'
 });
@@ -71,7 +81,7 @@ const { rootAttrs, controlAttrs } = useSplitAttrs();
 const id = useId();
 const dialogId = `${id}-dialog`;
 
-const rootRef = ref<HTMLElement | null>(null);
+const monthsRef = ref<HTMLElement | null>(null);
 const buttonRef = ref<HTMLButtonElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 
@@ -107,6 +117,9 @@ const months = computed(() =>
         return {
             key: `${at.getFullYear()}-${at.getMonth()}`,
             date: at,
+            year: at.getFullYear(),
+            month: at.getMonth(),
+            monthName: formatDate(at, 'MMMM', locale.value),
             title: formatDate(at, 'MMMM yyyy', locale.value),
             weeks: monthGrid(at.getFullYear(), at.getMonth(), firstDay.value)
         };
@@ -195,10 +208,46 @@ function page(step: number) {
     setView(addMonths(view.value, step));
 }
 
+/** The tab stop of whatever is on show: a day, or a cell of the month or the year grid. */
 async function focusActiveDay() {
     await nextTick();
-    const root = props.inline ? rootRef.value : panelRef.value;
-    root?.querySelector<HTMLElement>('[tabindex="0"][data-date]')?.focus();
+    panelRef.value?.querySelector<HTMLElement>('[role="grid"] [tabindex="0"]')?.focus();
+}
+
+// ---- the month and year grids ---------------------------------------------
+
+/** Which calendar's title was pressed: the month chosen in the grid goes there. */
+const pickedAt = ref(0);
+/** The grid stands in for the calendars, so it is given their size and the panel does not move. */
+const pickerSize = ref<{ width: string; height: string } | undefined>();
+
+const inMonth = (date: Date | null, year: number, month?: number) => !!date && date.getFullYear() === year && (month === undefined || date.getMonth() === month);
+
+const levels = useCalendarLevels({
+    locale,
+    constraints: () => constraints.value,
+    today: () => startOfDay(new Date()),
+    monthPicker: () => props.monthPicker,
+    yearPicker: () => props.yearPicker,
+    disabled: () => !!props.disabled,
+    // A month or a year is marked when either end of the range is in it.
+    selected: (year, month) => inMonth(value.value.start, year, month) || inMonth(value.value.end, year, month),
+    onMonth(year, month) {
+        const first = new Date(year, month, 1);
+        const near = nearestSelectableDate(first, 1, constraints.value);
+        focusedDate.value = near && isSameMonth(near, first) ? near : first;
+        setView(addMonths(first, -pickedAt.value));
+    },
+    focus: focusActiveDay
+});
+const { level, rows: pickerRows, title: pickerTitle, pageLabels } = levels;
+
+function openLevel(next: 'month' | 'year', index: number) {
+    const rect = monthsRef.value?.getBoundingClientRect();
+    pickerSize.value = rect && rect.width > 0 ? { width: `${rect.width}px`, height: `${rect.height}px` } : undefined;
+    pickedAt.value = index;
+    const at = months.value[index]!;
+    levels.open(next, { year: at.year, month: at.month });
 }
 
 function onGridKeydown(event: KeyboardEvent) {
@@ -235,6 +284,7 @@ useFocusTrap(computed(() => (props.inline ? null : panelRef.value)));
 function show() {
     if (!interactive.value || open.value) return;
     if (value.value.start) view.value = startOfDay(new Date(value.value.start.getFullYear(), value.value.start.getMonth(), 1));
+    levels.reset();
     open.value = true;
     focusedDate.value = value.value.start ?? null;
     emit('show');
@@ -259,72 +309,17 @@ const state = computed(() => ({
     focused: open.value
 }));
 
+const panelAttrs = computed(() => {
+    // Inline, the calendars are the component: they take the attributes, and with them the name they are given.
+    if (props.inline) return mergeProps(rootAttrs.value, controlAttrs.value, { role: 'group' }, part('panel', { inline: true, disabled: props.disabled }));
+    return mergeProps({ id: dialogId, role: 'dialog', 'aria-modal': 'true', 'aria-label': locale.value.aria.chooseDate }, part('panel', { disabled: props.disabled }));
+});
+
 defineExpose({ show, hide, clear });
 </script>
 
 <template>
-    <div v-if="inline" ref="rootRef" v-bind="mergeProps(rootAttrs, part('panel', { inline: true, disabled }))">
-        <div v-bind="part('months')">
-            <div v-for="(month, i) in months" :key="month.key" v-bind="part('month')">
-                <div v-bind="part('header')">
-                    <Button v-if="i === 0" :aria-label="locale.aria.previousMonth" variant="text" severity="secondary" size="small" :disabled="disabled" v-bind="part('prevButton')" @click="page(-1)">
-                        <Icon icon="chevronLeft" />
-                    </Button>
-                    <span v-bind="part('title')">{{ month.title }}</span>
-                    <Button
-                        v-if="i === months.length - 1"
-                        :aria-label="locale.aria.nextMonth"
-                        variant="text"
-                        severity="secondary"
-                        size="small"
-                        :disabled="disabled"
-                        v-bind="part('nextButton')"
-                        @click="page(1)"
-                    >
-                        <Icon icon="chevronRight" />
-                    </Button>
-                </div>
-                <table role="grid" :aria-label="month.title" v-bind="part('grid')" @keydown="onGridKeydown" @mouseleave="hovered = null">
-                    <thead>
-                        <tr v-bind="part('weekdays')">
-                            <th v-for="w in weekdays" :key="w.day" scope="col" :abbr="w.long" v-bind="part('weekday')">{{ w.short }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(week, w) in month.weeks" :key="w" v-bind="part('week')">
-                            <template v-for="day in week" :key="day.date.getTime()">
-                                <td v-if="blank(day)" v-bind="part('day', { blank: true })" />
-                                <td
-                                    v-else
-                                    :tabindex="!disabled && isSameDay(day.date, tabDate) ? 0 : -1"
-                                    :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
-                                    :aria-current="day.today ? 'date' : undefined"
-                                    :aria-disabled="disabled || dayState(day).disabled ? 'true' : undefined"
-                                    :data-date="`${day.year}-${day.month + 1}-${day.day}`"
-                                    v-bind="part('day', dayState(day))"
-                                    @click="press(day, $event)"
-                                    @mouseenter="hovered = day.date"
-                                >
-                                    <span v-bind="part('dayLabel')">
-                                        <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
-                                            {{ day.day }}
-                                        </slot>
-                                    </span>
-                                </td>
-                            </template>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div v-if="$slots.footer || showClearButton" v-bind="part('footer')">
-            <slot name="footer" :range="value" :nights="nights" :clear="clear">
-                <Button :label="locale.clear" severity="secondary" variant="text" size="small" :disabled="disabled || !value.start" @click="clear" />
-            </slot>
-        </div>
-    </div>
-
-    <div v-else ref="rootRef" v-bind="mergeProps(rootAttrs, part('root', state))">
+    <div v-if="!inline" v-bind="mergeProps(rootAttrs, part('root', state))">
         <input
             v-bind="mergeProps(controlAttrs, part('input'))"
             :value="text"
@@ -347,59 +342,95 @@ defineExpose({ show, hide, clear });
         >
             <Icon icon="calendar" />
         </button>
+    </div>
 
-        <Teleport :to="overlayTarget">
-            <div v-if="open" :id="dialogId" ref="panelRef" role="dialog" aria-modal="true" :aria-label="locale.aria.chooseDate" v-bind="part('panel', { disabled })">
-                <div v-bind="part('months')">
-                    <div v-for="(month, i) in months" :key="month.key" v-bind="part('month')">
-                        <div v-bind="part('header')">
-                            <Button v-if="i === 0" :aria-label="locale.aria.previousMonth" variant="text" severity="secondary" size="small" v-bind="part('prevButton')" @click="page(-1)">
-                                <Icon icon="chevronLeft" />
-                            </Button>
-                            <span v-bind="part('title')">{{ month.title }}</span>
-                            <Button v-if="i === months.length - 1" :aria-label="locale.aria.nextMonth" variant="text" severity="secondary" size="small" v-bind="part('nextButton')" @click="page(1)">
-                                <Icon icon="chevronRight" />
-                            </Button>
-                        </div>
-                        <table role="grid" :aria-label="month.title" v-bind="part('grid')" @keydown="onGridKeydown" @mouseleave="hovered = null">
-                            <thead>
-                                <tr v-bind="part('weekdays')">
-                                    <th v-for="w in weekdays" :key="w.day" scope="col" :abbr="w.long" v-bind="part('weekday')">{{ w.short }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(week, w) in month.weeks" :key="w" v-bind="part('week')">
-                                    <template v-for="day in week" :key="day.date.getTime()">
-                                        <td v-if="blank(day)" v-bind="part('day', { blank: true })" />
-                                        <td
-                                            v-else
-                                            :tabindex="isSameDay(day.date, tabDate) ? 0 : -1"
-                                            :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
-                                            :aria-current="day.today ? 'date' : undefined"
-                                            :aria-disabled="dayState(day).disabled ? 'true' : undefined"
-                                            :data-date="`${day.year}-${day.month + 1}-${day.day}`"
-                                            v-bind="part('day', dayState(day))"
-                                            @click="press(day, $event)"
-                                            @mouseenter="hovered = day.date"
-                                        >
-                                            <span v-bind="part('dayLabel')">
-                                                <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
-                                                    {{ day.day }}
-                                                </slot>
-                                            </span>
-                                        </td>
-                                    </template>
-                                </tr>
-                            </tbody>
-                        </table>
+    <!-- One calendar for both: in place when inline, in the popup otherwise. -->
+    <Teleport :to="overlayTarget" :disabled="inline">
+        <div v-if="inline || open" ref="panelRef" v-bind="panelAttrs" @keydown="levels.onEscape">
+            <div v-if="level === 'day'" ref="monthsRef" v-bind="part('months')">
+                <div v-for="(month, i) in months" :key="month.key" v-bind="part('month')">
+                    <div v-bind="part('header')">
+                        <Button v-if="i === 0" :aria-label="locale.aria.previousMonth" variant="text" severity="secondary" size="small" :disabled="disabled" v-bind="part('prevButton')" @click="page(-1)">
+                            <Icon icon="chevronLeft" />
+                        </Button>
+                        <!-- One line: the space between the two is the title's, and a line break would drop it. -->
+                        <span v-bind="part('title')"><button v-if="monthPicker" v-tooltip="{ value: locale.aria.chooseMonth, showDelay: 400 }" type="button" :disabled="disabled" v-bind="part('monthButton')" @click="openLevel('month', i)">{{ month.monthName }}</button><span v-else v-bind="part('titleText')">{{ month.monthName }}</span>{{ ' ' }}<button v-if="yearPicker" v-tooltip="{ value: locale.aria.chooseYear, showDelay: 400 }" type="button" :disabled="disabled" v-bind="part('yearButton')" @click="openLevel('year', i)">{{ month.year }}</button><span v-else v-bind="part('titleText')">{{ month.year }}</span></span>
+                        <Button v-if="i === months.length - 1" :aria-label="locale.aria.nextMonth" variant="text" severity="secondary" size="small" :disabled="disabled" v-bind="part('nextButton')" @click="page(1)">
+                            <Icon icon="chevronRight" />
+                        </Button>
                     </div>
-                </div>
-                <div v-if="$slots.footer || showClearButton" v-bind="part('footer')">
-                    <slot name="footer" :range="value" :nights="nights" :clear="clear">
-                        <Button :label="locale.clear" severity="secondary" variant="text" size="small" :disabled="!value.start" @click="clear" />
-                    </slot>
+                    <table role="grid" :aria-label="month.title" v-bind="part('grid')" @keydown="onGridKeydown" @mouseleave="hovered = null">
+                        <thead>
+                            <tr v-bind="part('weekdays')">
+                                <th v-for="w in weekdays" :key="w.day" scope="col" :abbr="w.long" v-bind="part('weekday')">{{ w.short }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(week, w) in month.weeks" :key="w" v-bind="part('week')">
+                                <template v-for="day in week" :key="day.date.getTime()">
+                                    <td v-if="blank(day)" v-bind="part('day', { blank: true })" />
+                                    <td
+                                        v-else
+                                        :tabindex="!disabled && isSameDay(day.date, tabDate) ? 0 : -1"
+                                        :aria-selected="dayState(day).end || dayState(day).inRange ? 'true' : 'false'"
+                                        :aria-current="day.today ? 'date' : undefined"
+                                        :aria-disabled="disabled || dayState(day).disabled ? 'true' : undefined"
+                                        :data-date="`${day.year}-${day.month + 1}-${day.day}`"
+                                        v-bind="part('day', dayState(day))"
+                                        @click="press(day, $event)"
+                                        @mouseenter="hovered = day.date"
+                                    >
+                                        <span v-bind="part('dayLabel')">
+                                            <slot name="date" :date="day.date" :day="day.day" :today="day.today" :in-range="dayState(day).inRange" :end="dayState(day).end" :disabled="dayState(day).disabled" :other-month="day.otherMonth">
+                                                {{ day.day }}
+                                            </slot>
+                                        </span>
+                                    </td>
+                                </template>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </Teleport>
-    </div>
+            <div v-else :style="pickerSize" v-bind="part('picker', { level })">
+                <div v-bind="part('header')">
+                    <Button :aria-label="pageLabels.previous" variant="text" severity="secondary" size="small" :disabled="disabled || !levels.canPage.value.back" v-bind="part('prevButton')" @click="levels.page(-1)">
+                        <Icon icon="chevronLeft" />
+                    </Button>
+                    <span aria-live="polite" aria-atomic="true" v-bind="part('title')">
+                        <button v-if="level === 'month' && yearPicker" v-tooltip="{ value: locale.aria.chooseYear, showDelay: 400 }" type="button" :disabled="disabled" v-bind="part('yearButton')" @click="levels.open('year', months[pickedAt]!)">{{ pickerTitle }}</button>
+                        <span v-else v-bind="part('titleText')">{{ pickerTitle }}</span>
+                    </span>
+                    <Button :aria-label="pageLabels.next" variant="text" severity="secondary" size="small" :disabled="disabled || !levels.canPage.value.forward" v-bind="part('nextButton')" @click="levels.page(1)">
+                        <Icon icon="chevronRight" />
+                    </Button>
+                </div>
+                <div role="grid" :aria-label="pickerTitle" v-bind="part('pickerGrid')" @keydown="levels.onKeydown">
+                    <div v-for="(row, r) in pickerRows" :key="r" role="row" v-bind="part('pickerRow')">
+                        <div
+                            v-for="cell in row"
+                            :key="cell.value"
+                            role="gridcell"
+                            :tabindex="!disabled && cell.active ? 0 : -1"
+                            :aria-label="cell.name"
+                            :aria-selected="cell.selected ? 'true' : 'false'"
+                            :aria-current="cell.current ? 'date' : undefined"
+                            :aria-disabled="disabled || cell.disabled ? 'true' : undefined"
+                            :data-month="level === 'month' ? cell.value + 1 : undefined"
+                            :data-year="level === 'year' ? cell.value : undefined"
+                            v-bind="part('cell', cell)"
+                            @click="levels.pick(cell)"
+                        >
+                            <span v-bind="part('cellLabel')">{{ cell.label }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="$slots.footer || showClearButton" v-bind="part('footer')">
+                <slot name="footer" :range="value" :nights="nights" :clear="clear">
+                    <Button :label="locale.clear" severity="secondary" variant="text" size="small" :disabled="disabled || !value.start" @click="clear" />
+                </slot>
+            </div>
+        </div>
+    </Teleport>
 </template>

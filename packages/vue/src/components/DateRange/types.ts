@@ -34,6 +34,18 @@ export interface DateRangeProps extends BaseProps {
     disabledDates?: Date[];
     /** Weekdays that cannot be chosen, 0 = Sunday. */
     disabledDays?: number[];
+    /**
+     * Whether the month in each calendar's title opens a grid of the twelve
+     * months. On by default; off, the month is only text and is reached by
+     * paging.
+     */
+    monthPicker?: boolean;
+    /**
+     * Whether the year in each calendar's title opens a grid of years. On by
+     * default; off, the year is only text. With the month grid off as well,
+     * the calendars can only be paged a month at a time.
+     */
+    yearPicker?: boolean;
     /** A footer button that empties the range. */
     showClearButton?: boolean;
     /** 0 = Sunday; defaults to the locale's `firstDayOfWeek`. */

@@ -248,8 +248,12 @@ describe('DatePicker', () => {
         const titleButton = (text: string) => Array.from(title().querySelectorAll('button')).find((b) => b.textContent === text)!;
         const page = (label: string) => document.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!;
         const at = (name: 'month' | 'year', n: number) => grid().querySelector<HTMLElement>(`[data-${name}="${n}"]`)!;
-        expect(titleButton('March').title).toBe('Choose month');
-        expect(titleButton('2026').title).toBe('Choose year');
+        // What each does is said in a tooltip, which describes it while it shows.
+        titleButton('2026').dispatchEvent(new MouseEvent('mouseenter'));
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        const tip = document.querySelector('[role="tooltip"]')!;
+        expect(tip.textContent).toBe('Choose year');
+        expect(titleButton('2026').getAttribute('aria-describedby')).toBe(tip.id);
 
         titleButton('2026').click();
         await nextTick();
@@ -394,6 +398,44 @@ describe('DatePicker', () => {
         // November 2025 starts on the 10th here.
         expect(title().textContent).toBe('November 2025');
         expect(focused()).toBe('2025-11-11');
+    });
+
+    it('leaves the month or the year as text when its grid is switched off', async () => {
+        const { openCalendar, title, grid, focused, dialog } = mountPicker({ modelValue: d(2026, 3, 11), monthPicker: false });
+        await openCalendar();
+        // The title reads the same; only the year can be pressed.
+        expect(title().textContent).toBe('March 2026');
+        expect(Array.from(title().querySelectorAll('button')).map((b) => b.textContent)).toEqual(['2026']);
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        expect(title().textContent).toBe('2020 – 2039');
+        grid().querySelector<HTMLElement>('[data-year="2031"]')!.click();
+        await nextTick();
+        await nextTick();
+        // With no month grid to go through, a year is the same month of that year.
+        expect(title().textContent).toBe('March 2031');
+        expect(focused()).toBe('2031-3-11');
+        expect(dialog()).not.toBeNull();
+
+        document.body.innerHTML = '';
+        const months = mountPicker({ modelValue: d(2026, 3, 11), yearPicker: false });
+        await months.openCalendar();
+        expect(Array.from(months.title().querySelectorAll('button')).map((b) => b.textContent)).toEqual(['March']);
+        months.title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        // The year above the months is text too: there is no grid of years to open.
+        expect(months.title().textContent).toBe('2026');
+        expect(months.title().querySelector('button')).toBeNull();
+        expect(months.grid().querySelectorAll('[role="gridcell"]')).toHaveLength(12);
+
+        document.body.innerHTML = '';
+        const neither = mountPicker({ modelValue: d(2026, 3, 11), monthPicker: false, yearPicker: false });
+        await neither.openCalendar();
+        expect(neither.title().textContent).toBe('March 2026');
+        expect(neither.title().querySelector('button')).toBeNull();
+        await expectNoA11yViolations();
     });
 
     it('selects today and clears from the footer', async () => {

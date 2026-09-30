@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
@@ -24,10 +24,28 @@ function mountRange(props: Record<string, unknown> = {}) {
     const day = (n: number, month = 9) => document.querySelector<HTMLElement>(`[data-date="2026-${month}-${n}"]`)!;
     const button = () => document.querySelector<HTMLButtonElement>('.vt-daterange-dropdown')!;
     const grids = () => document.querySelectorAll('[role="grid"]');
-    return { value, selected, wrapper, day, button, grids };
+    const titles = () => [...document.querySelectorAll<HTMLElement>('.vt-daterange-title')];
+    /** The month or the year button in the title of the `index`th calendar. */
+    const titleButton = (index: number, which: 'month' | 'year') => titles()[index]!.querySelector<HTMLButtonElement>(`.vt-daterange-${which}-button`)!;
+    const cell = (name: 'month' | 'year', n: number) => document.querySelector<HTMLElement>(`[role="gridcell"][data-${name}="${n}"]`)!;
+    const settle = async () => {
+        await nextTick();
+        await nextTick();
+    };
+    return { value, selected, wrapper, day, button, grids, titles, titleButton, cell, settle };
 }
 
 describe('DateRange', () => {
+    beforeEach(() => {
+        // Tuesday 15 September 2026 is "today": the calendars open on September
+        // and October whenever this runs. Only Date is faked, so timers still run.
+        vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 8, 15, 10, 30) });
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
     it('leaves out a neighbouring month while showing that month next door', async () => {
         // Two calendars, September and October 2026. September's grid runs on
         // into October and October's starts back in September, so without this
@@ -141,11 +159,120 @@ describe('DateRange', () => {
         expect(day(3).getAttribute('aria-disabled')).toBe('true');
     });
 
-    it('has no axe violations, closed or open', async () => {
-        const { button } = mountRange({ showClearButton: true });
+    it('goes to a year and a month from a title, and puts the month where the title was', async () => {
+        const { value, button, grids, titles, titleButton, cell, day, settle } = mountRange();
+        button().click();
+        await nextTick();
+        day(10).click();
+        await nextTick();
+        expect(titles().map((t) => t.textContent)).toEqual(['September 2026', 'October 2026']);
+
+        // The year of the second calendar.
+        titleButton(1, 'year').click();
+        await settle();
+        expect(grids()).toHaveLength(1);
+        expect(titles().map((t) => t.textContent?.trim())).toEqual(['2020 – 2039']);
+        expect(grids()[0]!.getAttribute('aria-label')).toBe('2020 – 2039');
+        expect(document.querySelectorAll('[role="gridcell"]')).toHaveLength(20);
+        // The year an end of the range is in is marked, and the grid starts from the calendar pressed.
+        expect(cell('year', 2026).getAttribute('aria-selected')).toBe('true');
+        expect(document.activeElement).toBe(cell('year', 2026));
+        expect(document.querySelector('[aria-label="Previous years"]')).not.toBeNull();
+
+        cell('year', 2028).click();
+        await settle();
+        expect(titles().map((t) => t.textContent?.trim())).toEqual(['2028']);
+        expect(document.querySelectorAll('[role="gridcell"]')).toHaveLength(12);
+        expect(document.activeElement).toBe(cell('month', 10));
+        expect(cell('month', 3).getAttribute('aria-label')).toBe('March');
+        document.querySelector<HTMLButtonElement>('[aria-label="Next year"]')!.click();
+        await nextTick();
+        expect(titles()[0]!.textContent?.trim()).toBe('2029');
+
+        cell('month', 3).click();
+        await settle();
+        // March 2029 is the second calendar, as October was: the first is the month before.
+        expect([...grids()].map((g) => g.getAttribute('aria-label'))).toEqual(['February 2029', 'March 2029']);
+        expect((document.activeElement as HTMLElement).dataset.date).toBe('2029-3-1');
+        // The range is where it was, and still open: one end down.
+        expect(value.value).toEqual({ start: at(10), end: null });
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    });
+
+    it('moves through the months with the keys, inside its limits, and Escape goes back to the days', async () => {
+        const { button, grids, titles, titleButton, cell, settle } = mountRange({ minDate: at(1, 5), maxDate: at(20, 10) });
+        button().click();
+        await nextTick();
+        // Vue drops an event that is no newer than the listener it reaches, and the
+        // clock here stands still: a minute on, so a key can bubble to the panel.
+        vi.setSystemTime(new Date(2026, 8, 15, 10, 31));
+        titleButton(0, 'month').click();
+        await settle();
+        const focused = () => document.activeElement as HTMLElement;
+        expect(focused().dataset.month).toBe('9');
+        expect(cell('month', 5).getAttribute('aria-disabled')).toBe('true');
+        expect(cell('month', 12).getAttribute('aria-disabled')).toBe('true');
+        expect(document.querySelector<HTMLButtonElement>('[aria-label="Previous year"]')!.disabled).toBe(true);
+        await press(focused(), 'ArrowRight');
+        expect(focused().dataset.month).toBe('10');
+        await press(focused(), 'ArrowDown');
+        expect(focused().dataset.month).toBe('11');
+        await press(focused(), 'PageUp');
+        expect(focused().dataset.month).toBe('6');
+        cell('month', 5).click();
+        await nextTick();
+        expect(titles()[0]!.textContent?.trim()).toBe('2026');
+
+        await press(focused(), 'Escape');
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+        expect([...grids()].map((g) => g.getAttribute('aria-label'))).toEqual(['September 2026', 'October 2026']);
+        await press(focused(), 'Escape');
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
+    });
+
+    it('leaves the month or the year as text when its grid is switched off', async () => {
+        const years = mountRange({ inline: true, monthPicker: false, 'aria-label': 'Stay dates' });
+        await nextTick();
+        // Inline, the calendars are the component and carry the name it is given.
+        expect(document.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe('Stay dates');
+        expect(years.titles().map((t) => t.textContent)).toEqual(['September 2026', 'October 2026']);
+        expect(document.querySelectorAll('.vt-daterange-month-button')).toHaveLength(0);
+        expect(document.querySelectorAll('.vt-daterange-year-button')).toHaveLength(2);
+        years.titleButton(0, 'year').click();
+        await years.settle();
+        years.cell('year', 2030).click();
+        await years.settle();
+        // With no month grid to go through, a year is the same month of that year.
+        expect([...years.grids()].map((g) => g.getAttribute('aria-label'))).toEqual(['September 2030', 'October 2030']);
+
+        document.body.innerHTML = '';
+        const monthsOnly = mountRange({ inline: true, yearPicker: false });
+        await nextTick();
+        expect(document.querySelectorAll('.vt-daterange-year-button')).toHaveLength(0);
+        monthsOnly.titleButton(1, 'month').click();
+        await monthsOnly.settle();
+        // The year above the months is text too: there is no grid of years to open.
+        expect(monthsOnly.titles()[0]!.textContent?.trim()).toBe('2026');
+        expect(monthsOnly.titles()[0]!.querySelector('button')).toBeNull();
+
+        document.body.innerHTML = '';
+        const neither = mountRange({ inline: true, monthPicker: false, yearPicker: false });
+        await nextTick();
+        expect(neither.titles().map((t) => t.textContent)).toEqual(['September 2026', 'October 2026']);
+        expect(document.querySelectorAll('.vt-daterange-title button')).toHaveLength(0);
+    });
+
+    it('has no axe violations, closed or open, or on the month and year grids', async () => {
+        const { button, titleButton, settle, titles } = mountRange({ showClearButton: true });
         await expectNoA11yViolations();
         button().click();
         await nextTick();
+        await expectNoA11yViolations();
+        titleButton(0, 'month').click();
+        await settle();
+        await expectNoA11yViolations();
+        titles()[0]!.querySelector('button')!.click();
+        await settle();
         await expectNoA11yViolations();
     });
 });

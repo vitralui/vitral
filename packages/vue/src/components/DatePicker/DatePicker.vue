@@ -5,19 +5,13 @@ import {
     daysInMonth,
     formatDate,
     isDateSelectable,
-    isMonthInRange,
     isSameDay,
     isSameMonth,
-    isYearInRange,
     monthGrid,
-    monthIndex,
     nearestSelectableDate,
     parseDate,
-    pickerKeyTarget,
     startOfDay,
     weekdayOrder,
-    yearPageStart,
-    YEARS_PER_PAGE,
     type CalendarDay,
     type DateConstraints
 } from '@vitral/core';
@@ -31,6 +25,8 @@ import Icon from '../Icon/Icon.vue';
 import type { DatePickerEmits, DatePickerProps, DatePickerSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { keepFocus } from '../../base/press';
+import { useCalendarLevels } from '../../base/useCalendarLevels';
+import { Tooltip as vTooltip } from '../../directives/tooltip';
 
 // The WAI-ARIA "date picker dialog": a text box that takes typed dates, and a
 // button that opens a modal calendar dialog. The calendar is a grid with one
@@ -42,7 +38,8 @@ import { keepFocus } from '../../base/press';
 // grid of its own — twelve months, or a page of years — so a date decades away
 // is a year, a month and a day rather than hundreds of months paged through. A
 // year leads to its months and a month back to its days; Escape goes back to
-// the days with nothing changed.
+// the days with nothing changed. `monthPicker` and `yearPicker` turn either
+// off, for a form that wants its dates paged to and not jumped to.
 
 defineOptions({ name: 'VtDatePicker', inheritAttrs: false });
 
@@ -51,6 +48,8 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
     variant: undefined,
     minDate: null,
     maxDate: null,
+    monthPicker: true,
+    yearPicker: true,
     placement: 'bottom-start',
     appendTo: 'body'
 });
@@ -159,13 +158,11 @@ const activeDate = computed(() => {
 });
 
 const canGoBack = computed(() => {
-    if (level.value === 'month') return isYearInRange(cursor.value.year - 1, constraints.value);
-    if (level.value === 'year') return isYearInRange(pageStart.value - 1, constraints.value);
+    if (level.value !== 'day') return levels.canPage.value.back;
     return !props.minDate || viewDate.value > startOfDay(props.minDate);
 });
 const canGoForward = computed(() => {
-    if (level.value === 'month') return isYearInRange(cursor.value.year + 1, constraints.value);
-    if (level.value === 'year') return isYearInRange(pageStart.value + YEARS_PER_PAGE, constraints.value);
+    if (level.value !== 'day') return levels.canPage.value.forward;
     return !props.maxDate || addMonths(viewDate.value, 1) <= startOfDay(props.maxDate);
 });
 
@@ -247,141 +244,29 @@ function clearValue() {
 
 // ---- the month and year grids ----------------------------------------------
 
-const MONTH_COLUMNS = 3;
-const YEAR_COLUMNS = 4;
-
-interface PickerCell {
-    /** A month, 0-based, or a year. */
-    value: number;
-    label: string;
-    /** The month in full, for a cell that shows it short. */
-    name?: string;
-    selected: boolean;
-    current: boolean;
-    disabled: boolean;
-    /** Owns the grid's tab stop. */
-    active: boolean;
-}
-
-/** What the calendar is choosing: a day or, from the title, the month or the year the days are of. */
-const level = ref<'day' | 'month' | 'year'>('day');
-/** Where the month and year grids are. The days stay on their month until one is chosen here. */
-const cursor = ref({ ...view.value });
-const pageStart = computed(() => yearPageStart(cursor.value.year));
-
-const monthLimits = computed(() => ({
-    min: props.minDate ? monthIndex(props.minDate.getFullYear(), props.minDate.getMonth()) : null,
-    max: props.maxDate ? monthIndex(props.maxDate.getFullYear(), props.maxDate.getMonth()) : null
-}));
-
-/** Moves the cursor to a month, held inside the range so its cell can always be chosen. */
-function setCursor(index: number) {
-    const { min, max } = monthLimits.value;
-    const at = min !== null && index < min ? min : max !== null && index > max ? max : index;
-    cursor.value = { year: Math.floor(at / 12), month: ((at % 12) + 12) % 12 };
-}
-
-const pickerRows = computed<PickerCell[][]>(() => {
-    const { year, month } = cursor.value;
-    const cells: PickerCell[] =
-        level.value === 'month'
-            ? Array.from({ length: 12 }, (_, m) => ({
-                  value: m,
-                  label: locale.value.monthNamesShort[m] ?? '',
-                  name: locale.value.monthNames[m],
-                  selected: !!value.value && value.value.getFullYear() === year && value.value.getMonth() === m,
-                  current: today.value.getFullYear() === year && today.value.getMonth() === m,
-                  disabled: !isMonthInRange(year, m, constraints.value),
-                  active: m === month
-              }))
-            : Array.from({ length: YEARS_PER_PAGE }, (_, i) => {
-                  const y = pageStart.value + i;
-                  return { value: y, label: String(y), selected: value.value?.getFullYear() === y, current: today.value.getFullYear() === y, disabled: !isYearInRange(y, constraints.value), active: y === year };
-              });
-    const columns = level.value === 'month' ? MONTH_COLUMNS : YEAR_COLUMNS;
-    return Array.from({ length: cells.length / columns }, (_, row) => cells.slice(row * columns, (row + 1) * columns));
+const levels = useCalendarLevels({
+    locale,
+    constraints: () => constraints.value,
+    today: () => today.value,
+    monthPicker: () => props.monthPicker,
+    yearPicker: () => props.yearPicker,
+    disabled: () => !!props.disabled,
+    selected: (year, month) => !!value.value && value.value.getFullYear() === year && (month === undefined || value.value.getMonth() === month),
+    // A month shows its days, on the day of the month that had the focus where it can be.
+    onMonth(year, month) {
+        const candidate = new Date(year, month, Math.min(focusedDate.value.getDate(), daysInMonth(year, month)));
+        const near = nearestSelectableDate(candidate, 1, constraints.value);
+        focusedDate.value = near && isSameMonth(near, candidate) ? near : candidate;
+        setView(candidate);
+    },
+    focus: focusActiveCell
 });
-
-function openLevel(next: 'month' | 'year') {
-    if (props.disabled) return;
-    if (level.value === 'day') setCursor(monthIndex(view.value.year, view.value.month));
-    level.value = next;
-    focusActiveCell();
-}
-
-function backToDays() {
-    level.value = 'day';
-    focusActiveCell();
-}
-
-/** A month shows its days, on the day of the month that had the focus where it can be. */
-function pickMonth(month: number) {
-    const { year } = cursor.value;
-    if (!isMonthInRange(year, month, constraints.value)) return;
-    const candidate = new Date(year, month, Math.min(focusedDate.value.getDate(), daysInMonth(year, month)));
-    const near = nearestSelectableDate(candidate, 1, constraints.value);
-    focusedDate.value = near && isSameMonth(near, candidate) ? near : candidate;
-    setView(candidate);
-    backToDays();
-}
-
-/** A year shows its months: the month is still to be said. */
-function pickYear(year: number) {
-    if (!isYearInRange(year, constraints.value)) return;
-    setCursor(monthIndex(year, cursor.value.month));
-    level.value = 'month';
-    focusActiveCell();
-}
-
-function pickCell(cell: PickerCell) {
-    if (props.disabled) return;
-    if (level.value === 'month') pickMonth(cell.value);
-    else pickYear(cell.value);
-}
-
-function onPickerKeydown(event: KeyboardEvent) {
-    if (props.disabled) return;
-    if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        const cell = pickerRows.value.flat().find((c) => c.active);
-        if (cell) pickCell(cell);
-        return;
-    }
-    const { year, month } = cursor.value;
-    if (level.value === 'month') {
-        const target = pickerKeyTarget(monthIndex(year, month), event.key, { columns: MONTH_COLUMNS, page: 12, ...monthLimits.value });
-        if (target === null) return;
-        setCursor(target);
-    } else {
-        const target = pickerKeyTarget(year, event.key, { columns: YEAR_COLUMNS, page: YEARS_PER_PAGE, min: props.minDate?.getFullYear(), max: props.maxDate?.getFullYear() });
-        if (target === null) return;
-        setCursor(monthIndex(target, month));
-    }
-    event.preventDefault();
-    focusActiveCell();
-}
+const { level, rows: pickerRows, title: pickerTitle, pageLabels } = levels;
 
 /** The header's arrows: a month of days, a year of months, a page of years. */
 function page(step: 1 | -1) {
-    if (level.value === 'day') return pageMonth(step);
-    const months = level.value === 'month' ? 12 : 12 * YEARS_PER_PAGE;
-    setCursor(monthIndex(cursor.value.year, cursor.value.month) + step * months);
-}
-
-const pageLabels = computed(() => {
-    const { aria } = locale.value;
-    if (level.value === 'month') return { previous: aria.previousYear, next: aria.nextYear };
-    if (level.value === 'year') return { previous: aria.previousYears, next: aria.nextYears };
-    return { previous: aria.previousMonth, next: aria.nextMonth };
-});
-
-// Escape leaves the month or the year grid before it leaves the calendar, and
-// is kept from whatever the calendar is inside of: its own popup, or a dialog.
-function onPanelKeydown(event: KeyboardEvent) {
-    if (event.key !== 'Escape' || level.value === 'day') return;
-    event.preventDefault();
-    event.stopPropagation();
-    backToDays();
+    if (level.value === 'day') pageMonth(step);
+    else levels.page(step);
 }
 
 // ---- the popup -------------------------------------------------------------
@@ -479,13 +364,13 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
     </div>
     <Teleport :to="overlayTarget" :disabled="inline || appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="inline || open" ref="panelRef" v-bind="mergeProps(panelAttrs, part('panel', { inline, disabled }))" @keydown="onPanelKeydown">
+            <div v-if="inline || open" ref="panelRef" v-bind="mergeProps(panelAttrs, part('panel', { inline, disabled }))" @keydown="levels.onEscape">
                 <div v-bind="part('header')">
                     <div :id="titleId" aria-live="polite" aria-atomic="true" v-bind="part('title')">
                         <!-- One line: the space between the two is the title's, and a line break would drop it. -->
-                        <template v-if="level === 'day'"><button type="button" v-bind="part('monthButton')" :title="locale.aria.chooseMonth" :disabled="disabled" @click="openLevel('month')">{{ monthName }}</button>{{ ' ' }}<button type="button" v-bind="part('yearButton')" :title="locale.aria.chooseYear" :disabled="disabled" @click="openLevel('year')">{{ view.year }}</button></template>
-                        <button v-else-if="level === 'month'" type="button" v-bind="part('yearButton')" :title="locale.aria.chooseYear" :disabled="disabled" @click="openLevel('year')">{{ cursor.year }}</button>
-                        <template v-else>{{ pageStart }} – {{ pageStart + YEARS_PER_PAGE - 1 }}</template>
+                        <template v-if="level === 'day'"><button v-if="monthPicker" v-tooltip="{ value: locale.aria.chooseMonth, showDelay: 400 }" type="button" v-bind="part('monthButton')" :disabled="disabled" @click="levels.open('month', view)">{{ monthName }}</button><span v-else v-bind="part('titleText')">{{ monthName }}</span>{{ ' ' }}<button v-if="yearPicker" v-tooltip="{ value: locale.aria.chooseYear, showDelay: 400 }" type="button" v-bind="part('yearButton')" :disabled="disabled" @click="levels.open('year', view)">{{ view.year }}</button><span v-else v-bind="part('titleText')">{{ view.year }}</span></template>
+                        <button v-else-if="level === 'month' && yearPicker" v-tooltip="{ value: locale.aria.chooseYear, showDelay: 400 }" type="button" v-bind="part('yearButton')" :disabled="disabled" @click="levels.open('year', view)">{{ pickerTitle }}</button>
+                        <span v-else v-bind="part('titleText')">{{ pickerTitle }}</span>
                     </div>
                     <Button
                         v-bind="part('prevButton')"
@@ -536,7 +421,7 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
                         </tr>
                     </tbody>
                 </table>
-                <div v-else ref="gridRef" role="grid" :aria-labelledby="titleId" v-bind="part('picker', { level })" @keydown="onPickerKeydown">
+                <div v-else ref="gridRef" role="grid" :aria-labelledby="titleId" v-bind="part('picker', { level })" @keydown="levels.onKeydown">
                     <div v-for="(row, r) in pickerRows" :key="r" role="row" v-bind="part('pickerRow')">
                         <div
                             v-for="cell in row"
@@ -550,7 +435,7 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
                             :data-month="level === 'month' ? cell.value + 1 : undefined"
                             :data-year="level === 'year' ? cell.value : undefined"
                             v-bind="part('cell', cell)"
-                            @click="pickCell(cell)"
+                            @click="levels.pick(cell)"
                         >
                             <span v-bind="part('cellLabel')">{{ cell.label }}</span>
                         </div>

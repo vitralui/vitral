@@ -15,6 +15,18 @@ export interface DateRangeDayState {
     preview?: boolean;
 }
 
+export interface DateRangePickerState {
+    level?: 'day' | 'month' | 'year';
+}
+
+export interface DateRangeCellState {
+    /** An end of the range is in this month or year. */
+    selected?: boolean;
+    /** The month or the year today is in. */
+    current?: boolean;
+    disabled?: boolean;
+}
+
 export const daterangeStyle = defineStyle({
     name: 'daterange',
     css,
@@ -27,6 +39,9 @@ export const daterangeStyle = defineStyle({
         month: 'vt-daterange-month',
         header: 'vt-daterange-header',
         title: 'vt-daterange-title',
+        monthButton: 'vt-daterange-title-button vt-daterange-month-button',
+        yearButton: 'vt-daterange-title-button vt-daterange-year-button',
+        titleText: 'vt-daterange-title-text',
         prevButton: 'vt-daterange-prev',
         nextButton: 'vt-daterange-next',
         grid: 'vt-daterange-grid',
@@ -47,6 +62,18 @@ export const daterangeStyle = defineStyle({
             }
         ],
         dayLabel: 'vt-daterange-day-label',
+        picker: (s: DateRangePickerState) => ['vt-daterange-picker', { 'vt-daterange-picker-month': s.level === 'month', 'vt-daterange-picker-year': s.level === 'year' }],
+        pickerGrid: 'vt-daterange-picker-grid',
+        pickerRow: 'vt-daterange-picker-row',
+        cell: (s: DateRangeCellState) => [
+            'vt-daterange-cell',
+            {
+                'vt-daterange-cell-selected': s.selected,
+                'vt-daterange-cell-current': s.current,
+                'vt-daterange-cell-disabled': s.disabled
+            }
+        ],
+        cellLabel: 'vt-daterange-cell-label',
         footer: 'vt-daterange-footer'
     }
 });
