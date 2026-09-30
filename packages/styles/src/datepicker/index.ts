@@ -14,6 +14,17 @@ export interface DatePickerDayState {
     disabled?: boolean;
 }
 
+export interface DatePickerPickerState {
+    level?: 'month' | 'year';
+}
+
+export interface DatePickerCellState {
+    selected?: boolean;
+    /** The month or the year today is in. */
+    current?: boolean;
+    disabled?: boolean;
+}
+
 export const datepickerStyle = defineStyle({
     name: 'datepicker',
     css,
@@ -24,6 +35,8 @@ export const datepickerStyle = defineStyle({
         panel: (s: DatePickerPanelState) => ['vt-overlay vt-datepicker-panel', { 'vt-datepicker-inline': s.inline, 'vt-datepicker-disabled': s.disabled }],
         header: 'vt-datepicker-header',
         title: 'vt-datepicker-title',
+        monthButton: 'vt-datepicker-title-button vt-datepicker-month-button',
+        yearButton: 'vt-datepicker-title-button vt-datepicker-year-button',
         prevButton: 'vt-datepicker-prev',
         nextButton: 'vt-datepicker-next',
         grid: 'vt-datepicker-grid',
@@ -40,6 +53,17 @@ export const datepickerStyle = defineStyle({
             }
         ],
         dayLabel: 'vt-datepicker-day-label',
+        picker: (s: DatePickerPickerState) => ['vt-datepicker-picker', { 'vt-datepicker-picker-month': s.level === 'month', 'vt-datepicker-picker-year': s.level === 'year' }],
+        pickerRow: 'vt-datepicker-picker-row',
+        cell: (s: DatePickerCellState) => [
+            'vt-datepicker-cell',
+            {
+                'vt-datepicker-cell-selected': s.selected,
+                'vt-datepicker-cell-current': s.current,
+                'vt-datepicker-cell-disabled': s.disabled
+            }
+        ],
+        cellLabel: 'vt-datepicker-cell-label',
         footer: 'vt-datepicker-footer',
         todayButton: 'vt-datepicker-today-button',
         clearButton: 'vt-datepicker-clear-button'

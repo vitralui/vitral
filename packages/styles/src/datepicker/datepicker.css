@@ -50,12 +50,46 @@
 }
 
 .vt-datepicker-title {
+    display: flex;
     flex: 1 1 auto;
+    align-items: center;
     min-width: 0;
     font-size: var(--vt-datepicker-header-font-size);
     font-weight: var(--vt-datepicker-header-font-weight);
     text-transform: capitalize;
     white-space: nowrap;
+}
+
+/* The month and the year in the title are the way to the month and the year grids. */
+.vt-datepicker-title-button {
+    margin: 0;
+    padding: 0.125rem 0.375rem;
+    font: inherit;
+    color: inherit;
+    text-transform: inherit;
+    background: none;
+    border: 0;
+    border-radius: var(--vt-datepicker-day-border-radius);
+    cursor: pointer;
+    transition: background-color var(--vt-datepicker-day-transition-duration);
+}
+
+/* The padding is the button's, not the title's: the text stays where the title's text was. */
+.vt-datepicker-title-button:first-child {
+    margin-inline-start: -0.375rem;
+}
+
+.vt-datepicker-title-button:not(:disabled):hover {
+    background: var(--vt-datepicker-day-hover-background);
+}
+
+.vt-datepicker-title-button:disabled {
+    cursor: default;
+}
+
+.vt-datepicker-title-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
 }
 
 .vt-datepicker-grid {
@@ -138,6 +172,89 @@
     outline-offset: var(--vt-focus-ring-offset);
 }
 
+/* ---- the month and year grids ------------------------------------------ */
+
+/* As wide and as tall as the days it stands in for, so the panel does not move under the pointer. */
+.vt-datepicker-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-datepicker-day-gap);
+    box-sizing: border-box;
+    width: calc(var(--vt-datepicker-day-size) * 7 + var(--vt-datepicker-day-gap) * 6);
+    height: calc(var(--vt-datepicker-weekday-height) + var(--vt-datepicker-day-size) * 6 + var(--vt-datepicker-day-gap) * 8);
+    padding-block: var(--vt-datepicker-day-gap);
+}
+
+.vt-datepicker-picker-row {
+    display: flex;
+    flex: 1 1 0;
+    gap: var(--vt-datepicker-day-gap);
+    min-height: 0;
+}
+
+.vt-datepicker-cell {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    min-width: 0;
+    cursor: pointer;
+    outline: none;
+}
+
+.vt-datepicker-cell-label {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 0;
+    height: var(--vt-datepicker-day-size);
+    color: var(--vt-datepicker-day-color);
+    border: 1px solid transparent;
+    border-radius: var(--vt-datepicker-day-border-radius);
+    font-variant-numeric: tabular-nums;
+    text-transform: capitalize;
+    user-select: none;
+    transition:
+        background-color var(--vt-datepicker-day-transition-duration),
+        color var(--vt-datepicker-day-transition-duration);
+}
+
+.vt-datepicker-cell:not(.vt-datepicker-cell-disabled):hover .vt-datepicker-cell-label {
+    background: var(--vt-datepicker-day-hover-background);
+}
+
+.vt-datepicker-cell-current .vt-datepicker-cell-label {
+    color: var(--vt-datepicker-day-today-color);
+    border-color: var(--vt-datepicker-day-today-border-color);
+    font-weight: var(--vt-datepicker-day-today-font-weight);
+}
+
+.vt-datepicker-cell-selected .vt-datepicker-cell-label,
+.vt-datepicker-cell-selected:not(.vt-datepicker-cell-disabled):hover .vt-datepicker-cell-label {
+    color: var(--vt-datepicker-day-selected-color);
+    background: var(--vt-datepicker-day-selected-background);
+    border-color: var(--vt-datepicker-day-selected-background);
+}
+
+.vt-datepicker-cell-selected:not(.vt-datepicker-cell-disabled):hover .vt-datepicker-cell-label {
+    background: var(--vt-datepicker-day-selected-hover-background);
+}
+
+.vt-datepicker-cell-disabled {
+    cursor: default;
+}
+
+.vt-datepicker-cell-disabled .vt-datepicker-cell-label {
+    opacity: var(--vt-disabled-opacity);
+    text-decoration: line-through;
+}
+
+.vt-datepicker-cell:focus-visible .vt-datepicker-cell-label {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
 .vt-datepicker-footer {
     display: flex;
     align-items: center;
@@ -149,7 +266,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .vt-datepicker-day-label {
+    .vt-datepicker-day-label,
+    .vt-datepicker-cell-label,
+    .vt-datepicker-title-button {
         transition: none;
     }
 }

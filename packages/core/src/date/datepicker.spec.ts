@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calendarKeyTarget, clampDate, endOfWeek, findSelectableDate, isSameMonth, nearestSelectableDate, startOfWeek } from './datepicker';
+import { calendarKeyTarget, clampDate, endOfWeek, findSelectableDate, isMonthInRange, isSameMonth, isYearInRange, monthIndex, nearestSelectableDate, pickerKeyTarget, startOfWeek, yearPageStart } from './datepicker';
 
 const d = (y: number, m: number, day: number) => new Date(y, m - 1, day);
 
@@ -54,5 +54,43 @@ describe('calendar navigation', () => {
         expect(findSelectableDate(d(2026, 3, 14), 1, { max: d(2026, 3, 14), disabledDays: [6] })).toBeNull();
         expect(nearestSelectableDate(d(2026, 3, 31), 1, { max: d(2026, 3, 20), disabledDays: [5] })).toEqual(d(2026, 3, 19));
         expect(nearestSelectableDate(d(2026, 3, 1), 1, { disabledDays: [0, 1, 2, 3, 4, 5, 6] })).toBeNull();
+    });
+
+    it('pages years in aligned blocks and keeps months and years inside the range', () => {
+        expect(yearPageStart(2026)).toBe(2020);
+        expect(yearPageStart(2039)).toBe(2020);
+        expect(yearPageStart(2040)).toBe(2040);
+        expect(yearPageStart(1999, 10)).toBe(1990);
+        const range = { min: d(2024, 11, 20), max: d(2026, 3, 5) };
+        expect(isMonthInRange(2024, 9, range)).toBe(false);
+        // A month counts from its first day in range to its last.
+        expect(isMonthInRange(2024, 10, range)).toBe(true);
+        expect(isMonthInRange(2026, 2, range)).toBe(true);
+        expect(isMonthInRange(2026, 3, range)).toBe(false);
+        expect(isMonthInRange(1900, 0)).toBe(true);
+        expect(isYearInRange(2023, range)).toBe(false);
+        expect(isYearInRange(2024, range)).toBe(true);
+        expect(isYearInRange(2027, range)).toBe(false);
+    });
+
+    it('moves through the month and the year grid', () => {
+        const months = { columns: 3, page: 12 };
+        const march = monthIndex(2026, 2);
+        expect(pickerKeyTarget(march, 'ArrowLeft', months)).toBe(monthIndex(2026, 1));
+        expect(pickerKeyTarget(march, 'ArrowDown', months)).toBe(monthIndex(2026, 5));
+        expect(pickerKeyTarget(march, 'Home', months)).toBe(monthIndex(2026, 0));
+        expect(pickerKeyTarget(monthIndex(2026, 4), 'End', months)).toBe(monthIndex(2026, 5));
+        // Off the end of the year is the next one.
+        expect(pickerKeyTarget(monthIndex(2026, 11), 'ArrowRight', months)).toBe(monthIndex(2027, 0));
+        expect(pickerKeyTarget(monthIndex(2026, 1), 'ArrowUp', months)).toBe(monthIndex(2025, 10));
+        expect(pickerKeyTarget(march, 'PageDown', months)).toBe(monthIndex(2027, 2));
+        expect(pickerKeyTarget(march, 'PageUp', { ...months, min: monthIndex(2025, 8) })).toBe(monthIndex(2025, 8));
+        expect(pickerKeyTarget(march, 'ArrowRight', { ...months, max: march })).toBe(march);
+        const years = { columns: 4, page: 20 };
+        expect(pickerKeyTarget(2026, 'ArrowUp', years)).toBe(2022);
+        expect(pickerKeyTarget(2026, 'Home', years)).toBe(2024);
+        expect(pickerKeyTarget(2026, 'End', years)).toBe(2027);
+        expect(pickerKeyTarget(2026, 'PageUp', years)).toBe(2006);
+        expect(pickerKeyTarget(2026, 'a', years)).toBeNull();
     });
 });

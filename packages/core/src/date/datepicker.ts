@@ -110,3 +110,91 @@ export function calendarKeyTarget(from: Date, key: string, options: CalendarKeyO
     }
     return nearestSelectableDate(target, step, constraints) ?? startOfDay(from);
 }
+
+/** How many years the year grid shows at once: five rows of four. */
+export const YEARS_PER_PAGE = 20;
+
+/**
+ * The first year of the page `year` is on. Pages are aligned rather than
+ * centred on the year, so paging from anywhere lands on the same years.
+ */
+export function yearPageStart(year: number, size = YEARS_PER_PAGE): number {
+    return Math.floor(year / size) * size;
+}
+
+/** A month as one number, so that months can be compared and stepped across years. */
+export function monthIndex(year: number, month: number): number {
+    return year * 12 + month;
+}
+
+/**
+ * Whether any day of the month is inside `[min, max]`. Disabled days and dates
+ * are not looked at: a month with nothing left to choose in it still opens.
+ */
+export function isMonthInRange(year: number, month: number, constraints: DateConstraints = {}): boolean {
+    const index = monthIndex(year, month);
+    if (constraints.min && index < monthIndex(constraints.min.getFullYear(), constraints.min.getMonth())) return false;
+    if (constraints.max && index > monthIndex(constraints.max.getFullYear(), constraints.max.getMonth())) return false;
+    return true;
+}
+
+/** Whether any day of the year is inside `[min, max]`. */
+export function isYearInRange(year: number, constraints: DateConstraints = {}): boolean {
+    if (constraints.min && year < constraints.min.getFullYear()) return false;
+    if (constraints.max && year > constraints.max.getFullYear()) return false;
+    return true;
+}
+
+export interface PickerKeyOptions {
+    /** Cells in a row. It has to divide what a page holds, so that a cell's column follows from its number. */
+    columns: number;
+    /** How far PageUp and PageDown go: twelve months, or a page of years. */
+    page: number;
+    min?: number | null;
+    max?: number | null;
+}
+
+/**
+ * Where a key moves the focused cell of the month or the year grid. The cells
+ * are numbers — a `monthIndex`, or a year — so the arrows go one along and one
+ * row up or down, Home and End to the ends of the row, and PageUp and PageDown
+ * a page, which keeps the cell's place on it. The move stops at `min` and `max`.
+ *
+ * Returns null for a key the grid does not handle.
+ */
+export function pickerKeyTarget(from: number, key: string, options: PickerKeyOptions): number | null {
+    const { columns, page, min, max } = options;
+    const column = ((from % columns) + columns) % columns;
+    let target: number;
+    switch (key) {
+        case 'ArrowLeft':
+            target = from - 1;
+            break;
+        case 'ArrowRight':
+            target = from + 1;
+            break;
+        case 'ArrowUp':
+            target = from - columns;
+            break;
+        case 'ArrowDown':
+            target = from + columns;
+            break;
+        case 'Home':
+            target = from - column;
+            break;
+        case 'End':
+            target = from + (columns - 1 - column);
+            break;
+        case 'PageUp':
+            target = from - page;
+            break;
+        case 'PageDown':
+            target = from + page;
+            break;
+        default:
+            return null;
+    }
+    if (min != null && target < min) return min;
+    if (max != null && target > max) return max;
+    return target;
+}

@@ -455,6 +455,13 @@ export interface Locale {
         nextMonth: string;
         previousYear: string;
         nextYear: string;
+        /** Pages the grid of years a date picker chooses a year from. */
+        previousYears: string;
+        nextYears: string;
+        /** Describes the month in a date picker's title, which opens the grid of months. */
+        chooseMonth: string;
+        /** Describes the year in a date picker's title, which opens the grid of years. */
+        chooseYear: string;
         chooseDate: string;
         pagination: string;
         /** Names a table column's filter box. `{column}` */
@@ -983,6 +990,10 @@ export const en: Locale = {
         nextMonth: 'Next month',
         previousYear: 'Previous year',
         nextYear: 'Next year',
+        previousYears: 'Previous years',
+        nextYears: 'Next years',
+        chooseMonth: 'Choose month',
+        chooseYear: 'Choose year',
         chooseDate: 'Choose date',
         pagination: 'Pagination',
         filterColumn: 'Filter {column}',
@@ -1444,6 +1455,10 @@ export const ptBR: Locale = {
         nextMonth: 'Próximo mês',
         previousYear: 'Ano anterior',
         nextYear: 'Próximo ano',
+        previousYears: 'Anos anteriores',
+        nextYears: 'Próximos anos',
+        chooseMonth: 'Escolher mês',
+        chooseYear: 'Escolher ano',
         chooseDate: 'Escolher data',
         pagination: 'Paginação',
         filterColumn: 'Filtrar {column}',

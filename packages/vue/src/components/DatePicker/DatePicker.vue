@@ -2,15 +2,22 @@
 import {
     addMonths,
     calendarKeyTarget,
+    daysInMonth,
     formatDate,
     isDateSelectable,
+    isMonthInRange,
     isSameDay,
     isSameMonth,
+    isYearInRange,
     monthGrid,
+    monthIndex,
     nearestSelectableDate,
     parseDate,
+    pickerKeyTarget,
     startOfDay,
     weekdayOrder,
+    yearPageStart,
+    YEARS_PER_PAGE,
     type CalendarDay,
     type DateConstraints
 } from '@vitral/core';
@@ -30,6 +37,12 @@ import { keepFocus } from '../../base/press';
 // tabbable day (roving tabindex); focus lives in the dialog while it is open
 // and goes back to the button when it closes. `inline` renders the calendar
 // alone, in place.
+//
+// The month and the year in the title are buttons. Each swaps the days for a
+// grid of its own — twelve months, or a page of years — so a date decades away
+// is a year, a month and a day rather than hundreds of months paged through. A
+// year leads to its months and a month back to its days; Escape goes back to
+// the days with nothing changed.
 
 defineOptions({ name: 'VtDatePicker', inheritAttrs: false });
 
@@ -136,7 +149,7 @@ const viewDate = computed(() => new Date(view.value.year, view.value.month, 1));
 
 const weeks = computed(() => monthGrid(view.value.year, view.value.month, firstDay.value, today.value));
 const weekdays = computed(() => weekdayOrder(firstDay.value).map((day) => ({ day, short: locale.value.dayNamesMin[day] ?? '', long: locale.value.dayNames[day] ?? '' })));
-const title = computed(() => formatDate(viewDate.value, 'MMMM yyyy', locale.value));
+const monthName = computed(() => formatDate(viewDate.value, 'MMMM', locale.value));
 
 /** The tabbable day: the focused one while it is in view, otherwise the first selectable day of the month. */
 const activeDate = computed(() => {
@@ -145,8 +158,16 @@ const activeDate = computed(() => {
     return (days.find((d) => selectable(d.date)) ?? days[0]!).date;
 });
 
-const canGoBack = computed(() => !props.minDate || viewDate.value > startOfDay(props.minDate));
-const canGoForward = computed(() => !props.maxDate || addMonths(viewDate.value, 1) <= startOfDay(props.maxDate));
+const canGoBack = computed(() => {
+    if (level.value === 'month') return isYearInRange(cursor.value.year - 1, constraints.value);
+    if (level.value === 'year') return isYearInRange(pageStart.value - 1, constraints.value);
+    return !props.minDate || viewDate.value > startOfDay(props.minDate);
+});
+const canGoForward = computed(() => {
+    if (level.value === 'month') return isYearInRange(cursor.value.year + 1, constraints.value);
+    if (level.value === 'year') return isYearInRange(pageStart.value + YEARS_PER_PAGE, constraints.value);
+    return !props.maxDate || addMonths(viewDate.value, 1) <= startOfDay(props.maxDate);
+});
 
 function setView(date: Date) {
     const next = { year: date.getFullYear(), month: date.getMonth() };
@@ -161,14 +182,14 @@ function initialDate(): Date {
     return nearestSelectableDate(start, 1, constraints.value) ?? start;
 }
 
-function focusActiveDay() {
+function focusActiveCell() {
     nextTick(() => gridRef.value?.querySelector<HTMLElement>('[tabindex="0"]')?.focus({ preventScroll: true }));
 }
 
 function moveFocus(date: Date) {
     focusedDate.value = date;
     setView(date);
-    focusActiveDay();
+    focusActiveCell();
 }
 
 function pageMonth(step: 1 | -1) {
@@ -186,10 +207,11 @@ function dayState(day: CalendarDay) {
 
 function selectDay(day: CalendarDay) {
     if (props.disabled || props.readonly || !selectable(day.date)) return;
+    level.value = 'day';
     focusedDate.value = day.date;
     setView(day.date);
     choose(new Date(day.year, day.month, day.day));
-    if (props.inline) focusActiveDay();
+    if (props.inline) focusActiveCell();
     else hide();
 }
 
@@ -218,8 +240,148 @@ function selectToday() {
 
 function clearValue() {
     choose(null);
-    if (props.inline) focusActiveDay();
+    level.value = 'day';
+    if (props.inline) focusActiveCell();
     else hide();
+}
+
+// ---- the month and year grids ----------------------------------------------
+
+const MONTH_COLUMNS = 3;
+const YEAR_COLUMNS = 4;
+
+interface PickerCell {
+    /** A month, 0-based, or a year. */
+    value: number;
+    label: string;
+    /** The month in full, for a cell that shows it short. */
+    name?: string;
+    selected: boolean;
+    current: boolean;
+    disabled: boolean;
+    /** Owns the grid's tab stop. */
+    active: boolean;
+}
+
+/** What the calendar is choosing: a day or, from the title, the month or the year the days are of. */
+const level = ref<'day' | 'month' | 'year'>('day');
+/** Where the month and year grids are. The days stay on their month until one is chosen here. */
+const cursor = ref({ ...view.value });
+const pageStart = computed(() => yearPageStart(cursor.value.year));
+
+const monthLimits = computed(() => ({
+    min: props.minDate ? monthIndex(props.minDate.getFullYear(), props.minDate.getMonth()) : null,
+    max: props.maxDate ? monthIndex(props.maxDate.getFullYear(), props.maxDate.getMonth()) : null
+}));
+
+/** Moves the cursor to a month, held inside the range so its cell can always be chosen. */
+function setCursor(index: number) {
+    const { min, max } = monthLimits.value;
+    const at = min !== null && index < min ? min : max !== null && index > max ? max : index;
+    cursor.value = { year: Math.floor(at / 12), month: ((at % 12) + 12) % 12 };
+}
+
+const pickerRows = computed<PickerCell[][]>(() => {
+    const { year, month } = cursor.value;
+    const cells: PickerCell[] =
+        level.value === 'month'
+            ? Array.from({ length: 12 }, (_, m) => ({
+                  value: m,
+                  label: locale.value.monthNamesShort[m] ?? '',
+                  name: locale.value.monthNames[m],
+                  selected: !!value.value && value.value.getFullYear() === year && value.value.getMonth() === m,
+                  current: today.value.getFullYear() === year && today.value.getMonth() === m,
+                  disabled: !isMonthInRange(year, m, constraints.value),
+                  active: m === month
+              }))
+            : Array.from({ length: YEARS_PER_PAGE }, (_, i) => {
+                  const y = pageStart.value + i;
+                  return { value: y, label: String(y), selected: value.value?.getFullYear() === y, current: today.value.getFullYear() === y, disabled: !isYearInRange(y, constraints.value), active: y === year };
+              });
+    const columns = level.value === 'month' ? MONTH_COLUMNS : YEAR_COLUMNS;
+    return Array.from({ length: cells.length / columns }, (_, row) => cells.slice(row * columns, (row + 1) * columns));
+});
+
+function openLevel(next: 'month' | 'year') {
+    if (props.disabled) return;
+    if (level.value === 'day') setCursor(monthIndex(view.value.year, view.value.month));
+    level.value = next;
+    focusActiveCell();
+}
+
+function backToDays() {
+    level.value = 'day';
+    focusActiveCell();
+}
+
+/** A month shows its days, on the day of the month that had the focus where it can be. */
+function pickMonth(month: number) {
+    const { year } = cursor.value;
+    if (!isMonthInRange(year, month, constraints.value)) return;
+    const candidate = new Date(year, month, Math.min(focusedDate.value.getDate(), daysInMonth(year, month)));
+    const near = nearestSelectableDate(candidate, 1, constraints.value);
+    focusedDate.value = near && isSameMonth(near, candidate) ? near : candidate;
+    setView(candidate);
+    backToDays();
+}
+
+/** A year shows its months: the month is still to be said. */
+function pickYear(year: number) {
+    if (!isYearInRange(year, constraints.value)) return;
+    setCursor(monthIndex(year, cursor.value.month));
+    level.value = 'month';
+    focusActiveCell();
+}
+
+function pickCell(cell: PickerCell) {
+    if (props.disabled) return;
+    if (level.value === 'month') pickMonth(cell.value);
+    else pickYear(cell.value);
+}
+
+function onPickerKeydown(event: KeyboardEvent) {
+    if (props.disabled) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const cell = pickerRows.value.flat().find((c) => c.active);
+        if (cell) pickCell(cell);
+        return;
+    }
+    const { year, month } = cursor.value;
+    if (level.value === 'month') {
+        const target = pickerKeyTarget(monthIndex(year, month), event.key, { columns: MONTH_COLUMNS, page: 12, ...monthLimits.value });
+        if (target === null) return;
+        setCursor(target);
+    } else {
+        const target = pickerKeyTarget(year, event.key, { columns: YEAR_COLUMNS, page: YEARS_PER_PAGE, min: props.minDate?.getFullYear(), max: props.maxDate?.getFullYear() });
+        if (target === null) return;
+        setCursor(monthIndex(target, month));
+    }
+    event.preventDefault();
+    focusActiveCell();
+}
+
+/** The header's arrows: a month of days, a year of months, a page of years. */
+function page(step: 1 | -1) {
+    if (level.value === 'day') return pageMonth(step);
+    const months = level.value === 'month' ? 12 : 12 * YEARS_PER_PAGE;
+    setCursor(monthIndex(cursor.value.year, cursor.value.month) + step * months);
+}
+
+const pageLabels = computed(() => {
+    const { aria } = locale.value;
+    if (level.value === 'month') return { previous: aria.previousYear, next: aria.nextYear };
+    if (level.value === 'year') return { previous: aria.previousYears, next: aria.nextYears };
+    return { previous: aria.previousMonth, next: aria.nextMonth };
+});
+
+// Escape leaves the month or the year grid before it leaves the calendar, and
+// is kept from whatever the calendar is inside of: its own popup, or a dialog.
+function onPanelKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Escape' || level.value === 'day') return;
+    event.preventDefault();
+    event.stopPropagation();
+    backToDays();
 }
 
 // ---- the popup -------------------------------------------------------------
@@ -244,9 +406,10 @@ function show() {
     const start = initialDate();
     focusedDate.value = start;
     view.value = { year: start.getFullYear(), month: start.getMonth() };
+    level.value = 'day';
     open.value = true;
     emit('show');
-    focusActiveDay();
+    focusActiveCell();
 }
 
 function hide(returnFocus = true) {
@@ -280,7 +443,7 @@ const panelAttrs = computed(() => {
     return mergeProps(rootAttrs.value, controlAttrs.value, { role: 'group', 'aria-labelledby': named ? undefined : titleId });
 });
 
-defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : inputRef.value?.focus()) });
+defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inputRef.value?.focus()) });
 </script>
 
 <template>
@@ -316,9 +479,14 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : input
     </div>
     <Teleport :to="overlayTarget" :disabled="inline || appendTo === 'self'">
         <Transition name="vt-overlay">
-            <div v-if="inline || open" ref="panelRef" v-bind="mergeProps(panelAttrs, part('panel', { inline, disabled }))">
+            <div v-if="inline || open" ref="panelRef" v-bind="mergeProps(panelAttrs, part('panel', { inline, disabled }))" @keydown="onPanelKeydown">
                 <div v-bind="part('header')">
-                    <div :id="titleId" aria-live="polite" aria-atomic="true" v-bind="part('title')">{{ title }}</div>
+                    <div :id="titleId" aria-live="polite" aria-atomic="true" v-bind="part('title')">
+                        <!-- One line: the space between the two is the title's, and a line break would drop it. -->
+                        <template v-if="level === 'day'"><button type="button" v-bind="part('monthButton')" :title="locale.aria.chooseMonth" :disabled="disabled" @click="openLevel('month')">{{ monthName }}</button>{{ ' ' }}<button type="button" v-bind="part('yearButton')" :title="locale.aria.chooseYear" :disabled="disabled" @click="openLevel('year')">{{ view.year }}</button></template>
+                        <button v-else-if="level === 'month'" type="button" v-bind="part('yearButton')" :title="locale.aria.chooseYear" :disabled="disabled" @click="openLevel('year')">{{ cursor.year }}</button>
+                        <template v-else>{{ pageStart }} – {{ pageStart + YEARS_PER_PAGE - 1 }}</template>
+                    </div>
                     <Button
                         v-bind="part('prevButton')"
                         variant="text"
@@ -326,8 +494,8 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : input
                         size="small"
                         icon="chevronLeft"
                         :disabled="disabled || !canGoBack"
-                        :aria-label="locale.aria.previousMonth"
-                        @click="pageMonth(-1)"
+                        :aria-label="pageLabels.previous"
+                        @click="page(-1)"
                     />
                     <Button
                         v-bind="part('nextButton')"
@@ -336,11 +504,11 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : input
                         size="small"
                         icon="chevronRight"
                         :disabled="disabled || !canGoForward"
-                        :aria-label="locale.aria.nextMonth"
-                        @click="pageMonth(1)"
+                        :aria-label="pageLabels.next"
+                        @click="page(1)"
                     />
                 </div>
-                <table ref="gridRef" role="grid" :aria-labelledby="titleId" v-bind="part('grid')" @keydown="onGridKeydown">
+                <table v-if="level === 'day'" ref="gridRef" role="grid" :aria-labelledby="titleId" v-bind="part('grid')" @keydown="onGridKeydown">
                     <thead>
                         <tr v-bind="part('weekdays')">
                             <th v-for="w in weekdays" :key="w.day" scope="col" :abbr="w.long" v-bind="part('weekday')">{{ w.short }}</th>
@@ -368,6 +536,26 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveDay() : input
                         </tr>
                     </tbody>
                 </table>
+                <div v-else ref="gridRef" role="grid" :aria-labelledby="titleId" v-bind="part('picker', { level })" @keydown="onPickerKeydown">
+                    <div v-for="(row, r) in pickerRows" :key="r" role="row" v-bind="part('pickerRow')">
+                        <div
+                            v-for="cell in row"
+                            :key="cell.value"
+                            role="gridcell"
+                            :tabindex="!disabled && cell.active ? 0 : -1"
+                            :aria-label="cell.name"
+                            :aria-selected="cell.selected ? 'true' : 'false'"
+                            :aria-current="cell.current ? 'date' : undefined"
+                            :aria-disabled="disabled || cell.disabled ? 'true' : undefined"
+                            :data-month="level === 'month' ? cell.value + 1 : undefined"
+                            :data-year="level === 'year' ? cell.value : undefined"
+                            v-bind="part('cell', cell)"
+                            @click="pickCell(cell)"
+                        >
+                            <span v-bind="part('cellLabel')">{{ cell.label }}</span>
+                        </div>
+                    </div>
+                </div>
                 <div v-if="showTodayButton || showClearButton || $slots.footer" v-bind="part('footer')">
                     <Button v-if="showTodayButton" v-bind="part('todayButton')" :label="locale.today" variant="text" size="small" :disabled="disabled || readonly || !selectable(today)" @click="selectToday" />
                     <slot name="footer" />

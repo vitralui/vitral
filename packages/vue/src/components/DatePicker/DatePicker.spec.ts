@@ -192,12 +192,14 @@ describe('DatePicker', () => {
     it('keeps Tab inside the dialog', async () => {
         const { openCalendar } = mountPicker({ showClearButton: true });
         await openCalendar();
-        const prev = document.querySelector<HTMLElement>('[aria-label="Previous month"]')!;
+        // The month in the title is the first thing in the dialog.
+        const month = document.querySelector<HTMLElement>('[role="dialog"] button')!;
+        expect(month.textContent).toBe('March');
         const clear = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"] button')).find((b) => b.textContent?.trim() === 'Clear')!;
         clear.focus();
         await press(clear, 'Tab');
-        expect(document.activeElement).toBe(prev);
-        await press(prev, 'Tab', { shiftKey: true });
+        expect(document.activeElement).toBe(month);
+        await press(month, 'Tab', { shiftKey: true });
         expect(document.activeElement).toBe(clear);
     });
 
@@ -238,6 +240,160 @@ describe('DatePicker', () => {
         prev.click();
         await nextTick();
         expect(title().textContent).toBe('February 2026');
+    });
+
+    it('goes to a year and then a month from the title, without paging there', async () => {
+        const { openCalendar, title, grid, value, dialog, cell, picker, focused } = mountPicker({ modelValue: d(2026, 3, 11) });
+        await openCalendar();
+        const titleButton = (text: string) => Array.from(title().querySelectorAll('button')).find((b) => b.textContent === text)!;
+        const page = (label: string) => document.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!;
+        const at = (name: 'month' | 'year', n: number) => grid().querySelector<HTMLElement>(`[data-${name}="${n}"]`)!;
+        expect(titleButton('March').title).toBe('Choose month');
+        expect(titleButton('2026').title).toBe('Choose year');
+
+        titleButton('2026').click();
+        await nextTick();
+        await nextTick();
+        expect(title().textContent).toBe('2020 – 2039');
+        expect(grid().querySelectorAll('[role="row"]')).toHaveLength(5);
+        expect(grid().querySelectorAll('[role="gridcell"]')).toHaveLength(20);
+        expect(at('year', 2026).getAttribute('aria-selected')).toBe('true');
+        expect(at('year', 2026).getAttribute('aria-current')).toBe('date');
+        expect(at('year', 2025).getAttribute('aria-selected')).toBe('false');
+        expect(grid().querySelectorAll('[tabindex="0"]')).toHaveLength(1);
+        expect(document.activeElement).toBe(at('year', 2026));
+
+        page('Previous years').click();
+        await nextTick();
+        expect(title().textContent).toBe('2000 – 2019');
+        at('year', 2005).click();
+        await nextTick();
+        await nextTick();
+        // A year is not a date yet: its months come next.
+        expect(title().textContent).toBe('2005');
+        expect(grid().querySelectorAll('[role="gridcell"]')).toHaveLength(12);
+        expect(at('month', 5).textContent).toBe('May');
+        expect(at('month', 1).getAttribute('aria-label')).toBe('January');
+        expect(document.activeElement).toBe(at('month', 3));
+        page('Next year').click();
+        await nextTick();
+        expect(title().textContent).toBe('2006');
+        page('Previous year').click();
+        await nextTick();
+
+        at('month', 5).click();
+        await nextTick();
+        await nextTick();
+        expect(title().textContent).toBe('May 2005');
+        expect(focused()).toBe('2005-5-11');
+        expect(picker().emitted('monthChange')).toEqual([[{ month: 4, year: 2005 }]]);
+        // Nothing is chosen until a day is.
+        expect(value.value).toEqual(d(2026, 3, 11));
+        expect(dialog()).not.toBeNull();
+        cell(d(2005, 5, 20)).click();
+        await nextTick();
+        expect(value.value).toEqual(d(2005, 5, 20));
+        expect(dialog()).toBeNull();
+    });
+
+    it('moves through months and years with the keys, and Escape goes back to the days', async () => {
+        const { openCalendar, title, dialog, focused } = mountPicker({ modelValue: d(2026, 3, 31) });
+        await openCalendar();
+        // Vue drops an event that is no newer than the listener it reaches, and the
+        // clock here stands still: a minute on, so a key can bubble to the panel.
+        vi.setSystemTime(new Date(2026, 2, 11, 10, 31));
+        const at = () => document.activeElement as HTMLElement;
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        expect(title().textContent).toBe('2026');
+        expect(at().dataset.month).toBe('3');
+        await press(at(), 'ArrowLeft');
+        expect(at().dataset.month).toBe('2');
+        await press(at(), 'ArrowDown');
+        expect(at().dataset.month).toBe('5');
+        await press(at(), 'Home');
+        expect(at().dataset.month).toBe('4');
+        await press(at(), 'End');
+        expect(at().dataset.month).toBe('6');
+        await press(at(), 'PageDown');
+        expect(title().textContent).toBe('2027');
+        expect(at().dataset.month).toBe('6');
+        // Off the top of the year is the year before.
+        await press(at(), 'ArrowUp');
+        await press(at(), 'ArrowUp');
+        expect(title().textContent).toBe('2026');
+        expect(at().dataset.month).toBe('12');
+
+        // The year, from the month grid's title.
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        expect(at().dataset.year).toBe('2026');
+        await press(at(), 'ArrowUp');
+        expect(at().dataset.year).toBe('2022');
+        await press(at(), 'PageUp');
+        expect(title().textContent).toBe('2000 – 2019');
+        expect(at().dataset.year).toBe('2002');
+        await press(at(), 'ArrowRight');
+        await press(at(), 'Enter');
+        expect(title().textContent).toBe('2003');
+        expect(at().dataset.month).toBe('12');
+        await press(at(), 'ArrowLeft');
+        await press(at(), ' ');
+        // The 31st is not a day of November: the focus takes its last one.
+        expect(title().textContent).toBe('November 2003');
+        expect(focused()).toBe('2003-11-30');
+
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        await press(at(), 'PageUp');
+        expect(title().textContent).toBe('2002');
+        await press(at(), 'Escape');
+        expect(dialog()).not.toBeNull();
+        expect(title().textContent).toBe('November 2003');
+        expect(focused()).toBe('2003-11-30');
+        await press(at(), 'Escape');
+        expect(dialog()).toBeNull();
+    });
+
+    it('keeps the months and the years inside min and max', async () => {
+        const { openCalendar, title, grid, focused } = mountPicker({ modelValue: d(2026, 3, 11), minDate: d(2025, 11, 10), maxDate: d(2026, 4, 20) });
+        await openCalendar();
+        const page = (label: string) => document.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!;
+        const at = (name: 'month' | 'year', n: number) => grid().querySelector<HTMLElement>(`[data-${name}="${n}"]`)!;
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        expect(at('month', 4).getAttribute('aria-disabled')).toBeNull();
+        expect(at('month', 5).getAttribute('aria-disabled')).toBe('true');
+        expect(page('Previous year').disabled).toBe(false);
+        expect(page('Next year').disabled).toBe(true);
+        at('month', 5).click();
+        await nextTick();
+        expect(title().textContent).toBe('2026');
+        await press(document.activeElement!, 'ArrowDown');
+        expect((document.activeElement as HTMLElement).dataset.month).toBe('4');
+        await press(document.activeElement!, 'PageUp');
+        expect(title().textContent).toBe('2025');
+        expect((document.activeElement as HTMLElement).dataset.month).toBe('11');
+
+        title().querySelector('button')!.click();
+        await nextTick();
+        await nextTick();
+        expect(at('year', 2024).getAttribute('aria-disabled')).toBe('true');
+        expect(at('year', 2027).getAttribute('aria-disabled')).toBe('true');
+        expect(page('Previous years').disabled).toBe(true);
+        expect(page('Next years').disabled).toBe(true);
+        at('year', 2027).click();
+        await nextTick();
+        expect(title().textContent).toBe('2020 – 2039');
+        await press(document.activeElement!, 'Enter');
+        await press(document.activeElement!, 'Enter');
+        // November 2025 starts on the 10th here.
+        expect(title().textContent).toBe('November 2025');
+        expect(focused()).toBe('2025-11-11');
     });
 
     it('selects today and clears from the footer', async () => {
@@ -311,6 +467,13 @@ describe('DatePicker', () => {
         await expectNoA11yViolations();
         await openCalendar();
         await expectNoA11yViolations();
+        // The month grid, then the year grid.
+        for (let level = 0; level < 2; level++) {
+            document.querySelector<HTMLButtonElement>('[role="dialog"] button')!.click();
+            await nextTick();
+            await nextTick();
+            await expectNoA11yViolations();
+        }
         document.body.innerHTML = '';
         mountVt(defineComponent(() => () => [h('span', { id: 'inline-label' }, 'Delivery'), h(DatePicker, { inline: true, 'aria-labelledby': 'inline-label', modelValue: d(2026, 3, 5) })]));
         await expectNoA11yViolations();

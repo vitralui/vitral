@@ -2,6 +2,10 @@
     "description": "Um campo de data em que se pode digitar ou escolher num calendário, lido no formato do locale.",
     "sections": {
         "Basic": { "title": "Básico" },
+        "Month and year": {
+            "title": "Mês e ano",
+            "description": "O mês e o ano no título do calendário são botões. O ano abre uma página de vinte anos, um ano abre os seus meses, e um mês abre os seus dias, de modo que uma data a décadas de distância são três cliques em vez de centenas de meses percorridos. As setas movem por qualquer uma das grades, PageUp e PageDown viram a página, e Escape volta aos dias."
+        },
         "Constraints": { "title": "Restrições", "description": "Só os próximos 30 dias, sem fins de semana, e dois dias bloqueados. Os dias não selecionáveis são pulados pelas teclas e não podem ser clicados nem digitados." },
         "Footer buttons": { "title": "Botões no rodapé" },
         "Inline": { "title": "Inline", "description": "O calendário sozinho, sem o campo." },
