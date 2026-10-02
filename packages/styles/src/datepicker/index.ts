@@ -65,6 +65,9 @@ export const datepickerStyle = defineStyle({
             }
         ],
         cellLabel: 'vt-datepicker-cell-label',
+        time: 'vt-datepicker-time',
+        timeLabel: 'vt-datepicker-time-label',
+        timePicker: 'vt-datepicker-time-picker',
         footer: 'vt-datepicker-footer',
         todayButton: 'vt-datepicker-today-button',
         clearButton: 'vt-datepicker-clear-button'

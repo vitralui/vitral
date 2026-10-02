@@ -260,6 +260,27 @@
     outline-offset: var(--vt-focus-ring-offset);
 }
 
+/* The time of day, under the days and lined up with their edges. */
+.vt-datepicker-time {
+    display: flex;
+    align-items: center;
+    gap: var(--vt-datepicker-footer-gap);
+    margin-top: 0.25rem;
+    padding: var(--vt-datepicker-footer-padding);
+    border-top: 1px solid var(--vt-datepicker-footer-border-color);
+}
+
+.vt-datepicker-time-label {
+    flex-shrink: 0;
+    color: var(--vt-text-muted-color);
+    font-size: 0.875rem;
+}
+
+.vt-datepicker-time-picker {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .vt-datepicker-footer {
     display: flex;
     align-items: center;
@@ -268,6 +289,12 @@
     margin-top: 0.25rem;
     padding: var(--vt-datepicker-footer-padding);
     border-top: 1px solid var(--vt-datepicker-footer-border-color);
+}
+
+/* Under the time, the buttons share its rule rather than drawing a second one. */
+.vt-datepicker-time + .vt-datepicker-footer {
+    margin-top: 0;
+    border-top: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

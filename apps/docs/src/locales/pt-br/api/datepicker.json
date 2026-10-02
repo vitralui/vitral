@@ -12,10 +12,13 @@
         "variant": "O padrão é o `inputVariant` do plugin.",
         "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
         "monthPicker": "Se o mês no título do calendário abre uma grade com os doze meses. Ligado por padrão; desligado, o mês é só texto e chega-se a ele paginando.",
-        "yearPicker": "Se o ano no título do calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, o calendário só pode ser percorrido um mês de cada vez."
+        "yearPicker": "Se o ano no título do calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, o calendário só pode ser percorrido um mês de cada vez.",
+        "showTime": "Recebe um horário junto com a data. O calendário ganha um campo de horário sob os dias, a caixa de texto escreve o horário depois da data e lê um digitado ali, e escolher um dia deixa o calendário aberto para o horário. Desligado por padrão.",
+        "timeStep": "Minutos entre os horários que o campo de horário oferece. O padrão é 30; qualquer minuto ainda pode ser digitado.",
+        "hour12": "Força o relógio de doze ou de vinte e quatro horas; o padrão é o que o locale escreve."
     },
     "emits": {
-        "dateSelect": "Um dia foi escolhido no calendário, ou digitado e confirmado."
+        "dateSelect": "Um dia foi escolhido no calendário, ou digitado e confirmado; com `showTime`, também um horário."
     },
     "slots": {
         "date": "O conteúdo da célula de um dia.",

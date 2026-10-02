@@ -2,15 +2,19 @@
 import {
     addMonths,
     calendarKeyTarget,
+    atMinutesOfDay,
     daysInMonth,
     formatDate,
+    formatMinutes,
     isDateSelectable,
     isSameDay,
     isSameMonth,
     monthGrid,
     nearestSelectableDate,
     parseDate,
+    parseMinutes,
     startOfDay,
+    usesHour12,
     weekdayOrder,
     type CalendarDay,
     type DateConstraints
@@ -22,6 +26,7 @@ import { useFocusTrap } from '../../composables/useFocusTrap';
 import { useOverlay } from '../../composables/useOverlay';
 import Button from '../Button/Button.vue';
 import Icon from '../Icon/Icon.vue';
+import TimePicker from '../TimePicker/TimePicker.vue';
 import type { DatePickerEmits, DatePickerProps, DatePickerSlots } from './types';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { keepFocus } from '../../base/press';
@@ -40,6 +45,10 @@ import { Tooltip as vTooltip } from '../../directives/tooltip';
 // year leads to its months and a month back to its days; Escape goes back to
 // the days with nothing changed. `monthPicker` and `yearPicker` turn either
 // off, for a form that wants its dates paged to and not jumped to.
+//
+// `showTime` adds a time of day: a TimePicker under the days, whose list is a
+// layer above the dialog, so a press in it does not close the calendar. A day
+// then keeps the time already chosen and leaves the calendar open for it.
 
 defineOptions({ name: 'VtDatePicker', inheritAttrs: false });
 
@@ -50,6 +59,9 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
     maxDate: null,
     monthPicker: true,
     yearPicker: true,
+    timeStep: 30,
+    // Absent, not false: it has to tell "what the locale writes" from "asked for twenty-four hour".
+    hour12: undefined,
     placement: 'bottom-start',
     appendTo: 'body'
 });
@@ -80,9 +92,30 @@ const constraints = computed<DateConstraints>(() => ({ min: props.minDate, max: 
 const value = computed(() => (model.value instanceof Date && !Number.isNaN(model.value.getTime()) ? model.value : null));
 const selectable = (date: Date) => isDateSelectable(date, constraints.value);
 
+// ---- the time --------------------------------------------------------------
+
+const twelve = computed(() => props.hour12 ?? usesHour12(locale.value.code));
+const minutesOf = (date: Date) => date.getHours() * 60 + date.getMinutes();
+const writeTime = (date: Date) => formatMinutes(minutesOf(date), { locale: locale.value.code, hour12: twelve.value });
+
+/** The time field's value. Set before a day is chosen, it goes on the day the calendar is on. */
+const time = computed<number | null>({
+    get: () => (value.value ? minutesOf(value.value) : null),
+    set: (minutes) => {
+        const day = value.value ?? (selectable(activeDate.value) ? activeDate.value : null);
+        if (day) choose(atMinutesOfDay(startOfDay(day), minutes ?? 0));
+    }
+});
+
+// A time written after the date: `14:30`, `2:30 PM`, `14h30`.
+const trailingTime = /\s*(\d{1,2}\s*[:h.]\s*\d{2}(?:\s*:\s*\d{2})?\s*(?:[ap]\.?\s*m\.?)?)\s*$/i;
+
 // ---- the text box ----------------------------------------------------------
 
-const formatted = computed(() => formatDate(value.value, format.value, locale.value));
+const formatted = computed(() => {
+    const date = formatDate(value.value, format.value, locale.value);
+    return props.showTime && value.value ? `${date} ${writeTime(value.value)}` : date;
+});
 const text = ref(formatted.value);
 watch(formatted, (next) => (text.value = next));
 
@@ -97,7 +130,7 @@ const state = computed(() => ({
 }));
 
 function choose(date: Date | null) {
-    const changed = date ? !isSameDay(date, value.value) : value.value !== null;
+    const changed = date ? (props.showTime ? date.getTime() !== value.value?.getTime() : !isSameDay(date, value.value)) : value.value !== null;
     model.value = date;
     if (date && changed) emit('dateSelect', date);
     if (!date && changed) emit('clear');
@@ -109,8 +142,18 @@ function commitText() {
     const typed = text.value.trim();
     if (typed === formatted.value) return;
     if (typed === '') return choose(null);
+    if (props.showTime) return commitDateTime(typed);
     const parsed = parseDate(typed, format.value);
     if (parsed && selectable(parsed)) choose(parsed);
+    else text.value = formatted.value;
+}
+
+/** A date with a time after it; with none, the time already chosen is kept. */
+function commitDateTime(typed: string) {
+    const match = trailingTime.exec(typed);
+    const minutes = match ? parseMinutes(match[1]!, twelve.value) : value.value ? minutesOf(value.value) : 0;
+    const parsed = parseDate(match ? typed.slice(0, match.index) : typed, format.value);
+    if (parsed && minutes !== null && selectable(parsed)) choose(atMinutesOfDay(parsed, minutes));
     else text.value = formatted.value;
 }
 
@@ -207,8 +250,9 @@ function selectDay(day: CalendarDay) {
     level.value = 'day';
     focusedDate.value = day.date;
     setView(day.date);
-    choose(new Date(day.year, day.month, day.day));
-    if (props.inline) focusActiveCell();
+    const chosen = new Date(day.year, day.month, day.day);
+    choose(props.showTime && value.value ? atMinutesOfDay(chosen, minutesOf(value.value)) : chosen);
+    if (props.inline || props.showTime) focusActiveCell();
     else hide();
 }
 
@@ -440,6 +484,20 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
                             <span v-bind="part('cellLabel')">{{ cell.label }}</span>
                         </div>
                     </div>
+                </div>
+                <div v-if="showTime && level === 'day'" v-bind="part('time')">
+                    <label :for="`${id}-time`" v-bind="part('timeLabel')">{{ locale.time }}</label>
+                    <TimePicker
+                        :id="`${id}-time`"
+                        v-model="time"
+                        v-bind="part('timePicker')"
+                        :step="timeStep"
+                        :hour12="twelve"
+                        :size="size === 'large' ? undefined : 'small'"
+                        :disabled="disabled"
+                        :readonly="readonly"
+                        fluid
+                    />
                 </div>
                 <div v-if="showTodayButton || showClearButton || $slots.footer" v-bind="part('footer')">
                     <Button v-if="showTodayButton" v-bind="part('todayButton')" :label="locale.today" variant="text" size="small" :disabled="disabled || readonly || !selectable(today)" @click="selectToday" />

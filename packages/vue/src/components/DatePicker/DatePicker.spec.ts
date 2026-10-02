@@ -520,4 +520,49 @@ describe('DatePicker', () => {
         mountVt(defineComponent(() => () => [h('span', { id: 'inline-label' }, 'Delivery'), h(DatePicker, { inline: true, 'aria-labelledby': 'inline-label', modelValue: d(2026, 3, 5) })]));
         await expectNoA11yViolations();
     });
+
+    describe('with a time', () => {
+        it('writes the time after the date and reads one typed there', async () => {
+            const { input, value, type } = mountPicker({ showTime: true, hour12: false, modelValue: new Date(2026, 2, 11, 9, 5) });
+            expect(input().value).toBe('03/11/2026 09:05');
+            await type('03/20/2026 14:45', 'Enter');
+            expect(value.value).toEqual(new Date(2026, 2, 20, 14, 45));
+            // A date alone keeps the time already chosen.
+            await type('03/21/2026', 'blur');
+            expect(value.value).toEqual(new Date(2026, 2, 21, 14, 45));
+            expect(input().value).toBe('03/21/2026 14:45');
+            // A time that is not one puts the text back.
+            await type('03/22/2026 25:99', 'blur');
+            expect(value.value).toEqual(new Date(2026, 2, 21, 14, 45));
+        });
+
+        it('keeps the calendar open when a day is chosen, and the time with it', async () => {
+            const { value, dialog, cell, openCalendar, picker } = mountPicker({ showTime: true, hour12: false, modelValue: new Date(2026, 2, 11, 9, 30) });
+            await openCalendar();
+            cell(d(2026, 3, 18)).click();
+            await nextTick();
+            expect(value.value).toEqual(new Date(2026, 2, 18, 9, 30));
+            expect(dialog()).not.toBeNull();
+            expect(picker().emitted('dateSelect')).toHaveLength(1);
+        });
+
+        it('sets the time from the field under the days, on the focused day when none is chosen', async () => {
+            const { value, dialog, openCalendar } = mountPicker({ showTime: true, hour12: false });
+            await openCalendar();
+            const field = dialog()!.querySelector<HTMLInputElement>('.vt-datepicker-time input')!;
+            expect(field.labels?.[0]?.textContent).toBe('Time');
+            field.value = '16:00';
+            field.dispatchEvent(new Event('input'));
+            await press(field, 'Enter');
+            await nextTick();
+            expect(value.value).toEqual(new Date(2026, 2, 11, 16, 0));
+            expect(dialog()).not.toBeNull();
+        });
+
+        it('has no time field without showTime', async () => {
+            const { dialog, openCalendar } = mountPicker();
+            await openCalendar();
+            expect(dialog()!.querySelector('.vt-datepicker-time')).toBeNull();
+        });
+    });
 });

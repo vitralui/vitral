@@ -1,5 +1,5 @@
 {
-    "description": "Um campo de data em que se pode digitar ou escolher num calendário, lido no formato do locale.",
+    "description": "Um campo de data em que se pode digitar ou escolher num calendário, lido no formato do locale, com horário se você quiser.",
     "sections": {
         "Basic": { "title": "Básico" },
         "Month and year": {
@@ -9,6 +9,10 @@
         "Without the month or the year grid": {
             "title": "Sem a grade de meses ou de anos",
             "description": "As duas vêm ligadas por padrão e cada uma é uma prop. `:year-picker=\"false\"` deixa o ano como texto, para datas que pertencem a um só ano; `:month-picker=\"false\"` deixa o mês como texto, e um ano escolhido na grade mantém o mês que estava à mostra. Com as duas desligadas o título é só texto e o calendário é percorrido um mês de cada vez."
+        },
+        "With a time": {
+            "title": "Com horário",
+            "description": "`show-time` acrescenta um campo de horário sob os dias. A caixa escreve o horário depois da data e lê um digitado ali; escolher um dia mantém o horário já escolhido e deixa o calendário aberto para ele. `time-step` define os minutos entre os horários da lista, e qualquer minuto ainda pode ser digitado."
         },
         "Constraints": { "title": "Restrições", "description": "Só os próximos 30 dias, sem fins de semana, e dois dias bloqueados. Os dias não selecionáveis são pulados pelas teclas e não podem ser clicados nem digitados." },
         "Footer buttons": { "title": "Botões no rodapé" },

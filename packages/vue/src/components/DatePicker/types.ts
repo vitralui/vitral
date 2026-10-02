@@ -27,6 +27,17 @@ export interface DatePickerProps extends BaseProps {
      * the calendar can only be paged a month at a time.
      */
     yearPicker?: boolean;
+    /**
+     * Take a time of day with the date. The calendar gains a time field under
+     * its days, the text box writes the time after the date and reads one
+     * typed there, and choosing a day keeps the calendar open for the time.
+     * Off by default.
+     */
+    showTime?: boolean;
+    /** Minutes between the times the time field offers. Defaults to 30; any minute can still be typed. */
+    timeStep?: number;
+    /** Force twelve- or twenty-four-hour time; defaults to what the locale writes. */
+    hour12?: boolean;
     /** 0 = Sunday; defaults to the locale's `firstDayOfWeek`. */
     firstDayOfWeek?: number;
     placeholder?: string;
@@ -51,7 +62,7 @@ export interface DatePickerMonthChangeEvent {
 }
 
 export type DatePickerEmits = {
-    /** A day was chosen in the calendar, or typed and committed. */
+    /** A day was chosen in the calendar, or typed and committed; with `showTime`, also a time. */
     dateSelect: [date: Date];
     clear: [];
     show: [];

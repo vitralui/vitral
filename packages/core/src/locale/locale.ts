@@ -14,6 +14,8 @@ export interface Locale {
     apply: string;
     choose: string;
     today: string;
+    /** Labels the time of day in a date picker that takes one. */
+    time: string;
     search: string;
     loading: string;
     on: string;
@@ -505,6 +507,7 @@ export interface Locale {
         /** Describes the year in a date picker's title, which opens the grid of years. */
         chooseYear: string;
         chooseDate: string;
+        chooseTime: string;
         pagination: string;
         /** Names a table column's filter box. `{column}` */
         filterColumn: string;
@@ -679,6 +682,7 @@ export const en: Locale = {
     apply: 'Apply',
     choose: 'Choose',
     today: 'Today',
+    time: 'Time',
     search: 'Search',
     loading: 'Loading…',
     on: 'On',
@@ -1090,6 +1094,7 @@ export const en: Locale = {
         chooseMonth: 'Choose month',
         chooseYear: 'Choose year',
         chooseDate: 'Choose date',
+        chooseTime: 'Choose time',
         pagination: 'Pagination',
         filterColumn: 'Filter {column}',
         moreOptions: 'More options',
@@ -1197,6 +1202,7 @@ export const ptBR: Locale = {
     apply: 'Aplicar',
     choose: 'Escolher',
     today: 'Hoje',
+    time: 'Horário',
     search: 'Buscar',
     loading: 'Carregando…',
     on: 'Ligado',
@@ -1608,6 +1614,7 @@ export const ptBR: Locale = {
         chooseMonth: 'Escolher mês',
         chooseYear: 'Escolher ano',
         chooseDate: 'Escolher data',
+        chooseTime: 'Escolher horário',
         pagination: 'Paginação',
         filterColumn: 'Filtrar {column}',
         moreOptions: 'Mais opções',

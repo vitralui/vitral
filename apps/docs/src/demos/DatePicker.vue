@@ -4,7 +4,7 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'DatePicker',
     category: 'Form',
-    description: "A date field you can type into or pick from a calendar, read in the locale's format."
+    description: "A date field you can type into or pick from a calendar, read in the locale's format, with a time of day if you want one."
 };
 </script>
 
@@ -18,6 +18,7 @@ import Inline from './DatePicker/Inline.vue';
 import MonthAndYear from './DatePicker/MonthAndYear.vue';
 import SizesVariantsAndStates from './DatePicker/SizesVariantsAndStates.vue';
 import TitleOptions from './DatePicker/TitleOptions.vue';
+import WithTime from './DatePicker/WithTime.vue';
 </script>
 
 <template>
@@ -33,6 +34,12 @@ import TitleOptions from './DatePicker/TitleOptions.vue';
         description="Both are on by default and each is a prop. `:year-picker=&quot;false&quot;` leaves the year as text, for dates that belong to one year; `:month-picker=&quot;false&quot;` leaves the month as text, and a year chosen from the grid keeps the month on show. With both off the title is only text and the calendar is paged a month at a time."
     >
         <TitleOptions />
+    </DemoSection>
+    <DemoSection
+        title="With a time"
+        description="`show-time` adds a time field under the days. The box writes the time after the date and reads one typed there; choosing a day keeps the time already chosen and leaves the calendar open for it. `time-step` sets the minutes between the times listed, and any minute can still be typed."
+    >
+        <WithTime />
     </DemoSection>
     <DemoSection title="Constraints" description="Only the next 30 days, no weekends, and two blocked days. Unselectable days are skipped by the keys and cannot be clicked or typed."><Constraints /></DemoSection>
     <DemoSection title="Footer buttons"><FooterButtons /></DemoSection>

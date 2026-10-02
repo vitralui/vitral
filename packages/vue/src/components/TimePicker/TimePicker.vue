@@ -199,7 +199,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), show, hide: () => hide(), i
             tabindex="-1"
             v-bind="part('dropdown')"
             :disabled="disabled || readonly"
-            :aria-label="locale.aria.chooseDate"
+            :aria-label="locale.aria.chooseTime"
             @click="toggle"
         >
             <slot name="dropdownicon"><Icon icon="clock" /></slot>
@@ -209,7 +209,7 @@ defineExpose({ focus: () => inputRef.value?.focus(), show, hide: () => hide(), i
     <Teleport :to="overlayTarget" :disabled="inline || appendTo === 'self'">
         <Transition name="vt-overlay">
             <div v-if="inline || open" ref="panelRef" v-bind="mergeProps(panelAttrs, part('panel', { inline, disabled }))">
-                <ul :id="listId" ref="listRef" role="listbox" v-bind="part('list')" :aria-label="locale.aria.chooseDate">
+                <ul :id="listId" ref="listRef" role="listbox" v-bind="part('list')" :aria-label="locale.aria.chooseTime">
                     <li
                         v-for="(option, index) in options"
                         :id="`${id}-o${index}`"
