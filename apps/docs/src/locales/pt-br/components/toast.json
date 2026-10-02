@@ -1,7 +1,27 @@
 {
-    "description": "Notificações enviadas de qualquer lugar com useToast, empilhadas na posição escolhida, que pausam o tempo enquanto estão sob o ponteiro ou em foco.",
+    "description": "Notificações enviadas de qualquer lugar com useToast, uma ou várias de uma vez, agrupadas, fixadas, com ações ou acompanhando uma promise, que pausam o tempo enquanto estão sob o ponteiro ou em foco.",
     "sections": {
         "Severities": { "title": "Severidades", "description": "Quatro segundos cada; passe o ponteiro sobre um para mantê-lo." },
-        "Sticky and grouped": { "title": "Fixos e agrupados", "description": "Sem um `life`, um toast espera ser fechado. Um `group` o envia para outro `<Toast>`, aqui um na parte de baixo." }
+        "Sticky and grouped": { "title": "Persistentes e por grupo", "description": "Sem um `life`, um toast espera ser fechado. Um `group` o envia para outro `<Toast>`, aqui um na parte de baixo." },
+        "Several at once": {
+            "title": "Vários de uma vez",
+            "description": "`add` aceita uma lista além de uma mensagem. `max` limita os cards na tela: com `overflow` em `'queue'`, o padrão, o resto espera e o tempo de cada um só começa quando aparece; com `'replace'`, o card mais antigo que não está fixado fecha para dar lugar. `newest-on-top` inverte a ordem."
+        },
+        "Collapsed into one": {
+            "title": "Agrupados num só",
+            "description": "Mensagens com o mesmo `collapseKey` dividem um card: o texto mais novo, o tempo recomeçado e uma contagem de quantas vieram. Pressione o botão algumas vezes."
+        },
+        "Pinned, with actions": {
+            "title": "Fixados, com ações",
+            "description": "Uma mensagem `pinned` vai à frente da pilha, nunca expira e nunca espera atrás de `max`. `actions` coloca botões no card; cada um o fecha, a menos que diga `keepOpen`, e o evento `action` informa o clique. `progress` desenha o tempo restante, que para enquanto o card é lido."
+        },
+        "Following a promise": {
+            "title": "Acompanhando uma promise",
+            "description": "`promise` mostra um card enquanto o trabalho roda, com um spinner e sem botão de fechar, e o transforma no sucesso ou no erro quando termina. `update` muda qualquer card no lugar pelo seu id."
+        },
+        "A pile": {
+            "title": "Uma pilha",
+            "description": "`stacked` desenha os cards como uma pilha, o mais novo na frente; com o ponteiro em cima ou com foco, ela se abre e todo tempo espera. No celular um card pode ser arrastado para o lado para fechar, o que `swipe-to-close` desliga, e os tempos param enquanto a página está em segundo plano, o que `pause-on-page-hidden` desliga."
+        }
     }
 }

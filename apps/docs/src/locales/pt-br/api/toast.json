@@ -1,11 +1,19 @@
 {
     "props": {
         "position": "O padrão é `'top-right'`.",
-        "group": "Mostra só as mensagens enviadas com o mesmo `group`."
+        "group": "Mostra só as mensagens enviadas com o mesmo `group`.",
+        "max": "No máximo esse número de cards de uma vez; os fixados sempre aparecem. O que acontece com o resto é com `overflow`.",
+        "overflow": "Passando de `max`: `'queue'` (o padrão) faz um toast novo esperar até um card sair; `'replace'` fecha o card mais antigo que não está fixado para dar lugar.",
+        "newestOnTop": "Põe o mais recente na frente da pilha em vez de no fim.",
+        "stacked": "Desenha a pilha como um monte: o mais novo na frente, alguns atrás, o resto escondido, todos abertos enquanto ela tem o ponteiro em cima ou o foco. Os tempos esperam enquanto ela está aberta.",
+        "showProgress": "Uma barra em cada card com tempo que mostra o tempo restante; o `progress` de uma mensagem vale mais.",
+        "pauseOnPageHidden": "Segura todo tempo enquanto a página está em segundo plano. Ligado por padrão.",
+        "swipeToClose": "Deixa um dedo ou uma caneta arrastar um card para o lado para fechá-lo. Ligado por padrão."
     },
     "emits": {
         "close": "Fechado pelo seu botão de fechar.",
-        "life-end": "Fechado porque seu `life` acabou."
+        "life-end": "Fechado porque seu `life` acabou.",
+        "action": "Uma das `actions` de uma mensagem foi pressionada."
     },
     "slots": {
         "message": "Substitui o ícone e o texto de cada mensagem; o botão de fechar permanece.",

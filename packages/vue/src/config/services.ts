@@ -16,10 +16,40 @@ export interface ToastMessage {
     icon?: IconProp;
     /** Anything a custom `message` slot wants to render. */
     data?: unknown;
+    /**
+     * Kept at the head of the stack, never timed out and never made to wait
+     * behind `max`: for what must stay in view until it is dealt with. Only
+     * its close button, an action or `remove()` takes it away.
+     */
+    pinned?: boolean;
+    /**
+     * Messages with the same key share one card: a new one takes its text,
+     * restarts its life and raises a count on it, rather than stacking a copy.
+     * "3 files uploaded" instead of three toasts.
+     */
+    collapseKey?: string;
+    /** Buttons on the card, after the text. One closes the toast when pressed unless it says `keepOpen`. */
+    actions?: ToastAction[];
+    /** A bar that shows the life left. Defaults to the `<Toast>`'s `showProgress`. */
+    progress?: boolean;
+    /** A spinner in place of the icon, as `promise()` shows while it waits. */
+    loading?: boolean;
+    /** Called once the toast is gone, however it went. */
+    onClose?: (message: ToastMessage) => void;
+}
+
+export interface ToastAction {
+    label: string;
+    /** Defaults to `'secondary'`. */
+    severity?: 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
+    onClick?: (message: ToastMessage) => void;
+    /** Leave the toast up after the press. */
+    keepOpen?: boolean;
 }
 
 export interface ToastEvents {
     add: ToastMessage;
+    update: { id: string | number; patch: Partial<ToastMessage> };
     remove: ToastMessage;
     removeGroup: string;
     removeAll: undefined;

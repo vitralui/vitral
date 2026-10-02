@@ -17,6 +17,7 @@ export * from './overlay/layers';
 export * from './overlay/position';
 export * from './overlay/scrollLock';
 export * from './overlay/tooltip';
+export * from './overlay/toasts';
 export * from './utils/timer';
 export * from './a11y/feedback';
 

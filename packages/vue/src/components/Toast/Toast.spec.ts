@@ -135,4 +135,180 @@ describe('Toast', () => {
         await nextTick();
         await expectNoA11yViolations();
     });
+
+    describe('more than one at a time', () => {
+        it('takes several messages at once and returns their ids', async () => {
+            const { toast, cards } = mountToast();
+            const ids = toast().add([{ summary: 'One' }, { summary: 'Two' }, { summary: 'Three' }]);
+            await nextTick();
+            expect(ids).toHaveLength(3);
+            expect(cards().map((c) => c.textContent)).toEqual([expect.stringContaining('One'), expect.stringContaining('Two'), expect.stringContaining('Three')]);
+        });
+
+        it('makes the newer ones wait past max, and shows the next when one leaves', async () => {
+            vi.useFakeTimers();
+            const { toast, cards } = mountToast({ max: 2 });
+            toast().add([{ summary: 'A', life: 1000 }, { summary: 'B' }, { summary: 'C', life: 1000 }]);
+            await nextTick();
+            expect(cards().map((c) => c.textContent?.trim())).toEqual([expect.stringContaining('A'), expect.stringContaining('B')]);
+            // C's life has not started while it waits.
+            vi.advanceTimersByTime(1000);
+            await nextTick();
+            expect(cards().map((c) => c.textContent)).toEqual([expect.stringContaining('B'), expect.stringContaining('C')]);
+            vi.advanceTimersByTime(999);
+            await nextTick();
+            expect(cards()).toHaveLength(2);
+        });
+
+        it('closes the oldest to make room when it replaces, pinned ones kept', async () => {
+            const { toast, cards } = mountToast({ max: 2, overflow: 'replace' });
+            toast().add([{ summary: 'Pinned', pinned: true }, { summary: 'Old' }, { summary: 'New' }]);
+            await nextTick();
+            expect(cards().map((c) => c.textContent)).toEqual([expect.stringContaining('Pinned'), expect.stringContaining('New')]);
+        });
+
+        it('puts the newest first when asked, pinned ones always at the head', async () => {
+            const { toast, cards } = mountToast({ newestOnTop: true });
+            toast().add([{ summary: 'First' }, { summary: 'Pin', pinned: true }, { summary: 'Last' }]);
+            await nextTick();
+            expect(cards().map((c) => c.textContent)).toEqual([expect.stringContaining('Pin'), expect.stringContaining('Last'), expect.stringContaining('First')]);
+            expect(cards()[0]!.classList).toContain('vt-toast-message-pinned');
+        });
+    });
+
+    describe('grouping and keeping', () => {
+        it('collapses messages with the same key into one card that counts', async () => {
+            vi.useFakeTimers();
+            const { toast, cards } = mountToast();
+            toast().add({ summary: 'Uploaded a.png', collapseKey: 'upload', life: 1000 });
+            vi.advanceTimersByTime(800);
+            toast().add({ summary: 'Uploaded b.png', collapseKey: 'upload', life: 1000 });
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+            expect(cards()[0]!.textContent).toContain('Uploaded b.png');
+            expect(cards()[0]!.querySelector('.vt-toast-count')!.textContent).toContain('2 times');
+            // The life started again with the second message.
+            vi.advanceTimersByTime(800);
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+        });
+
+        it('never times out a pinned toast', async () => {
+            vi.useFakeTimers();
+            const { toast, cards } = mountToast();
+            toast().add({ summary: 'Read me', pinned: true, life: 500 });
+            vi.advanceTimersByTime(5000);
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+        });
+    });
+
+    describe('actions, updates and promises', () => {
+        it('runs an action and closes, unless it keeps the toast open', async () => {
+            const undo = vi.fn();
+            const { toast, cards, wrapper } = mountToast();
+            toast().add({ summary: 'Deleted', actions: [{ label: 'Undo', onClick: undo }, { label: 'Details', keepOpen: true }] });
+            await nextTick();
+            const [undoButton, details] = Array.from(cards()[0]!.querySelectorAll<HTMLButtonElement>('.vt-toast-actions button'));
+            details!.click();
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+            undoButton!.click();
+            await nextTick();
+            expect(undo).toHaveBeenCalledWith(expect.objectContaining({ summary: 'Deleted' }));
+            expect(cards()).toHaveLength(0);
+            expect(wrapper.findComponent(Toast).emitted('action')).toHaveLength(2);
+        });
+
+        it('updates a card in place', async () => {
+            const { toast, cards } = mountToast();
+            const id = toast().add({ summary: 'Saving' });
+            await nextTick();
+            toast().update(id, { summary: 'Saved', severity: 'success' });
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+            expect(cards()[0]!.textContent).toContain('Saved');
+            expect(cards()[0]!.classList).toContain('vt-toast-message-success');
+        });
+
+        it('follows a promise from loading to its outcome', async () => {
+            const { toast, cards } = mountToast();
+            let resolve!: (value: number) => void;
+            const work = new Promise<number>((r) => (resolve = r));
+            toast().promise(work, { loading: { summary: 'Uploading' }, success: (n) => ({ summary: `${n} files uploaded` }) });
+            await nextTick();
+            expect(cards()[0]!.textContent).toContain('Uploading');
+            expect(cards()[0]!.querySelector('button[aria-label="Close"]')).toBeNull();
+            resolve(3);
+            await work;
+            await nextTick();
+            expect(cards()[0]!.textContent).toContain('3 files uploaded');
+            expect(cards()[0]!.classList).toContain('vt-toast-message-success');
+        });
+
+        it('calls onClose however the toast goes', async () => {
+            const onClose = vi.fn();
+            const { toast } = mountToast();
+            toast().add({ summary: 'Bye', onClose });
+            await nextTick();
+            toast().removeAll();
+            expect(onClose).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('the stack', () => {
+        it('draws a progress bar for a timed card when asked', async () => {
+            const { toast, cards } = mountToast({ showProgress: true });
+            toast().add([{ summary: 'Timed', life: 3000 }, { summary: 'Sticky' }]);
+            await nextTick();
+            expect((cards()[0]!.querySelector('.vt-toast-progress') as HTMLElement).style.animationDuration).toBe('3000ms');
+            expect(cards()[1]!.querySelector('.vt-toast-progress')).toBeNull();
+        });
+
+        it('piles the cards, newest in front, the ones behind out of reach until it spreads', async () => {
+            const { toast, cards } = mountToast({ stacked: true });
+            toast().add([{ summary: 'Old' }, { summary: 'New' }]);
+            await nextTick();
+            const root = cards()[0]!.closest('.vt-toast')!;
+            expect(root.classList).toContain('vt-toast-stacked');
+            expect(cards()[0]!.textContent).toContain('New');
+            expect(cards()[1]!.hasAttribute('inert')).toBe(true);
+            root.dispatchEvent(new MouseEvent('mouseenter'));
+            await nextTick();
+            expect(root.classList).toContain('vt-toast-expanded');
+            expect(cards()[1]!.hasAttribute('inert')).toBe(false);
+        });
+
+        it('holds the countdowns while the page is hidden', async () => {
+            vi.useFakeTimers();
+            const { toast, cards } = mountToast();
+            toast().add({ summary: 'Wait', life: 1000 });
+            await nextTick();
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+            document.dispatchEvent(new Event('visibilitychange'));
+            vi.advanceTimersByTime(5000);
+            await nextTick();
+            expect(cards()).toHaveLength(1);
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+            document.dispatchEvent(new Event('visibilitychange'));
+            vi.advanceTimersByTime(1000);
+            await nextTick();
+            expect(cards()).toHaveLength(0);
+        });
+
+        it('closes a card swiped sideways by a finger, not by a mouse', async () => {
+            const { toast, cards } = mountToast();
+            toast().add([{ summary: 'Swiped' }, { summary: 'Dragged' }]);
+            await nextTick();
+            const drag = (card: HTMLElement, pointerType: string) => {
+                card.dispatchEvent(Object.assign(new Event('pointerdown', { bubbles: true }), { pointerId: 1, pointerType, clientX: 0 }));
+                card.dispatchEvent(Object.assign(new Event('pointermove', { bubbles: true }), { pointerId: 1, pointerType, clientX: 120 }));
+                card.dispatchEvent(Object.assign(new Event('pointerup', { bubbles: true }), { pointerId: 1, pointerType, clientX: 120 }));
+            };
+            drag(cards()[1]!, 'mouse');
+            drag(cards()[0]!, 'touch');
+            await nextTick();
+            expect(cards().map((c) => c.textContent)).toEqual([expect.stringContaining('Dragged')]);
+        });
+    });
 });
