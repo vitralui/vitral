@@ -12,14 +12,14 @@ import type { MessageEmits, MessageProps, MessageSlots } from './types';
 
 defineOptions({ name: 'VtMessage' });
 
-const props = withDefaults(defineProps<MessageProps>(), { unstyled: undefined, severity: 'info', variant: 'subtle' });
+const props = withDefaults(defineProps<MessageProps>(), { unstyled: undefined, severity: 'info', variant: 'subtle', stackAction: true });
 const emit = defineEmits<MessageEmits>();
-defineSlots<MessageSlots>();
+const slots = defineSlots<MessageSlots>();
 
 const { part, locale } = useComponent(messageStyle, props);
 const visible = ref(true);
 
-const state = computed(() => ({ severity: props.severity, variant: props.variant }));
+const state = computed(() => ({ severity: props.severity, variant: props.variant, stackAction: props.stackAction && !!slots.action }));
 const region = computed(() => liveRegion(props.severity, ['danger', 'warn']));
 const icon = computed(() => props.icon ?? severityIcon(props.severity));
 

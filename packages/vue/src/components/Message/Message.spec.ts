@@ -34,6 +34,17 @@ describe('Message', () => {
         expect(wrapper.find('.vt-message').exists()).toBe(false);
     });
 
+    it('lets the action drop below the text on a narrow band, unless told not to', () => {
+        const action = () => h('button', 'Undo');
+        const stacked = mountVt(Message, { slots: { default: 'Deleted', action } });
+        expect(stacked.get('.vt-message').classes()).toContain('vt-message-stack-action');
+        const kept = mountVt(Message, { props: { stackAction: false }, slots: { default: 'Deleted', action } });
+        expect(kept.get('.vt-message').classes()).not.toContain('vt-message-stack-action');
+        // Without an action there is nothing to move, and the band is not made a container.
+        const plain = mountVt(Message, { slots: { default: 'Deleted' } });
+        expect(plain.get('.vt-message').classes()).not.toContain('vt-message-stack-action');
+    });
+
     it('hides after its life, holding while hovered', async () => {
         vi.useFakeTimers();
         const wrapper = mountVt(Message, { props: { life: 1000 }, slots: { default: 'Brief' } });

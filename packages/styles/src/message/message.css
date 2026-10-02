@@ -121,6 +121,35 @@
     align-self: center;
 }
 
+/*
+ * On a narrow band the action drops to a line of its own under the text,
+ * lined up with it, and the close button keeps the corner. The band is the
+ * container, so it follows the room the message has, not the screen's width.
+ * The text's basis is zero so that only that query, never a long message,
+ * sends the action down.
+ */
+.vt-message-stack-action {
+    flex-wrap: wrap;
+    container-type: inline-size;
+}
+
+.vt-message-stack-action .vt-message-content {
+    flex-basis: 0;
+}
+
+@container (max-width: 30rem) {
+    .vt-message-stack-action .vt-message-action {
+        order: 1;
+        flex-basis: 100%;
+        flex-wrap: wrap;
+        align-self: auto;
+    }
+
+    .vt-message-stack-action:has(.vt-message-icon) .vt-message-action {
+        padding-inline-start: calc(var(--vt-message-icon-size) + var(--vt-message-gap));
+    }
+}
+
 .vt-message-close-button {
     display: inline-flex;
     align-items: center;

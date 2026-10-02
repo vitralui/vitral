@@ -17,6 +17,12 @@ export interface MessageProps extends BaseProps {
     variant?: MessageVariant;
     /** Milliseconds before it hides by itself; the count pauses while it is hovered or focused. */
     life?: number;
+    /**
+     * Whether the action drops below the message when the band is narrow, as
+     * on a phone, instead of squeezing the text into a column beside it. On by
+     * default; off, the action keeps its place at the end of the line.
+     */
+    stackAction?: boolean;
 }
 
 export type MessageEmits = {

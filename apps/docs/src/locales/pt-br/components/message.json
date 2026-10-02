@@ -3,6 +3,7 @@
     "sections": {
         "InfoBar": { "title": "InfoBar", "description": "Título e mensagem dividem uma linha enquanto couberem." },
         "Action and close": { "title": "Ação e fechar", "description": "O slot action recebe um botão ou link; `closable` adiciona um botão de fechar que emite `close`." },
+        "Narrow": { "title": "Estreita", "description": "Numa faixa estreita a ação desce para baixo do texto; `:stack-action=\"false\"` a mantém ao lado." },
         "Variants": { "title": "Variantes", "description": "`outlined` e `simple`; todas as severidades funcionam com cada uma." }
     }
 }

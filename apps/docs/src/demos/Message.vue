@@ -12,11 +12,13 @@ export const meta: DemoMeta = {
 import DemoSection from '../DemoSection.vue';
 import ActionAndClose from './Message/ActionAndClose.vue';
 import InfoBar from './Message/InfoBar.vue';
+import NarrowAction from './Message/NarrowAction.vue';
 import Variants from './Message/Variants.vue';
 </script>
 
 <template>
     <DemoSection title="InfoBar" description="Title and message share a line while they fit."><InfoBar /></DemoSection>
     <DemoSection title="Action and close" description="The action slot holds a button or link; `closable` adds a close button that emits `close`."><ActionAndClose /></DemoSection>
+    <DemoSection title="Narrow" description="On a narrow band the action drops below the text; `:stack-action=&quot;false&quot;` keeps it beside it."><NarrowAction /></DemoSection>
     <DemoSection title="Variants" description="`outlined` and `simple`; every severity works with each."><Variants /></DemoSection>
 </template>
