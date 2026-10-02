@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { clampMinutes, formatMinutes, nearestOption, parseMinutes, parseTime, timeKeyTarget, timeOptions, usesHour12 } from '@vitral/core';
+import { clampMinutes, formatMinutes, nearestOption, parseMinutes, parseTime, timeKeyTarget, timeMask, timeOptions, usesHour12 } from '@vitral/core';
 import { timepickerStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useMask } from '../../base/useMask';
 import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import Button from '../Button/Button.vue';
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<TimePickerProps>(), {
     // Absent, not false: an unset boolean prop is `false` to Vue, and this one
     // has to tell "what the locale writes" from "asked for twenty-four hour".
     hour12: undefined,
+    mask: true,
     placement: 'bottom-start',
     appendTo: 'body'
 });
@@ -59,11 +61,34 @@ const write = (minutes: number | null) => formatMinutes(minutes ?? 0, { locale: 
 
 /** What the box shows: what is being typed, or the value written out. */
 const text = ref('');
-watch(
-    () => [model.value, twelve.value, props.seconds] as const,
-    () => (text.value = model.value === null || model.value === undefined ? '' : write(model.value)),
-    { immediate: true }
-);
+
+// The box types into the shape the time is written in, through the same
+// masking as InputMask. Half a time is put back rather than read as one.
+const mask = useMask({
+    input: inputRef,
+    mask: () => {
+        if (props.mask !== true) return props.mask || null;
+        const pattern = timeMask({ hour12: twelve.value, seconds: props.seconds });
+        return pattern ? { pattern, autoClear: false } : null;
+    },
+    settings: () => ({}),
+    value: () => text.value,
+    onValue: (typed) => (text.value = typed),
+    editable: () => !props.disabled && !props.readonly
+});
+
+/**
+ * Puts text in the box. The mask and the box are told at once: typing and a
+ * revert can both land in one tick, and a watcher would see no change.
+ */
+function setText(next: string) {
+    text.value = next;
+    if (mask.active.value) mask.sync(next);
+    if (inputRef.value) inputRef.value.value = mask.active.value ? mask.text.value : next;
+}
+
+const written = () => (model.value === null || model.value === undefined ? '' : write(model.value));
+watch(() => [model.value, twelve.value, props.seconds] as const, () => setText(written()), { immediate: true });
 
 /** The option the arrows are on. It follows the value while the list opens. */
 const active = ref(-1);
@@ -72,8 +97,30 @@ const selected = computed(() => nearestOption(options.value, model.value ?? null
 function commit(minutes: number | null) {
     const value = minutes === null ? null : clampMinutes(minutes, min.value, max.value);
     model.value = value;
-    text.value = value === null ? '' : write(value);
+    setText(value === null ? '' : write(value));
     if (value !== null) emit('timeSelect', value);
+}
+
+// Pasted or filled in whole, a time is read as a time before the mask sees it,
+// so `930` or `9:30` is not scattered across the slots.
+function onMaskedInput(event: Event) {
+    const minutes = parseMinutes((event.target as HTMLInputElement).value, twelve.value);
+    if (minutes !== null) setText(write(minutes));
+    else mask.onInput(event);
+}
+
+function onMaskedPaste(event: ClipboardEvent) {
+    const minutes = parseMinutes(event.clipboardData?.getData('text') ?? '', twelve.value);
+    if (minutes === null || !mask.active.value) return mask.onPaste(event);
+    event.preventDefault();
+    setText(write(minutes));
+}
+
+/** Reads what was typed. Half a mask is half a time, so what was there before stays. */
+function commitTyped() {
+    if (mask.active.value && !mask.empty.value && !mask.complete.value) return setText(written());
+    const typed = (mask.active.value ? mask.filled.value : text.value).trim();
+    commit(typed ? parseMinutes(typed, twelve.value) : null);
 }
 
 function toggle() {
@@ -108,6 +155,7 @@ function move(to: number) {
 
 function onInputKeydown(event: KeyboardEvent) {
     if (props.disabled || props.readonly) return;
+    if (mask.onKeydown(event)) return;
     if (event.key === 'Escape') {
         if (open.value) {
             event.preventDefault();
@@ -118,7 +166,7 @@ function onInputKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
         event.preventDefault();
         if (open.value && active.value >= 0) commit(options.value[active.value]!.minutes);
-        else commit(parseMinutes(text.value, twelve.value));
+        else commitTyped();
         hide();
         return;
     }
@@ -143,7 +191,8 @@ function onInputKeydown(event: KeyboardEvent) {
 
 function onInputBlur(event: FocusEvent) {
     // What was typed is taken when the box is left, the way a date box takes it.
-    if (!open.value) commit(text.value.trim() ? parseMinutes(text.value, twelve.value) : null);
+    mask.onBlur(event);
+    if (!open.value) commitTyped();
     emit('blur', event);
 }
 
@@ -179,7 +228,8 @@ defineExpose({ focus: () => inputRef.value?.focus(), show, hide: () => hide(), i
             role="combobox"
             autocomplete="off"
             v-bind="mergeProps(controlAttrs, part('input'))"
-            :value="text"
+            :value="mask.active.value ? mask.text.value : text"
+            :inputmode="mask.inputmode(controlAttrs.inputmode)"
             :placeholder="placeholder"
             :disabled="disabled"
             :readonly="readonly"
@@ -188,9 +238,10 @@ defineExpose({ focus: () => inputRef.value?.focus(), show, hide: () => hide(), i
             :aria-controls="open ? listId : undefined"
             :aria-activedescendant="open && active >= 0 ? `${id}-o${active}` : undefined"
             aria-autocomplete="none"
-            @input="text = ($event.target as HTMLInputElement).value"
+            @input="mask.active.value ? onMaskedInput($event) : (text = ($event.target as HTMLInputElement).value)"
+            @paste="onMaskedPaste"
             @keydown="onInputKeydown"
-            @focus="emit('focus', $event)"
+            @focus="mask.onFocus(), emit('focus', $event)"
             @blur="onInputBlur"
         />
         <button

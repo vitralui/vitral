@@ -11,10 +11,17 @@
         "variant": "O padrão é o `inputVariant` do plugin.",
         "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
         "monthPicker": "Se o mês no título de cada calendário abre uma grade com os doze meses. Ligado por padrão; desligado, o mês é só texto e chega-se a ele paginando.",
-        "yearPicker": "Se o ano no título de cada calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, os calendários só podem ser percorridos um mês de cada vez."
+        "yearPicker": "Se o ano no título de cada calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, os calendários só podem ser percorridos um mês de cada vez.",
+        "showTime": "Recebe um horário com cada ponta. Os calendários ganham um campo de horário para o início e outro para o fim, a caixa de texto escreve cada horário depois da sua data, e fechar o intervalo deixa os calendários abertos para os horários. Um campo de horário espera a sua ponta ser escolhida. Desligado por padrão.",
+        "timeStep": "Minutos entre os horários que os campos de horário oferecem. O padrão é 30; qualquer minuto ainda pode ser digitado.",
+        "hour12": "Força o relógio de doze ou de vinte e quatro horas; o padrão é o que o locale escreve.",
+        "minTime": "O horário mais cedo, em minutos depois da meia-noite ou `'08:00'`. Um horário escolhido ou digitado antes dele é levado até ele.",
+        "maxTime": "O horário mais tarde, do mesmo jeito.",
+        "manualInput": "Se um intervalo pode ser digitado na caixa de texto: duas datas com o separador entre elas, cada uma com o seu horário sob `showTime`, lidas no Enter ou quando se sai da caixa. Ligado por padrão; desligado, a caixa só mostra o intervalo e um clique nela abre os calendários.",
+        "mask": "Se a caixa de texto digita dentro do formato em que o intervalo é escrito. Ligado por padrão, para um `dateFormat` de largura fixa: `99/99/9999 – 99/99/9999`. `false` deixa a caixa livre; uma máscara sua, como o InputMask aceita, substitui a derivada."
     },
     "emits": {
-        "rangeSelect": "As duas pontas foram marcadas. Dispara quando o intervalo está completo, não no primeiro clique."
+        "rangeSelect": "As duas pontas foram marcadas. Dispara quando o intervalo está completo, não no primeiro clique; com `showTime`, também quando um horário muda."
     },
     "slots": {
         "date": "O conteúdo de um dia.",

@@ -1,3 +1,4 @@
+import type { MaskProp } from '@vitral/core';
 import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
 
 export interface TimePickerProps extends BaseProps {
@@ -11,6 +12,14 @@ export interface TimePickerProps extends BaseProps {
     hour12?: boolean;
     /** Show seconds in what is written; the list is still built from `step`. */
     seconds?: boolean;
+    /**
+     * Whether the text box types into the shape the time is written in. On by
+     * default on a twenty-four-hour clock (`99:99`, or `99:99:99` with
+     * seconds); a twelve-hour time, whose hour has no fixed width, is left
+     * free. `false` leaves the box free; a mask of your own, as InputMask
+     * takes, replaces the derived one.
+     */
+    mask?: boolean | MaskProp;
     placeholder?: string;
     /** Show the list in place, without a text box or popup. */
     inline?: boolean;

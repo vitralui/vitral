@@ -16,6 +16,9 @@ export interface Locale {
     today: string;
     /** Labels the time of day in a date picker that takes one. */
     time: string;
+    /** Label the two times of a date range that takes them. */
+    startTime: string;
+    endTime: string;
     search: string;
     loading: string;
     on: string;
@@ -508,6 +511,8 @@ export interface Locale {
         chooseYear: string;
         chooseDate: string;
         chooseTime: string;
+        /** How many times a collapsed toast has come. `{count}` */
+        toastRepeated: string;
         pagination: string;
         /** Names a table column's filter box. `{column}` */
         filterColumn: string;
@@ -683,6 +688,8 @@ export const en: Locale = {
     choose: 'Choose',
     today: 'Today',
     time: 'Time',
+    startTime: 'Start time',
+    endTime: 'End time',
     search: 'Search',
     loading: 'Loading…',
     on: 'On',
@@ -1095,6 +1102,7 @@ export const en: Locale = {
         chooseYear: 'Choose year',
         chooseDate: 'Choose date',
         chooseTime: 'Choose time',
+        toastRepeated: '{count} times',
         pagination: 'Pagination',
         filterColumn: 'Filter {column}',
         moreOptions: 'More options',
@@ -1203,6 +1211,8 @@ export const ptBR: Locale = {
     choose: 'Escolher',
     today: 'Hoje',
     time: 'Horário',
+    startTime: 'Horário de início',
+    endTime: 'Horário de término',
     search: 'Buscar',
     loading: 'Carregando…',
     on: 'Ligado',
@@ -1615,6 +1625,7 @@ export const ptBR: Locale = {
         chooseYear: 'Escolher ano',
         chooseDate: 'Escolher data',
         chooseTime: 'Escolher horário',
+        toastRepeated: '{count} vezes',
         pagination: 'Paginação',
         filterColumn: 'Filtrar {column}',
         moreOptions: 'Mais opções',

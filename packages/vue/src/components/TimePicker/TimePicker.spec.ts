@@ -76,6 +76,36 @@ describe('TimePicker', () => {
         expect(value.value).toBeNull();
     });
 
+    it('types into the shape of a twenty-four-hour time, and puts back half of one', async () => {
+        const { value, input } = mountPicker({ modelValue: 600 });
+        input().focus();
+        await nextTick();
+        input().setSelectionRange(0, 5);
+        key(input(), 'Backspace');
+        await nextTick();
+        for (const k of '1445') {
+            key(input(), k);
+            await nextTick();
+        }
+        expect(input().value).toBe('14:45');
+        key(input(), 'Enter');
+        await nextTick();
+        expect(value.value).toBe(14 * 60 + 45);
+        input().setSelectionRange(3, 5);
+        key(input(), 'Backspace');
+        input().dispatchEvent(new FocusEvent('blur'));
+        await nextTick();
+        expect(value.value).toBe(14 * 60 + 45);
+        expect(input().value).toBe('14:45');
+    });
+
+    it('leaves a twelve-hour time free, and any time when told to', async () => {
+        const twelve = mountPicker({ hour12: true });
+        twelve.input().focus();
+        await nextTick();
+        expect(twelve.input().value).toBe('');
+    });
+
     it('walks the list with the arrows and takes one with Enter', async () => {
         const { value, input, options } = mountPicker({ step: 60 });
         key(input(), 'ArrowDown');

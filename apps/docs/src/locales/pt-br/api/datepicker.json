@@ -15,7 +15,10 @@
         "yearPicker": "Se o ano no título do calendário abre uma grade de anos. Ligado por padrão; desligado, o ano é só texto. Com a grade de meses também desligada, o calendário só pode ser percorrido um mês de cada vez.",
         "showTime": "Recebe um horário junto com a data. O calendário ganha um campo de horário sob os dias, a caixa de texto escreve o horário depois da data e lê um digitado ali, e escolher um dia deixa o calendário aberto para o horário. Desligado por padrão.",
         "timeStep": "Minutos entre os horários que o campo de horário oferece. O padrão é 30; qualquer minuto ainda pode ser digitado.",
-        "hour12": "Força o relógio de doze ou de vinte e quatro horas; o padrão é o que o locale escreve."
+        "hour12": "Força o relógio de doze ou de vinte e quatro horas; o padrão é o que o locale escreve.",
+        "minTime": "O horário mais cedo, em minutos depois da meia-noite ou `'08:00'`. Um horário escolhido ou digitado antes dele é levado até ele.",
+        "maxTime": "O horário mais tarde, do mesmo jeito.",
+        "mask": "Se a caixa de texto digita dentro do formato em que a data é escrita. Ligado por padrão: um `dateFormat` de largura fixa (`dd/MM/yyyy`, `yyyy-MM-dd`, com um horário de vinte e quatro horas depois) dá `99/99/9999`, e um formato com nome de mês ou dia sem o zero não dá nenhuma. `false` deixa a caixa livre; uma máscara sua, como o InputMask aceita, substitui a derivada."
     },
     "emits": {
         "dateSelect": "Um dia foi escolhido no calendário, ou digitado e confirmado; com `showTime`, também um horário."

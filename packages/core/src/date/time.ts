@@ -148,3 +148,19 @@ export function timeKeyTarget(minutes: number, key: string, step: number, bounds
             return null;
     }
 }
+
+/**
+ * Splits typed text into a date and the time written after it — `14:30`,
+ * `2:30 PM`, `14h30` — for a box that takes both. The time is null when there
+ * is none.
+ */
+export function splitTrailingTime(text: string): { date: string; time: string | null } {
+    const match = /\s+(\d{1,2}\s*[:h.]\s*\d{2}(?:\s*:\s*\d{2})?\s*(?:[ap]\.?\s*m\.?)?)\s*$/i.exec(text);
+    return match ? { date: text.slice(0, match.index).trim(), time: match[1]! } : { date: text.trim(), time: null };
+}
+
+/** A mask for what `formatMinutes` writes on a twenty-four-hour clock; null for twelve, whose hour has no fixed width. */
+export function timeMask(options: { hour12?: boolean; seconds?: boolean } = {}): string | null {
+    if (options.hour12) return null;
+    return options.seconds ? '99:99:99' : '99:99';
+}

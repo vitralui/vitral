@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { atMinutesOfDay, clampMinutes, formatMinutes, minutesOf, nearestOption, parseMinutes, timeKeyTarget, timeOptions } from './time';
+import { atMinutesOfDay, clampMinutes, formatMinutes, minutesOf, nearestOption, parseMinutes, splitTrailingTime, timeKeyTarget, timeMask, timeOptions } from './time';
+import { dateFormatMask } from './calendar';
 
 describe('times of day as minutes', () => {
     it('reads a clock off a date and sets one back on it', () => {
@@ -85,5 +86,31 @@ describe('times of day as minutes', () => {
         expect(timeKeyTarget(540, 'ArrowDown', 15, { min: 540 })).toBe(540);
         expect(timeKeyTarget(0, 'ArrowDown', 15)).toBe(0);
         expect(timeKeyTarget(570, 'Enter', 15)).toBeNull();
+    });
+});
+
+describe('typing dates and times into their shape', () => {
+    it('splits the time written after a date', () => {
+        expect(splitTrailingTime('03/20/2026 14:45')).toEqual({ date: '03/20/2026', time: '14:45' });
+        expect(splitTrailingTime('20 de março 2:30 PM')).toEqual({ date: '20 de março', time: '2:30 PM' });
+        expect(splitTrailingTime('03/20/2026 14h30')).toEqual({ date: '03/20/2026', time: '14h30' });
+        expect(splitTrailingTime(' 03/20/2026 ')).toEqual({ date: '03/20/2026', time: null });
+    });
+
+    it('masks the patterns of a fixed width, and only those', () => {
+        expect(dateFormatMask('dd/MM/yyyy')).toBe('99/99/9999');
+        expect(dateFormatMask('MM/dd/yyyy')).toBe('99/99/9999');
+        expect(dateFormatMask('yyyy-MM-dd')).toBe('9999-99-99');
+        expect(dateFormatMask('dd.MM.yy HH:mm')).toBe('99.99.99 99:99');
+        expect(dateFormatMask('d/M/yyyy')).toBeNull();
+        expect(dateFormatMask("dd 'de' MMMM")).toBeNull();
+        expect(dateFormatMask("dd 'at' yyyy")).toBeNull();
+        expect(dateFormatMask("dd'/'MM")).toBe('99/99');
+    });
+
+    it('masks a twenty-four-hour time, not a twelve-hour one', () => {
+        expect(timeMask()).toBe('99:99');
+        expect(timeMask({ seconds: true })).toBe('99:99:99');
+        expect(timeMask({ hour12: true })).toBeNull();
     });
 });

@@ -1,3 +1,4 @@
+import type { MaskProp } from '@vitral/core';
 import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
 
 export interface DatePickerProps extends BaseProps {
@@ -36,8 +37,21 @@ export interface DatePickerProps extends BaseProps {
     showTime?: boolean;
     /** Minutes between the times the time field offers. Defaults to 30; any minute can still be typed. */
     timeStep?: number;
+    /** The earliest time of day, as minutes past midnight or `'08:00'`. A time chosen or typed before it is moved up to it. */
+    minTime?: number | string | null;
+    /** The latest time of day, likewise. */
+    maxTime?: number | string | null;
     /** Force twelve- or twenty-four-hour time; defaults to what the locale writes. */
     hour12?: boolean;
+    /**
+     * Whether the text box types into the shape the date is written in. On by
+     * default: a `dateFormat` of fixed width (`dd/MM/yyyy`, `yyyy-MM-dd`, with
+     * a twenty-four-hour time after it) gives `99/99/9999`, and a format with
+     * a month name or a day without its zero gives none. `false` leaves the
+     * box free; a mask of your own, as InputMask takes, replaces the derived
+     * one.
+     */
+    mask?: boolean | MaskProp;
     /** 0 = Sunday; defaults to the locale's `firstDayOfWeek`. */
     firstDayOfWeek?: number;
     placeholder?: string;

@@ -1,4 +1,4 @@
-import type { DateRange } from '@vitral/core';
+import type { DateRange, MaskProp } from '@vitral/core';
 import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
 
 /**
@@ -29,6 +29,20 @@ export interface DateRangeProps extends BaseProps {
     dateFormat?: string;
     /** Between the two dates in the text box. */
     separator?: string;
+    /**
+     * Whether a range can be typed into the text box: two dates with the
+     * separator between them, each with its time under `showTime`, read on
+     * Enter or when the box is left. On by default; off, the box only shows
+     * the range and a press on it opens the calendars.
+     */
+    manualInput?: boolean;
+    /**
+     * Whether the text box types into the shape the range is written in. On by
+     * default, for a `dateFormat` of fixed width: `99/99/9999 – 99/99/9999`.
+     * `false` leaves the box free; a mask of your own, as InputMask takes,
+     * replaces the derived one.
+     */
+    mask?: boolean | MaskProp;
     minDate?: Date | null;
     maxDate?: Date | null;
     disabledDates?: Date[];
@@ -46,6 +60,21 @@ export interface DateRangeProps extends BaseProps {
      * the calendars can only be paged a month at a time.
      */
     yearPicker?: boolean;
+    /**
+     * Take a time of day with each end. The calendars gain a time field for
+     * the start and one for the end, the text box writes each time after its
+     * date, and closing the range leaves the calendars open for the times.
+     * A time field waits for its end to be chosen. Off by default.
+     */
+    showTime?: boolean;
+    /** Minutes between the times the time fields offer. Defaults to 30; any minute can still be typed. */
+    timeStep?: number;
+    /** The earliest time of day, as minutes past midnight or `'08:00'`. A time chosen or typed before it is moved up to it. */
+    minTime?: number | string | null;
+    /** The latest time of day, likewise. */
+    maxTime?: number | string | null;
+    /** Force twelve- or twenty-four-hour time; defaults to what the locale writes. */
+    hour12?: boolean;
     /** A footer button that empties the range. */
     showClearButton?: boolean;
     /** 0 = Sunday; defaults to the locale's `firstDayOfWeek`. */
@@ -66,7 +95,7 @@ export interface DateRangeProps extends BaseProps {
 }
 
 export type DateRangeEmits = {
-    /** Both ends are down. Fires once a range is whole, not on the first press. */
+    /** Both ends are down. Fires once a range is whole, not on the first press; with `showTime`, also when a time changes. */
     rangeSelect: [range: DateRangeValue];
     clear: [];
     show: [];

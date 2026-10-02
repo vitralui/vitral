@@ -521,6 +521,65 @@ describe('DatePicker', () => {
         await expectNoA11yViolations();
     });
 
+    describe('typing into the shape of the format', () => {
+        const keys = async (input: HTMLInputElement, text: string) => {
+            for (const key of text) await press(input, key);
+        };
+
+        it('masks a format of fixed width, and reads the date on Enter', async () => {
+            const { input, value } = mountPicker();
+            input().focus();
+            await nextTick();
+            expect(input().value).toBe('__/__/____');
+            expect(input().getAttribute('inputmode')).toBe('numeric');
+            await keys(input(), '0420x2026');
+            expect(input().value).toBe('04/20/2026');
+            await press(input(), 'Enter');
+            expect(value.value).toEqual(d(2026, 4, 20));
+        });
+
+        it('puts back half a date, and takes one pasted without its zeros', async () => {
+            const { input, value } = mountPicker({ modelValue: d(2026, 3, 5) });
+            input().focus();
+            await nextTick();
+            input().setSelectionRange(0, 10);
+            await press(input(), 'Backspace');
+            await keys(input(), '12');
+            input().dispatchEvent(new FocusEvent('blur'));
+            await nextTick();
+            expect(input().value).toBe('03/05/2026');
+            const paste = new Event('paste', { cancelable: true }) as ClipboardEvent;
+            Object.defineProperty(paste, 'clipboardData', { value: { getData: () => '1/2/2026' } });
+            input().dispatchEvent(paste);
+            await press(input(), 'Enter');
+            expect(value.value).toEqual(d(2026, 1, 2));
+        });
+
+        it('takes the time into the mask on a twenty-four-hour clock', async () => {
+            const { input } = mountPicker({ showTime: true, hour12: false });
+            input().focus();
+            await nextTick();
+            expect(input().value).toBe('__/__/____ __:__');
+        });
+
+        it('leaves the box free when told to, or when the format has no fixed width', async () => {
+            const free = mountPicker({ mask: false });
+            free.input().focus();
+            await nextTick();
+            expect(free.input().value).toBe('');
+            free.wrapper.unmount();
+            const named = mountPicker({ dateFormat: 'd MMMM yyyy' });
+            named.input().focus();
+            await nextTick();
+            expect(named.input().value).toBe('');
+            named.wrapper.unmount();
+            const twelve = mountPicker({ showTime: true, hour12: true });
+            twelve.input().focus();
+            await nextTick();
+            expect(twelve.input().value).toBe('');
+        });
+    });
+
     describe('with a time', () => {
         it('writes the time after the date and reads one typed there', async () => {
             const { input, value, type } = mountPicker({ showTime: true, hour12: false, modelValue: new Date(2026, 2, 11, 9, 5) });
@@ -557,6 +616,16 @@ describe('DatePicker', () => {
             await nextTick();
             expect(value.value).toEqual(new Date(2026, 2, 11, 16, 0));
             expect(dialog()).not.toBeNull();
+        });
+
+        it('keeps every time inside minTime and maxTime', async () => {
+            const { value, cell, openCalendar, type } = mountPicker({ showTime: true, hour12: false, minTime: '08:00', maxTime: 18 * 60 });
+            await openCalendar();
+            cell(d(2026, 3, 18)).click();
+            await nextTick();
+            expect(value.value).toEqual(new Date(2026, 2, 18, 8, 0));
+            await type('03/20/2026 22:15', 'Enter');
+            expect(value.value).toEqual(new Date(2026, 2, 20, 18, 0));
         });
 
         it('has no time field without showTime', async () => {

@@ -74,6 +74,10 @@ export const daterangeStyle = defineStyle({
             }
         ],
         cellLabel: 'vt-daterange-cell-label',
+        times: 'vt-daterange-times',
+        time: 'vt-daterange-time',
+        timeLabel: 'vt-daterange-time-label',
+        timePicker: 'vt-daterange-time-picker',
         footer: 'vt-daterange-footer'
     }
 });

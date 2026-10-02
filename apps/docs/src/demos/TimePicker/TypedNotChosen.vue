@@ -9,7 +9,7 @@ const show = (minutes: number | null) => (minutes === null ? 'nothing' : formatM
 
 <template>
     <StackPanel spacing="1rem">
-        <TimePicker v-model="typed" placeholder="Type a time" aria-label="Any time" />
+        <TimePicker v-model="typed" :mask="false" placeholder="Type a time" aria-label="Any time" />
         <small style="color: var(--vt-text-muted-color)">Reads as {{ show(typed) }}</small>
     </StackPanel>
 </template>

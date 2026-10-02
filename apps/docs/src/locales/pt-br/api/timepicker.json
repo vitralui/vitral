@@ -8,7 +8,8 @@
         "inline": "Mostra a lista no lugar, sem caixa de texto nem popup.",
         "showClearButton": "Um botão no rodapé que esvazia o valor.",
         "variant": "O padrão é o `inputVariant` do plugin.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "mask": "Se a caixa de texto digita dentro do formato em que o horário é escrito. Ligado por padrão num relógio de vinte e quatro horas (`99:99`, ou `99:99:99` com segundos); um horário de doze horas, cuja hora não tem largura fixa, fica livre. `false` deixa a caixa livre; uma máscara sua, como o InputMask aceita, substitui a derivada."
     },
     "emits": {
         "timeSelect": "Um horário foi escolhido na lista, ou digitado e confirmado."

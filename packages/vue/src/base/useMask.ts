@@ -13,6 +13,7 @@ import {
     parseMaskText,
     renderMask,
     resolveMask,
+    trimmedMask,
     unmaskValue,
     type MaskEdit,
     type MaskOptions,
@@ -20,7 +21,7 @@ import {
     type MaskSlots,
     type MaskToken
 } from '@vitral/core';
-import { computed, nextTick, ref, shallowRef, watch, type HTMLAttributes, type Ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef, watch, type HTMLAttributes, type Ref } from 'vue';
 
 /**
  * The typing half of a masked text box, for any component that owns an
@@ -67,6 +68,10 @@ export function useMask(options: UseMaskOptions) {
     let emitted: string | undefined;
 
     const empty = computed(() => isMaskEmpty(tokens.value, slots.value));
+    /** Every required slot is filled: a box that commits on blur can tell a whole value from half of one. */
+    const complete = computed(() => isMaskComplete(tokens.value, slots.value));
+    /** What has been typed so far, without the empty slots after it: `03/21/2026` of `03/21/2026 __:__`. */
+    const filled = computed(() => trimmedMask(tokens.value, slots.value, resolved.value.slotChar));
     /** What the box shows: the pattern while focused or filled, nothing while empty and left. */
     const text = computed(() => (focused.value || !empty.value ? renderMask(tokens.value, slots.value, resolved.value.slotChar) : ''));
     const isNumeric = (list: readonly MaskToken[]) => list.every((token) => !token.test || token.test === defaultMaskDefinitions['9']);
@@ -156,9 +161,9 @@ export function useMask(options: UseMaskOptions) {
     /** Takes the key when it edits the text, and says so; other keys are left to the component. */
     function onKeydown(event: KeyboardEvent): boolean {
         if (!active.value || !options.editable()) return false;
-        const [start, end] = selection();
         if (event.key === 'Backspace' || event.key === 'Delete') {
             event.preventDefault();
+            const [start, end] = selection();
             const direction = event.key === 'Backspace' ? 'backward' : 'forward';
             const { pattern: current, definitions } = resolved.value;
             apply(dynamic.value ? maskPatternEdit(current, tokens.value, slots.value, start, end, { remove: direction }, definitions) : maskDelete(tokens.value, slots.value, start, end, direction), event);
@@ -166,6 +171,7 @@ export function useMask(options: UseMaskOptions) {
         }
         if (isPrintableKey(event)) {
             event.preventDefault();
+            const [start, end] = selection();
             insert(start, end, event.key, event);
             return true;
         }
@@ -196,10 +202,28 @@ export function useMask(options: UseMaskOptions) {
         if (resolved.value.autoClear && !empty.value && !isMaskComplete(tokens.value, slots.value)) apply({ ...read(''), caret: 0 }, event);
     }
 
+    // A press past what has been typed puts the caret where typing goes on, not
+    // in the middle of the empty slots; one inside the typed part stays put.
+    function onClick() {
+        const el = options.input.value;
+        if (!active.value || !el || el.selectionStart !== el.selectionEnd) return;
+        const first = maskCaret(tokens.value, slots.value);
+        if ((el.selectionStart ?? 0) > first) el.setSelectionRange(first, first);
+    }
+    watch(
+        options.input,
+        (el, old) => {
+            old?.removeEventListener('click', onClick);
+            el?.addEventListener('click', onClick);
+        },
+        { immediate: true }
+    );
+    onBeforeUnmount(() => options.input.value?.removeEventListener('click', onClick));
+
     /** The keyboard a phone shows: the digits for a numeric mask, otherwise whatever the component was given. */
     function inputmode(given: unknown): HTMLAttributes['inputmode'] {
         return active.value && numeric.value ? 'numeric' : (given as HTMLAttributes['inputmode']);
     }
 
-    return { active, text, numeric, inputmode, sync, onKeydown, onPaste, onInput, onFocus, onBlur };
+    return { active, text, numeric, empty, complete, filled, inputmode, sync, onKeydown, onPaste, onInput, onFocus, onBlur };
 }

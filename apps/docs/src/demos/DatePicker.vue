@@ -19,6 +19,7 @@ import MonthAndYear from './DatePicker/MonthAndYear.vue';
 import SizesVariantsAndStates from './DatePicker/SizesVariantsAndStates.vue';
 import TitleOptions from './DatePicker/TitleOptions.vue';
 import WithTime from './DatePicker/WithTime.vue';
+import Typing from './DatePicker/Typing.vue';
 </script>
 
 <template>
@@ -36,8 +37,14 @@ import WithTime from './DatePicker/WithTime.vue';
         <TitleOptions />
     </DemoSection>
     <DemoSection
+        title="Typing into the format"
+        description="A `date-format` of fixed width types into its own shape by default: `dd/MM/yyyy` gives `__/__/____`, digits only, the separators typed for you. Half a date is put back when the box is left, and one pasted without its zeros, as `1/2/2026`, is read as a date first. A format with a month name has no fixed width and is left free; `:mask=&quot;false&quot;` frees any of them, and a mask of your own replaces the derived one."
+    >
+        <Typing />
+    </DemoSection>
+    <DemoSection
         title="With a time"
-        description="`show-time` adds a time field under the days. The box writes the time after the date and reads one typed there; choosing a day keeps the time already chosen and leaves the calendar open for it. `time-step` sets the minutes between the times listed, and any minute can still be typed."
+        description="`show-time` adds a time field under the days. The box writes the time after the date and reads one typed there; choosing a day keeps the time already chosen and leaves the calendar open for it. `time-step` sets the minutes between the times listed, and any minute can still be typed. `min-time` and `max-time` keep every time inside the day you allow, the right-hand one here from 08:00 to 18:00."
     >
         <WithTime />
     </DemoSection>

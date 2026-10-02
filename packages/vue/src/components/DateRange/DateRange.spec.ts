@@ -275,4 +275,130 @@ describe('DateRange', () => {
         await settle();
         await expectNoA11yViolations();
     });
+
+    describe('typing a range', () => {
+        const input = () => document.querySelector<HTMLInputElement>('.vt-daterange-input')!;
+        const keys = async (text: string) => {
+            for (const k of text) await press(input(), k);
+        };
+
+        it('types into the shape of two dates and reads them on Enter', async () => {
+            const { value, selected } = mountRange();
+            input().focus();
+            await nextTick();
+            expect(input().value).toBe('__/__/____ – __/__/____');
+            await keys('0918202609222026');
+            expect(input().value).toBe('09/18/2026 – 09/22/2026');
+            await press(input(), 'Enter');
+            expect(value.value).toEqual({ start: at(18), end: at(22) });
+            expect(selected).toHaveLength(1);
+        });
+
+        it('takes a start alone, sorts ends typed backwards, and puts back what it cannot read', async () => {
+            const { value } = mountRange();
+            input().focus();
+            await nextTick();
+            await keys('09182026');
+            input().dispatchEvent(new FocusEvent('blur'));
+            await nextTick();
+            expect(value.value).toEqual({ start: at(18), end: null });
+            const paste = (text: string) => {
+                const event = new Event('paste', { cancelable: true }) as ClipboardEvent;
+                Object.defineProperty(event, 'clipboardData', { value: { getData: () => text } });
+                input().setSelectionRange(0, input().value.length);
+                input().dispatchEvent(event);
+            };
+            paste('9/30/2026 - 9/20/2026');
+            await press(input(), 'Enter');
+            expect(value.value).toEqual({ start: at(20), end: at(30) });
+            input().setSelectionRange(0, 2);
+            await keys('13');
+            await press(input(), 'Enter');
+            expect(value.value).toEqual({ start: at(20), end: at(30) });
+            expect(input().value).toBe('09/20/2026 – 09/30/2026');
+        });
+
+        it('types each end with its time', async () => {
+            const { value } = mountRange({ showTime: true, hour12: false });
+            input().focus();
+            await nextTick();
+            expect(input().value).toBe('__/__/____ __:__ – __/__/____ __:__');
+            await keys('091820261400092220261130');
+            await press(input(), 'Enter');
+            expect(value.value).toEqual({ start: new Date(2026, 8, 18, 14, 0), end: new Date(2026, 8, 22, 11, 30) });
+        });
+
+        it('only shows the range, and opens on a press, without manualInput', async () => {
+            const { settle } = mountRange({ manualInput: false });
+            expect(input().readOnly).toBe(true);
+            input().click();
+            await settle();
+            expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+        });
+    });
+
+    describe('with times', () => {
+        const typeTime = async (id: 'start' | 'end', text: string) => {
+            const field = document.querySelector<HTMLInputElement>(`.vt-daterange-time:${id === 'start' ? 'first' : 'last'}-child input`)!;
+            field.value = text;
+            field.dispatchEvent(new Event('input'));
+            await press(field, 'Enter');
+            await nextTick();
+            return field;
+        };
+
+        it('gives each end a time, keeps the calendars open, and writes both', async () => {
+            const { value, selected, day, button, settle } = mountRange({ showTime: true, hour12: false });
+            button().click();
+            await settle();
+            const fields = () => [...document.querySelectorAll<HTMLInputElement>('.vt-daterange-time input')];
+            expect(fields().map((f) => f.labels?.[0]?.textContent)).toEqual(['Start time', 'End time']);
+            expect(fields().every((f) => f.disabled)).toBe(true);
+            day(18).click();
+            await nextTick();
+            day(22).click();
+            await settle();
+            expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+            expect(selected).toHaveLength(1);
+            await typeTime('start', '14:00');
+            await typeTime('end', '11:30');
+            expect(value.value).toEqual({ start: new Date(2026, 8, 18, 14, 0), end: new Date(2026, 8, 22, 11, 30) });
+            expect(selected).toHaveLength(3);
+            expect(document.querySelector<HTMLInputElement>('.vt-daterange-input')!.value).toBe('09/18/2026 14:00 – 09/22/2026 11:30');
+        });
+
+        it('keeps each end its time when the days change', async () => {
+            const { value, day, settle } = mountRange({ showTime: true, hour12: false, inline: true });
+            value.value = { start: new Date(2026, 8, 18, 14, 0), end: new Date(2026, 8, 22, 11, 30) };
+            await settle();
+            day(10).click();
+            await settle();
+            expect(value.value).toEqual({ start: new Date(2026, 8, 10, 14, 0), end: null });
+            day(12).click();
+            await settle();
+            expect(value.value).toEqual({ start: new Date(2026, 8, 10, 14, 0), end: new Date(2026, 8, 12, 11, 30) });
+        });
+
+        it('keeps both times inside minTime and maxTime', async () => {
+            const { value, day, settle } = mountRange({ showTime: true, hour12: false, inline: true, minTime: '09:00', maxTime: '17:00' });
+            await settle();
+            day(10).click();
+            await nextTick();
+            day(12).click();
+            await settle();
+            expect(value.value).toEqual({ start: new Date(2026, 8, 10, 9, 0), end: new Date(2026, 8, 12, 9, 0) });
+        });
+
+        it('has no time fields without showTime, and closes on the second day', async () => {
+            const { day, button, settle } = mountRange();
+            button().click();
+            await settle();
+            expect(document.querySelector('.vt-daterange-times')).toBeNull();
+            day(18).click();
+            await nextTick();
+            day(22).click();
+            await settle();
+            expect(document.querySelector('[role="dialog"]')).toBeNull();
+        });
+    });
 });

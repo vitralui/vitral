@@ -3,6 +3,8 @@ import {
     addMonths,
     calendarKeyTarget,
     atMinutesOfDay,
+    clampMinutes,
+    dateFormatMask,
     daysInMonth,
     formatDate,
     formatMinutes,
@@ -13,7 +15,10 @@ import {
     nearestSelectableDate,
     parseDate,
     parseMinutes,
+    parseTime,
+    splitTrailingTime,
     startOfDay,
+    timeMask,
     usesHour12,
     weekdayOrder,
     type CalendarDay,
@@ -22,6 +27,7 @@ import {
 import { datepickerStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useMask } from '../../base/useMask';
 import { useFocusTrap } from '../../composables/useFocusTrap';
 import { useOverlay } from '../../composables/useOverlay';
 import Button from '../Button/Button.vue';
@@ -59,7 +65,10 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
     maxDate: null,
     monthPicker: true,
     yearPicker: true,
+    mask: true,
     timeStep: 30,
+    minTime: null,
+    maxTime: null,
     // Absent, not false: it has to tell "what the locale writes" from "asked for twenty-four hour".
     hour12: undefined,
     placement: 'bottom-start',
@@ -96,6 +105,12 @@ const selectable = (date: Date) => isDateSelectable(date, constraints.value);
 
 const twelve = computed(() => props.hour12 ?? usesHour12(locale.value.code));
 const minutesOf = (date: Date) => date.getHours() * 60 + date.getMinutes();
+/** A bound as minutes, whether it was given as minutes or as `'08:00'`. */
+const bound = (given: number | string | null | undefined) => (given === null || given === undefined ? null : typeof given === 'number' ? given : parseTime(given, 0));
+const minTimeOf = computed(() => bound(props.minTime));
+const maxTimeOf = computed(() => bound(props.maxTime));
+/** Every time that reaches the value goes through here, so none falls outside the bounds. */
+const fit = (minutes: number) => clampMinutes(minutes, minTimeOf.value, maxTimeOf.value);
 const writeTime = (date: Date) => formatMinutes(minutesOf(date), { locale: locale.value.code, hour12: twelve.value });
 
 /** The time field's value. Set before a day is chosen, it goes on the day the calendar is on. */
@@ -103,12 +118,9 @@ const time = computed<number | null>({
     get: () => (value.value ? minutesOf(value.value) : null),
     set: (minutes) => {
         const day = value.value ?? (selectable(activeDate.value) ? activeDate.value : null);
-        if (day) choose(atMinutesOfDay(startOfDay(day), minutes ?? 0));
+        if (day) choose(atMinutesOfDay(startOfDay(day), fit(minutes ?? 0)));
     }
 });
-
-// A time written after the date: `14:30`, `2:30 PM`, `14h30`.
-const trailingTime = /\s*(\d{1,2}\s*[:h.]\s*\d{2}(?:\s*:\s*\d{2})?\s*(?:[ap]\.?\s*m\.?)?)\s*$/i;
 
 // ---- the text box ----------------------------------------------------------
 
@@ -117,7 +129,37 @@ const formatted = computed(() => {
     return props.showTime && value.value ? `${date} ${writeTime(value.value)}` : date;
 });
 const text = ref(formatted.value);
-watch(formatted, (next) => (text.value = next));
+watch(formatted, (next) => setText(next));
+
+// The box types into the shape the date is written in, through the same
+// masking as InputMask. Half a date is put back on blur, as an unreadable one
+// is, so the derived mask never clears on its own.
+const derivedMask = computed(() => {
+    const date = dateFormatMask(format.value);
+    if (!date) return null;
+    if (!props.showTime) return { pattern: date, autoClear: false };
+    const time = timeMask({ hour12: twelve.value });
+    return time ? { pattern: `${date} ${time}`, autoClear: false } : null;
+});
+/**
+ * Puts text in the box. The mask and the box are told at once: typing and a
+ * revert can both land in one tick, and a watcher would see no change.
+ */
+function setText(next: string) {
+    text.value = next;
+    if (mask.active.value) mask.sync(next);
+    // Typed and put back in one tick, the binding sees no change and would leave the typing in the box.
+    if (inputRef.value) inputRef.value.value = mask.active.value ? mask.text.value : next;
+}
+
+const mask = useMask({
+    input: inputRef,
+    mask: () => (props.mask === true ? derivedMask.value : props.mask || null),
+    settings: () => ({}),
+    value: () => text.value,
+    onValue: (typed) => (text.value = typed),
+    editable: () => !props.disabled && !props.readonly
+});
 
 const state = computed(() => ({
     size: props.size,
@@ -134,30 +176,60 @@ function choose(date: Date | null) {
     model.value = date;
     if (date && changed) emit('dateSelect', date);
     if (!date && changed) emit('clear');
-    text.value = formatted.value;
+    setText(formatted.value);
 }
 
 /** Reads what was typed: a real, selectable date is taken, empty text clears, anything else reverts. */
 function commitText() {
-    const typed = text.value.trim();
+    // A mask reads as what has been typed, without the empty slots after it.
+    const typed = (mask.active.value ? mask.filled.value : text.value).trim();
     if (typed === formatted.value) return;
+
     if (typed === '') return choose(null);
     if (props.showTime) return commitDateTime(typed);
     const parsed = parseDate(typed, format.value);
     if (parsed && selectable(parsed)) choose(parsed);
-    else text.value = formatted.value;
+    else setText(formatted.value);
 }
 
 /** A date with a time after it; with none, the time already chosen is kept. */
 function commitDateTime(typed: string) {
-    const match = trailingTime.exec(typed);
-    const minutes = match ? parseMinutes(match[1]!, twelve.value) : value.value ? minutesOf(value.value) : 0;
-    const parsed = parseDate(match ? typed.slice(0, match.index) : typed, format.value);
-    if (parsed && minutes !== null && selectable(parsed)) choose(atMinutesOfDay(parsed, minutes));
-    else text.value = formatted.value;
+    const { date, time } = splitTrailingTime(typed);
+    const minutes = time ? parseMinutes(time, twelve.value) : value.value ? minutesOf(value.value) : 0;
+    const parsed = parseDate(date, format.value);
+    if (parsed && minutes !== null && selectable(parsed)) choose(atMinutesOfDay(parsed, fit(minutes)));
+    else setText(formatted.value);
+}
+
+/** A whole date written any way `parseDate` reads it — `1/2/2026` — written out in the mask's shape. */
+function readWhole(raw: string): string | null {
+    const { date, time } = props.showTime ? splitTrailingTime(raw) : { date: raw, time: null };
+    const parsed = parseDate(date.trim(), format.value);
+    if (!parsed) return null;
+    const minutes = time ? parseMinutes(time, twelve.value) : null;
+    if (time && minutes === null) return null;
+    const day = formatDate(parsed, format.value, locale.value);
+    if (!props.showTime) return day;
+    return `${day} ${formatMinutes(minutes ?? (value.value ? minutesOf(value.value) : fit(0)), { locale: locale.value.code, hour12: twelve.value })}`;
+}
+
+// Pasted or filled in whole, a date is read as a date before the mask sees it,
+// so one written without its zeros is not scattered across the slots.
+function onMaskedInput(event: Event) {
+    const whole = readWhole((event.target as HTMLInputElement).value);
+    if (whole) setText(whole);
+    else mask.onInput(event);
+}
+
+function onMaskedPaste(event: ClipboardEvent) {
+    const whole = readWhole(event.clipboardData?.getData('text') ?? '');
+    if (!whole || !mask.active.value) return mask.onPaste(event);
+    event.preventDefault();
+    setText(whole);
 }
 
 function onInputKeydown(event: KeyboardEvent) {
+    if (mask.onKeydown(event)) return;
     if (event.key === 'Enter') {
         commitText();
     } else if (event.key === 'ArrowDown' && event.altKey) {
@@ -168,6 +240,7 @@ function onInputKeydown(event: KeyboardEvent) {
 }
 
 function onInputBlur(event: FocusEvent) {
+    mask.onBlur(event);
     commitText();
     emit('blur', event);
 }
@@ -251,7 +324,7 @@ function selectDay(day: CalendarDay) {
     focusedDate.value = day.date;
     setView(day.date);
     const chosen = new Date(day.year, day.month, day.day);
-    choose(props.showTime && value.value ? atMinutesOfDay(chosen, minutesOf(value.value)) : chosen);
+    choose(props.showTime ? atMinutesOfDay(chosen, fit(value.value ? minutesOf(value.value) : 0)) : chosen);
     if (props.inline || props.showTime) focusActiveCell();
     else hide();
 }
@@ -382,14 +455,16 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
             type="text"
             autocomplete="off"
             v-bind="mergeProps(controlAttrs, part('input'))"
-            :value="text"
+            :value="mask.active.value ? mask.text.value : text"
+            :inputmode="mask.inputmode(controlAttrs.inputmode)"
             :placeholder="placeholder"
             :disabled="disabled"
             :readonly="readonly"
             :aria-invalid="invalid ? 'true' : undefined"
-            @input="text = ($event.target as HTMLInputElement).value"
+            @input="mask.active.value ? onMaskedInput($event) : (text = ($event.target as HTMLInputElement).value)"
+            @paste="onMaskedPaste"
             @keydown="onInputKeydown"
-            @focus="emit('focus', $event)"
+            @focus="mask.onFocus(), emit('focus', $event)"
             @blur="onInputBlur"
         />
         <button
@@ -492,6 +567,8 @@ defineExpose({ show, hide, focus: () => (props.inline ? focusActiveCell() : inpu
                         v-model="time"
                         v-bind="part('timePicker')"
                         :step="timeStep"
+                        :min-time="minTimeOf"
+                        :max-time="maxTimeOf"
                         :hour12="twelve"
                         :size="size === 'large' ? undefined : 'small'"
                         :disabled="disabled"

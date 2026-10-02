@@ -1,6 +1,14 @@
 {
     "description": "Duas datas e os dias entre elas, escolhidas em dois meses lado a lado ou em um, com o intervalo desenhado antes de ser confirmado.",
     "sections": {
+        "With times": {
+            "title": "Com horários",
+            "description": "`show-time` dá a cada ponta um horário: um campo para o início e outro para o fim, cada um esperando o seu dia. Fechar o intervalo deixa os calendários abertos para os horários, e cada ponta mantém o seu horário quando o seu dia muda. `time-step` define os minutos entre os horários da lista, e `min-time` e `max-time` limitam as duas pontas, aqui do meio-dia às dez da noite. O intervalo também pode ser digitado, cada ponta com o seu horário."
+        },
+        "Typing a range": {
+            "title": "Digitando um intervalo",
+            "description": "A caixa aceita um intervalo digitado: duas datas com o separador entre elas, lidas no Enter ou quando se sai da caixa, ordenadas se digitadas ao contrário. Um `date-format` de largura fixa dá à caixa o seu formato, `__/__/____ – __/__/____`. `:manual-input=\"false\"` deixa a caixa só para mostrar o intervalo, e um clique nela abre os calendários; `:mask=\"false\"` mantém a digitação e tira o formato."
+        },
         "Two months": { "title": "Dois meses", "description": "O padrão. Escolha um início e depois um fim; a faixa entre eles segue o ponteiro antes da confirmação. Cada calendário para no próprio mês — os dias de um lado e do outro ficam em branco, em vez de repetir o mês vizinho." },
         "One month": { "title": "Um mês", "description": "O mesmo intervalo num único calendário, para um formulário sem espaço para dois. Sem vizinho para repetir, os dias de um lado e do outro do mês voltam." },
         "Month and year": { "title": "Mês e ano", "description": "O mês e o ano no título de cada calendário são botões. O ano abre uma página de vinte anos, um ano abre os seus meses, e o mês escolhido é colocado no calendário cujo título foi pressionado, de modo que se chega a um intervalo a anos de distância sem paginar até lá. O intervalo em si não é tocado no caminho, e Escape volta aos dias." },

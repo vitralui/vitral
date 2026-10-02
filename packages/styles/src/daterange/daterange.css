@@ -275,6 +275,38 @@
     outline-offset: -1px;
 }
 
+/* The two ends' times, side by side under the calendars, each with its label above. */
+.vt-daterange-times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--vt-content-border-color);
+}
+
+.vt-daterange-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 10rem;
+    min-width: 0;
+}
+
+.vt-daterange-time-label {
+    color: var(--vt-text-muted-color);
+    font-size: 0.875rem;
+}
+
+.vt-daterange-time-picker {
+    width: 100%;
+}
+
+/* Under the times, the buttons share their rule rather than drawing a second one. */
+.vt-daterange-times + .vt-daterange-footer {
+    border-top: 0;
+}
+
 .vt-daterange-footer {
     display: flex;
     align-items: center;

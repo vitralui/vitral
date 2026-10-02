@@ -50,6 +50,19 @@ describe('InputMask', () => {
         expect(input().selectionStart).toBe(6);
     });
 
+    it('puts the caret where typing goes on when the box is pressed past it', async () => {
+        const { input, type } = mountMask();
+        input().focus();
+        await nextTick();
+        await type('55');
+        input().setSelectionRange(12, 12);
+        input().dispatchEvent(new MouseEvent('click'));
+        expect(input().selectionStart).toBe(3);
+        input().setSelectionRange(1, 1);
+        input().dispatchEvent(new MouseEvent('click'));
+        expect(input().selectionStart).toBe(1);
+    });
+
     it('moves to the next pattern of a list as the value outgrows one, and back', async () => {
         const { input, type, value, completed } = mountMask({ mask: ['999.999.999-99', '99.999.999/9999-99'], unmask: true });
         input().focus();

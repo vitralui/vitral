@@ -155,3 +155,31 @@ export function parseDate(text: string, pattern: string): Date | null {
 function escape(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/** Tokens of a fixed width, each with the mask slots it takes. */
+const FIXED_TOKENS: Record<string, string> = { yyyy: '9999', yy: '99', MM: '99', dd: '99', HH: '99', mm: '99', ss: '99' };
+
+/**
+ * A mask that fits what `formatDate` writes for a pattern, so a date box can
+ * type into the shape it shows: `dd/MM/yyyy` gives `99/99/9999`. Null when the
+ * pattern has a part of no fixed width — a month name, a day without its
+ * leading zero — or a literal the mask would read as a slot.
+ */
+export function dateFormatMask(pattern: string): string | null {
+    let mask = '';
+    let last = 0;
+    for (const match of pattern.matchAll(TOKENS)) {
+        const literal = pattern.slice(last, match.index);
+        last = match.index + match[0].length;
+        const token = match[0];
+        const slots = FIXED_TOKENS[token];
+        const text = token.startsWith("'") ? token.slice(1, -1) : null;
+        if (!slots && text === null) return null;
+        mask += literal + (slots ?? text);
+    }
+    mask += pattern.slice(last);
+    // Only the slots may be slot characters; a literal `9`, letter, `*` or `?` would be read as one.
+    const literals = mask.replace(/9/g, '');
+    if (/[0-9A-Za-z*?]/.test(literals) || !mask.includes('9')) return null;
+    return mask;
+}

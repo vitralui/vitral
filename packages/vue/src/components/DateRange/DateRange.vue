@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import {
     addMonths,
+    atMinutesOfDay,
     calendarKeyTarget,
+    clampMinutes,
+    dateFormatMask,
     formatDate,
+    formatMinutes,
     isDateSelectable,
     isInRange,
     isRangeEnd,
@@ -11,10 +15,16 @@ import {
     monthGrid,
     nearestSelectableDate,
     normalizeDateRange,
+    parseDate,
+    parseMinutes,
+    parseTime,
     pressRange,
     previewRange,
     rangeLength,
+    splitTrailingTime,
     startOfDay,
+    timeMask,
+    usesHour12,
     weekdayOrder,
     type CalendarDay,
     type DateConstraints,
@@ -24,12 +34,14 @@ import { daterangeStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
 import { useCalendarLevels } from '../../base/useCalendarLevels';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useMask } from '../../base/useMask';
 import { useFocusTrap } from '../../composables/useFocusTrap';
 import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import Button from '../Button/Button.vue';
 import { Tooltip as vTooltip } from '../../directives/tooltip';
 import Icon from '../Icon/Icon.vue';
+import TimePicker from '../TimePicker/TimePicker.vue';
 import type { DateRangeEmits, DateRangeProps, DateRangeSlots } from './types';
 
 /**
@@ -51,6 +63,10 @@ import type { DateRangeEmits, DateRangeProps, DateRangeSlots } from './types';
  * picker's are: they swap the calendars for a grid of months or of years, and
  * the month chosen there is put where the title that was pressed is. The range
  * is not touched on the way. `monthPicker` and `yearPicker` turn either off.
+ *
+ * `showTime` gives each end a time of day, as the date picker's does: a time
+ * field for the start and one for the end under the calendars. The calendars
+ * work in days; each end keeps its time when its day changes.
  */
 
 defineOptions({ name: 'VtDateRange', inheritAttrs: false });
@@ -63,10 +79,17 @@ const props = withDefaults(defineProps<DateRangeProps>(), {
     // has to tell "left to the number of months" from "asked for off".
     showOtherMonths: undefined,
     separator: '–',
+    manualInput: true,
+    mask: true,
     minDate: null,
     maxDate: null,
     monthPicker: true,
     yearPicker: true,
+    timeStep: 30,
+    minTime: null,
+    maxTime: null,
+    // Absent, not false: it has to tell "what the locale writes" from "asked for twenty-four hour".
+    hour12: undefined,
     placement: 'bottom-start',
     appendTo: 'body'
 });
@@ -138,12 +161,186 @@ const shown = computed(() => previewRange(value.value, interactive.value ? (hove
 const previewing = computed(() => !value.value.end && !!shown.value.end);
 const nights = computed(() => Math.max(0, rangeLength(value.value) - 1));
 
-const text = computed(() => {
+// ---- the times ------------------------------------------------------------
+
+const twelve = computed(() => props.hour12 ?? usesHour12(locale.value.code));
+const minutesOf = (date: Date | null | undefined) => (date ? date.getHours() * 60 + date.getMinutes() : null);
+/** A bound as minutes, whether it was given as minutes or as `'08:00'`. */
+const bound = (given: number | string | null | undefined) => (given === null || given === undefined ? null : typeof given === 'number' ? given : parseTime(given, 0));
+const minTimeOf = computed(() => bound(props.minTime));
+const maxTimeOf = computed(() => bound(props.maxTime));
+/** Every time that reaches the value goes through here, so none falls outside the bounds. */
+const fit = (minutes: number | null | undefined) => clampMinutes(minutes ?? 0, minTimeOf.value, maxTimeOf.value);
+/** Each end's time as it is bound, before the calendars' day-only reading of it. */
+const times = computed(() => {
+    const raw = model.value ?? { start: null, end: null };
+    // The ends sort themselves by day; their times go with them.
+    const swapped = !!raw.start && !!raw.end && startOfDay(raw.end).getTime() < startOfDay(raw.start).getTime();
+    return swapped ? { start: minutesOf(raw.end), end: minutesOf(raw.start) } : { start: minutesOf(raw.start), end: minutesOf(raw.end) };
+});
+
+/**
+ * The end's last time. A new start drops the end from the value, and its time
+ * with it; the next end chosen takes it back, so a check-out at 11:30 stays
+ * 11:30 while the days are changed.
+ */
+let lastEndTime: number | null = null;
+watch(
+    () => times.value.end,
+    (minutes) => {
+        if (minutes !== null) lastEndTime = minutes;
+    },
+    { immediate: true }
+);
+
+/** A day-only range with the times put back on its ends; without `showTime`, the days alone. */
+function withTimes(range: DateRange, start = times.value.start, end = times.value.end): DateRange {
+    if (!props.showTime) return range;
+    return { start: range.start ? atMinutesOfDay(range.start, fit(start)) : null, end: range.end ? atMinutesOfDay(range.end, fit(end)) : null };
+}
+
+function setTime(which: 'start' | 'end', minutes: number | null) {
+    if (!value.value[which]) return;
+    const next = withTimes(value.value, which === 'start' ? minutes : times.value.start, which === 'end' ? minutes : times.value.end);
+    model.value = next;
+    if (next.start && next.end) emit('rangeSelect', next);
+}
+
+const startTime = computed({ get: () => (value.value.start ? times.value.start : null), set: (minutes: number | null) => setTime('start', minutes) });
+const endTime = computed({ get: () => (value.value.end ? times.value.end : null), set: (minutes: number | null) => setTime('end', minutes) });
+
+const write = (date: Date, minutes: number | null) => {
+    const day = formatDate(date, pattern.value, locale.value);
+    return props.showTime ? `${day} ${formatMinutes(minutes ?? 0, { locale: locale.value.code, hour12: twelve.value })}` : day;
+};
+
+const formatted = computed(() => {
     const { start, end } = value.value;
     if (!start) return '';
-    const from = formatDate(start, pattern.value, locale.value);
-    return end ? `${from} ${props.separator} ${formatDate(end, pattern.value, locale.value)}` : from;
+    const from = write(start, times.value.start);
+    return end ? `${from} ${props.separator} ${write(end, times.value.end)}` : from;
 });
+
+// ---- the text box ---------------------------------------------------------
+
+const inputRef = ref<HTMLInputElement | null>(null);
+const text = ref(formatted.value);
+watch(formatted, (next) => setText(next));
+
+// The box types into the shape the range is written in, through the same
+// masking as InputMask. Half a range typed is put back on blur, as an
+// unreadable one is, so the derived mask never clears on its own.
+const derivedMask = computed(() => {
+    const date = dateFormatMask(pattern.value);
+    // The separator sits between two masks as a literal; one holding a slot character cannot.
+    if (!date || /[0-9A-Za-z*?]/.test(props.separator)) return null;
+    let end = date;
+    if (props.showTime) {
+        const time = timeMask({ hour12: twelve.value });
+        if (!time) return null;
+        end = `${date} ${time}`;
+    }
+    return { pattern: `${end} ${props.separator} ${end}`, autoClear: false };
+});
+const mask = useMask({
+    input: inputRef,
+    mask: () => (!props.manualInput ? null : props.mask === true ? derivedMask.value : props.mask || null),
+    settings: () => ({}),
+    value: () => text.value,
+    onValue: (typed) => (text.value = typed),
+    editable: () => interactive.value
+});
+
+/**
+ * Puts text in the box. The mask and the box are told at once: typing and a
+ * revert can both land in one tick, and a watcher would see no change.
+ */
+function setText(next: string) {
+    text.value = next;
+    if (mask.active.value) mask.sync(next);
+    if (inputRef.value) inputRef.value.value = mask.active.value ? mask.text.value : next;
+}
+
+/** One end as typed: its day and its time, null when it names nothing, false when it cannot be read. */
+function readEnd(part: string, fallback: number | null): { day: Date; minutes: number } | null | false {
+    if (!/[0-9A-Za-z]/.test(part)) return null;
+    const { date, time } = props.showTime ? splitTrailingTime(part) : { date: part.trim(), time: null };
+    const day = parseDate(date, pattern.value);
+    const minutes = time ? parseMinutes(time, twelve.value) : fit(fallback);
+    if (!day || minutes === null || !selectable(day)) return false;
+    return { day, minutes: fit(minutes) };
+}
+
+/** A range as typed, in order; null for empty text, false when it cannot be read. */
+function readRange(typed: string): DateRange | null | false {
+    if (!typed.trim()) return null;
+    const parts = typed.includes(props.separator) ? typed.split(props.separator) : typed.split(/\s+-\s+/);
+    if (parts.length > 2) return false;
+    const start = readEnd(parts[0] ?? '', times.value.start);
+    const end = readEnd(parts[1] ?? '', times.value.end ?? lastEndTime);
+    if (start === false || end === false || (!start && end)) return false;
+    if (!start) return null;
+    const range = { start: atMinutesOfDay(start.day, start.minutes), end: end ? atMinutesOfDay(end.day, end.minutes) : null };
+    // Typed backwards, the ends swap, each with its own time.
+    if (range.end && range.end.getTime() < range.start.getTime()) return { start: range.end, end: range.start };
+    return range;
+}
+
+/** Reads what was typed: a readable range is taken, empty text clears, anything else is put back. */
+function commitText() {
+    const typed = (mask.active.value ? mask.filled.value : text.value).trim();
+    if (typed === formatted.value) return;
+    const range = readRange(typed);
+    if (range === false) return setText(formatted.value);
+    if (range === null) {
+        if (value.value.start) clear();
+        return setText(formatted.value);
+    }
+    const next = props.showTime ? range : { start: range.start ? startOfDay(range.start) : null, end: range.end ? startOfDay(range.end) : null };
+    model.value = next;
+    if (next.start && next.end) emit('rangeSelect', next);
+    setText(formatted.value);
+}
+
+/** A whole range written any way it reads — `1/2/2026 - 1/9/2026` — written out in the mask's shape. */
+function readWhole(raw: string): string | null {
+    const range = readRange(raw);
+    if (!range || !range.start) return null;
+    const from = write(range.start, minutesOf(range.start));
+    return range.end ? `${from} ${props.separator} ${write(range.end, minutesOf(range.end))}` : from;
+}
+
+// Pasted or filled in whole, a range is read as one before the mask sees it,
+// so dates written without their zeros are not scattered across the slots.
+function onInput(event: Event) {
+    const raw = (event.target as HTMLInputElement).value;
+    if (!mask.active.value) return void (text.value = raw);
+    const whole = readWhole(raw);
+    if (whole) setText(whole);
+    else mask.onInput(event);
+}
+
+function onPaste(event: ClipboardEvent) {
+    const whole = mask.active.value ? readWhole(event.clipboardData?.getData('text') ?? '') : null;
+    if (!whole) return mask.onPaste(event);
+    event.preventDefault();
+    setText(whole);
+}
+
+function onInputKeydown(event: KeyboardEvent) {
+    if (mask.onKeydown(event)) return;
+    if (event.key === 'Enter') commitText();
+    else if (event.key === 'ArrowDown' && event.altKey) {
+        event.preventDefault();
+        commitText();
+        show();
+    }
+}
+
+function onInputBlur(event: FocusEvent) {
+    mask.onBlur(event);
+    commitText();
+}
 
 /** The one day that takes the tab stop, across every month on show. */
 const activeDate = computed(() => focusedDate.value ?? value.value.start ?? startOfDay(new Date()));
@@ -181,14 +378,17 @@ function dayState(day: CalendarDay) {
 function press(day: CalendarDay, event?: Event) {
     if (!interactive.value || !selectable(day.date)) return;
     focusedDate.value = day.date;
-    const next = pressRange(value.value, day.date);
+    const days = pressRange(value.value, day.date);
+    // A new start keeps the start's time; the end takes the end's, or the start's when it has none yet.
+    const startMinutes = days.end ? times.value.start : (times.value.start ?? 0);
+    const next = withTimes(days, startMinutes, times.value.end ?? lastEndTime ?? startMinutes);
     model.value = next;
     hovered.value = null;
     if (next.start && next.end) {
         emit('rangeSelect', next);
-        if (!props.inline) hide();
+        if (!props.inline && !props.showTime) hide();
     }
-    if (props.inline || !next.end) focusActiveDay();
+    if (props.inline || props.showTime || !next.end) focusActiveDay();
     void event;
 }
 
@@ -322,12 +522,19 @@ defineExpose({ show, hide, clear });
     <div v-if="!inline" v-bind="mergeProps(rootAttrs, part('root', state))">
         <input
             v-bind="mergeProps(controlAttrs, part('input'))"
-            :value="text"
+            ref="inputRef"
+            :value="mask.active.value ? mask.text.value : text"
+            :inputmode="mask.inputmode(controlAttrs.inputmode)"
             :placeholder="placeholder"
             :disabled="disabled"
-            readonly
+            :readonly="readonly || !manualInput"
             :aria-invalid="invalid ? 'true' : undefined"
-            @click="show"
+            @click="manualInput ? undefined : show()"
+            @input="onInput"
+            @paste="onPaste"
+            @keydown="onInputKeydown"
+            @focus="mask.onFocus()"
+            @blur="onInputBlur"
         />
         <button
             ref="buttonRef"
@@ -424,6 +631,40 @@ defineExpose({ show, hide, clear });
                             <span v-bind="part('cellLabel')">{{ cell.label }}</span>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div v-if="showTime && level === 'day'" v-bind="part('times')">
+                <div v-bind="part('time')">
+                    <label :for="`${id}-start-time`" v-bind="part('timeLabel')">{{ locale.startTime }}</label>
+                    <TimePicker
+                        :id="`${id}-start-time`"
+                        v-model="startTime"
+                        v-bind="part('timePicker')"
+                        :step="timeStep"
+                        :min-time="minTimeOf"
+                        :max-time="maxTimeOf"
+                        :hour12="twelve"
+                        :size="size === 'large' ? undefined : 'small'"
+                        :disabled="disabled || !value.start"
+                        :readonly="readonly"
+                        fluid
+                    />
+                </div>
+                <div v-bind="part('time')">
+                    <label :for="`${id}-end-time`" v-bind="part('timeLabel')">{{ locale.endTime }}</label>
+                    <TimePicker
+                        :id="`${id}-end-time`"
+                        v-model="endTime"
+                        v-bind="part('timePicker')"
+                        :step="timeStep"
+                        :min-time="minTimeOf"
+                        :max-time="maxTimeOf"
+                        :hour12="twelve"
+                        :size="size === 'large' ? undefined : 'small'"
+                        :disabled="disabled || !value.end"
+                        :readonly="readonly"
+                        fluid
+                    />
                 </div>
             </div>
             <div v-if="$slots.footer || showClearButton" v-bind="part('footer')">
