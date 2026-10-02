@@ -1,6 +1,6 @@
 {
   "name": "@vitral/tour",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Framework-free guided tours for Vitral: a highlight and a popover per step, hooks and methods to drive them, conditional steps, waits, steps that advance on their own, progress styles and a tour that remembers where the reader got to.",
   "keywords": [
     "vitral",
