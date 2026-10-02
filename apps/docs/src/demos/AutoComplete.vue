@@ -12,6 +12,7 @@ export const meta: DemoMeta = {
 <script setup lang="ts">
 import DemoSection from '../DemoSection.vue';
 import Basic from './AutoComplete/Basic.vue';
+import Masked from './AutoComplete/Masked.vue';
 import DropdownAndForcedSelection from './AutoComplete/DropdownAndForcedSelection.vue';
 import GroupsAndTemplates from './AutoComplete/GroupsAndTemplates.vue';
 import Multiple from './AutoComplete/Multiple.vue';
@@ -22,6 +23,7 @@ import StringsSizesAndStates from './AutoComplete/StringsSizesAndStates.vue';
     <DemoSection title="Basic"><Basic /></DemoSection>
     <DemoSection title="Dropdown and forced selection"><DropdownAndForcedSelection /></DemoSection>
     <DemoSection title="Multiple"><Multiple /></DemoSection>
+    <DemoSection title="With a mask" description="The query is typed into a mask, and with `unmask` it is only the digits. A chosen suggestion shows its label; typing again reads it into the mask."><Masked /></DemoSection>
     <DemoSection title="Groups and templates"><GroupsAndTemplates /></DemoSection>
     <DemoSection title="Plain strings, sizes and states"><StringsSizesAndStates /></DemoSection>
 </template>

@@ -1,3 +1,5 @@
+import type { MaskDefinitions, MaskProp } from '@vitral/core';
+
 /** Attributes, classes, styles and listeners handed to one part of a component. */
 export type PassThroughAttrs = Record<string, unknown>;
 
@@ -82,3 +84,31 @@ export type OverlayPlacement =
     | 'right'
     | 'right-start'
     | 'right-end';
+
+/**
+ * The mask props every field that takes a mask shares. A setting given here
+ * wins over the same one in a mask object, so a shared mask can be adjusted
+ * where it is used.
+ */
+export interface MaskFieldProps {
+    /**
+     * The pattern: `9` takes a digit, `a` a letter, `*` either; anything after
+     * `?` is optional; every other character is typed for the reader. A list
+     * of patterns lets the value take more than one shape: the first with room
+     * for what has been typed is shown, so
+     * `['999.999.999-99', '99.999.999/9999-99']` is a CPF that turns into a
+     * CNPJ at the twelfth digit, and back again when one is deleted. A
+     * function receives the characters typed so far, without literals, and
+     * returns the pattern to show. An object carries the pattern with its
+     * settings, so one mask can be defined once and passed to any field.
+     */
+    mask?: MaskProp;
+    /** What an empty slot shows: one character, or a string as long as the mask (`'mm/dd/yyyy'`). Defaults to `_`. */
+    slotChar?: string;
+    /** Clear an unfinished value when the box loses focus. Defaults to true. */
+    autoClear?: boolean;
+    /** v-model receives only the typed characters, without the literals. */
+    unmask?: boolean;
+    /** Extra slot characters, each with the characters it accepts. */
+    definitions?: MaskDefinitions;
+}

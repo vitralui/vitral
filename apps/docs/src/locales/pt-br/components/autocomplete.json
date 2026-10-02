@@ -4,6 +4,10 @@
         "Basic": { "title": "Básico" },
         "Dropdown and forced selection": { "title": "Dropdown e seleção obrigatória" },
         "Multiple": { "title": "Múltiplo" },
+        "With a mask": {
+            "title": "Com máscara",
+            "description": "A busca é digitada dentro de uma máscara, e com `unmask` ela é só os dígitos. Uma sugestão escolhida mostra o seu rótulo; digitar de novo o lê para dentro da máscara."
+        },
         "Groups and templates": { "title": "Grupos e templates" },
         "Plain strings, sizes and states": { "title": "Strings simples, tamanhos e estados" }
     }

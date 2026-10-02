@@ -5,7 +5,7 @@ export const meta: GuideMeta = {
     title: 'Forms and validation',
     section: 'Reference',
     description:
-        'Form state, rules and schema validation as a package of its own: `@vitral/forms` has no dependencies and no framework in it, so the same values, errors and submit flow work under Vue, under another framework, or under none. Adapters for Zod, Yup, Valibot, Superstruct, ArkType and anything else that implements Standard Schema.'
+        'Form state, rules and schema validation as a package of its own: `@vitral/forms` has no dependencies and no framework in it, so the same values, errors and submit flow work under Vue, under another framework, or under none. Adapters for Zod, Yup, Valibot, Superstruct, ArkType and anything else that implements Standard Schema. And masks: a pattern, a list, a function or an object that types a field into shape, the same in every field that takes one.'
 };
 </script>
 
@@ -130,6 +130,51 @@ const fromServer = normalizeErrors({ address: { city: 'Unknown city.' }, email: 
 
 form.setErrors(fromServer);
 const everything = mergeErrors(form.getState().errors, fromServer);`;
+
+const maskFields = `<script setup lang="ts">
+import { AutoComplete, InputMask, InputText } from '@vitral/vue';
+<\/script>
+
+<template>
+    <!-- A pattern. -->
+    <InputText v-model="zip" mask="99999-999" />
+    <!-- A list: the first pattern with room for what has been typed. -->
+    <InputMask v-model="taxId" :mask="['999.999.999-99', '99.999.999/9999-99']" unmask />
+    <!-- A function: it gets the characters typed so far and returns the pattern. -->
+    <InputText v-model="id" :mask="(raw) => (raw.startsWith('9') ? '99-999' : '999-99')" />
+    <!-- The same props on a search box. -->
+    <AutoComplete v-model="customer" :suggestions="found" mask="999-99-9999" unmask @complete="search" />
+<\/template>`;
+
+const maskObject = `import type { MaskOptions } from '@vitral/core';
+
+// A mask with its settings is a plain value: export it, import it, pass it.
+export const employeeId: MaskOptions = {
+    pattern: 'aa-9999',
+    case: 'upper', // letters are capitalised as they are typed
+    unmask: true, // v-model holds AB1234, not AB-1234
+    slotChar: ' ',
+    autoClear: false
+};
+
+// A list or a function goes in \`pattern\` as well.
+export const plate: MaskOptions = {
+    pattern: (raw) => (/^[A-Za-z]{3}[0-9][A-Za-z]/.test(raw) ? 'aaa9a99' : 'aaa-9*99'),
+    case: 'upper'
+};`;
+
+const maskOverride = `<!-- employeeId says unmask: true; this field wants the dash kept. -->
+<InputText :mask="employeeId" :unmask="false" />
+
+<!-- A field that leaves a setting out keeps the object's. -->
+<InputText :mask="employeeId" clearable />`;
+
+const maskCore = `import { maskPatternEdit, renderMask } from '@vitral/core';
+
+// The arithmetic has no DOM and no framework: an edit is a function from one
+// state to the next, so a mask can drive any text box.
+const typed = maskPatternEdit(['999.999.999-99', '99.999.999/9999-99'], [], [], 0, 0, { text: '12345678000190' });
+renderMask(typed.tokens, typed.slots); // '12.345.678/0001-90'`;
 
 const vue = `<script setup lang="ts">
 import { Form, InputText } from '@vitral/vue';
@@ -263,4 +308,38 @@ const values = ref({ email: '', password: '' });
         The <a :href="href('/components/form')">Form component page</a> shows it running, with field arrays, async checks and a summary that takes focus after a failed
         submit.
     </T>
+
+    <T k="masks.title" as="h2">Masks</T>
+    <T k="masks.text">
+        A mask types a field into a pattern: <code>9</code> takes a digit, <code>a</code> a letter, <code>*</code> either, anything after <code>?</code> may be left
+        empty, and every other character is typed for the reader. <code>InputText</code>, <code>InputMask</code> and <code>AutoComplete</code> take the same
+        <code>mask</code> prop and type through the same code, so a mask behaves alike in each, and <code>IconField</code>, <code>InputGroup</code>,
+        <code>FloatLabel</code> and <code>IftaLabel</code> have it through the <code>InputText</code> they wrap.
+    </T>
+    <CodeBlock :code="maskFields" language="vue" />
+    <T k="masks.shapes">
+        A list of patterns lets one value take more than one shape: the first pattern with room for what has been typed is shown, so a CPF turns into a CNPJ at the twelfth
+        digit and back when one is deleted, and nothing typed is lost on the way. A function receives the characters typed so far, without the literals, and returns the
+        pattern to show.
+    </T>
+
+    <T k="masks.object.title" as="h3">A mask as a value</T>
+    <T k="masks.object.text">
+        <code>mask</code> also takes an object that carries the pattern with its settings: <code>unmask</code>, <code>slotChar</code>, <code>autoClear</code>,
+        <code>definitions</code> and <code>case</code>. That is what makes a mask portable: defined once, in a module of its own, it gives the same box in every field it
+        is passed to, without the settings being repeated beside it. <code>case</code> turns letters to capitals or to small letters as they are typed.
+    </T>
+    <CodeBlock :code="maskObject" language="ts" />
+    <T k="masks.object.override">
+        A setting given on the field wins over the same one in the object, so a shared mask can be adjusted where it is used. A setting the field leaves out keeps the
+        object's.
+    </T>
+    <CodeBlock :code="maskOverride" language="vue" />
+
+    <T k="masks.core.title" as="h3">Without a framework</T>
+    <T k="masks.core.text">
+        The arithmetic is in <code>@vitral/core</code> and touches no DOM: an edit is a function from one state to the next, which says what the slots hold and where the
+        caret goes. A component in another framework, or a plain page, can drive a text box with it.
+    </T>
+    <CodeBlock :code="maskCore" language="ts" />
 </template>

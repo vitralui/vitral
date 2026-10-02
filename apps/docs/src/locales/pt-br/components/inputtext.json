@@ -1,8 +1,12 @@
 {
-    "description": "Uma caixa de texto de uma linha cujos atributos vão para o input nativo, com prefixo, sufixo e botão de limpar.",
+    "description": "Uma caixa de texto de uma linha cujos atributos vão para o input nativo, com prefixo, sufixo, botão de limpar e máscara opcional.",
     "sections": {
         "Basic": { "title": "Básico" },
         "Adornments and clear button": { "title": "Adornos e botão de limpar", "description": "Conteúdo dentro do campo, dos dois lados, e o botão de limpar." },
+        "Masks": {
+            "title": "Máscaras",
+            "description": "`mask` faz digitar dentro de um padrão, como o InputMask, mantendo os adornos e o botão de limpar. Aceita um padrão, uma lista, uma função, ou um objeto de máscara."
+        },
         "Sizes, variants and states": { "title": "Tamanhos, variantes e estados" },
         "Fluid": { "title": "Fluido" }
     }

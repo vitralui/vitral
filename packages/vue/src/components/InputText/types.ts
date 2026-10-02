@@ -1,6 +1,7 @@
-import type { BaseProps, InputVariant, Size } from '../../base/types';
+import type { BaseProps, InputVariant, MaskFieldProps, Size } from '../../base/types';
 
-export interface InputTextProps extends BaseProps {
+/** With a `mask`, the box types into it as InputMask does, keeping its slots and clear button. */
+export interface InputTextProps extends BaseProps, MaskFieldProps {
     size?: Size;
     /** Defaults to the plugin's `inputVariant`. */
     variant?: InputVariant;
@@ -12,6 +13,12 @@ export interface InputTextProps extends BaseProps {
     clearable?: boolean;
     type?: string;
 }
+
+export type InputTextEmits = {
+    clear: [];
+    /** With a `mask`: every required slot is filled. */
+    complete: [event: { originalEvent: Event; value: string }];
+};
 
 export interface InputTextSlots {
     /** Content inside the field, before the text: an icon, a currency sign. */

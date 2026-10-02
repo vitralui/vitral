@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
-import { mountVt } from '../../../test/utils';
+import { mountVt, press } from '../../../test/utils';
 import InputText from './InputText.vue';
 
 describe('InputText', () => {
@@ -60,5 +60,67 @@ describe('InputText', () => {
         );
         expect(wrapper.find('input').exists()).toBe(true);
         await expectNoA11yViolations();
+    });
+
+    describe('with a mask', () => {
+        function mountMasked(props: Record<string, unknown>) {
+            const value = ref<string | null | undefined>((props.modelValue as string | undefined) ?? '');
+            const completed: string[] = [];
+            const wrapper = mountVt(
+                defineComponent(() => () =>
+                    h(InputText, {
+                        id: 'doc',
+                        ...props,
+                        modelValue: value.value,
+                        'onUpdate:modelValue': (v: string | null | undefined) => (value.value = v),
+                        onComplete: (e: { value: string }) => completed.push(e.value)
+                    })
+                )
+            );
+            const input = () => document.querySelector<HTMLInputElement>('#doc')!;
+            const type = async (text: string) => {
+                for (const key of text) await press(input(), key);
+            };
+            return { wrapper, value, input, type, completed };
+        }
+
+        it('types into a mask as InputMask does', async () => {
+            const { input, type, value, completed } = mountMasked({ mask: ['999.999.999-99', '99.999.999/9999-99'] });
+            expect(input().getAttribute('inputmode')).toBe('numeric');
+            input().focus();
+            await nextTick();
+            await type('12345678901');
+            expect(input().value).toBe('123.456.789-01');
+            expect(completed).toEqual(['123.456.789-01']);
+            await type('234');
+            expect(value.value).toBe('12.345.678/9012-34');
+        });
+
+        it('lets its own settings win over the mask object', async () => {
+            const { input, type, value } = mountMasked({ mask: { pattern: '99999-999', unmask: true }, unmask: false });
+            input().focus();
+            await nextTick();
+            await type('01310100');
+            expect(value.value).toBe('01310-100');
+        });
+
+        it('turns letters to the mask case', async () => {
+            const { input, type, value } = mountMasked({ mask: { pattern: (raw: string) => (/^[A-Za-z]{3}[0-9][A-Za-z]/.test(raw) ? 'aaa9a99' : 'aaa-9*99'), case: 'upper' }, unmask: true });
+            input().focus();
+            await nextTick();
+            await type('abc1d23');
+            expect(input().value).toBe('ABC1D23');
+            expect(value.value).toBe('ABC1D23');
+        });
+
+        it('keeps the clear button and the slots', async () => {
+            const { wrapper, input, value } = mountMasked({ mask: '99/99', clearable: true, modelValue: '1231' });
+            await nextTick();
+            expect(input().value).toBe('12/31');
+            await wrapper.get('button').trigger('click');
+            expect(value.value).toBe('');
+            await nextTick();
+            expect(input().value).toBe('__/__');
+        });
     });
 });

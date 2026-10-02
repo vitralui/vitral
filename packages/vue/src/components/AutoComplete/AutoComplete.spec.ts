@@ -148,6 +148,49 @@ describe('AutoComplete', () => {
         expect(input().value).toBe('');
     });
 
+    it('types the query into a mask, choosing shows the label, and typing again reads it in', async () => {
+        const people = [{ name: '123.456.789-01' }, { name: '123.999.000-11' }];
+        const value = ref<unknown>(null);
+        const queries: string[] = [];
+        const suggestions = ref<unknown[]>([]);
+        mountVt(
+            defineComponent(() => () =>
+                h(AutoComplete, {
+                    id: 'doc',
+                    optionLabel: 'name',
+                    delay: 0,
+                    mask: '999.999.999-99',
+                    unmask: true,
+                    suggestions: suggestions.value,
+                    modelValue: value.value,
+                    'onUpdate:modelValue': (v: unknown) => (value.value = v),
+                    onComplete: ({ query }: { query: string }) => {
+                        queries.push(query);
+                        suggestions.value = people.filter((p) => p.name.replace(/\D/g, '').startsWith(query));
+                    }
+                })
+            )
+        );
+        const input = () => document.querySelector<HTMLInputElement>('#doc')!;
+        input().focus();
+        await nextTick();
+        for (const key of '1234') await press(input(), key);
+        await settle();
+        await nextTick();
+        expect(input().value).toBe('123.4__.___-__');
+        expect(input().getAttribute('inputmode')).toBe('numeric');
+        expect(queries.at(-1)).toBe('1234');
+        expect(value.value).toBe('1234');
+        document.querySelector<HTMLElement>('[role="option"]')!.click();
+        await nextTick();
+        expect(value.value).toEqual(people[0]);
+        expect(input().value).toBe('123.456.789-01');
+        await press(input(), 'Backspace');
+        await settle();
+        expect(input().value).toBe('123.456.789-0_');
+        expect(queries.at(-1)).toBe('1234567890');
+    });
+
     it('has no accessibility violations, closed or open', async () => {
         const { type } = mountAuto({ dropdown: true, showClear: true, modelValue: 'b' });
         await expectNoA11yViolations();

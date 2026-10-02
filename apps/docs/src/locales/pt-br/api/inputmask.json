@@ -1,6 +1,6 @@
 {
     "props": {
-        "mask": "O padrão: `9` aceita um dígito, `a` uma letra, `*` qualquer um; tudo depois de `?` é opcional; qualquer outro caractere é digitado pelo leitor.",
+        "mask": "O padrão: `9` aceita um dígito, `a` uma letra, `*` qualquer um; tudo depois de `?` é opcional; qualquer outro caractere é digitado pelo leitor. Uma lista de padrões deixa o valor ter mais de uma forma: aparece o primeiro com espaço para o que foi digitado, então `['999.999.999-99', '99.999.999/9999-99']` é um CPF que vira CNPJ no décimo segundo dígito, e volta quando um é apagado. Uma função recebe os caracteres digitados até ali, sem os literais, e devolve o padrão a mostrar. Um objeto leva o padrão com as suas configurações, de modo que uma máscara pode ser definida uma vez e passada a qualquer campo.",
         "slotChar": "O que uma posição vazia mostra: um caractere, ou uma string do tamanho da máscara (`'mm/dd/yyyy'`). O padrão é `_`.",
         "autoClear": "Limpa um valor incompleto quando a caixa perde o foco. O padrão é true.",
         "unmask": "O v-model recebe só os caracteres digitados, sem os literais.",

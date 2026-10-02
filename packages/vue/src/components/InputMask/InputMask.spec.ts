@@ -50,6 +50,41 @@ describe('InputMask', () => {
         expect(input().selectionStart).toBe(6);
     });
 
+    it('moves to the next pattern of a list as the value outgrows one, and back', async () => {
+        const { input, type, value, completed } = mountMask({ mask: ['999.999.999-99', '99.999.999/9999-99'], unmask: true });
+        input().focus();
+        await nextTick();
+        await type('12345678901');
+        expect(input().value).toBe('123.456.789-01');
+        expect(completed).toEqual(['12345678901']);
+        await type('234');
+        expect(input().value).toBe('12.345.678/9012-34');
+        expect(value.value).toBe('12345678901234');
+        expect(input().selectionStart).toBe(18);
+        for (let i = 0; i < 3; i++) await press(input(), 'Backspace');
+        expect(input().value).toBe('123.456.789-01');
+    });
+
+    it('reads a value set from outside into the pattern it fits', async () => {
+        const { input, value } = mountMask({ mask: ['999.999.999-99', '99.999.999/9999-99'], modelValue: '12345678000190' });
+        await nextTick();
+        expect(input().value).toBe('12.345.678/0001-90');
+        value.value = '123.456.789-01';
+        await nextTick();
+        expect(input().value).toBe('123.456.789-01');
+    });
+
+    it('asks a function for the pattern', async () => {
+        const mask = (raw: string) => (raw.length > 10 ? '(99) 99999-9999' : '(99) 9999-9999?9');
+        const { input, type } = mountMask({ mask });
+        input().focus();
+        await nextTick();
+        await type('1132345678');
+        expect(input().value).toBe('(11) 3234-5678_');
+        await type('9');
+        expect(input().value).toBe('(11) 32345-6789');
+    });
+
     it('deletes backwards and forwards, pulling what follows', async () => {
         const { input, type, value } = mountMask();
         input().focus();

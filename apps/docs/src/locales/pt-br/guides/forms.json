@@ -1,6 +1,6 @@
 {
     "title": "Formulários e validação",
-    "description": "Estado de formulário, regras e validação por schema num pacote próprio: `@vitral/forms` não tem dependências nem framework, então os mesmos valores, erros e fluxo de envio funcionam no Vue, em outro framework ou em nenhum. Adaptadores para Zod, Yup, Valibot, Superstruct, ArkType e qualquer outra coisa que implemente Standard Schema.",
+    "description": "Estado de formulário, regras e validação por schema num pacote próprio: `@vitral/forms` não tem dependências nem framework, então os mesmos valores, erros e fluxo de envio funcionam no Vue, em outro framework ou em nenhum. Adaptadores para Zod, Yup, Valibot, Superstruct, ArkType e qualquer outra coisa que implemente Standard Schema. E máscaras: um padrão, uma lista, uma função ou um objeto que dá forma a um campo, igual em todo campo que aceita uma.",
     "intro": "<code>@vitral/forms</code> é a camada de formulários como um pacote próprio: valores, estado de tocado e de alterado, erros, envio, arrays de campos e caminhos aninhados, sem dependências e sem framework. O <a href=\"/components/form\">componente Form</a> é um binding fino sobre ele, então tudo nesta página vale igual no Vue, em outro framework ou em nenhum.",
     "standalone": {
         "title": "Sem framework",
@@ -55,5 +55,19 @@
         "title": "Num formulário Vue",
         "text": "No Vue, o mesmo resolver vai no <code>Form.Root</code>, e os campos se ligam sozinhos: um controle dentro de um <code>Form.Field</code> recebe o seu valor, o seu nome, o seu estado de inválido e as relações entre o rótulo, a dica e a mensagem de erro.",
         "page": "A <a href=\"/components/form\">página do componente Form</a> mostra isso funcionando, com arrays de campos, verificações assíncronas e um resumo que recebe o foco depois de um envio que falhou."
+    },
+    "masks": {
+        "title": "Máscaras",
+        "text": "Uma máscara faz um campo ser digitado dentro de um padrão: <code>9</code> aceita um dígito, <code>a</code> uma letra, <code>*</code> qualquer um, tudo depois de <code>?</code> pode ficar vazio, e qualquer outro caractere é digitado pelo leitor. <code>InputText</code>, <code>InputMask</code> e <code>AutoComplete</code> recebem a mesma prop <code>mask</code> e digitam pelo mesmo código, então uma máscara se comporta igual em cada um, e <code>IconField</code>, <code>InputGroup</code>, <code>FloatLabel</code> e <code>IftaLabel</code> a têm pelo <code>InputText</code> que envolvem.",
+        "shapes": "Uma lista de padrões deixa um valor ter mais de uma forma: aparece o primeiro padrão com espaço para o que foi digitado, então um CPF vira CNPJ no décimo segundo dígito e volta quando um é apagado, sem perder nada do que foi digitado. Uma função recebe os caracteres digitados até ali, sem os literais, e devolve o padrão a mostrar.",
+        "object": {
+            "title": "Uma máscara como valor",
+            "text": "<code>mask</code> também aceita um objeto que leva o padrão com as suas configurações: <code>unmask</code>, <code>slotChar</code>, <code>autoClear</code>, <code>definitions</code> e <code>case</code>. É isso que torna uma máscara portátil: definida uma vez, num módulo próprio, ela dá a mesma caixa em todo campo para o qual é passada, sem repetir as configurações ao lado. <code>case</code> passa as letras para maiúsculas ou minúsculas enquanto são digitadas.",
+            "override": "Uma configuração dada no campo vale mais que a mesma no objeto, então uma máscara compartilhada pode ser ajustada onde é usada. Uma configuração que o campo não dá fica a do objeto."
+        },
+        "core": {
+            "title": "Sem framework",
+            "text": "O cálculo fica no <code>@vitral/core</code> e não toca no DOM: uma edição é uma função de um estado para o seguinte, que diz o que as posições guardam e onde fica o cursor. Um componente em outro framework, ou uma página simples, pode dirigir uma caixa de texto com ele."
+        }
     }
 }

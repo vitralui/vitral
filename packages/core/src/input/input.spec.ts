@@ -5,8 +5,13 @@ import {
     maskCaret,
     maskDelete,
     maskInsert,
+    maskCase,
+    maskPatternEdit,
     parseMask,
+    parseMaskPattern,
     parseMaskText,
+    pickMask,
+    resolveMask,
     renderMask,
     trimmedMask,
     unmaskValue
@@ -79,6 +84,85 @@ describe('mask', () => {
         expect(trimmedMask(phone, parseMaskText(phone, ''))).toBe('');
         const optional = parseMask('99?99');
         expect(isMaskComplete(optional, parseMaskText(optional, '12'))).toBe(true);
+    });
+});
+
+describe('mask patterns that change with the value', () => {
+    const cpfCnpj = ['999.999.999-99', '99.999.999/9999-99'];
+    const show = (edit: { tokens: ReturnType<typeof parseMask>; slots: (string | null)[] }) => renderMask(edit.tokens, edit.slots);
+    const type = (mask: Parameters<typeof pickMask>[0], text: string) => {
+        const start = parseMaskPattern(mask, '');
+        return maskPatternEdit(mask, start.tokens, start.slots, 0, 0, { text });
+    };
+
+    it('picks the first pattern with room for the characters, or the last', () => {
+        expect(pickMask(cpfCnpj, '123')).toBe(cpfCnpj[0]);
+        expect(pickMask(cpfCnpj, '12345678901')).toBe(cpfCnpj[0]);
+        expect(pickMask(cpfCnpj, '123456789012')).toBe(cpfCnpj[1]);
+        expect(pickMask(cpfCnpj, '1'.repeat(20))).toBe(cpfCnpj[1]);
+        // A pattern whose slots refuse a character is passed over.
+        expect(pickMask(['999', 'aaa'], 'ab')).toBe('aaa');
+        expect(pickMask((raw) => (raw.length > 10 ? '(99) 99999-9999' : '(99) 9999-9999?9'), '11987654321')).toBe('(99) 99999-9999');
+        expect(pickMask('99/99', 'anything')).toBe('99/99');
+    });
+
+    it('moves to the longer pattern as the twelfth digit is typed, keeping every digit', () => {
+        const cpf = type(cpfCnpj, '12345678901');
+        expect(show(cpf)).toBe('123.456.789-01');
+        const cnpj = maskPatternEdit(cpfCnpj, cpf.tokens, cpf.slots, cpf.tokens.length, cpf.tokens.length, { text: '2' });
+        expect(cnpj.pattern).toBe(cpfCnpj[1]);
+        expect(show(cnpj)).toBe('12.345.678/9012-__');
+        expect(cnpj.caret).toBe(16);
+    });
+
+    it('goes back to the shorter pattern when a digit is deleted', () => {
+        const cnpj = type(cpfCnpj, '123456789012');
+        const back = maskPatternEdit(cpfCnpj, cnpj.tokens, cnpj.slots, 15, 15, { remove: 'backward' });
+        expect(back.pattern).toBe(cpfCnpj[0]);
+        expect(show(back)).toBe('123.456.789-01');
+        expect(back.caret).toBe(14);
+    });
+
+    it('inserts and replaces a selection in the middle', () => {
+        const cpf = type(cpfCnpj, '123456');
+        const inserted = maskPatternEdit(cpfCnpj, cpf.tokens, cpf.slots, 1, 1, { text: '9' });
+        expect(show(inserted)).toBe('192.345.6__-__');
+        expect(inserted.caret).toBe(2);
+        const replaced = maskPatternEdit(cpfCnpj, cpf.tokens, cpf.slots, 0, 5, { text: '7' });
+        expect(show(replaced)).toBe('756.___.___-__');
+        const forward = maskPatternEdit(cpfCnpj, cpf.tokens, cpf.slots, 3, 3, { remove: 'forward' });
+        expect(show(forward)).toBe('123.56_.___-__');
+    });
+
+    it('drops a character no pattern takes', () => {
+        const edit = type(cpfCnpj, '12a3');
+        expect(show(edit)).toBe('123.___.___-__');
+        expect(edit.caret).toBe(4);
+    });
+
+    it('reads a value set from outside into its pattern, masked or raw', () => {
+        expect(show(parseMaskPattern(cpfCnpj, '12.345.678/0001-90'))).toBe('12.345.678/0001-90');
+        expect(show(parseMaskPattern(cpfCnpj, '12345678000190'))).toBe('12.345.678/0001-90');
+        expect(show(parseMaskPattern(cpfCnpj, '123.456.789-01'))).toBe('123.456.789-01');
+        expect(parseMaskPattern(cpfCnpj, null).pattern).toBe(cpfCnpj[0]);
+    });
+});
+
+describe('masks as values', () => {
+    it('resolves a pattern or an object, with the field winning over the mask', () => {
+        expect(resolveMask('99')).toMatchObject({ pattern: '99', unmask: false, slotChar: '_', autoClear: true, case: undefined });
+        const shared = { pattern: '99-aa', unmask: true, slotChar: '#', definitions: { '#': /x/ } };
+        expect(resolveMask(shared)).toMatchObject({ unmask: true, slotChar: '#' });
+        const local = resolveMask(shared, { unmask: false, slotChar: undefined, definitions: { h: /[0-9a-f]/ } });
+        expect(local.unmask).toBe(false);
+        expect(local.slotChar).toBe('#');
+        expect(Object.keys(local.definitions)).toEqual(expect.arrayContaining(['9', 'a', '*', '#', 'h']));
+    });
+
+    it('turns letters to the mask case', () => {
+        expect(maskCase('abc1', 'upper')).toBe('ABC1');
+        expect(maskCase('ABC1', 'lower')).toBe('abc1');
+        expect(maskCase('aB', undefined)).toBe('aB');
     });
 });
 

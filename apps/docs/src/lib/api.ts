@@ -1,6 +1,7 @@
 import { shallowReactive } from 'vue';
 import { lookup } from './i18n';
 import { once } from './lazy';
+import sharedTypes from '../../../../packages/vue/src/base/types.ts?raw';
 
 /**
  * The API tables are read from the components' own `types.ts` at build time,
@@ -101,12 +102,25 @@ export function apiOf(component: string): ApiDoc | null {
     const props = find('interface', 'Props');
     const emits = find('type', 'Emits');
     const slots = find('interface', 'Slots');
+    const parents = props?.head.match(/extends ([\w, ]+)/)?.[1]?.split(',').map((s) => s.trim()) ?? [];
+
+    // Props shared by a family of components (`MaskFieldProps`) are declared
+    // once in the base types and listed on each page after the component's
+    // own; one the component declares again, to narrow it, keeps its own row.
+    const own = props ? members(props.body) : [];
+    const inherited = parents
+        .filter((name) => name !== 'BaseProps')
+        .flatMap((name) => {
+            const shared = block(sharedTypes, new RegExp(`export interface ${name}\\b[^{]*`));
+            return shared ? members(shared.body) : [];
+        })
+        .filter((member) => !own.some((m) => m.name === member.name));
 
     return {
-        props: props ? members(props.body) : [],
+        props: [...own, ...inherited],
         emits: emits ? members(emits.body).map((m) => ({ ...m, type: m.type.replace(/^\[|\]$/g, '') || '—' })) : [],
         slots: slots ? members(slots.body).map((m) => ({ ...m, type: m.type.replace(/\s*=>\s*unknown$/, '').replace(/^\(\)$/, '—') })) : [],
-        extends: props?.head.match(/extends ([\w, ]+)/)?.[1]?.split(',').map((s) => s.trim()) ?? []
+        extends: parents
     };
 }
 

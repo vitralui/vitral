@@ -1,19 +1,9 @@
-import type { BaseProps, InputVariant, Size } from '../../base/types';
+import type { MaskOptions, MaskPattern, MaskProp } from '@vitral/core';
+import type { BaseProps, InputVariant, MaskFieldProps, Size } from '../../base/types';
 
-export interface InputMaskProps extends BaseProps {
-    /**
-     * The pattern: `9` takes a digit, `a` a letter, `*` either; anything after
-     * `?` is optional; every other character is typed for the reader.
-     */
-    mask: string;
-    /** What an empty slot shows: one character, or a string as long as the mask (`'mm/dd/yyyy'`). Defaults to `_`. */
-    slotChar?: string;
-    /** Clear an unfinished value when the box loses focus. Defaults to true. */
-    autoClear?: boolean;
-    /** v-model receives only the typed characters, without the literals. */
-    unmask?: boolean;
-    /** Extra slot characters, each with the characters it accepts. */
-    definitions?: Record<string, RegExp>;
+export type { MaskOptions, MaskPattern, MaskProp };
+
+export interface InputMaskProps extends BaseProps, MaskFieldProps {
     size?: Size;
     /** Defaults to the plugin's `inputVariant`. */
     variant?: InputVariant;

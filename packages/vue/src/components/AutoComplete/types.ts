@@ -1,6 +1,13 @@
-import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
+import type { BaseProps, InputVariant, MaskFieldProps, OverlayPlacement, Size } from '../../base/types';
 
-export interface AutoCompleteProps extends BaseProps {
+/**
+ * With a `mask`, what is typed goes into it, as in InputMask, and the query
+ * is the masked text (or only the typed characters, with `unmask`). A chosen
+ * suggestion's label is shown as it is; typing again reads it into the mask.
+ * The mask's own `complete` is not emitted here: `complete` is the request
+ * for suggestions.
+ */
+export interface AutoCompleteProps extends BaseProps, MaskFieldProps {
     /** What the list offers for the current query; the app sets it in answer to `complete`. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     suggestions?: any[];

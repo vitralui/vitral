@@ -1,8 +1,16 @@
 {
-    "description": "Uma caixa de texto em que se digita dentro de um padrão, como um telefone ou uma data, com os literais preenchidos para você.",
+    "description": "Uma caixa de texto em que se digita dentro de um padrão, como um telefone ou uma data, com os literais preenchidos para você. InputText e AutoComplete aceitam as mesmas máscaras.",
     "sections": {
         "Basic": { "title": "Básico" },
         "Unmasked value": { "title": "Valor sem máscara" },
+        "A pattern that follows the value": {
+            "title": "Um padrão que acompanha o valor",
+            "description": "Uma lista mostra o primeiro padrão com espaço para o que foi digitado: o CPF vira CNPJ no décimo segundo dígito, e volta quando um é apagado. Uma função recebe os caracteres digitados até ali e devolve o padrão."
+        },
+        "Masks as values": {
+            "title": "Máscaras como valores",
+            "description": "Um objeto de máscara leva o padrão com as suas configurações, então é definido uma vez e dá a mesma caixa no InputMask, no InputText e no AutoComplete. Uma configuração no campo vale mais que a do objeto."
+        },
         "Slot characters and optional parts": { "title": "Caracteres de posição e partes opcionais" },
         "Sizes and states": { "title": "Tamanhos e estados" }
     }

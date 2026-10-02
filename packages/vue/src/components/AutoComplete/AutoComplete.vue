@@ -3,6 +3,7 @@ import { equals, firstIndex, flattenOptions, formatMessage, groupOptions, lastIn
 import { autocompleteStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useMask } from '../../base/useMask';
 import { useOverlay } from '../../composables/useOverlay';
 import Chip from '../Chip/Chip.vue';
 import Icon from '../Icon/Icon.vue';
@@ -30,7 +31,10 @@ const props = withDefaults(defineProps<AutoCompleteProps>(), {
     minLength: 1,
     showEmptyMessage: true,
     placement: 'bottom-start',
-    appendTo: 'body'
+    appendTo: 'body',
+    // Absent, not false: an unset mask setting leaves the one in a mask object.
+    unmask: undefined,
+    autoClear: undefined
 });
 const overlayTarget = useOverlayTarget(() => props.appendTo);
 const model = defineModel<unknown>();
@@ -55,6 +59,28 @@ const focusedIndex = ref(-1);
 const labelFromFor = ref<string>();
 let searching = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
+
+// With a mask, what is typed goes through useMask and the box shows the
+// mask's text; a label put there by a choice is shown as it is until the next
+// keystroke reads it in.
+const typing = ref(false);
+/** The value the last keystroke set, told apart from one set from outside. */
+let typedValue: unknown;
+const mask = useMask({
+    input: inputRef,
+    mask: () => props.mask,
+    settings: () => ({ unmask: props.unmask, slotChar: props.slotChar, autoClear: props.autoClear, definitions: props.definitions }),
+    value: () => text.value,
+    onValue: (value, event) => {
+        typing.value = true;
+        // Empty is empty, not a row of placeholders, so the checks for an empty box still hold.
+        text.value = value === '' ? '' : mask.text.value;
+        typedValue = value;
+        typed(value, event);
+    },
+    editable: () => editable.value
+});
+const shown = computed(() => (mask.active.value && typing.value ? mask.text.value : text.value));
 
 const fields = computed(() => ({
     optionLabel: props.optionLabel,
@@ -98,7 +124,10 @@ const state = computed(() => ({
 watch(
     () => model.value,
     (value) => {
-        if (!props.multiple) text.value = displayOf(value);
+        if (props.multiple) return;
+        if (typing.value && value === typedValue) return;
+        typing.value = false;
+        text.value = displayOf(value);
     },
     { immediate: true }
 );
@@ -169,6 +198,7 @@ function choose(item: OptionItem | undefined, event: Event) {
         }
         text.value = '';
     } else {
+        typing.value = false;
         model.value = item.option;
         text.value = labelOf(item.option);
         emit('option-select', { originalEvent: event, value: item.option });
@@ -186,6 +216,7 @@ function removeAt(index: number, event: Event) {
 
 function clear() {
     clearTimeout(timer);
+    typing.value = false;
     text.value = '';
     model.value = props.multiple ? [] : null;
     hide();
@@ -194,8 +225,14 @@ function clear() {
 }
 
 function onInput(event: Event) {
+    if (mask.active.value) return mask.onInput(event);
     const query = (event.target as HTMLInputElement).value;
     text.value = query;
+    typed(query, event);
+}
+
+/** What was typed: the query, and the value too while a free text is allowed. */
+function typed(query: string, event: Event) {
     focusedIndex.value = -1;
     if (!props.multiple && !props.forceSelection) model.value = query;
     clearTimeout(timer);
@@ -208,6 +245,8 @@ function onInput(event: Event) {
 
 function onKeydown(event: KeyboardEvent) {
     if (props.disabled) return;
+    // Backspace on an empty box still removes the last chip, below.
+    if (!(props.multiple && event.key === 'Backspace' && text.value === '') && mask.onKeydown(event)) return;
     const count = items.value.length;
     switch (event.key) {
         case 'ArrowDown':
@@ -265,12 +304,14 @@ function onKeydown(event: KeyboardEvent) {
 
 function onFocus(event: FocusEvent) {
     focused.value = true;
+    mask.onFocus();
     if (props.completeOnFocus && editable.value) search(text.value, event);
     emit('focus', event);
 }
 
 function onBlur(event: FocusEvent) {
     focused.value = false;
+    mask.onBlur(event);
     if (props.forceSelection && editable.value) enforceSelection();
     emit('blur', event);
 }
@@ -335,7 +376,8 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
             autocomplete="off"
             aria-autocomplete="list"
             aria-haspopup="listbox"
-            :value="text"
+            :value="shown"
+            :inputmode="mask.inputmode(controlAttrs.inputmode)"
             :disabled="disabled"
             :readonly="readonly"
             :aria-expanded="open ? 'true' : 'false'"
@@ -344,6 +386,7 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
             :aria-invalid="invalid ? 'true' : undefined"
             :aria-busy="loading ? 'true' : undefined"
             @input="onInput"
+            @paste="mask.onPaste"
             @keydown="onKeydown"
             @focus="onFocus"
             @blur="onBlur"
