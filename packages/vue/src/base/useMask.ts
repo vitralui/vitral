@@ -149,7 +149,14 @@ export function useMask(options: UseMaskOptions) {
             const end = maskCaret(tokens.value, slots.value);
             return [end, end];
         }
-        return [el?.selectionStart ?? 0, el?.selectionEnd ?? 0];
+        const start = el?.selectionStart ?? 0;
+        const stop = el?.selectionEnd ?? 0;
+        // A caret past what has been typed (the end of an empty box, after End
+        // or a script) types, and rubs out, where the typing goes on: in the
+        // empty slots past it a key would find nothing to fill.
+        const first = maskCaret(tokens.value, slots.value);
+        if (start === stop && start > first) return [first, first];
+        return [start, stop];
     }
 
     function insert(start: number, end: number, raw: string, event: Event) {

@@ -63,6 +63,19 @@ describe('InputMask', () => {
         expect(input().selectionStart).toBe(1);
     });
 
+    it('types where typing goes on when the caret sits past it, with no press to move it', async () => {
+        const { input, type, value } = mountMask();
+        input().focus();
+        await nextTick();
+        // The end of the empty box, as End or a script leaves it.
+        input().setSelectionRange(14, 14);
+        await type('12');
+        expect(input().value).toBe('(12_) ___-____');
+        input().setSelectionRange(14, 14);
+        await press(input(), 'Backspace');
+        expect(value.value).toBe('(1__) ___-____');
+    });
+
     it('moves to the next pattern of a list as the value outgrows one, and back', async () => {
         const { input, type, value, completed } = mountMask({ mask: ['999.999.999-99', '99.999.999/9999-99'], unmask: true });
         input().focus();
