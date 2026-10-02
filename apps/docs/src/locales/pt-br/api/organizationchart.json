@@ -1,7 +1,8 @@
 {
     "props": {
         "value": "O topo do organograma.",
-        "collapsible": "Os nós podem ser recolhidos."
+        "collapsible": "Os nós podem ser recolhidos.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "default": "O conteúdo de um nó; um slot com o nome do `type` de um nó tem prioridade."

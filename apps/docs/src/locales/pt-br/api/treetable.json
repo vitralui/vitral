@@ -9,7 +9,8 @@
         "paginator": "Pagina as linhas de primeiro nível.",
         "rows": "Linhas de primeiro nível por página. O padrão é 10.",
         "scrollHeight": "Uma altura CSS; o cabeçalho fica visível.",
-        "caption": "Dá nome à tabela para as tecnologias assistivas. Ou nomeie-a com `aria-label`."
+        "caption": "Dá nome à tabela para as tecnologias assistivas. Ou nomeie-a com `aria-label`.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "default": "Os `<Column>`s, o mesmo componente que o DataGrid lê. `expander` marca a coluna com o botão de expandir."

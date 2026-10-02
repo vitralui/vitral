@@ -56,6 +56,7 @@ const rootProps = computed(() => ({
     find: props.find,
     blockMenu: props.blockMenu,
     unstyled: props.unstyled,
+    scrollbar: props.scrollbar,
     pt: props.pt,
     dt: props.dt
 }));

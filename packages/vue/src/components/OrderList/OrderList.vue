@@ -101,6 +101,8 @@ const buttons = computed(() => [
                 <slot name="header">{{ header }}</slot>
             </div>
             <ReorderList
+                :scrollbar="scrollbar"
+                :unstyled="unstyled"
                 ref="listRef"
                 v-model:selection="selection"
                 :items="items"

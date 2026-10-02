@@ -23,8 +23,8 @@ import {
     type Locale
 } from '@vitral/core';
 import { createOverlay, createTooltips } from '@vitral/controls';
-import { createRoot, partResolver, pointerDrag, type Props } from '@vitral/dom';
-import { baseStyle, buttonStyle, scheduleStyle } from '@vitral/styles';
+import { createRoot, partResolver, pointerDrag, scrollbarSlot, type Props } from '@vitral/dom';
+import { baseStyle, buttonStyle, scheduleStyle, scrollpanelStyle } from '@vitral/styles';
 import {
     cellLabel,
     cellSelected,
@@ -145,6 +145,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     const buttonPart = partResolver({ style: buttonStyle, unstyled: () => !!current.unstyled, props: () => current as Record<string, unknown> });
 
     const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
+    const bars = scrollbarSlot(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() }));
     if (!config.unstyled) {
         loadStyle(baseStyle.name, baseStyle.css, styleOptions());
         loadStyle(buttonStyle.name, buttonStyle.css, styleOptions());
@@ -562,6 +563,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         showMore,
         scroller: (el) => {
             scroller = (el as HTMLElement | null) ?? null;
+            bars.ref(el);
             if (scroller) scrollToWork();
         }
     };
@@ -646,6 +648,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             drawn = context();
             root.attrs(part('root', { view: models.view, dragging: !!drag || cellDrag.active() }));
             root.render(scheduleView(drawn));
+            bars.sync();
             more.update();
             scrollToWork();
             const key = `${drawn.range.start.getTime()}:${drawn.range.end.getTime()}:${models.view}`;
@@ -698,6 +701,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             eventDrag.cancel();
             more.destroy();
             tooltips.destroy();
+            bars.destroy();
             root.clear();
         }
     };

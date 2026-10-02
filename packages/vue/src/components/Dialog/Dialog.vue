@@ -2,6 +2,7 @@
 import { dialogStyle } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, useId, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { usePointerDrag } from '../../base/usePointerDrag';
 import { useModal } from '../../composables/useModal';
 import Icon from '../Icon/Icon.vue';
@@ -43,6 +44,7 @@ const titleId = `${useId()}-title`;
 const maskRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const contentRef = ref<HTMLElement | null>(null);
+useScrollbars(contentRef, props);
 
 /** The content is off its top: the header shows its line. */
 const scrolled = ref(false);

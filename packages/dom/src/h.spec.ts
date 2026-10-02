@@ -66,3 +66,26 @@ describe('the keyed patcher', () => {
         expect(host.getAttribute('aria-label')).toBeNull();
     });
 });
+
+describe('patchChildren beside nodes it does not own', () => {
+    it('leaves its children where they are when another node sits after one', () => {
+        const container = document.createElement('div');
+        document.body.append(container);
+        const root = createRoot(container);
+        root.render(h('div', { key: 'a' }, 'A'), h('div', { key: 'b' }, 'B'));
+        const [a] = Array.from(container.children);
+        const foreign = document.createElement('span');
+        a!.after(foreign);
+        const added: Node[] = [];
+        const watch = new MutationObserver((records) => records.forEach((r) => added.push(...Array.from(r.addedNodes))));
+        watch.observe(container, { childList: true });
+        root.render(h('div', { key: 'a' }, 'A2'), h('div', { key: 'b' }, 'B2'));
+        watch.takeRecords().forEach((r) => added.push(...Array.from(r.addedNodes)));
+        watch.disconnect();
+        expect(added).toEqual([]);
+        expect(container.textContent).toBe('A2B2');
+        root.render(h('div', { key: 'b' }, 'B'), h('div', { key: 'a' }, 'A'));
+        expect(Array.from(container.children).filter((n) => n !== foreign).map((n) => n.textContent)).toEqual(['B', 'A']);
+        container.remove();
+    });
+});

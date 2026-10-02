@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { getField, sortData, sortOrderOf, toggleSort, type SortMeta, type SortOrder } from '@vitral/core';
 import { datatableStyle } from '@vitral/styles';
-import { camelize, computed, Fragment, mergeProps, useAttrs, type FunctionalComponent, type VNode } from 'vue';
+import { camelize, computed, Fragment, mergeProps, ref, useAttrs, type FunctionalComponent, type VNode } from 'vue';
 import { collectParts, contentOf } from '../../base/parts';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Icon from '../Icon/Icon.vue';
 import Column from './Column.vue';
 import type { DataTableEmits, DataTableProps, DataTableSlots } from './types';
@@ -27,6 +28,8 @@ const emit = defineEmits<DataTableEmits>();
 const slots = defineSlots<DataTableSlots>();
 
 const { part, locale } = useComponent(datatableStyle, props);
+const containerRef = ref<HTMLElement | null>(null);
+useScrollbars(containerRef, props);
 
 // The accessible name belongs on the <table>, not on the wrapper around it.
 const attrs = useAttrs();
@@ -122,7 +125,7 @@ const rootState = computed(() => ({ striped: props.stripedRows, gridlines: props
 <template>
     <div v-bind="mergeProps(rootAttrs, part('root', rootState))">
         <div v-if="headerContent" v-bind="part('header')"><VNodes :vnodes="headerContent()" /></div>
-        <div v-bind="part('tableContainer')" :style="scrollHeight ? { maxHeight: scrollHeight } : undefined">
+        <div ref="containerRef" v-bind="part('tableContainer')" :style="scrollHeight ? { maxHeight: scrollHeight } : undefined">
             <table v-bind="mergeProps(tableAttrs, part('table'))">
                 <caption v-if="caption" v-bind="part('caption')">{{ caption }}</caption>
                 <colgroup v-if="columns.some((c) => c.style || c.class)">

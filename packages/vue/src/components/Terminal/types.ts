@@ -1,6 +1,6 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
-export interface TerminalProps extends BaseProps {
+export interface TerminalProps extends BaseProps, ScrollbarProps {
     /** Shown above the first command. */
     welcomeMessage?: string;
     /** What each line starts with. Defaults to `'$'`. */

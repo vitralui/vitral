@@ -19,8 +19,8 @@ import {
     type Locale
 } from '@vitral/core';
 import { createOverlay, createSelect, type SelectHandle } from '@vitral/controls';
-import { createRoot, partResolver } from '@vitral/dom';
-import { baseStyle, datagridStyle, paginatorStyle } from '@vitral/styles';
+import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
+import { baseStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
 import {
     allSelectedState,
     declaredColumns,
@@ -132,6 +132,11 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     });
 
     const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
+
+    // The drawn scrollbars wear the ScrollPanel's classes, so one theme dresses every bar.
+    const barOptions = () => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() });
+    const tableBars = scrollbarSlot(barOptions);
+    const chooserBars = scrollbarSlot(barOptions);
 
     if (!config.unstyled) {
         // The shared rules too: the table's own icons, fields and screen-reader
@@ -405,6 +410,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         chooserButton(el) {
             chooserEl = el as HTMLElement | null;
         },
+        scroller: tableBars.ref,
+        chooserScroller: chooserBars.ref,
         toggleGroup(key) {
             const shut = models.collapsedGroups ?? [];
             change({ collapsedGroups: shut.includes(key) ? shut.filter((k) => k !== key) : [...shut, key] });
@@ -608,10 +615,12 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             }
         };
         root.render(gridView(drawn));
+        tableBars.sync();
         // After the table, so the button the panel hangs from is the one just drawn.
         if (chooserOpen) chooser.open();
         else chooser.close();
         chooser.update();
+        chooserBars.sync();
     }
 
     function csv(options: DataGridExportOptions = {}): string {
@@ -665,6 +674,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         destroy() {
             clearTimeout(filterTimer);
             stopGroup?.();
+            tableBars.destroy();
+            chooserBars.destroy();
             chooser.destroy();
             pageSize?.destroy();
             root.clear();
@@ -674,7 +685,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
 const pickModels = (config: Partial<DataGridConfig>): Partial<DataGridModels> => {
     const out: Partial<DataGridModels> = {};
-    for (const key of ['first', 'rows', 'sortField', 'sortOrder', 'multiSortMeta', 'filters', 'selection', 'columnLayout', 'expandedRows'] as const) {
+    for (const key of ['first', 'rows', 'sortField', 'sortOrder', 'multiSortMeta', 'filters', 'selection', 'columnLayout', 'collapsedGroups', 'expandedRows'] as const) {
         if (config[key] !== undefined) (out as Record<string, unknown>)[key] = config[key];
     }
     return out;

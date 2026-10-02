@@ -1,5 +1,5 @@
 import type { ClassEntry, Locale, ScheduleOccurrence } from '@vitral/core';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /**
  * What a schedule is told, as plain data. Dates are local `Date`s (or ISO
@@ -222,6 +222,12 @@ export interface ScheduleConfig extends Partial<ScheduleModels> {
     locale?: Locale;
     /** Drop the built-in classes and stylesheet; style through `pt` or `classes` instead. */
     unstyled?: boolean;
+    /**
+     * The bars of the boxes it scrolls in: the theme's drawn bars, shown
+     * under the pointer (`'hover'`, the default) or always (`'always'`), or
+     * the browser's own (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** What the host draws itself. */

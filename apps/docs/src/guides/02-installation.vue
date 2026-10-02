@@ -125,6 +125,13 @@ pnpm build`;
                     <T k="options.zIndex" as="td" class="doc">The stacking floors for modals, overlays, menus and tooltips.</T>
                 </tr>
                 <tr>
+                    <td>scrollbar</td>
+                    <td class="type">'hover' | 'always' | 'native'</td>
+                    <T k="options.scrollbar" as="td" class="doc"
+                        >The bars of every box that scrolls inside a component (ScrollPanel, Sidebar, Select, Dialog, DataGrid…) and of every <code>v-scrollbar</code>: drawn by the theme and shown under the pointer (the default), always shown, or the browser's own.</T
+                    >
+                </tr>
+                <tr>
                     <td>csp</td>
                     <td class="type">{ nonce?: string }</td>
                     <T k="options.csp" as="td" class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</T>

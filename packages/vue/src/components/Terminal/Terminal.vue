@@ -2,6 +2,7 @@
 import { terminalStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useAttrs, useId } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import type { TerminalEmits, TerminalProps, TerminalSlots } from './types';
 
 // A prompt and a log. The command line is a labelled text box; what has been
@@ -25,6 +26,7 @@ const rootAttrs = computed(() => {
 const { part, locale } = useComponent(terminalStyle, props);
 const id = useId();
 const rootRef = ref<HTMLElement | null>(null);
+useScrollbars(rootRef, props);
 const inputRef = ref<HTMLInputElement | null>(null);
 
 interface Entry {

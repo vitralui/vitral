@@ -1,4 +1,4 @@
-import type { BaseProps, Size } from '../../base/types';
+import type { BaseProps, Size, ScrollbarProps } from '../../base/types';
 
 // The data-layer shapes from @vitral/core, restated for the SFC compiler.
 
@@ -44,7 +44,7 @@ export interface ColumnLayoutLike {
     pinned?: Record<string, 'left' | 'right'>;
 }
 
-export interface DataGridProps extends BaseProps {
+export interface DataGridProps extends BaseProps, ScrollbarProps {
     /** The rows; with `lazy`, only the current page. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     /**

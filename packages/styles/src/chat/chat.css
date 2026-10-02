@@ -137,7 +137,8 @@
     margin-top: 0;
 }
 
-.vt-chat-markdown > :last-child {
+.vt-chat-markdown > :last-child,
+.vt-chat-markdown > :has(+ .vt-scrollpanel-bars:last-child) {
     margin-bottom: 0;
 }
 

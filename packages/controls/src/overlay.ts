@@ -1,5 +1,5 @@
 import { anchorTo, isClient, overlayContainerOf, pushLayer, ZIndex, type Placement } from '@vitral/core';
-import { createPortal, type VElement } from '@vitral/dom';
+import { createPortal, scrollbarSet, type ScrollbarSlotOptions, type VElement } from '@vitral/dom';
 
 /**
  * A panel that hangs from something: put in an overlay host, kept against its
@@ -35,6 +35,12 @@ export interface OverlayOptions {
     restoreFocus?: boolean;
     onOpen?: (panel: HTMLElement) => void;
     onClose?: (reason: CloseReason) => void;
+    /**
+     * Drawn scrollbars — `{ mode, style: scrollpanelStyle, unstyled }` — on
+     * the panel, or on the boxes in it that `scrollers` picks.
+     */
+    scrollbars?: () => ScrollbarSlotOptions;
+    scrollers?: (panel: HTMLElement) => Iterable<Element | null | undefined>;
 }
 
 export interface Overlay {
@@ -54,6 +60,8 @@ export function createOverlay(options: OverlayOptions): Overlay {
     let open = false;
     let stop: (() => void) | null = null;
     let panel: HTMLElement | null = null;
+    const bars = options.scrollbars ? scrollbarSet(options.scrollbars) : null;
+    const syncBars = () => bars?.sync(panel ? (options.scrollers?.(panel) ?? [panel]) : []);
 
     function host(): HTMLElement {
         // A target may be given as a function, and what it gives may be another
@@ -71,6 +79,7 @@ export function createOverlay(options: OverlayOptions): Overlay {
         const before = portal.element();
         const drawn = portal.render(wanted ? host() : null, wanted ? options.render() : null);
         panel = (drawn as HTMLElement | null) ?? null;
+        syncBars();
         if (!panel) {
             release();
             return;
@@ -129,6 +138,7 @@ export function createOverlay(options: OverlayOptions): Overlay {
         element: () => panel,
         destroy() {
             open = false;
+            bars?.destroy();
             release();
             portal.render(null, null);
             panel = null;

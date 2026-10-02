@@ -229,11 +229,17 @@ export function patchChildren(parent: Node, prev: VNode[], next: VNode[]): void 
         } else create(c);
     }
     for (const c of prev) if (!used.has(c) && c.el && c.el.parentNode === parent) parent.removeChild(c.el);
-    // Place in order, moving only what is out of place (a moved element loses focus).
+    // Place in order, moving only what is out of place (a moved element loses
+    // focus). A node someone else put among the children (the layer of drawn
+    // scrollbars, say) is stepped over rather than taken as a sign of disorder.
+    const own = new Set<Node>();
+    for (const c of next) own.add(c.el!);
     let anchor: Node | null = null;
     for (let i = next.length - 1; i >= 0; i--) {
         const el = next[i]!.el!;
-        if (el.parentNode !== parent || el.nextSibling !== anchor) parent.insertBefore(el, anchor);
+        let after = el.nextSibling;
+        while (after && after !== anchor && !own.has(after)) after = after.nextSibling;
+        if (el.parentNode !== parent || after !== anchor) parent.insertBefore(el, anchor);
         anchor = el;
     }
 }

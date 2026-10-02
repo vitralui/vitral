@@ -71,6 +71,9 @@ export interface DataGridActions<T = Row> {
     /** The button the column list hangs from, as it is drawn. */
     chooserButton: (element: Element | null) => void;
     scrolled: (event: Event) => void;
+    /** The box the table scrolls in, and the column list's: where the drawn bars go. */
+    scroller: (element: Element | null) => void;
+    chooserScroller: (element: Element | null) => void;
 }
 
 /** An icon by name, drawn the way the icon component draws it. */
@@ -107,7 +110,8 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
             'div',
             mergeAttrs({ key: 'container' }, part('tableContainer', rootState), {
                 style: config.scrollable && config.scrollHeight && config.scrollHeight !== 'flex' ? { 'max-height': config.scrollHeight } : undefined,
-                onScroll: context.on.scrolled
+                onScroll: context.on.scrolled,
+                ref: context.on.scroller
             }),
             h(
                 'table',
@@ -190,7 +194,7 @@ export function chooserView<T>(context: ViewContext<T>): VElement {
     const { part, locale } = context;
     return h(
         'div',
-        mergeAttrs({ id: context.ids.list }, part('chooserPanel'), { role: 'group', 'aria-label': locale.aria.columns }),
+        mergeAttrs({ id: context.ids.list }, part('chooserPanel'), { role: 'group', 'aria-label': locale.aria.columns, ref: context.on.chooserScroller }),
         h(
             'ul',
             part('chooserList'),

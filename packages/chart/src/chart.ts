@@ -23,7 +23,7 @@ import type { ChartScene, SceneDatum } from './engine/scene';
 import { normalizeSeries, type ChartPoint, type NormalizedSeries } from './engine/series';
 import type { ChartEasing, ChartOptions, ChartSeries, ChartSettings, ChartType } from './engine/types';
 import { createOverlay, createTooltips } from '@vitral/controls';
-import { mergeAttrs, partResolver, pointerDrag, type PassThrough as ChartPassThrough } from '@vitral/dom';
+import { mergeAttrs, partResolver, pointerDrag, scrollbarSet, type PassThrough as ChartPassThrough, type ScrollbarSlotOptions } from '@vitral/dom';
 import { downloadChart, serializeSvg, svgToPng } from './dom/export';
 import { createPortal, createRoot, h, s, type Child, type Props, type VElement } from '@vitral/dom';
 import {
@@ -113,6 +113,13 @@ export interface ChartConfig {
     locale?: Locale;
     /** Drop the built-in classes and stylesheet; style through `pt` or `classes` instead. */
     unstyled?: boolean;
+    /**
+     * Drawn scrollbars on a legend that runs longer than the chart, beside
+     * it: `{ mode: 'hover' | 'always' | 'native', style: scrollpanelStyle }`,
+     * the style from `@vitral/styles`, which this package does not carry
+     * itself. Without it the legend keeps the browser's bars.
+     */
+    scrollbars?: ScrollbarSlotOptions;
     /** Replacement classes per part (a string, or a function of the part's state). */
     classes?: Partial<Record<string, ClassEntry>>;
     /** Extra attributes per part: classes, styles, `aria-*`, `data-*`, listeners. */
@@ -1093,6 +1100,8 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
      * chart's own; where it goes, what closes it and what it sits over is
      * `@vitral/controls`' overlay, which every addon shares.
      */
+    // The legend's drawn bars, when the host handed their style over.
+    const legendBars = scrollbarSet(() => (cfg.scrollbars ? { nonce: cfg.nonce, cssLayer: cfg.cssLayer, unstyled: cfg.unstyled, ...cfg.scrollbars } : { mode: 'native' }));
     const menu = createOverlay({
         anchor: () => triggerEl,
         render: () =>
@@ -1532,6 +1541,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             table ? tableView(part, table, formatMessage(loc.chart.dataTable, { title: title || loc.chart.untitled })) : null
         );
         menu.update();
+        legendBars.sync(element.querySelectorAll('[data-vt-legend]'));
 
         // After the patch: the tooltip's size (it flips before leaving the chart),
         // and the plot's size when the chart's height changed.
@@ -1646,6 +1656,7 @@ export function createChart(element: HTMLElement, config: ChartConfig = {}): Cha
             drag.cancel();
             menuOpen = false;
             menu.destroy();
+            legendBars.destroy();
             destroyed = true;
             queued = false;
             observer?.disconnect();

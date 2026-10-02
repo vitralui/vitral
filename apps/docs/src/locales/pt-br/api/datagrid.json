@@ -17,7 +17,8 @@
         "columnToggle": "Um botão que abre a lista de colunas, cada uma com um checkbox.",
         "group": "Um nome que duas tabelas compartilham: elas rolam na horizontal juntas e mantêm um só layout de colunas.",
         "scrollHeight": "Uma altura CSS, ou `'flex'` para preencher um pai flex. O cabeçalho fica visível.",
-        "caption": "Dá nome à tabela. Oculto a menos que `showCaption`; sem ele, nomeie a tabela com `aria-label`."
+        "caption": "Dá nome à tabela. Oculto a menos que `showCaption`; sem ele, nomeie a tabela com `aria-label`.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",

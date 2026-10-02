@@ -1,5 +1,5 @@
 import type { ClassEntry, Locale } from '@vitral/core';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /**
  * What a sheet is made of, as plain data. Everything here survives `JSON`:
@@ -147,6 +147,12 @@ export interface SpreadsheetConfig extends SheetOptions {
     /** Nothing can be typed into it. */
     readonly?: boolean;
     unstyled?: boolean;
+    /**
+     * The bars of the sheet: the theme's drawn bars, shown under the pointer
+     * (`'hover'`, the default) or always (`'always'`), or the browser's own
+     * (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     id?: string;

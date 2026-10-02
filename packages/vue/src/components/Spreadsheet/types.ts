@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 // Prop types stay local rather than imported from `@vitral/spreadsheet`: the
 // SFC compiler reads them to generate the runtime prop definitions, and it
@@ -58,7 +58,7 @@ export type SpreadsheetToolbarItemLike =
     | 'alignRight'
     | 'clear';
 
-export interface SpreadsheetProps extends BaseProps {
+export interface SpreadsheetProps extends BaseProps, ScrollbarProps {
     /**
      * The cells, keyed by A1: `{ A1: 'Sales', B2: 42, B3: '=B2*2' }`. What is
      * kept is what was typed, so a formula survives a round trip.

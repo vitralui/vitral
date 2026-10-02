@@ -226,5 +226,6 @@ export const composableNames = [
 ] as const;
 
 export const directiveNames = [
+    'Scrollbar',
     'Tooltip'
 ] as const;

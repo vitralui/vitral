@@ -3,6 +3,7 @@ import { createTypeahead, equals, FilterService, firstIndex, getField, isPrintab
 import { selectStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { useOverlay } from '../../composables/useOverlay';
 import Icon from '../Icon/Icon.vue';
 import type { SelectEmits, SelectProps, SelectSlots } from './types';
@@ -40,6 +41,8 @@ const optionId = (index: number) => `${id}-option-${index}`;
 const rootRef = ref<HTMLElement | null>(null);
 const triggerRef = ref<HTMLButtonElement | null>(null);
 const overlayRef = ref<HTMLElement | null>(null);
+const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 const filterRef = ref<HTMLInputElement | null>(null);
 
 const open = ref(false);
@@ -367,7 +370,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
                         />
                     </div>
                 </div>
-                <ul v-if="items.length" :id="listId" role="listbox" v-bind="part('list')" :aria-labelledby="listboxLabelledBy" :aria-label="listboxLabelledBy ? undefined : listboxLabel">
+                <ul v-if="items.length" :id="listId" ref="listRef" role="listbox" v-bind="part('list')" :aria-labelledby="listboxLabelledBy" :aria-label="listboxLabelledBy ? undefined : listboxLabel">
                     <template v-for="(group, g) in groups" :key="g">
                         <!-- An <li> may not be a group; it steps aside and a <ul role="group"> holds the label and the options. -->
                         <li v-if="group.label !== null" role="none" v-bind="part('group')">

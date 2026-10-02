@@ -17,7 +17,8 @@
         "touchDelay": "Milissegundos que um dedo repousa num card antes de arrastá-lo, para que um deslize ainda role. O padrão é 250.",
         "scrollHeight": "A altura da lista de cards de uma coluna; além dela, rola.",
         "summary": "Um número ao lado da contagem de cada coluna e raia, a partir de um campo dos seus cartões: `{ field: 'points', format: '{value} pts' }`.",
-        "filter": "Mostra só alguns cartões: palavras procuradas no texto e nos números de cada cartão (sem ligar para maiúsculas e acentos), ou uma função que mantém um cartão. Os cartões não podem ser arrastados enquanto um filtro esconde alguns."
+        "filter": "Mostra só alguns cartões: palavras procuradas no texto e nos números de cada cartão (sem ligar para maiúsculas e acentos), ou uma função que mantém um cartão. Os cartões não podem ser arrastados enquanto um filtro esconde alguns.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "update:columns": "As colunas depois que um card ou uma coluna se moveu num quadro aninhado, ou depois que uma coluna se moveu num quadro plano.",

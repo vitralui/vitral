@@ -14,7 +14,7 @@ import { registerIcons, type IconDef } from '@vitral/icons';
 import { createThemeManager, Ink, type BorderStrength, type ColorScheme, type Preset, type ThemeManager, type ThemeOptions } from '@vitral/themes';
 import type { TourConfig, TourHandle } from '@vitral/tour';
 import { inject, reactive, type InjectionKey } from 'vue';
-import type { GlobalPassThrough, InputVariant } from '../base/types';
+import type { GlobalPassThrough, InputVariant, ScrollbarMode } from '../base/types';
 import type { ConfirmEvents, DialogEvents, ToastEvents } from './services';
 
 export interface VitralThemeConfig {
@@ -46,6 +46,8 @@ export interface VitralConfig extends BaseConfig {
     tour: TourDefaults;
     /** Reactive: whether anchored popups draw a pointer to their anchor unless one says otherwise. */
     overlayArrow: boolean;
+    /** Reactive: how every box that scrolls inside a component shows it, unless the component says otherwise. */
+    scrollbar: ScrollbarMode;
     inputVariant: InputVariant;
     /** Wrap component styles in `@layer <name>`, so application CSS wins without `!important`. */
     cssLayer: string | false;
@@ -82,6 +84,15 @@ export interface VitralOptions {
      * Off by default; each one's `arrow` says otherwise for itself.
      */
     overlayArrow?: boolean;
+    /**
+     * The bars of every box that scrolls inside a component — a ScrollPanel,
+     * a Sidebar's menu, a Select's list, a Dialog's or a Drawer's body, a
+     * DataGrid: the theme's drawn bars, shown while the pointer is over the
+     * box (`'hover'`, the default) or kept on the screen (`'always'`), or the
+     * browser's own (`'native'`). Each component's `scrollbar` says otherwise
+     * for itself.
+     */
+    scrollbar?: ScrollbarMode;
 }
 
 export interface VitralContext {
@@ -117,7 +128,8 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
         cssLayer: options.cssLayer ?? false,
         csp: options.csp ?? {},
         tour: options.tour ?? {},
-        overlayArrow: options.overlayArrow ?? false
+        overlayArrow: options.overlayArrow ?? false,
+        scrollbar: options.scrollbar ?? 'hover'
     }) as VitralConfig;
 
     if (options.icons) registerIcons(options.icons);

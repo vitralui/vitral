@@ -1,8 +1,8 @@
 import type { SortMeta, SortOrder } from '@vitral/core';
 import type { VNode } from 'vue';
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
-export interface DataTableProps extends BaseProps {
+export interface DataTableProps extends BaseProps, ScrollbarProps {
     /** The rows, already in hand. This table does not fetch, page or filter. */
     value?: readonly unknown[];
     /** The field that identifies a row, used as its key. Falls back to its position. */

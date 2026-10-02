@@ -10,7 +10,8 @@
         "currency": "A moeda em que uma célula formatada como dinheiro é escrita. O padrão vem do locale.",
         "readonly": "Nada pode ser digitado nela.",
         "ariaLabel": "Dá nome à grade, quando nenhum rótulo aponta para ela.",
-        "conditionalFormats": "A aparência que as células ganham pelo que guardam: destaques onde um teste passa, escalas de cor e barras de dados. Acompanham os números conforme mudam."
+        "conditionalFormats": "A aparência que as células ganham pelo que guardam: destaques onde um teste passa, escalas de cor e barras de dados. Acompanham os números conforme mudam.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "toolbar": "Substitui a barra de ferramentas sobre a grade."

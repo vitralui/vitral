@@ -1,6 +1,6 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
-export interface ListboxProps extends BaseProps {
+export interface ListboxProps extends BaseProps, ScrollbarProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options?: any[];
     /** Field (dotted path) holding an option's text. Without it, options are shown as they are. */

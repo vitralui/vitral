@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export type TaskboardKey = string | number;
 
@@ -47,7 +47,7 @@ export interface TaskboardSummary {
     numberFormat?: Intl.NumberFormatOptions;
 }
 
-export interface TaskboardProps extends BaseProps {
+export interface TaskboardProps extends BaseProps, ScrollbarProps {
     /** The columns, in order. With no `items`, each carries its own cards (`v-model:columns`). */
     columns?: TaskboardColumn[];
     /** The cards as one flat list (`v-model:items`); each names its column in `columnField`. */

@@ -14,7 +14,8 @@
         "filterFields": "Campos a buscar em vez do rótulo.",
         "filterMatchMode": "Qualquer modo de comparação registrado; por padrão, `contains` sem distinguir acentos nem maiúsculas.",
         "resetFilterOnHide": "Esvazia a caixa de busca quando o painel fecha.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "value": "O conteúdo do campo."

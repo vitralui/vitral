@@ -10,7 +10,8 @@
         "keepInViewport": "Enquanto é arrastado, mantém o diálogo inteiro na tela. O padrão é true.",
         "blockScroll": "Trava a rolagem da página mesmo quando o diálogo não é modal.",
         "showHeader": "O padrão é true.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "after-hide": "Depois da animação de fechar, quando o diálogo já saiu da página.",

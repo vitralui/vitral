@@ -3,6 +3,7 @@ import { flattenTree, treeKeyAction, type TreeNode } from '@vitral/core';
 import { organizationchartStyle } from '@vitral/styles';
 import { computed, h, mergeProps, nextTick, ref, useId, type Component, type FunctionalComponent, type VNode, type VNodeArrayChildren } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Icon from '../Icon/Icon.vue';
 import type { OrganizationChartEmits, OrganizationChartNode, OrganizationChartProps, OrganizationChartSlots } from './types';
 
@@ -21,6 +22,8 @@ const emit = defineEmits<OrganizationChartEmits>();
 const slots = defineSlots<OrganizationChartSlots>();
 
 const { part, locale } = useComponent(organizationchartStyle, props);
+const rootRef = ref<HTMLElement | null>(null);
+useScrollbars(rootRef, props);
 // Class and style dress the scroller; the name and the rest go to the tree.
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 const id = useId();
@@ -169,7 +172,7 @@ const Chart: FunctionalComponent = () => roots.value.map((node) => renderNode(no
 </script>
 
 <template>
-    <div v-bind="mergeProps(rootAttrs, part('root'))">
+    <div ref="rootRef" v-bind="mergeProps(rootAttrs, part('root'))">
         <ul role="tree" :aria-multiselectable="selectionMode === 'multiple' ? 'true' : undefined" v-bind="mergeProps(controlAttrs, part('list'))" @keydown="onKeydown">
             <Chart />
         </ul>

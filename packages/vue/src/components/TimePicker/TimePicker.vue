@@ -3,6 +3,7 @@ import { clampMinutes, formatMinutes, nearestOption, parseMinutes, parseTime, ti
 import { timepickerStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { useMask } from '../../base/useMask';
 import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
@@ -48,6 +49,7 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const buttonRef = ref<HTMLButtonElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 const open = ref(false);
 
 /** A bound as minutes, whether it was given as minutes or as `'09:00'`. */

@@ -1,7 +1,7 @@
 import type { Locale } from '@vitral/core';
 import type { OverlayTarget } from '@vitral/controls';
 import type { ClassEntry } from '@vitral/styles';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /** Anything a renderer can be handed for a slot: a string, a node, nothing. */
 export type Content = string | Node | null | undefined;
@@ -197,6 +197,12 @@ export interface ChatConfig {
     height?: string;
     locale?: Locale;
     unstyled?: boolean;
+    /**
+     * The bars of the thread: the theme's drawn bars, shown under the pointer
+     * (`'hover'`, the default) or always (`'always'`), or the browser's own
+     * (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     nonce?: string;

@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export type StepValue = string | number;
 
@@ -7,7 +7,7 @@ export interface StepperProps extends BaseProps {
     linear?: boolean;
 }
 
-export type StepListProps = BaseProps;
+export type StepListProps = BaseProps & ScrollbarProps;
 
 export interface StepProps extends BaseProps {
     /** Which step this is. Inside a StepItem, the item's value is used. */

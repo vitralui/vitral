@@ -854,3 +854,20 @@ describe('createChart', () => {
         for (const rule of rules) expect(/animation:[^;]*\bbackwards\b/.test(rule), rule.trim()).toBe(true);
     });
 });
+
+describe('the legend beside the chart', () => {
+    it('wears drawn bars when the host hands their style over, and keeps the native ones otherwise', async () => {
+        const style = { name: 'bars', css: '', classes: { bars: 'test-bars', bar: 'test-bar', thumb: 'test-thumb' } };
+        const { chart, el } = mount({ options: { ...quarter, legend: { position: 'right' } } });
+        await settle();
+        const legend = () => el.querySelector('[data-vt-legend]')!;
+        expect(legend().hasAttribute('data-vt-scrollbars')).toBe(false);
+        chart.update({ scrollbars: { mode: 'always', style } });
+        await settle();
+        expect(legend().hasAttribute('data-vt-scrollbars')).toBe(true);
+        expect(el.querySelector('.test-bars')).not.toBeNull();
+        chart.update({ scrollbars: { mode: 'native', style } });
+        await settle();
+        expect(legend().hasAttribute('data-vt-scrollbars')).toBe(false);
+    });
+});

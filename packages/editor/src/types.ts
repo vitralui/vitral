@@ -1,6 +1,6 @@
 import type { ClassEntry, EditorColor, EditorContent, EditorNode, Locale } from '@vitral/core';
 import type { OverlayTarget } from '@vitral/controls';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /**
  * What an editor is told, as plain data. The document, the commands and the
@@ -198,6 +198,12 @@ export interface TextEditorConfig {
 
     locale?: Locale;
     unstyled?: boolean;
+    /**
+     * The bars of the text area, when a height makes it scroll: the theme's
+     * drawn bars, shown under the pointer (`'hover'`, the default) or always
+     * (`'always'`), or the browser's own (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** What the host draws itself. */

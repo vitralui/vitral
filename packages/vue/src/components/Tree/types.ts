@@ -1,4 +1,4 @@
-import type { BaseProps, IconProp } from '../../base/types';
+import type { BaseProps, IconProp, ScrollbarProps } from '../../base/types';
 
 /** The shape of a node: the same as `TreeNode` in `@vitral/core`, restated here for the SFC compiler. */
 export interface TreeNodeLike {
@@ -22,7 +22,7 @@ export type TreeExpandedKeys = Record<string, boolean>;
 /** `{ [key]: true }` in single and multiple mode; `{ [key]: { checked, partialChecked } }` in checkbox mode. */
 export type TreeSelectionKeys = Record<string, boolean | { checked: boolean; partialChecked: boolean }>;
 
-export interface TreeProps extends BaseProps {
+export interface TreeProps extends BaseProps, ScrollbarProps {
     value?: TreeNodeLike[];
     selectionMode?: 'single' | 'multiple' | 'checkbox';
     /** Adds a search box; matches stay visible with the branches that lead to them, expanded. */

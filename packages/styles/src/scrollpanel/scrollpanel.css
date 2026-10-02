@@ -3,18 +3,43 @@
     overflow: hidden;
 }
 
-/* The native bars are hidden; the content still scrolls natively, by wheel, touch and keys. */
+/*
+ * A column, so a panel sized by max-height alone still caps its content: the
+ * content shrinks to the room left instead of taking the height it wants.
+ */
+.vt-scrollpanel {
+    display: flex;
+    flex-direction: column;
+}
+
+/* The content still scrolls natively, by wheel, touch and keys. */
 .vt-scrollpanel-content {
     box-sizing: border-box;
+    flex: 1 1 auto;
     width: 100%;
     height: 100%;
+    min-height: 0;
     overflow: auto;
-    scrollbar-width: none;
     outline: none;
 }
 
-.vt-scrollpanel-content::-webkit-scrollbar {
+/*
+ * Any box wearing drawn bars, inside a ScrollPanel or inside another
+ * component, hides its native ones.
+ */
+[data-vt-scrollbars] {
+    scrollbar-width: none;
+}
+
+[data-vt-scrollbars]::-webkit-scrollbar {
     display: none;
+}
+
+/* Laid over the box's visible area by script; only the thumbs take the pointer. */
+.vt-scrollpanel-bars {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .vt-scrollpanel-content:focus-visible {
@@ -27,11 +52,11 @@
     z-index: 1;
     background: var(--vt-scrollpanel-bar-track-background);
     opacity: 0;
+    pointer-events: none;
     transition: opacity var(--vt-scrollpanel-bar-transition-duration);
 }
 
-.vt-scrollpanel:hover .vt-scrollpanel-bar,
-.vt-scrollpanel:focus-within .vt-scrollpanel-bar,
+.vt-scrollpanel-bars-shown .vt-scrollpanel-bar,
 .vt-scrollpanel-bar-active {
     opacity: 1;
 }
@@ -57,6 +82,7 @@
     border-radius: var(--vt-scrollpanel-bar-border-radius);
     cursor: pointer;
     touch-action: none;
+    pointer-events: auto;
 }
 
 .vt-scrollpanel-bar-y .vt-scrollpanel-thumb {

@@ -3,6 +3,7 @@ import { getField, scrollOffsetFor, virtualWindow } from '@vitral/core';
 import { virtualscrollerStyle } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Icon from '../Icon/Icon.vue';
 import type { VirtualScrollerEmits, VirtualScrollerProps, VirtualScrollerSlots } from './types';
 
@@ -22,6 +23,7 @@ const attrs = useAttrs();
 
 const { part, locale } = useComponent(virtualscrollerStyle, props);
 const rootRef = ref<HTMLElement | null>(null);
+useScrollbars(rootRef, props);
 const scroll = ref(0);
 const viewport = ref(0);
 const horizontal = computed(() => props.orientation === 'horizontal');

@@ -27,9 +27,9 @@ import {
     type Locale
 } from '@vitral/core';
 import { createOverlay, createSelect, createTooltips, type Overlay, type SelectHandle } from '@vitral/controls';
-import { createRoot, h, mergeAttrs, partResolver, type Child, type Props } from '@vitral/dom';
+import { createRoot, h, mergeAttrs, partResolver, scrollbarSet, type Child, type Props } from '@vitral/dom';
 import { registerIcons } from '@vitral/icons';
-import { baseStyle, buttonStyle, editorStyle } from '@vitral/styles';
+import { baseStyle, buttonStyle, editorStyle, scrollpanelStyle } from '@vitral/styles';
 import { defaultBubbleMenu, defaultToolbar, editorIcons } from './buttons';
 import { createBlockHandle, defaultBlockActions } from './block';
 import { colorPanelView, imagePanelView, linkPanelView, tablePanelView, type LinkPanelState, type PanelContext } from './render/menus';
@@ -79,6 +79,9 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         loadStyle(buttonStyle.name, buttonStyle.css, options);
         loadStyle(editorStyle.name, editorStyle.css, options);
     }
+    // The ScrollPanel's bars on the text area, so one theme dresses every bar.
+    const barOptions = () => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer });
+    const bars = scrollbarSet(barOptions);
     // The toolbar holds its own definitions, but the slash menu, the block
     // handle and any command an application names its own icon for are looked
     // up by name: the editor puts its set in the registry rather than drawing
@@ -271,7 +274,8 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         focus: () => view?.focus(),
         id: `${id}-math`,
         overlayTarget: current.overlayTarget,
-        zIndex: current.zIndex
+        zIndex: current.zIndex,
+        scrollbars: barOptions
     });
 
     const slashMenu = createSlashMenu({
@@ -286,6 +290,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         ids,
         overlayTarget: current.overlayTarget,
         zIndex: current.zIndex,
+        scrollbars: barOptions,
         onRun: (command) => {
             if (command.run) command.run(handle);
             // The formula panel takes the keyboard itself: it opens where the caret was left.
@@ -512,6 +517,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
                   ? h('div', mergeAttrs({ key: 'footer' }, part('footer')), h('span', part('count', { limit: !!current.maxLength }), countText()))
                   : null
         ]);
+        bars.sync([contentEl]);
         syncBlockSelect();
         syncBubble();
         renderPanels();
@@ -590,6 +596,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
             [...panels(), bubble].forEach((overlay) => overlay.destroy());
             blockSelect?.destroy();
             tooltips.destroy();
+            bars.destroy();
             view?.destroy();
             root.clear();
         }

@@ -1,7 +1,7 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 import type { MenuItem } from '../Menu/types';
 
-export interface SidebarProps extends BaseProps {
+export interface SidebarProps extends BaseProps, ScrollbarProps {
     /**
      * The navigation. A top-level item with `items` is a labelled group; an
      * item with `items` inside a group opens a sub-list in place. Items are

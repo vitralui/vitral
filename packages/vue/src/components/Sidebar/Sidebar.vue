@@ -3,6 +3,7 @@ import { isClient } from '@vitral/core';
 import { sidebarStyle } from '@vitral/styles';
 import { computed, h, mergeProps, onBeforeUnmount, ref, useId, watch, withDirectives, type Component, type FunctionalComponent, type VNode, type VNodeArrayChildren } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { Tooltip } from '../../directives/tooltip';
 import Drawer from '../Drawer/Drawer.vue';
 import Icon from '../Icon/Icon.vue';
@@ -36,6 +37,8 @@ const slots = defineSlots<SidebarSlots>();
 
 const { part, locale } = useComponent(sidebarStyle, props);
 const navId = `${useId()}-nav`;
+const navRef = ref<HTMLElement | null>(null);
+useScrollbars(navRef, props);
 
 // ---- small screens ----------------------------------------------------------------
 
@@ -189,7 +192,7 @@ const Body: FunctionalComponent = () => {
             : null;
     return [
         slots.header || toggleButton ? h('div', part('header'), [slots.header ? h('div', part('headerContent'), slots.header(state) as VNodeArrayChildren) : null, toggleButton]) : null,
-        h('nav', mergeProps(part('nav'), { id: navId, 'aria-label': name.value }), [...renderGroups(), ...((slots.default?.(state) as VNode[] | undefined) ?? [])]),
+        h('nav', mergeProps(part('nav'), { ref: navRef, id: navId, 'aria-label': name.value }), [...renderGroups(), ...((slots.default?.(state) as VNode[] | undefined) ?? [])]),
         slots.footer ? h('div', part('footer'), [h('div', part('footerContent'), slots.footer(state) as VNodeArrayChildren)]) : null
     ];
 };
@@ -198,7 +201,7 @@ defineExpose({ toggle, mobile });
 </script>
 
 <template>
-    <Drawer v-if="inDrawer" v-model:visible="visible" :position="side" :aria-label="name" :show-close-icon="false" :unstyled="unstyled" v-bind="part('drawer')">
+    <Drawer v-if="inDrawer" v-model:visible="visible" :position="side" :aria-label="name" :show-close-icon="false" :unstyled="unstyled" :scrollbar="scrollbar" v-bind="part('drawer')">
         <div v-bind="part('root', { side, inDrawer: true })">
             <Body />
         </div>

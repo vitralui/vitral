@@ -7,6 +7,7 @@ export const scrollpanelStyle = defineStyle({
     classes: {
         root: 'vt-scrollpanel',
         content: 'vt-scrollpanel-content',
+        bars: (s: { visibility?: 'hover' | 'always'; shown?: boolean }) => ['vt-scrollpanel-bars', { 'vt-scrollpanel-bars-shown': s.shown }],
         bar: (s: { axis: 'x' | 'y'; active?: boolean }) => ['vt-scrollpanel-bar', `vt-scrollpanel-bar-${s.axis}`, { 'vt-scrollpanel-bar-active': s.active }],
         thumb: 'vt-scrollpanel-thumb'
     }

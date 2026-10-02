@@ -1,7 +1,7 @@
 import type { BlockAction, ChipSuggestion, ChipTrigger, MathTemplate, SlashCommand } from '@vitral/editor';
 
 export type { ChipSuggestion, ChipTrigger, MathTemplate };
-import type { BaseProps, IconProp, InputVariant, OverlayPlacement } from '../../base/types';
+import type { BaseProps, IconProp, InputVariant, OverlayPlacement, ScrollbarProps } from '../../base/types';
 
 /** A mark in the JSON document. */
 export interface EditorJSONMark {
@@ -85,7 +85,7 @@ export interface EditorTextChangeEvent {
     source: 'user' | 'api' | 'history';
 }
 
-export interface EditorProps extends BaseProps {
+export interface EditorProps extends BaseProps, ScrollbarProps {
     placeholder?: string;
     /** The text can be read, selected and copied, not changed. */
     readonly?: boolean;
@@ -222,7 +222,7 @@ export interface EditorIconButtonProps extends BaseProps {
     label?: string;
 }
 
-export interface EditorContentProps extends BaseProps {}
+export interface EditorContentProps extends BaseProps, ScrollbarProps {}
 
 export interface EditorBubbleMenuProps extends BaseProps {
     /** The buttons shown; the default slot replaces them. */

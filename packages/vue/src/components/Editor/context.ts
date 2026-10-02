@@ -1,7 +1,7 @@
 import type { FindBar } from '@vitral/editor';
 import type { EditorColor, EditorCommandArgs, EditorCommandName, EditorInstance, EditorKeyBinding, EditorState, EditorView, Locale } from '@vitral/core';
 import { inject, type ComputedRef, type InjectionKey, type Ref, type ShallowRef } from 'vue';
-import type { BaseProps, PassThrough } from '../../base/types';
+import type { BaseProps, PassThrough, ScrollbarMode } from '../../base/types';
 
 /**
  * What `<EditorRoot>` shares with its parts and, through `useEditor()`, with
@@ -40,6 +40,8 @@ export interface EditorContext {
     /** How many popups a part has open (a colour grid, the link editor); the floating toolbar stays while there are any. */
     popups: Ref<number>;
     unstyled: () => boolean | undefined;
+    /** The bars of the text area, as the root was told. */
+    scrollbar: () => ScrollbarMode | undefined;
     pt: () => PassThrough | undefined;
     isActive(name: string, attrs?: Record<string, unknown>): boolean;
     can<K extends EditorCommandName>(name: K, ...args: EditorCommandArgs<K>): boolean;

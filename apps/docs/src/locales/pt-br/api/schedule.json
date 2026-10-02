@@ -20,7 +20,8 @@
         "timelineDays": "Dias que a linha do tempo abrange. O padrão é 1.",
         "maxEventsPerDay": "Eventos mostrados numa célula do mês antes de \"+N more\". O padrão é 3.",
         "scrollHeight": "Altura da área rolável das visões de semana, dia e linha do tempo. O padrão é `'36rem'`.",
-        "filter": "Mostra só alguns eventos: palavras procuradas no título, na descrição e no local (sem ligar para maiúsculas e acentos), ou uma função que mantém um evento. Os eventos em si ficam como estão."
+        "filter": "Mostra só alguns eventos: palavras procuradas no título, na descrição e no local (sem ligar para maiúsculas e acentos), ou uma função que mantém um evento. Os eventos em si ficam como estão.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "range-change": "O intervalo visível mudou: o momento de buscar seus eventos."

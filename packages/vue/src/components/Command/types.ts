@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export interface CommandProps extends BaseProps {
     /** Hide the items the search does not match. Off, the app filters (and renders only what matches). Defaults to true. */
@@ -25,7 +25,7 @@ export interface CommandInputProps extends BaseProps {
     placeholder?: string;
 }
 
-export type CommandListProps = BaseProps;
+export type CommandListProps = BaseProps & ScrollbarProps;
 
 export interface CommandGroupProps extends BaseProps {
     /** The group's heading; it names the group. */

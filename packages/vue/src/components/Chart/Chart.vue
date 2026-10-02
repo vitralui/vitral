@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createChart, mergeAttrs, type ChartEventName, type ChartHandle, type ChartHooks, type ChartPassThrough, type ChartPassThroughContext, type ChartTooltipRenderContext, type DownloadKind, type LegendItemContext, type PieCenter } from '@vitral/chart';
 import { loadStyle } from '@vitral/core';
-import { baseStyle } from '@vitral/styles';
+import { baseStyle, scrollpanelStyle } from '@vitral/styles';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
 import {
     defineComponent,
@@ -172,7 +172,8 @@ onMounted(() => {
         nonce: config.csp.nonce,
         cssLayer: config.cssLayer,
         overlayTarget: () => overlayTarget.value,
-        zIndex: config.zIndex.overlay
+        zIndex: config.zIndex.overlay,
+        scrollbars: scrollbars()
     });
     for (const name of events) chart.on(name, (payload) => (emit as (event: string, payload: unknown) => void)(name, payload));
 });
@@ -182,6 +183,12 @@ watch(
     () => [props.type, props.series, props.options, props.height, props.width],
     () => chart?.update(inputs()),
     { deep: true }
+);
+// The legend's bars, the ScrollPanel's like every other box that scrolls.
+const scrollbars = () => ({ mode: props.scrollbar ?? config.scrollbar, style: scrollpanelStyle });
+watch(
+    () => [props.scrollbar, config.scrollbar],
+    () => chart?.update({ scrollbars: scrollbars() })
 );
 watch(
     () => [config.locale, unstyled(), config.zIndex.overlay] as const,

@@ -10,6 +10,7 @@
  *   dressed;
  * - `dragging`: a press that becomes a drag, the same for a mouse, a pen and
  *   a finger;
+ * - `scrollbars`: the theme's drawn bars over a box that already scrolls;
  * - `iconNode`: an icon in the SVG namespace, from a definition the caller
  *   looked up.
  *
@@ -23,4 +24,5 @@ export * from './h';
 export * from './attrs';
 export * from './drag';
 export * from './scroll';
+export * from './scrollbars';
 export * from './icon';

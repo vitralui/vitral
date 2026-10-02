@@ -40,6 +40,23 @@ export interface BaseProps {
 
 export type Size = 'small' | 'large';
 
+/**
+ * How a box that scrolls shows it: the theme's drawn bars that wait for the
+ * pointer (`'hover'`), the drawn bars kept on the screen (`'always'`), or the
+ * browser's own (`'native'`).
+ */
+export type ScrollbarMode = 'hover' | 'always' | 'native';
+
+/** For the components that scroll inside: how their bars look, over the application's `scrollbar`. */
+export interface ScrollbarProps {
+    /**
+     * The bars of the boxes this component scrolls inside — `'hover'`,
+     * `'always'` or `'native'`. The application's `scrollbar` option by
+     * default, which is `'hover'`.
+     */
+    scrollbar?: ScrollbarMode;
+}
+
 export type InputVariant = 'outlined' | 'filled';
 
 // Prop types stay local rather than imported from sibling packages: the SFC

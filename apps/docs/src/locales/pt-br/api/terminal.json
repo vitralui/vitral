@@ -2,7 +2,8 @@
     "props": {
         "welcomeMessage": "Mostrado acima do primeiro comando.",
         "prompt": "Com o que cada linha começa. O padrão é `'$'`.",
-        "inputLabel": "Dá nome à linha de comando. O padrão é o \"Command\" do locale."
+        "inputLabel": "Dá nome à linha de comando. O padrão é o \"Command\" do locale.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "welcome": "Substitui a mensagem de boas-vindas."

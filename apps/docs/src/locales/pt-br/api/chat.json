@@ -8,7 +8,8 @@
         "sendOnEnter": "Enter envia e Shift+Enter quebra a linha. False inverte os dois.",
         "height": "Altura da área rolável da conversa. O padrão é `'28rem'`.",
         "messageActions": "Botões abaixo de cada mensagem: `['copy', 'regenerate', 'like', 'dislike']`, ou ações suas, relatadas por `message-action`.",
-        "markdown": "Lê as mensagens como Markdown, desenhado como elementos e não como HTML. O `markdown` da própria mensagem vence."
+        "markdown": "Lê as mensagens como Markdown, desenhado como elementos e não como HTML. O `markdown` da própria mensagem vence.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "header": "Acima da conversa: um título, um seletor de modelo, um botão de fechar.",

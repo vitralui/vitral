@@ -1,5 +1,5 @@
 import type { ClassEntry, ColumnLayout, DataSource, FilterMeta, Locale, SortMeta } from '@vitral/core';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /**
  * What a table is told, as plain data. Everything here survives `JSON` except
@@ -248,6 +248,12 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     locale?: Locale;
     /** Drop the built-in classes and stylesheet; style through `pt` or `classes` instead. */
     unstyled?: boolean;
+    /**
+     * The bars of the box the table scrolls in, and of the column list: the
+     * theme's drawn bars, shown under the pointer (`'hover'`, the default) or
+     * always (`'always'`), or the browser's own (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** Prefix of the ids the table gives its elements; generated when unset. */

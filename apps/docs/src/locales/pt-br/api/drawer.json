@@ -7,7 +7,8 @@
         "closeOnEscape": "O padrão é true.",
         "showCloseIcon": "Mostra o botão de fechar. O padrão é true.",
         "blockScroll": "Trava a rolagem da página mesmo quando o drawer não é modal.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "after-hide": "Depois da animação de fechar, quando o drawer já saiu da página."

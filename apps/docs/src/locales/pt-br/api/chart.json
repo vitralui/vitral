@@ -4,7 +4,8 @@
         "series": "Os dados, em qualquer formato que o ApexCharts aceite: `[{ name, data: [...] }]`, ou números simples para uma pizza.",
         "options": "Opções no formato do ApexCharts. Tudo o que é visual é dado simples, então o objeto sobrevive ao JSON.",
         "height": "Sobrepõe `options.chart.height`: pixels, ou um comprimento CSS.",
-        "width": "Sobrepõe `options.chart.width`."
+        "width": "Sobrepõe `options.chart.width`.",
+        "scrollbar": "As barras da legenda, quando ela fica ao lado do gráfico e é mais longa que ele: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "dataPointSelection": "Um ponto de dados foi escolhido por clique, Enter ou Espaço.",

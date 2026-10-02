@@ -1,7 +1,7 @@
-import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
+import type { BaseProps, InputVariant, OverlayPlacement, Size, ScrollbarProps } from '../../base/types';
 import type { TreeNodeLike } from '../Tree/types';
 
-export interface TreeSelectProps extends BaseProps {
+export interface TreeSelectProps extends BaseProps, ScrollbarProps {
     /** The tree to choose from. */
     options?: TreeNodeLike[];
     /** `'single'` (the default) closes on a choice; `'multiple'` and `'checkbox'` stay open. */

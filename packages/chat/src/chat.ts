@@ -1,6 +1,6 @@
 import { en, isClient, loadStyle, type Locale } from '@vitral/core';
 import { createOverlay } from '@vitral/controls';
-import { createRoot, h, iconNode, mergeAttrs, partResolver, type Child, type VElement } from '@vitral/dom';
+import { createRoot, h, iconNode, mergeAttrs, partResolver, scrollbarSet, type Child, type VElement } from '@vitral/dom';
 // Aliased: this module has a `send` of its own, and a bare `x` reads as a variable.
 import {
     close as closeIcon,
@@ -12,7 +12,7 @@ import {
     thumbsDown as thumbsDownIcon,
     thumbsUp as thumbsUpIcon
 } from '@vitral/icons';
-import { baseStyle, chatStyle } from '@vitral/styles';
+import { baseStyle, chatStyle, scrollpanelStyle } from '@vitral/styles';
 import { announcementOf, messageKeyTarget, showsAvatars } from './engine/state';
 import type { ChatAttachment, ChatConfig, ChatMessage, ChatVariant } from './engine/types';
 import { chatView, type ChatActions, type ViewContext } from './render/chat';
@@ -70,6 +70,9 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(chatStyle.name, chatStyle.css, options);
     }
+
+    // The ScrollPanel's bars, so one theme dresses every bar.
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
 
     // The composer and the launcher draw icons that are not in the base set,
     // so the addon brings its own rather than leaving an application to work
@@ -258,6 +261,8 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
             const widget = variant() === 'widget';
             root.attrs(part(widget ? 'widget' : 'root', { variant: variant(), readonly: current.readonly, disabled: current.disabled }));
             root.render(widget ? widgetView() : chatView(context()));
+            // The thread, and the code blocks in it that run wider than their bubble.
+            bars.sync(logEl ? [logEl, ...Array.from(logEl.querySelectorAll('pre'))] : []);
             if (!widget) panel.close();
             else if (current.open) (panel.isOpen ? panel.update : panel.open)();
             else panel.close();
@@ -376,6 +381,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
             destroyed = true;
             clearTimeout(copiedTimer);
             panel.destroy();
+            bars.destroy();
             root.clear();
             logEl = null;
             inputEl = null;

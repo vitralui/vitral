@@ -15,6 +15,7 @@ import {
 import { treetableStyle } from '@vitral/styles';
 import { camelize, computed, Fragment, mergeProps, nextTick, ref, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Column from '../DataGrid/Column.vue';
 import Icon from '../Icon/Icon.vue';
 import Paginator from '../Paginator/Paginator.vue';
@@ -41,6 +42,8 @@ const emit = defineEmits<TreeTableEmits>();
 const slots = defineSlots<TreeTableSlots>();
 
 const { part, locale } = useComponent(treetableStyle, props);
+const containerRef = ref<HTMLElement | null>(null);
+useScrollbars(containerRef, props);
 const id = useId();
 const attrs = useAttrs();
 const TABLE_ATTRS = ['aria-label', 'aria-labelledby', 'aria-describedby'];
@@ -265,7 +268,7 @@ const rootState = computed(() => ({ striped: props.stripedRows, gridlines: props
 <template>
     <div v-bind="mergeProps(rootAttrs, part('root', rootState))">
         <div v-if="$slots.header" v-bind="part('header')"><slot name="header" /></div>
-        <div v-bind="part('tableContainer')" :style="scrollHeight ? { maxHeight: scrollHeight } : undefined">
+        <div ref="containerRef" v-bind="part('tableContainer')" :style="scrollHeight ? { maxHeight: scrollHeight } : undefined">
             <table
                 role="treegrid"
                 v-bind="mergeProps(tableAttrs, part('table'))"

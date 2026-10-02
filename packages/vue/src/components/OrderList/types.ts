@@ -1,6 +1,6 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
-export interface OrderListProps extends BaseProps {
+export interface OrderListProps extends BaseProps, ScrollbarProps {
     /** Field (dotted path) holding an item's text, for the default template and the announcements. */
     optionLabel?: string;
     /** A field that identifies an item. */

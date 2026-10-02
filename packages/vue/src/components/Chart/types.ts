@@ -1,5 +1,5 @@
 import type { ChartOptions, ChartSeries } from '@vitral/chart';
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 // The option and series types are `@vitral/chart`'s, shared with every adapter. The SFC
 // compiler only has to know these props are objects, so it is told not to
@@ -36,7 +36,7 @@ export type ChartKind =
     | 'gauge'
     | 'funnel';
 
-export interface ChartProps extends BaseProps {
+export interface ChartProps extends BaseProps, ScrollbarProps {
     /** The kind of chart; overrides `options.chart.type`. Defaults to `'line'`. */
     type?: ChartKind;
     /** The data, in any shape ApexCharts takes: `[{ name, data: [...] }]`, or plain numbers for a pie. */

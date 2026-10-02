@@ -3,6 +3,7 @@ import { createTypeahead, equals, FilterService, firstIndex, getField, indexRang
 import { listboxStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Icon from '../Icon/Icon.vue';
 import type { ListboxEmits, ListboxProps, ListboxSlots } from './types';
 
@@ -32,6 +33,7 @@ const listId = computed(() => (controlAttrs.value.id as string | undefined) ?? `
 const optionId = (index: number) => `${id}-option-${index}`;
 
 const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 const query = ref('');
 const focusedIndex = ref(-1);
 const anchorIndex = ref(-1);

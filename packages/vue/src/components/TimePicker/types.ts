@@ -1,7 +1,7 @@
 import type { MaskProp } from '@vitral/core';
-import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
+import type { BaseProps, InputVariant, OverlayPlacement, Size, ScrollbarProps } from '../../base/types';
 
-export interface TimePickerProps extends BaseProps {
+export interface TimePickerProps extends BaseProps, ScrollbarProps {
     /** Minutes between the times the list offers. Defaults to 30. */
     step?: number;
     /** The earliest time, as minutes past midnight or `'09:00'`. */

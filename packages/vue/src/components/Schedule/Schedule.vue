@@ -204,6 +204,7 @@ const inputs = (): ScheduleConfig => ({
     date: date.value,
     locale: config.locale,
     unstyled: unstyled(),
+    scrollbar: props.scrollbar ?? config.scrollbar,
     pt: passThroughMap(),
     content: slotContent()
 });
@@ -291,8 +292,8 @@ watch(
 );
 
 watch(
-    () => [config.locale, unstyled(), props.pt, props.dt, config.pt.schedule, config.zIndex.overlay] as const,
-    () => push({ locale: config.locale, unstyled: unstyled(), pt: passThroughMap(), zIndex: config.zIndex.overlay }),
+    () => [config.locale, unstyled(), props.scrollbar, config.scrollbar, props.pt, props.dt, config.pt.schedule, config.zIndex.overlay] as const,
+    () => push({ locale: config.locale, unstyled: unstyled(), scrollbar: props.scrollbar ?? config.scrollbar, pt: passThroughMap(), zIndex: config.zIndex.overlay }),
     { deep: true }
 );
 

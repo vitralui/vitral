@@ -20,6 +20,7 @@ import {
 import { multiselectStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { useOverlay } from '../../composables/useOverlay';
 import Chip from '../Chip/Chip.vue';
 import Icon from '../Icon/Icon.vue';
@@ -61,6 +62,8 @@ const optionId = (index: number) => `${id}-option-${index}`;
 const rootRef = ref<HTMLElement | null>(null);
 const triggerRef = ref<HTMLButtonElement | null>(null);
 const overlayRef = ref<HTMLElement | null>(null);
+const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 const filterRef = ref<HTMLInputElement | null>(null);
 
 const open = ref(false);
@@ -418,6 +421,7 @@ defineExpose({ show, hide, focus: () => triggerRef.value?.focus() });
                 <ul
                     v-if="items.length"
                     :id="listId"
+                    ref="listRef"
                     role="listbox"
                     aria-multiselectable="true"
                     v-bind="part('list')"

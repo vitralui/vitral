@@ -9,7 +9,8 @@
         "loading": "Mostra o indicador de carregamento sobre a lista.",
         "disabled": "Renderiza todos os itens, como faria um contêiner comum.",
         "delay": "Milissegundos a esperar depois que a rolagem para antes de `lazy-load`. O padrão é 0.",
-        "dataKey": "Um campo-chave para os itens renderizados; sem ele, usa-se o índice."
+        "dataKey": "Um campo-chave para os itens renderizados; sem ele, usa-se o índice.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "lazy-load": "No modo lazy, o intervalo de itens que o scroller está prestes a mostrar."

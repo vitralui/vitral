@@ -7,7 +7,8 @@
         "showGridlines": "Uma linha entre as colunas além de entre as linhas.",
         "rowHover": "As linhas se destacam sob o ponteiro. Vale a pena quando uma linha é um link ou abre algo.",
         "scrollHeight": "Dá à tabela uma área rolável própria com esta altura e fixa o cabeçalho no topo dela.",
-        "emptyMessage": "O que dizer quando não há linhas; o slot `empty` tem prioridade."
+        "emptyMessage": "O que dizer quando não há linhas; o slot `empty` tem prioridade.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "default": "Os `<Column>`s. Qualquer outro conteúdo aqui é ignorado."

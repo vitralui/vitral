@@ -1,6 +1,6 @@
 import { drawMath, editorMathAt, en, isMathLoaded, loadMath, overlayContainerOf, paintMath, type EditorInstance, type EditorPosition, type EditorView, type Locale } from '@vitral/core';
 import { createOverlay, type OverlayTarget } from '@vitral/controls';
-import { h, mergeAttrs, type Props, type VElement } from '@vitral/dom';
+import { h, mergeAttrs, type Props, type ScrollbarSlotOptions, type VElement } from '@vitral/dom';
 import type { MathTemplate } from './types';
 
 /**
@@ -44,6 +44,8 @@ export interface MathToolsOptions {
     id?: string;
     overlayTarget?: OverlayTarget;
     zIndex?: number;
+    /** Drawn scrollbars on the list of ready-made formulas: `{ mode, style: scrollpanelStyle, unstyled }`. */
+    scrollbars?: () => ScrollbarSlotOptions;
 }
 
 export interface MathTools {
@@ -151,6 +153,8 @@ export function createMathTools(options: MathToolsOptions): MathTools {
         target: () => options.overlayTarget,
         zIndex: options.zIndex,
         restoreFocus: false,
+        scrollbars: options.scrollbars,
+        scrollers: (drawn) => drawn.querySelectorAll('[data-vt-math-templates]'),
         onOpen: (drawn) => {
             const box = drawn.querySelector<HTMLInputElement>(`[${SOURCE}]`);
             if (!box) return;
@@ -232,7 +236,7 @@ export function createMathTools(options: MathToolsOptions): MathTools {
             templates().length
                 ? h(
                       'div',
-                      mergeAttrs({ key: 'templates', role: 'group' }, part('mathTemplates'), { 'aria-label': words.mathTemplates }),
+                      mergeAttrs({ key: 'templates', role: 'group' }, part('mathTemplates'), { 'aria-label': words.mathTemplates, 'data-vt-math-templates': '' }),
                       templates().map((template) =>
                           drawn(
                               'button',

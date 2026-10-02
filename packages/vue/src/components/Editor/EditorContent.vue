@@ -3,6 +3,7 @@ import { createEditorView, editorLinkHint, isEmptyEditorDoc, type EditorView } f
 import { editorStyle } from '@vitral/styles';
 import { computed, mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue';
 import { useComponent } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { useVitral } from '../../config/config';
 import { tooltipOptions } from '../../directives/tooltip';
 import { inheritRoot, useEditorContext } from './context';
@@ -20,6 +21,7 @@ const { part, cx } = useComponent(editorStyle, inheritRoot(props, ctx));
 const attrs = useAttrs();
 const vitral = useVitral();
 const el = ref<HTMLElement | null>(null);
+useScrollbars(el, inheritRoot(props, ctx), { mode: () => props.scrollbar ?? ctx.scrollbar() });
 const labelledBy = ref<string>();
 let view: EditorView | null = null;
 let label: HTMLLabelElement | null = null;

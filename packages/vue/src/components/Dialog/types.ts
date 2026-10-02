@@ -1,8 +1,8 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export type DialogPosition = 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
-export interface DialogProps extends BaseProps {
+export interface DialogProps extends BaseProps, ScrollbarProps {
     /** The title; it names the dialog. Without one, name it with `aria-label` or `aria-labelledby`. */
     header?: string;
     /** Dim and block the page, trap focus and lock scrolling. Defaults to true. */

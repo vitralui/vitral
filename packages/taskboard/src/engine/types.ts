@@ -1,5 +1,5 @@
 import type { BoardPosition, ClassEntry, Locale } from '@vitral/core';
-import type { PassThrough } from '@vitral/dom';
+import type { PassThrough, ScrollbarMode } from '@vitral/dom';
 
 /**
  * What a board is told, as plain data. A board is either columns that carry
@@ -187,6 +187,12 @@ export interface TaskboardConfig extends Partial<TaskboardModels> {
     locale?: Locale;
     /** Drop the built-in classes and stylesheet; style through `pt` or `classes` instead. */
     unstyled?: boolean;
+    /**
+     * The bars of the board and of each column's list: the theme's drawn
+     * bars, shown under the pointer (`'hover'`, the default) or always
+     * (`'always'`), or the browser's own (`'native'`).
+     */
+    scrollbar?: ScrollbarMode;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** What the host draws itself. */

@@ -14,7 +14,8 @@
         "showWordCount": "Mostra a contagem de palavras ao lado da de caracteres. O padrão é true.",
         "chips": "Chips inline inseridos ao digitar um gatilho: `{ char: '@', kind: 'mention', items: (q) => people.filter(…) }`, ou vários gatilhos. `items` pode devolver uma promise, para uma busca no servidor.",
         "find": "Localizar e substituir: Ctrl/⌘+F abre a barra sobre o texto, Ctrl+H (⌘+⌥+F no Mac) com a linha de substituir. Precisa de uma parte `<EditorFind>`, que o editor pronto já tem. O padrão é true; `false` deixa as teclas para o navegador.",
-        "math": "Fórmulas, escritas em LaTeX e desenhadas: o botão de fórmula da barra de ferramentas, a entrada do menu de barra, o painel em que uma fórmula é escrita, e a edição de uma com um clique nela no texto. O padrão é true. `false` continua desenhando as fórmulas que o documento tem, e tira todas as formas de criar ou alterar uma. Um objeto escolhe as fórmulas prontas que o painel oferece (`templates`) e se um valor é editado onde está (`inlineEdit`)."
+        "math": "Fórmulas, escritas em LaTeX e desenhadas: o botão de fórmula da barra de ferramentas, a entrada do menu de barra, o painel em que uma fórmula é escrita, e a edição de uma com um clique nela no texto. O padrão é true. `false` continua desenhando as fórmulas que o documento tem, e tira todas as formas de criar ou alterar uma. Um objeto escolhe as fórmulas prontas que o painel oferece (`templates`) e se um valor é editado onde está (`inlineEdit`).",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "emits": {
         "text-change": "O conteúdo mudou.",

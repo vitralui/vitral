@@ -30,7 +30,7 @@ import {
     type MathTools,
     type SlashMenu
 } from '@vitral/editor';
-import { editorStyle } from '@vitral/styles';
+import { editorStyle, scrollpanelStyle } from '@vitral/styles';
 import { computed, getCurrentInstance, mergeProps, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
@@ -63,6 +63,14 @@ const json = defineModel<EditorJSON | null>('json');
 const emit = defineEmits<EditorRootEmits>();
 
 const { part, config, locale } = useComponent(editorStyle, props);
+// The ScrollPanel's bars on the menus' lists, as on every box that scrolls.
+const barOptions = () => ({
+    mode: props.scrollbar ?? config.scrollbar,
+    style: scrollpanelStyle,
+    unstyled: props.unstyled ?? config.unstyled,
+    nonce: config.csp.nonce,
+    cssLayer: config.cssLayer
+});
 const overlayTarget = useOverlayTarget();
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 const instance = getCurrentInstance();
@@ -255,6 +263,7 @@ const ctx: EditorContext = {
     bubbleDismissed,
     popups,
     unstyled: () => props.unstyled,
+    scrollbar: () => props.scrollbar,
     pt: () => props.pt,
     isActive(name, attrs) {
         void state.value;
@@ -381,7 +390,8 @@ function attachMenus() {
         focus,
         id: `${uid}-math`,
         overlayTarget: overlayTarget.value,
-        zIndex: config.zIndex.overlay
+        zIndex: config.zIndex.overlay,
+        scrollbars: barOptions
     });
     blockHandle?.destroy();
     slash = createSlashMenu({
@@ -396,6 +406,7 @@ function attachMenus() {
         place: () => void caretAnchor(),
         overlayTarget: overlayTarget.value,
         zIndex: config.zIndex.overlay,
+        scrollbars: barOptions,
         onRun: (command) => {
             // The formula panel is not a command of the document's: it opens here, where the caret was left.
             if (command.command?.[0] === 'math') mathTools?.open();

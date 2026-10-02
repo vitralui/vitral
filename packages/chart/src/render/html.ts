@@ -68,7 +68,7 @@ let touchPressed = false;
 export function legendView(part: Part, p: LegendProps, key: string): Child {
     return h(
         'ul',
-        mergeAttrs({ key, 'aria-label': p.locale.chart.legend }, part('legend', { position: p.position, align: p.align })),
+        mergeAttrs({ key, 'aria-label': p.locale.chart.legend, 'data-vt-legend': '' }, part('legend', { position: p.position, align: p.align })),
         p.entries.map((e) => {
             const custom = p.item?.({ name: e.name, seriesIndex: e.series, hidden: e.hidden, color: e.color, value: e.value });
             return h(

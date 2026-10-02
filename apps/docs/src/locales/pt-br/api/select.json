@@ -9,6 +9,7 @@
         "filterFields": "Campos a buscar em vez do rótulo.",
         "filterMatchMode": "Qualquer modo de comparação registrado; por padrão, `contains` sem distinguir acentos nem maiúsculas.",
         "checkmark": "Marca a opção selecionada com um visto, além do destaque.",
-        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     }
 }

@@ -141,6 +141,8 @@ const sides: Side[] = ['source', 'target'];
                     <slot :name="side === 'source' ? 'sourceheader' : 'targetheader'">{{ nameOf(side) }}</slot>
                 </div>
                 <ReorderList
+                    :scrollbar="scrollbar"
+                    :unstyled="unstyled"
                     :ref="(el: unknown) => setListRef(side, el)"
                     :selection="selectionOf(side)"
                     :items="listOf(side)"

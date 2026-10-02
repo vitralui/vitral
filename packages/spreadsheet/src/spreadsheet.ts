@@ -1,8 +1,8 @@
 import { en, loadStyle, rovingIndex, rovingMove, type Locale } from '@vitral/core';
 import { createSelect, createTooltips, type SelectHandle } from '@vitral/controls';
-import { createRoot, partResolver, pointerDrag, type Child } from '@vitral/dom';
+import { createRoot, partResolver, pointerDrag, scrollbarSet, type Child } from '@vitral/dom';
 import { registerIcons } from '@vitral/icons';
-import { baseStyle, spreadsheetStyle } from '@vitral/styles';
+import { baseStyle, scrollpanelStyle, spreadsheetStyle } from '@vitral/styles';
 import { defaultToolbar, numberFormats, spreadsheetButtons, toolbarIcons } from './buttons';
 import { columnLabel, formatRange, formatRef, keyOf, normalizeRange, parseRange, parseRef, rangeCells } from './engine/a1';
 import {
@@ -137,6 +137,9 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(spreadsheetStyle.name, spreadsheetStyle.css, options);
     }
+
+    // The ScrollPanel's bars, so one theme dresses every bar.
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
     // The toolbar draws its own icon definitions, but an application that
     // names one of them in its own markup should find it too.
     registerIcons(toolbarIcons);
@@ -274,6 +277,7 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
               : toolbarView(toolbarContext(), toolbarGroups(), tabStop ?? toolbarItems().find((item) => item !== 'numberFormat'));
         root.attrs(view.attrs);
         root.render(bar, ...view.children);
+        bars.sync([viewportEl]);
         syncFormatSelect();
         if (focusEditor && editorEl) {
             focusEditor = false;
@@ -669,6 +673,7 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
             formatSelect?.destroy();
             formatSelect = null;
             tooltips.destroy();
+            bars.destroy();
             root.clear();
         }
     };

@@ -1,8 +1,8 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom' | 'full';
 
-export interface DrawerProps extends BaseProps {
+export interface DrawerProps extends BaseProps, ScrollbarProps {
     /** The title; it names the drawer. Without one, name it with `aria-label` or `aria-labelledby`. */
     header?: string;
     /** The edge it slides in from, or `'full'` to cover the viewport. Defaults to `'left'`. */

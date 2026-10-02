@@ -504,3 +504,35 @@ describe('DataGrid groups', () => {
         expect(second!.scrollLeft).toBe(140);
     });
 });
+
+describe('DataGrid collapsedGroups', () => {
+    const staff = [
+        { id: 1, name: 'Ana', city: 'Recife' },
+        { id: 2, name: 'Bruno', city: 'Lisboa' },
+        { id: 3, name: 'Carla', city: 'Porto' }
+    ];
+
+    it('shuts the groups the application names, at mount and afterwards', async () => {
+        const shut = ref<string[]>(['Lisboa', 'Porto']);
+        const Host = defineComponent(
+            () => () =>
+                h(DataGrid, { value: staff, groupBy: 'city', dataKey: 'id', collapsedGroups: shut.value, 'onUpdate:collapsedGroups': (v: string[] | null | undefined) => (shut.value = v ?? []) }, () => [
+                    h(Column, { field: 'name', header: 'Name' })
+                ])
+        );
+        const wrapper = mountVt(Host);
+        await nextTick();
+        const expanded = () => Array.from((wrapper.element as HTMLElement).querySelectorAll('.vt-datagrid-group-toggle')).map((e) => e.getAttribute('aria-expanded'));
+        expect(expanded()).toEqual(['true', 'false', 'false']);
+
+        shut.value = ['Recife', 'Porto'];
+        await nextTick();
+        await nextTick();
+        expect(expanded()).toEqual(['false', 'true', 'false']);
+
+        // And a press still reports back the key it shut.
+        (wrapper.element as HTMLElement).querySelectorAll<HTMLElement>('.vt-datagrid-group-toggle')[1]!.click();
+        expect(shut.value).toEqual(['Recife', 'Porto', 'Lisboa']);
+        wrapper.unmount();
+    });
+});

@@ -1,6 +1,6 @@
 import { editorSelectionRange, editorTextblocks, en, type EditorInstance, type EditorNode, type Locale } from '@vitral/core';
 import { createOverlay, type OverlayTarget } from '@vitral/controls';
-import type { Props } from '@vitral/dom';
+import type { Props, ScrollbarSlotOptions } from '@vitral/dom';
 import { slashMenuView } from './render/menus';
 import type { CommandRunner, SlashCommand } from './types';
 
@@ -29,6 +29,8 @@ export interface SlashMenuOptions {
     ids?: { slash: string; block: string };
     overlayTarget?: OverlayTarget;
     zIndex?: number;
+    /** Drawn scrollbars on the panel: `{ mode, style: scrollpanelStyle, unstyled }`. */
+    scrollbars?: () => ScrollbarSlotOptions;
     /** What to do with the command the reader chose; it runs itself by default. */
     onRun?: (command: SlashCommand) => void;
 }
@@ -67,6 +69,7 @@ export function createSlashMenu(options: SlashMenuOptions): SlashMenu {
         target: () => options.overlayTarget,
         zIndex: options.zIndex,
         restoreFocus: false,
+        scrollbars: options.scrollbars,
         onClose: () => (open = null)
     });
 

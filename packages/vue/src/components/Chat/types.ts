@@ -1,9 +1,9 @@
 import type { ChatAttachment, ChatBuiltInAction, ChatCitation, ChatMessage, ChatMessageAction, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant } from '@vitral/chat';
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 export type { ChatAttachment, ChatBuiltInAction, ChatCitation, ChatMessage, ChatMessageAction, ChatRole, ChatSendPayload, ChatToolCall, ChatVariant };
 
-export interface ChatProps extends BaseProps {
+export interface ChatProps extends BaseProps, ScrollbarProps {
     /** The thread. `v-model:messages` is not offered: what is said is the application's to decide. */
     messages?: ChatMessage[];
     variant?: ChatVariant;

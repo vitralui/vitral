@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 /** One person, team or thing in the chart. */
 export interface OrganizationChartNode {
@@ -16,7 +16,7 @@ export interface OrganizationChartNode {
     [extra: string]: unknown;
 }
 
-export interface OrganizationChartProps extends BaseProps {
+export interface OrganizationChartProps extends BaseProps, ScrollbarProps {
     /** The top of the chart. */
     value?: OrganizationChartNode;
     selectionMode?: 'single' | 'multiple';

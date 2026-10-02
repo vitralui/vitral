@@ -1,6 +1,6 @@
-import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
+import type { BaseProps, InputVariant, OverlayPlacement, Size, ScrollbarProps } from '../../base/types';
 
-export interface MultiSelectProps extends BaseProps {
+export interface MultiSelectProps extends BaseProps, ScrollbarProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options?: any[];
     /** Field (dotted path) holding an option's text. Without it, options are shown as they are. */

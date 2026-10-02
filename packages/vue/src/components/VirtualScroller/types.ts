@@ -1,6 +1,6 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
-export interface VirtualScrollerProps extends BaseProps {
+export interface VirtualScrollerProps extends BaseProps, ScrollbarProps {
     /** Every item; only the ones near the viewport are rendered. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items?: any[];

@@ -3,6 +3,7 @@ import { equals, firstIndex, flattenOptions, formatMessage, groupOptions, lastIn
 import { autocompleteStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import { useMask } from '../../base/useMask';
 import { useOverlay } from '../../composables/useOverlay';
 import Chip from '../Chip/Chip.vue';
@@ -51,6 +52,8 @@ const optionId = (index: number) => `${id}-option-${index}`;
 const rootRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLInputElement | null>(null);
 const overlayRef = ref<HTMLElement | null>(null);
+const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 
 const text = ref('');
 const open = ref(false);
@@ -414,7 +417,7 @@ defineExpose({ show, hide, search: (query = text.value) => search(query, new Eve
         <Transition name="vt-overlay">
             <div v-if="open" ref="overlayRef" v-bind="part('overlay')" @pointerdown="keepFocus">
                 <slot name="header" />
-                <ul v-if="items.length" :id="listId" role="listbox" v-bind="part('list')" :aria-labelledby="listLabelledBy" :aria-label="listLabelledBy ? undefined : listLabel" :aria-multiselectable="multiple ? 'true' : undefined">
+                <ul v-if="items.length" :id="listId" ref="listRef" role="listbox" v-bind="part('list')" :aria-labelledby="listLabelledBy" :aria-label="listLabelledBy ? undefined : listLabel" :aria-multiselectable="multiple ? 'true' : undefined">
                     <template v-for="(group, g) in groups" :key="g">
                         <li v-if="group.label !== null" role="none" v-bind="part('group')">
                             <ul role="group" :aria-labelledby="`${id}-group-${g}`" v-bind="part('groupList')">

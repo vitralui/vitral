@@ -1,7 +1,7 @@
-import type { BaseProps, Size } from '../../base/types';
+import type { BaseProps, Size, ScrollbarProps } from '../../base/types';
 import type { TreeNodeLike } from '../Tree/types';
 
-export interface TreeTableProps extends BaseProps {
+export interface TreeTableProps extends BaseProps, ScrollbarProps {
     /** The rows, as tree nodes whose `data` the columns read. */
     value?: TreeNodeLike[];
     selectionMode?: 'single' | 'multiple' | 'checkbox';

@@ -5,7 +5,8 @@
         "header": "O título da lista; ele dá nome à lista. Sem ele, nomeie-a com `aria-label`.",
         "dragdrop": "Permite arrastar itens para um novo lugar. O padrão é true.",
         "showControls": "Mostra os botões de mover. O padrão é true.",
-        "scrollHeight": "A altura da lista."
+        "scrollHeight": "A altura da lista.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "option": "O conteúdo de um item.",

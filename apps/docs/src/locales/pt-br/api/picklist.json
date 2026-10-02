@@ -6,7 +6,8 @@
         "targetHeader": "Dá nome à segunda lista. O padrão é o \"Selected\" do locale.",
         "showSourceControls": "Mostra os botões de mover ao lado da primeira lista. O padrão é true.",
         "showTargetControls": "Mostra os botões de mover ao lado da segunda lista. O padrão é true.",
-        "scrollHeight": "A altura das listas."
+        "scrollHeight": "A altura das listas.",
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },
     "slots": {
         "option": "O conteúdo de um item, em qualquer das listas."

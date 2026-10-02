@@ -1,4 +1,4 @@
-import type { BaseProps } from '../../base/types';
+import type { BaseProps, ScrollbarProps } from '../../base/types';
 
 // Dates are local `Date`s (or ISO strings read as local time). The scheduler
 // does no time-zone conversion: an application that stores UTC or shows
@@ -54,7 +54,7 @@ export interface ScheduleBusinessHours {
     endTime?: string;
 }
 
-export interface ScheduleProps extends BaseProps {
+export interface ScheduleProps extends BaseProps, ScrollbarProps {
     events?: ScheduleEvent[];
     /**
      * Shows only some events: words to look for in the title, the description

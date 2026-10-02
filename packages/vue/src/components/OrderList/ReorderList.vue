@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { equals, firstIndex, getField, indexRange, isPrintableKey, lastIndex, createTypeahead, typeaheadIndex, type ReorderDirection } from '@vitral/core';
 import { computed, mergeProps, nextTick, ref } from 'vue';
-import type { PassThroughAttrs } from '../../base/types';
+import type { PassThroughAttrs, ScrollbarMode } from '../../base/types';
+import { useScrollbars } from '../../base/useScrollbars';
 
 // The multi-selectable WAI-ARIA listbox inside OrderList and PickList. Focus
 // stays on the list and the active option is conveyed by
@@ -27,6 +28,8 @@ const props = defineProps<{
     labelledby?: string;
     describedby?: string;
     locale?: string;
+    scrollbar?: ScrollbarMode;
+    unstyled?: boolean;
 }>();
 const emit = defineEmits<{
     'update:selection': [value: unknown[]];
@@ -38,6 +41,7 @@ const emit = defineEmits<{
 defineSlots<{ option?: (props: { item: unknown; index: number; selected: boolean }) => unknown }>();
 
 const listRef = ref<HTMLElement | null>(null);
+useScrollbars(listRef, props);
 const focusedIndex = ref(-1);
 const anchor = ref(-1);
 const hasFocus = ref(false);

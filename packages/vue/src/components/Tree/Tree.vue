@@ -3,6 +3,7 @@ import { createTypeahead, filterTree, flattenTree, isLeaf, isPrintableKey, setCh
 import { treeStyle } from '@vitral/styles';
 import { computed, h, mergeProps, nextTick, ref, useId, watch, type FunctionalComponent, type VNode, type VNodeArrayChildren } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
+import { useScrollbars } from '../../base/useScrollbars';
 import Icon from '../Icon/Icon.vue';
 import type { TreeEmits, TreeExpandedKeys, TreeNodeLike, TreeProps, TreeSelectionKeys, TreeSlots } from './types';
 
@@ -21,6 +22,8 @@ const emit = defineEmits<TreeEmits>();
 const slots = defineSlots<TreeSlots>();
 
 const { part, locale } = useComponent(treeStyle, props);
+const containerRef = ref<HTMLElement | null>(null);
+useScrollbars(containerRef, props);
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 
 const id = useId();
@@ -313,6 +316,7 @@ defineExpose({
             <span>{{ locale.loading }}</span>
         </div>
         <ul
+            ref="containerRef"
             role="tree"
             v-bind="mergeProps(controlAttrs, part('container'))"
             :id="treeId"

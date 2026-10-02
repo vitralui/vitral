@@ -19,8 +19,8 @@ import {
     type Locale
 } from '@vitral/core';
 import { createTooltips } from '@vitral/controls';
-import { autoScroll, createPortal, createRoot, partResolver, pointerDrag } from '@vitral/dom';
-import { baseStyle, taskboardStyle } from '@vitral/styles';
+import { autoScroll, createPortal, createRoot, partResolver, pointerDrag, scrollbarSet } from '@vitral/dom';
+import { baseStyle, scrollpanelStyle, taskboardStyle } from '@vitral/styles';
 import {
     columnOf,
     describeMove,
@@ -133,6 +133,9 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(taskboardStyle.name, taskboardStyle.css, options);
     }
+
+    // The board and every column's list, with the ScrollPanel's bars.
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
 
     // ---- the cards and where they are -------------------------------------------------
 
@@ -655,6 +658,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             const drawn = context();
             root.attrs({ ...part('root', { disabled: settings().disabled, dragging: cardDrag.active() || handleDrag.active() }), onFocusout: focusout });
             root.render(boardView(drawn));
+            bars.sync([element, ...Array.from(element.querySelectorAll('[data-vt-list]'))]);
             renderPreview(drawn);
         } finally {
             drawing = false;
@@ -719,6 +723,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             scroller.stop();
             stopPreview?.();
             tooltips.destroy();
+            bars.destroy();
             portal.render(null, null);
             root.clear();
         }
