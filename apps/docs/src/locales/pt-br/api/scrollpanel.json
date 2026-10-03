@@ -1,5 +1,6 @@
 {
     "props": {
-        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`.",
+        "arrows": "Setas nas pontas das barras, como numa barra nativa: um clique rola um passo e segurar continua rolando. Por padrão é a opção `scrollbarArrows` da aplicação, que vem desligada."
     }
 }

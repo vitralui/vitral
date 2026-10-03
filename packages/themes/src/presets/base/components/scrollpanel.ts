@@ -16,6 +16,8 @@ export default {
     // gives them a background or a radius of their own.
     arrow: {
         size: '0.625rem',
+        // How far a bar with arrows sits from the box's edge.
+        gap: '1px',
         color: '{text.mutedColor}',
         background: 'transparent',
         borderRadius: '0',

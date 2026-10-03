@@ -78,12 +78,17 @@
     height: var(--vt-scrollpanel-bar-size);
 }
 
-/* With arrows the bar is wide enough to aim at them. */
+/* With arrows the bar is wide enough to aim at them, and sits closer to the edge, as a native bar does. */
 .vt-scrollpanel-bar-y.vt-scrollpanel-bar-arrows {
+    top: var(--vt-scrollpanel-arrow-gap);
+    bottom: var(--vt-scrollpanel-arrow-gap);
+    inset-inline-end: var(--vt-scrollpanel-arrow-gap);
     width: var(--vt-scrollpanel-arrow-size);
 }
 
 .vt-scrollpanel-bar-x.vt-scrollpanel-bar-arrows {
+    inset-inline: var(--vt-scrollpanel-arrow-gap);
+    bottom: var(--vt-scrollpanel-arrow-gap);
     height: var(--vt-scrollpanel-arrow-size);
 }
 
@@ -97,11 +102,11 @@
 }
 
 .vt-scrollpanel-bars-corner .vt-scrollpanel-bar-y.vt-scrollpanel-bar-arrows {
-    bottom: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-arrow-size));
+    bottom: calc(var(--vt-scrollpanel-arrow-gap) * 2 + var(--vt-scrollpanel-arrow-size));
 }
 
 .vt-scrollpanel-bars-corner .vt-scrollpanel-bar-x.vt-scrollpanel-bar-arrows {
-    inset-inline-end: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-arrow-size));
+    inset-inline-end: calc(var(--vt-scrollpanel-arrow-gap) * 2 + var(--vt-scrollpanel-arrow-size));
 }
 
 /*

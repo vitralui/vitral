@@ -20,7 +20,7 @@ import VerticalAndHorizontal from './ScrollPanel/VerticalAndHorizontal.vue';
     <DemoSection title="Vertical and horizontal"><VerticalAndHorizontal /></DemoSection>
     <DemoSection
         title="When the bars show"
-        description="`scrollbar` is `'hover'` by default: the bars show while the pointer is over the panel, focus is inside it, or it scrolls. `'always'` keeps them on the screen, and `'native'` gives the browser's own back. The same prop is on every component that scrolls inside (Sidebar, Select, Dialog, Drawer, DataGrid and the rest), and the application's `scrollbar` option sets it for all of them at once. Only the thumb takes the pointer: a press on the track reaches the content under it."
+        description="`scrollbar` is `'hover'` by default: the bars show while the pointer is over the panel, focus is inside it, or it scrolls. `'always'` keeps them on the screen, and `'native'` gives the browser's own back. `arrows` puts arrows at their ends, as a native bar has. The same prop is on every component that scrolls inside (Sidebar, Select, Dialog, Drawer, DataGrid and the rest), and the application's `scrollbar` option sets it for all of them at once. Only the thumb takes the pointer: a press on the track reaches the content under it."
         ><BarsShown
     /></DemoSection>
     <DemoSection title="Content that grows" description="The bars follow the content as well as the panel: a section opening with an animation, an image loading."><GrowingContent /></DemoSection>

@@ -92,4 +92,14 @@ describe('ScrollPanel', () => {
         await nextTick();
         await expectNoA11yViolations();
     });
+
+    it('puts arrows on its own bars with arrows, whatever the application says', async () => {
+        const { wrapper } = mountPanel({ arrows: true });
+        await nextTick();
+        expect(wrapper.find('.vt-scrollpanel-bar-arrows').exists()).toBe(true);
+        expect((wrapper.find('.vt-scrollpanel-arrow-down').element as HTMLElement).style.display).toBe('');
+        await wrapper.setProps({ arrows: false });
+        await nextTick();
+        expect(wrapper.find('.vt-scrollpanel-bar-arrows').exists()).toBe(false);
+    });
 });

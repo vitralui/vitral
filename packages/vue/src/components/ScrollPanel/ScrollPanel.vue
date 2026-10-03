@@ -13,7 +13,7 @@ import type { ScrollPanelProps, ScrollPanelSlots } from './types';
 
 defineOptions({ name: 'VtScrollPanel', inheritAttrs: false });
 
-const props = withDefaults(defineProps<ScrollPanelProps>(), { unstyled: undefined });
+const props = withDefaults(defineProps<ScrollPanelProps>(), { unstyled: undefined, arrows: undefined });
 defineSlots<ScrollPanelSlots>();
 const attrs = useAttrs();
 
@@ -27,7 +27,7 @@ const contentAttrs = computed(() => {
     return rest;
 });
 
-const { refresh } = useScrollbars(contentRef, props, { ownPassThrough: true });
+const { refresh } = useScrollbars(contentRef, props, { ownPassThrough: true, arrows: () => props.arrows });
 
 /** Scrolls the content to `top`. */
 function scrollTop(top: number) {

@@ -16,6 +16,8 @@ interface ScrollbarsUse {
     mode?: () => ScrollbarMode | undefined;
     /** The owner's own `pt` dresses the bars too: the ScrollPanel's `bars`, `bar` and `thumb`. */
     ownPassThrough?: boolean;
+    /** Arrows, when the component decides them itself; the application's `scrollbarArrows` otherwise. */
+    arrows?: () => boolean | undefined;
 }
 
 function resolve(value: PassThroughValue | undefined, context: PassThroughContext) {
@@ -58,7 +60,7 @@ export function useScrollbars(target: MaybeRefOrGetter<HTMLElement | null | unde
     }
 
     watch(
-        () => [toValue(target), wanted(), unstyled(), config.scrollbarArrows] as const,
+        () => [toValue(target), wanted(), unstyled(), use.arrows?.() ?? config.scrollbarArrows] as const,
         ([el, chosen, bare, arrows]) => {
             if (!el || chosen === 'native' || typeof window === 'undefined') {
                 detach();
