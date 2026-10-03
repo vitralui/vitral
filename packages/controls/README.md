@@ -40,4 +40,8 @@ Escape puts the keyboard back on the button.
 A framework component that already has a better control hands it to the addon
 instead — that is what an addon's `content` hooks are for.
 
+`createOverlay` takes `scrollbars` — `{ mode, style: scrollpanelStyle }` — for
+the theme's drawn scrollbars on the panel, or on the boxes in it that
+`scrollers` picks.
+
 LGPL-3.0-or-later. Part of the [Vitral](https://github.com/vitralui/vitral) monorepo.

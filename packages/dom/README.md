@@ -11,4 +11,10 @@ The addons are built on it — `@vitral/chart`, `@vitral/datagrid`,
 `@vitral/spreadsheet`, and `@vitral/controls`, the select, menu and anchored
 panel they share — and the Vue, React and Angular components wrap those.
 
+`scrollbars(element, { visibility, part })` draws the theme's scrollbars over
+a box that already scrolls, without moving it or anything in it: native
+scrolling stays, only the native bars are hidden, and the bars follow the box,
+what grows inside it and the page around it. `scrollbarSet` and
+`scrollbarSlot` keep them on the boxes of a renderer that redraws.
+
 Licensed LGPL-3.0-or-later.

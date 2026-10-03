@@ -37,6 +37,11 @@ calendar to import.
 `@vitral/schedule/engine` is the arithmetic on its own: which views, which
 period, what is on in it, and what everything is called. No DOM, no timers.
 
+The boxes the schedule scrolls in wear the theme's drawn scrollbars, the ScrollPanel's, over native
+scrolling: `scrollbar: 'hover'` (the default) shows them under the pointer and
+while scrolling, `'always'` keeps them on the screen, `'native'` gives the
+browser's own back.
+
 **[Documentation](https://vitralui.github.io/vitral/#/components/schedule)**
 
 LGPL-3.0-or-later. Part of the [Vitral](https://github.com/vitralui/vitral) monorepo.

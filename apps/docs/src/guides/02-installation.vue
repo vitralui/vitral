@@ -54,7 +54,7 @@ import { VitralResolver, vitralAutoImports } from '@vitral/vue/resolver';
 export default defineConfig({
     plugins: [
         vue(),
-        Components({ resolvers: [VitralResolver()] }),        // <Button>, v-tooltip
+        Components({ resolvers: [VitralResolver()] }),        // <Button>, v-tooltip, v-scrollbar
         AutoImport({ imports: [vitralAutoImports()] })        // useTheme(), Form
     ]
 });`;

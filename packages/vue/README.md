@@ -7,6 +7,12 @@ Vitral is a component library built around a token engine, so the whole look
 comes from one object you can swap. Design tokens, presets, light and dark, per
 instance overrides, pass-through attributes and a fully unstyled mode.
 
+Every box that scrolls inside a component (a ScrollPanel, a Sidebar's menu, a
+Select's list, a Dialog's body, a DataGrid) wears the theme's drawn scrollbars
+over native scrolling. The plugin's `scrollbar` option — `'hover'` (the
+default), `'always'` or `'native'` — sets them for all, each component's
+`scrollbar` prop for itself, and `v-scrollbar` puts them on a box of your own.
+
 **[Documentation and live examples](https://vitralui.github.io/vitral/)**
 
 ```sh

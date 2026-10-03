@@ -22,7 +22,7 @@
         "title": "Nuxt",
         "intro": "O módulo faz tudo isso, e ainda os auto-imports.",
         "cookie": "O esquema fica num cookie e não no <code>localStorage</code>, porque só um cookie chega ao servidor. A página então é renderizada no esquema que o leitor escolheu, com <code>&lt;html class=\"vt-dark\"&gt;</code> e tudo. Com <code>'system'</code>, que nenhum servidor consegue resolver, o módulo escreve o script acima no lugar.",
-        "directives": "As diretivas mantêm os nomes simples (<code>v-tooltip</code>, seja qual for o prefixo) porque são registradas na aplicação em vez de importadas. Um template é compilado antes de qualquer auto-import rodar, então só um registro chega até ele."
+        "directives": "As diretivas mantêm os nomes simples (<code>v-tooltip</code>, <code>v-scrollbar</code>, seja qual for o prefixo) porque são registradas na aplicação em vez de importadas. Um template é compilado antes de qualquer auto-import rodar, então só um registro chega até ele."
     },
     "options": {
         "title": "Opções",

@@ -33,4 +33,9 @@ tested without a document in sight.
 - **Editing**: fill with the references carried, a run of numbers carried on,
   tab-separated paste and copy, formats, and undo.
 
+The sheet's viewport wear the theme's drawn scrollbars, the ScrollPanel's, over native
+scrolling: `scrollbar: 'hover'` (the default) shows them under the pointer and
+while scrolling, `'always'` keeps them on the screen, `'native'` gives the
+browser's own back.
+
 Licensed LGPL-3.0-or-later.

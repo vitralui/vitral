@@ -1,5 +1,5 @@
 {
-    "description": "Um contêiner de rolagem com as barras finas do próprio tema, sobre a rolagem nativa.",
+    "description": "Um contêiner de rolagem com as barras finas do próprio tema, sobre a rolagem nativa — as mesmas barras de todo componente que rola por dentro, e que o v-scrollbar coloca numa caixa sua.",
     "sections": {
         "Vertical and horizontal": { "title": "Vertical e horizontal" },
         "When the bars show": { "title": "Quando as barras aparecem", "description": "`scrollbar` é `'hover'` por padrão: as barras aparecem enquanto o ponteiro está sobre o painel, o foco está dentro dele ou ele rola. `'always'` as mantém na tela, e `'native'` devolve as do navegador. A mesma prop está em todo componente que rola por dentro (Sidebar, Select, Dialog, Drawer, DataGrid e os demais), e a opção `scrollbar` da aplicação define todas de uma vez. Só o polegar recebe o ponteiro: um clique na faixa chega ao conteúdo embaixo dela." },

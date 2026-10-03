@@ -4,7 +4,7 @@ import type { DemoMeta } from '../demo';
 export const meta: DemoMeta = {
     title: 'ScrollPanel',
     category: 'Panel',
-    description: "A scroll container with the theme's own thin bars, over native scrolling."
+    description: "A scroll container with the theme's own thin bars, over native scrolling — the bars every component that scrolls inside wears, and v-scrollbar puts on a box of your own."
 };
 </script>
 

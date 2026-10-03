@@ -43,6 +43,11 @@ applied while it is in progress, so what is seen is what a drop will commit.
 which card sits where, what each cell is called and whether a move into it is
 allowed. No DOM, no timers.
 
+The board and every column's list wear the theme's drawn scrollbars, the ScrollPanel's, over native
+scrolling: `scrollbar: 'hover'` (the default) shows them under the pointer and
+while scrolling, `'always'` keeps them on the screen, `'native'` gives the
+browser's own back.
+
 **[Documentation](https://vitralui.github.io/vitral/#/components/taskboard)**
 
 LGPL-3.0-or-later. Part of the [Vitral](https://github.com/vitralui/vitral) monorepo.

@@ -28,6 +28,11 @@ annotations, keyboard walking with a live readout and an optional data table.
 `@vitral/chart/engine` is the maths and the scene building on their own;
 `@vitral/chart/style` is the class map and CSS.
 
+A legend beside the chart that runs longer than it can wear the theme's drawn
+scrollbars: pass `scrollbars: { mode: 'hover' | 'always' | 'native', style:
+scrollpanelStyle }`, the style from `@vitral/styles`, which this package does
+not carry itself. Without it the legend keeps the browser's bars.
+
 **[Documentation](https://vitralui.github.io/vitral/#/components/chart)**
 
 LGPL-3.0-or-later. Part of the [Vitral](https://github.com/vitralui/vitral) monorepo.

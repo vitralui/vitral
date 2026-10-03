@@ -29,8 +29,8 @@ the reader picked instead of flashing the wrong one.
 | `components`, `composables` | Register them globally. Off means importing by hand |
 | `cssLayer`, `inputVariant`, `unstyled` | The same options the Vue plugin takes |
 
-Directives keep their plain names (`v-tooltip`), because they are registered on
-the application rather than auto-imported.
+Directives keep their plain names (`v-tooltip`, `v-scrollbar`), because they are
+registered on the application rather than auto-imported.
 
 **[Documentation](https://vitralui.github.io/vitral/#/docs/server-rendering)**
 

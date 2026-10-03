@@ -116,7 +116,7 @@ const toast = useToast();   // auto-imported, like every composable
         picked, <code>&lt;html class="vt-dark"&gt;</code> and all. Under <code>'system'</code>, which no server can resolve, the module writes the script above instead.
     </T>
     <T k="nuxt.directives">
-        Directives keep their plain names (<code>v-tooltip</code>, whatever the prefix) because they are registered on the application rather than imported. A template is
+        Directives keep their plain names (<code>v-tooltip</code>, <code>v-scrollbar</code>, whatever the prefix) because they are registered on the application rather than imported. A template is
         compiled before any auto-import runs, so a registration is the only thing that reaches it.
     </T>
 

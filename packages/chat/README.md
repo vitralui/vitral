@@ -56,3 +56,8 @@ its `feedback`. Copying shows a tick for a moment and is announced.
 
 The classes and tokens are `@vitral/styles`' `chatStyle`, so a thread follows
 whatever preset the page is themed with.
+
+The thread and the code blocks in it wear the theme's drawn scrollbars, the ScrollPanel's, over native
+scrolling: `scrollbar: 'hover'` (the default) shows them under the pointer and
+while scrolling, `'always'` keeps them on the screen, `'native'` gives the
+browser's own back.
