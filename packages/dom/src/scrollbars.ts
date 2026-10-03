@@ -34,6 +34,8 @@ export interface ScrollbarsOptions {
 export interface Scrollbars {
     /** Measures again: the box, its content, and where the bars sit. */
     refresh(): void;
+    /** Measures again on the next frame, once whatever is being done to the box has settled. */
+    later(): void;
     update(options: ScrollbarsOptions): void;
     /** Takes the bars away and gives the box its own scrolling look back. */
     destroy(): void;
@@ -343,6 +345,7 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
 
     return {
         refresh,
+        later: schedule,
         update(next) {
             options = { ...options, ...next };
             refresh();
@@ -428,6 +431,9 @@ export function scrollbarSet(options: () => ScrollbarSlotOptions) {
                 const bars = live.get(el);
                 if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part }));
                 else if (chosen !== mode) bars.update({ visibility: chosen, part });
+                // A draw may scroll the box right after (to a selected row, to
+                // working hours) and not every browser says so at once.
+                else bars.later();
             }
             mode = chosen;
         },
