@@ -11,10 +11,14 @@ export default {
         trackBackground: 'color-mix(in srgb, {text.mutedColor} 12%, transparent)',
         transitionDuration: '{transitionDuration}'
     },
-    // The arrows at the ends of a bar, when the application asks for them.
+    // The arrows at the ends of a bar, when the application asks for them:
+    // outside the track and square, as a native bar's are, unless a theme
+    // gives them a background or a radius of their own.
     arrow: {
-        size: '0.875rem',
+        size: '0.625rem',
         color: '{text.mutedColor}',
+        background: 'transparent',
+        borderRadius: '0',
         hoverColor: '{text.color}',
         hoverBackground: 'color-mix(in srgb, {text.mutedColor} 20%, transparent)'
     }
