@@ -1,6 +1,7 @@
 import { createTooltip, type Placement, type TooltipHandle, type TooltipOptions } from '@vitral/core';
 import { classOf, tooltipStyle } from '@vitral/styles';
-import type { ComponentPublicInstance, Directive, DirectiveBinding } from 'vue';
+import type { Directive, DirectiveBinding, VNode } from 'vue';
+import { directiveContext } from '../base/directiveContext';
 import type { PassThroughValue } from '../base/types';
 import { loadStyle } from '../composables/useStyle';
 import type { VitralContext } from '../config/config';
@@ -23,9 +24,6 @@ export type TooltipDirectiveValue = string | TooltipDirectiveOptions | null | un
 const handles = new WeakMap<HTMLElement, TooltipHandle>();
 const sides = ['top', 'bottom', 'left', 'right'] as const;
 
-function contextOf(binding: DirectiveBinding): VitralContext | undefined {
-    return (binding.instance as (ComponentPublicInstance & { $vitral?: VitralContext }) | null)?.$vitral;
-}
 
 // The class from the style's map, merged with global pass-through
 // (`pt: { tooltip: { root: '…', text: {…} } }`), as a component's part() does.
@@ -41,11 +39,11 @@ function partAttrs(part: 'root' | 'text', context: VitralContext | undefined): R
     return attrs;
 }
 
-function optionsOf(binding: DirectiveBinding<TooltipDirectiveValue>): TooltipOptions {
+function optionsOf(binding: DirectiveBinding<TooltipDirectiveValue>, vnode: VNode): TooltipOptions {
     const raw = binding.value;
     const options: TooltipDirectiveOptions = raw !== null && typeof raw === 'object' ? raw : { value: raw ?? undefined };
     const modifier = sides.find((side) => binding.modifiers[side]);
-    const context = contextOf(binding);
+    const context = directiveContext(binding, vnode);
     return {
         text: options.value,
         placement: options.placement ?? modifier ?? 'top',
@@ -79,13 +77,13 @@ export function tooltipOptions(context: VitralContext | undefined, options: Omit
  * only the Vue binding, so another framework's adapter is a few lines too.
  */
 export const Tooltip: Directive<HTMLElement, TooltipDirectiveValue> = {
-    mounted(el, binding) {
-        const context = contextOf(binding);
+    mounted(el, binding, vnode) {
+        const context = directiveContext(binding, vnode);
         if (!context?.config.unstyled) loadStyle(tooltipStyle.name, tooltipStyle.css, { nonce: context?.config.csp.nonce, cssLayer: context?.config.cssLayer, registry: context?.styles });
-        handles.set(el, createTooltip(el, optionsOf(binding)));
+        handles.set(el, createTooltip(el, optionsOf(binding, vnode)));
     },
-    updated(el, binding) {
-        handles.get(el)?.update(optionsOf(binding));
+    updated(el, binding, vnode) {
+        handles.get(el)?.update(optionsOf(binding, vnode));
     },
     beforeUnmount(el) {
         handles.get(el)?.destroy();
