@@ -80,7 +80,7 @@ export function createTextEditor(element: HTMLElement, config: TextEditorConfig 
         loadStyle(editorStyle.name, editorStyle.css, options);
     }
     // The ScrollPanel's bars on the text area, so one theme dresses every bar.
-    const barOptions = () => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer });
+    const barOptions = () => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer });
     const bars = scrollbarSet(barOptions);
     // The toolbar holds its own definitions, but the slash menu, the block
     // handle and any command an application names its own icon for are looked

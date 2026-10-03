@@ -1,24 +1,25 @@
 import { scrollbars, type ScrollbarPart, type ScrollbarPartState, type Scrollbars } from '@vitral/dom';
 import { baseStyle, classOf, scrollpanelStyle } from '@vitral/styles';
-import type { ComponentPublicInstance, Directive, DirectiveBinding } from 'vue';
+import type { Directive, DirectiveBinding, VNode } from 'vue';
+import { directiveContext } from '../base/directiveContext';
 import type { PassThroughValue, ScrollbarMode } from '../base/types';
 import { loadStyle } from '../composables/useStyle';
 import type { VitralContext } from '../config/config';
 
 export type ScrollbarDirectiveValue = ScrollbarMode | null | undefined;
 
-const handles = new WeakMap<HTMLElement, { bars: Scrollbars; mode: ScrollbarMode }>();
+const handles = new WeakMap<HTMLElement, { bars: Scrollbars; mode: ScrollbarMode; arrows: boolean }>();
 
-function contextOf(binding: DirectiveBinding): VitralContext | undefined {
-    return (binding.instance as (ComponentPublicInstance & { $vitral?: VitralContext }) | null)?.$vitral;
-}
-
-function modeOf(binding: DirectiveBinding<ScrollbarDirectiveValue>): ScrollbarMode {
+function modeOf(binding: DirectiveBinding<ScrollbarDirectiveValue>, vnode: VNode): ScrollbarMode {
     if (binding.value) return binding.value;
     if (binding.modifiers.always) return 'always';
     if (binding.modifiers.hover) return 'hover';
     if (binding.modifiers.native) return 'native';
-    return contextOf(binding)?.config.scrollbar ?? 'hover';
+    return directiveContext(binding, vnode)?.config.scrollbar ?? 'hover';
+}
+
+function arrowsOf(binding: DirectiveBinding<ScrollbarDirectiveValue>, vnode: VNode): boolean {
+    return !!binding.modifiers.arrows || !!directiveContext(binding, vnode)?.config.scrollbarArrows;
 }
 
 // The ScrollPanel's classes, with the application's `pt.scrollpanel` over
@@ -34,16 +35,17 @@ function partOf(context: VitralContext | undefined) {
     };
 }
 
-function attach(el: HTMLElement, binding: DirectiveBinding<ScrollbarDirectiveValue>) {
-    const mode = modeOf(binding);
+function attach(el: HTMLElement, binding: DirectiveBinding<ScrollbarDirectiveValue>, vnode: VNode) {
+    const mode = modeOf(binding, vnode);
     if (mode === 'native') return;
-    const context = contextOf(binding);
+    const context = directiveContext(binding, vnode);
     if (!context?.config.unstyled) {
         const options = { nonce: context?.config.csp.nonce, cssLayer: context?.config.cssLayer, registry: context?.styles };
         loadStyle(baseStyle.name, baseStyle.css, options);
         loadStyle(scrollpanelStyle.name, scrollpanelStyle.css, options);
     }
-    handles.set(el, { bars: scrollbars(el, { visibility: mode, part: partOf(context) }), mode });
+    const arrows = arrowsOf(binding, vnode);
+    handles.set(el, { bars: scrollbars(el, { visibility: mode, part: partOf(context), arrows }), mode, arrows });
 }
 
 function detach(el: HTMLElement) {
@@ -60,26 +62,30 @@ function detach(el: HTMLElement) {
  *
  * The value or a modifier says when the bars show: `v-scrollbar="'always'"`
  * or `v-scrollbar.always`, `.hover`, `.native`. With neither, the
- * application's `scrollbar` option decides, which is `'hover'`. Register it
+ * application's `scrollbar` option decides, which is `'hover'`. `.arrows`
+ * puts arrows at the ends of the bars, as the application's
+ * `scrollbarArrows` does for all. Register it
  * with `app.directive('scrollbar', Scrollbar)`.
  *
  * The drawing is `scrollbars` from `@vitral/dom`; this is only the Vue binding.
  */
 export const Scrollbar: Directive<HTMLElement, ScrollbarDirectiveValue> = {
-    mounted(el, binding) {
-        attach(el, binding);
+    mounted(el, binding, vnode) {
+        attach(el, binding, vnode);
     },
-    updated(el, binding) {
-        const mode = modeOf(binding);
+    updated(el, binding, vnode) {
+        const mode = modeOf(binding, vnode);
+        const arrows = arrowsOf(binding, vnode);
         const handle = handles.get(el);
-        if (handle?.mode === mode) return;
+        if (handle?.mode === mode && handle.arrows === arrows) return;
         if (handle && mode !== 'native') {
-            handle.bars.update({ visibility: mode });
+            handle.bars.update({ visibility: mode, arrows });
             handle.mode = mode;
+            handle.arrows = arrows;
             return;
         }
         detach(el);
-        attach(el, binding);
+        attach(el, binding, vnode);
     },
     beforeUnmount(el) {
         detach(el);

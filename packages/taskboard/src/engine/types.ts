@@ -193,6 +193,8 @@ export interface TaskboardConfig extends Partial<TaskboardModels> {
      * (`'always'`), or the browser's own (`'native'`).
      */
     scrollbar?: ScrollbarMode;
+    /** Arrows at the ends of the drawn bars, as a native bar has. Off by default. */
+    scrollbarArrows?: boolean;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** What the host draws itself. */

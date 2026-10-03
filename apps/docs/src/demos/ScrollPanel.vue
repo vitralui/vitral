@@ -26,7 +26,7 @@ import VerticalAndHorizontal from './ScrollPanel/VerticalAndHorizontal.vue';
     <DemoSection title="Content that grows" description="The bars follow the content as well as the panel: a section opening with an animation, an image loading."><GrowingContent /></DemoSection>
     <DemoSection
         title="Your own boxes"
-        description="`v-scrollbar` puts the same bars on a box of your own that already scrolls, without wrapping it: it keeps its place in the layout and its native scrolling. `v-scrollbar.always`, `.hover` and `.native`, or a value, say when they show; with none, the application's `scrollbar` option decides."
+        description="`v-scrollbar` puts the same bars on a box of your own that already scrolls, without wrapping it: it keeps its place in the layout and its native scrolling. `v-scrollbar.always`, `.hover` and `.native`, or a value, say when they show; with none, the application's `scrollbar` option decides. `.arrows` puts arrows at the ends, as a native bar has — a press scrolls a step, holding it keeps going — and the application's `scrollbarArrows` does the same for every bar."
         ><OwnBoxes
     /></DemoSection>
 </template>

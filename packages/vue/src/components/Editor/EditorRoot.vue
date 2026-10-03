@@ -66,6 +66,7 @@ const { part, config, locale } = useComponent(editorStyle, props);
 // The ScrollPanel's bars on the menus' lists, as on every box that scrolls.
 const barOptions = () => ({
     mode: props.scrollbar ?? config.scrollbar,
+    arrows: config.scrollbarArrows,
     style: scrollpanelStyle,
     unstyled: props.unstyled ?? config.unstyled,
     nonce: config.csp.nonce,

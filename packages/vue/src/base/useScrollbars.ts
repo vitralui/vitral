@@ -58,8 +58,8 @@ export function useScrollbars(target: MaybeRefOrGetter<HTMLElement | null | unde
     }
 
     watch(
-        () => [toValue(target), wanted(), unstyled()] as const,
-        ([el, chosen, bare]) => {
+        () => [toValue(target), wanted(), unstyled(), config.scrollbarArrows] as const,
+        ([el, chosen, bare, arrows]) => {
             if (!el || chosen === 'native' || typeof window === 'undefined') {
                 detach();
                 return;
@@ -72,8 +72,8 @@ export function useScrollbars(target: MaybeRefOrGetter<HTMLElement | null | unde
             if (el !== attached) {
                 detach();
                 attached = el;
-                bars = scrollbars(el, { visibility: chosen, part });
-            } else bars?.update({ visibility: chosen, part });
+                bars = scrollbars(el, { visibility: chosen, part, arrows });
+            } else bars?.update({ visibility: chosen, part, arrows });
         },
         { flush: 'post', immediate: true }
     );

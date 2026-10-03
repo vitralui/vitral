@@ -185,9 +185,9 @@ watch(
     { deep: true }
 );
 // The legend's bars, the ScrollPanel's like every other box that scrolls.
-const scrollbars = () => ({ mode: props.scrollbar ?? config.scrollbar, style: scrollpanelStyle });
+const scrollbars = () => ({ mode: props.scrollbar ?? config.scrollbar, arrows: config.scrollbarArrows, style: scrollpanelStyle });
 watch(
-    () => [props.scrollbar, config.scrollbar],
+    () => [props.scrollbar, config.scrollbar, config.scrollbarArrows],
     () => chart?.update({ scrollbars: scrollbars() })
 );
 watch(

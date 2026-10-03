@@ -48,6 +48,8 @@ export interface VitralConfig extends BaseConfig {
     overlayArrow: boolean;
     /** Reactive: how every box that scrolls inside a component shows it, unless the component says otherwise. */
     scrollbar: ScrollbarMode;
+    /** Reactive: whether the drawn bars have arrows at their ends. */
+    scrollbarArrows: boolean;
     inputVariant: InputVariant;
     /** Wrap component styles in `@layer <name>`, so application CSS wins without `!important`. */
     cssLayer: string | false;
@@ -93,6 +95,12 @@ export interface VitralOptions {
      * for itself.
      */
     scrollbar?: ScrollbarMode;
+    /**
+     * Arrows at the ends of every drawn bar, as a native bar has: a press
+     * scrolls a step and holding it keeps scrolling. Off by default;
+     * `v-scrollbar.arrows` asks for them on one box.
+     */
+    scrollbarArrows?: boolean;
 }
 
 export interface VitralContext {
@@ -129,7 +137,8 @@ export function createVitralContext(options: VitralOptions = {}): VitralContext 
         csp: options.csp ?? {},
         tour: options.tour ?? {},
         overlayArrow: options.overlayArrow ?? false,
-        scrollbar: options.scrollbar ?? 'hover'
+        scrollbar: options.scrollbar ?? 'hover',
+        scrollbarArrows: options.scrollbarArrows ?? false
     }) as VitralConfig;
 
     if (options.icons) registerIcons(options.icons);

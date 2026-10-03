@@ -176,6 +176,7 @@ const inputs = (): ChatConfig => ({
     locale: config.locale,
     unstyled: unstyled(),
     scrollbar: props.scrollbar ?? config.scrollbar,
+    scrollbarArrows: config.scrollbarArrows,
     pt: passThroughMap(),
     slots: slotContent()
 });
@@ -227,8 +228,8 @@ watch(
     () => push(inputs())
 );
 watch(
-    () => [config.locale, unstyled(), props.scrollbar, config.scrollbar, props.pt, props.dt, config.pt.chat, config.zIndex.overlay] as const,
-    () => push({ locale: config.locale, unstyled: unstyled(), scrollbar: props.scrollbar ?? config.scrollbar, pt: passThroughMap(), zIndex: config.zIndex.overlay }),
+    () => [config.locale, unstyled(), props.scrollbar, config.scrollbar, config.scrollbarArrows, props.pt, props.dt, config.pt.chat, config.zIndex.overlay] as const,
+    () => push({ locale: config.locale, unstyled: unstyled(), scrollbar: props.scrollbar ?? config.scrollbar, scrollbarArrows: config.scrollbarArrows, pt: passThroughMap(), zIndex: config.zIndex.overlay }),
     { deep: true }
 );
 

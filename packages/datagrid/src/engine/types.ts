@@ -254,6 +254,8 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * always (`'always'`), or the browser's own (`'native'`).
      */
     scrollbar?: ScrollbarMode;
+    /** Arrows at the ends of the drawn bars, as a native bar has. Off by default. */
+    scrollbarArrows?: boolean;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** Prefix of the ids the table gives its elements; generated when unset. */

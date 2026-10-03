@@ -122,6 +122,7 @@ const inputs = (): SpreadsheetOptions => ({
     locale: config.locale,
     unstyled: unstyled(),
     scrollbar: props.scrollbar ?? config.scrollbar,
+    scrollbarArrows: config.scrollbarArrows,
     pt: passThroughMap()
 });
 
@@ -162,8 +163,8 @@ watch(
 );
 
 watch(
-    () => [config.locale, unstyled(), props.scrollbar, config.scrollbar, props.pt, props.dt, config.pt.spreadsheet] as const,
-    () => sheet?.update({ locale: config.locale, unstyled: unstyled(), scrollbar: props.scrollbar ?? config.scrollbar, pt: passThroughMap() }),
+    () => [config.locale, unstyled(), props.scrollbar, config.scrollbar, config.scrollbarArrows, props.pt, props.dt, config.pt.spreadsheet] as const,
+    () => sheet?.update({ locale: config.locale, unstyled: unstyled(), scrollbar: props.scrollbar ?? config.scrollbar, scrollbarArrows: config.scrollbarArrows, pt: passThroughMap() }),
     { deep: true }
 );
 

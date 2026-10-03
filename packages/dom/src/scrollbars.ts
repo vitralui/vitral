@@ -9,15 +9,23 @@ import type { Props } from './h';
 export type ScrollbarVisibility = 'hover' | 'always';
 
 /** The parts the bars are made of, and the state each one is dressed for. */
-export type ScrollbarPart = 'bars' | 'bar' | 'thumb';
+export type ScrollbarPart = 'bars' | 'bar' | 'track' | 'thumb' | 'arrow';
+
+/** Which way an arrow scrolls. */
+export type ScrollbarDirection = 'up' | 'down' | 'left' | 'right';
 
 export interface ScrollbarPartState {
-    /** On `bars`: the visibility asked for, and whether the bars are showing now. */
+    /** On `bars`: the visibility asked for, whether the bars are showing now, and whether both are, meeting at a corner. */
     visibility?: ScrollbarVisibility;
     shown?: boolean;
-    /** On `bar` and `thumb`: the axis, and whether its thumb is being dragged. */
+    corner?: boolean;
+    /** On `bar`, `track` and `thumb`: the axis, and whether its thumb is being dragged. */
     axis?: 'x' | 'y';
     active?: boolean;
+    /** On `bar`: whether it has arrows at its ends. */
+    arrows?: boolean;
+    /** On `arrow`: which way it scrolls, and whether it is being held. */
+    direction?: ScrollbarDirection;
 }
 
 export interface ScrollbarsOptions {
@@ -29,6 +37,13 @@ export interface ScrollbarsOptions {
      * them the ScrollPanel's.
      */
     part?: (name: ScrollbarPart, state: ScrollbarPartState) => Props;
+    /**
+     * Arrows at the ends of each bar, as a native bar has: a press scrolls a
+     * step, and holding it keeps scrolling. Off by default.
+     */
+    arrows?: boolean;
+    /** How far one arrow press scrolls, in pixels. 40 by default. */
+    step?: number;
 }
 
 export interface Scrollbars {
@@ -53,6 +68,20 @@ function dress(el: HTMLElement, attrs: Props) {
         if (val === undefined || val === null || val === false) el.removeAttribute(key);
         else el.setAttribute(key, String(val));
     }
+}
+
+// The chevrons of `@vitral/icons`, drawn the way its icons are, for a package that does not carry the icons.
+const CHEVRONS: Record<ScrollbarDirection, string> = { up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6' };
+
+function chevron(doc: Document, direction: ScrollbarDirection): SVGElement {
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = doc.createElementNS(ns, 'svg');
+    for (const [key, value] of Object.entries({ class: 'vt-icon', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', focusable: 'false', 'aria-hidden': 'true' }))
+        svg.setAttribute(key, value);
+    const path = doc.createElementNS(ns, 'path');
+    path.setAttribute('d', CHEVRONS[direction]);
+    svg.appendChild(path);
+    return svg;
 }
 
 const frame = (fn: () => void): number => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(fn) : (setTimeout(fn, 16) as unknown as number));
@@ -81,23 +110,35 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     layer.style.left = '0px';
     layer.style.pointerEvents = 'none';
 
-    const bars = {
-        y: { bar: doc.createElement('div'), thumb: doc.createElement('div'), state: { visible: false, size: 0, position: 0 } as ScrollThumb },
-        x: { bar: doc.createElement('div'), thumb: doc.createElement('div'), state: { visible: false, size: 0, position: 0 } as ScrollThumb }
-    };
-    for (const axis of ['y', 'x'] as const) {
-        const { bar, thumb } = bars[axis];
+    const axisOf = (direction: ScrollbarDirection): 'x' | 'y' => (direction === 'up' || direction === 'down' ? 'y' : 'x');
+    function makeBar(axis: 'x' | 'y', start: ScrollbarDirection, end: ScrollbarDirection) {
+        const bar = doc.createElement('div');
+        const track = doc.createElement('div');
+        const thumb = doc.createElement('div');
+        const arrows = [start, end].map((direction) => {
+            const button = doc.createElement('div');
+            button.appendChild(chevron(doc, direction));
+            button.style.display = 'none';
+            button.style.pointerEvents = 'auto';
+            button.addEventListener('pointerdown', (event) => press(direction, event));
+            return { button, direction };
+        });
         bar.style.display = 'none';
+        track.style.position = 'relative';
         thumb.style.pointerEvents = 'auto';
-        bar.appendChild(thumb);
+        track.appendChild(thumb);
+        bar.append(arrows[0]!.button, track, arrows[1]!.button);
         layer.appendChild(bar);
         thumb.addEventListener('pointerdown', (event) => grab(axis, event));
+        return { bar, track, thumb, arrows, state: { visible: false, size: 0, position: 0 } as ScrollThumb };
     }
+    const bars = { y: makeBar('y', 'up', 'down'), x: makeBar('x', 'left', 'right') };
 
     let hovered = false;
     let focused = false;
     let scrolling = false;
     let dragging: 'x' | 'y' | null = null;
+    let held: ScrollbarDirection | null = null;
     let scrollTimer: ReturnType<typeof setTimeout> | undefined;
     let pending = 0;
     let top = 0;
@@ -108,14 +149,21 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     function dressAll() {
         const part = options.part;
         const visibility = options.visibility ?? 'hover';
-        const shown = visibility === 'always' || hovered || focused || scrolling || dragging !== null;
+        const shown = visibility === 'always' || hovered || focused || scrolling || dragging !== null || held !== null;
+        const arrows = !!options.arrows;
         if (part) {
-            dress(layer, part('bars', { visibility, shown }));
+            dress(layer, part('bars', { visibility, shown, corner: bars.y.state.visible && bars.x.state.visible }));
             for (const axis of ['y', 'x'] as const) {
-                dress(bars[axis].bar, part('bar', { axis, active: dragging === axis }));
-                dress(bars[axis].thumb, part('thumb', { axis, active: dragging === axis }));
+                const active = dragging === axis;
+                dress(bars[axis].bar, part('bar', { axis, active, arrows }));
+                dress(bars[axis].track, part('track', { axis, active }));
+                dress(bars[axis].thumb, part('thumb', { axis, active }));
+                for (const arrow of bars[axis].arrows) dress(arrow.button, part('arrow', { direction: arrow.direction, active: held === arrow.direction }));
             }
         }
+        for (const axis of ['y', 'x'] as const) for (const arrow of bars[axis].arrows) arrow.button.style.display = arrows ? '' : 'none';
+        bars.y.track.style.position = 'relative';
+        bars.x.track.style.position = 'relative';
         layer.style.position = 'absolute';
         layer.style.pointerEvents = 'none';
     }
@@ -166,10 +214,10 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     /** The thumbs, from the box's scroll state: cheap enough for every scroll event. */
     function thumbs() {
         const y = bars.y;
-        y.state = scrollThumb({ viewport: el.clientHeight, content: el.scrollHeight, offset: el.scrollTop, track: y.bar.clientHeight || undefined });
+        y.state = scrollThumb({ viewport: el.clientHeight, content: el.scrollHeight, offset: el.scrollTop });
         y.bar.style.display = y.state.visible ? '' : 'none';
         if (y.state.visible) {
-            y.state = scrollThumb({ viewport: el.clientHeight, content: el.scrollHeight, offset: el.scrollTop, track: y.bar.clientHeight || el.clientHeight });
+            y.state = scrollThumb({ viewport: el.clientHeight, content: el.scrollHeight, offset: el.scrollTop, track: y.track.clientHeight || el.clientHeight });
             y.thumb.style.height = `${y.state.size}px`;
             y.thumb.style.transform = `translateY(${y.state.position}px)`;
         }
@@ -178,7 +226,7 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         x.state = scrollThumb({ viewport: el.clientWidth, content: el.scrollWidth, offset });
         x.bar.style.display = x.state.visible ? '' : 'none';
         if (x.state.visible) {
-            const track = x.bar.clientWidth || el.clientWidth;
+            const track = x.track.clientWidth || el.clientWidth;
             x.state = scrollThumb({ viewport: el.clientWidth, content: el.scrollWidth, offset, track });
             const at = rtl ? track - x.state.size - x.state.position : x.state.position;
             x.thumb.style.width = `${x.state.size}px`;
@@ -191,7 +239,13 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         pending = 0;
         dressAll();
         place();
+        const corner = bars.y.state.visible && bars.x.state.visible;
         thumbs();
+        // Both bars appearing, or one going, moves where each ends: dress and measure again.
+        if (corner !== (bars.y.state.visible && bars.x.state.visible)) {
+            dressAll();
+            thumbs();
+        }
     }
 
     function schedule() {
@@ -324,10 +378,10 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
 
     function move(event: PointerEvent) {
         if (dragging === 'y') {
-            const track = bars.y.bar.clientHeight || el.clientHeight;
+            const track = bars.y.track.clientHeight || el.clientHeight;
             el.scrollTop = scrollOffsetAt(event.clientY - grabbedAt, bars.y.state.size, { viewport: el.clientHeight, content: el.scrollHeight, track });
         } else if (dragging === 'x') {
-            const track = bars.x.bar.clientWidth || el.clientWidth;
+            const track = bars.x.track.clientWidth || el.clientWidth;
             const position = rtl ? -event.clientX - grabbedAt : event.clientX - grabbedAt;
             const offset = scrollOffsetAt(position, bars.x.state.size, { viewport: el.clientWidth, content: el.scrollWidth, track });
             el.scrollLeft = rtl ? -offset : offset;
@@ -343,6 +397,40 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         dressAll();
     }
 
+    // ---- the arrows ------------------------------------------------------------------
+
+    let repeatDelay: ReturnType<typeof setTimeout> | undefined;
+    let repeatEvery: ReturnType<typeof setInterval> | undefined;
+    function stepTowards(direction: ScrollbarDirection) {
+        const step = options.step ?? 40;
+        const sign = direction === 'up' || direction === 'left' ? -1 : 1;
+        if (axisOf(direction) === 'y') el.scrollTop += sign * step;
+        else el.scrollLeft += sign * step;
+        thumbs();
+    }
+    // A press scrolls a step; held, it keeps going after a pause, as a native arrow does.
+    function press(direction: ScrollbarDirection, event: PointerEvent) {
+        if (event.button > 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        letGo();
+        held = direction;
+        stepTowards(direction);
+        repeatDelay = setTimeout(() => (repeatEvery = setInterval(() => stepTowards(direction), 50)), 350);
+        doc.addEventListener('pointerup', letGo);
+        doc.addEventListener('pointercancel', letGo);
+        dressAll();
+    }
+    function letGo() {
+        clearTimeout(repeatDelay);
+        clearInterval(repeatEvery);
+        doc.removeEventListener('pointerup', letGo);
+        doc.removeEventListener('pointercancel', letGo);
+        if (held === null) return;
+        held = null;
+        dressAll();
+    }
+
     return {
         refresh,
         later: schedule,
@@ -352,6 +440,7 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         },
         destroy() {
             release();
+            letGo();
             if (pending) cancelFrame(pending);
             clearTimeout(scrollTimer);
             resize?.disconnect();
@@ -389,6 +478,8 @@ export interface ScrollbarSlotOptions {
     cssLayer?: string | false;
     /** The parts' attributes, in place of the style's classes. */
     part?: ScrollbarsOptions['part'];
+    /** Arrows at the ends of each bar. */
+    arrows?: boolean;
 }
 
 function slotPart(next: ScrollbarSlotOptions): ScrollbarsOptions['part'] {
@@ -406,11 +497,13 @@ function slotPart(next: ScrollbarSlotOptions): ScrollbarsOptions['part'] {
 export function scrollbarSet(options: () => ScrollbarSlotOptions) {
     const live = new Map<HTMLElement, Scrollbars>();
     let mode: ScrollbarMode | undefined;
+    let arrows: boolean | undefined;
 
     function destroy() {
         for (const bars of live.values()) bars.destroy();
         live.clear();
         mode = undefined;
+        arrows = undefined;
     }
 
     return {
@@ -429,13 +522,15 @@ export function scrollbarSet(options: () => ScrollbarSlotOptions) {
             const part = slotPart(next);
             for (const el of wanted) {
                 const bars = live.get(el);
-                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part }));
-                else if (chosen !== mode) bars.update({ visibility: chosen, part });
+                const wantsArrows = !!next.arrows;
+                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part, arrows: wantsArrows }));
+                else if (chosen !== mode || wantsArrows !== arrows) bars.update({ visibility: chosen, part, arrows: wantsArrows });
                 // A draw may scroll the box right after (to a selected row, to
                 // working hours) and not every browser says so at once.
                 else bars.later();
             }
             mode = chosen;
+            arrows = !!next.arrows;
         },
         refresh() {
             for (const bars of live.values()) bars.refresh();

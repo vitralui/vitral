@@ -12,6 +12,7 @@ Select's list, a Dialog's body, a DataGrid) wears the theme's drawn scrollbars
 over native scrolling. The plugin's `scrollbar` option — `'hover'` (the
 default), `'always'` or `'native'` — sets them for all, each component's
 `scrollbar` prop for itself, and `v-scrollbar` puts them on a box of your own.
+`scrollbarArrows: true` gives every bar arrows at its ends, as a native bar has.
 
 **[Documentation and live examples](https://vitralui.github.io/vitral/)**
 

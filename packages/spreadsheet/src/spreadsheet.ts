@@ -139,7 +139,7 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
     }
 
     // The ScrollPanel's bars, so one theme dresses every bar.
-    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
     // The toolbar draws its own icon definitions, but an application that
     // names one of them in its own markup should find it too.
     registerIcons(toolbarIcons);

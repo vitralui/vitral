@@ -72,7 +72,7 @@ export function createChat(element: HTMLElement, config: ChatConfig = {}): ChatH
     }
 
     // The ScrollPanel's bars, so one theme dresses every bar.
-    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
 
     // The composer and the launcher draw icons that are not in the base set,
     // so the addon brings its own rather than leaving an application to work

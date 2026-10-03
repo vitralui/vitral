@@ -132,6 +132,11 @@ pnpm build`;
                     >
                 </tr>
                 <tr>
+                    <td>scrollbarArrows</td>
+                    <td class="type">boolean</td>
+                    <T k="options.scrollbarArrows" as="td" class="doc">Arrows at the ends of every drawn bar, as a native bar has: a press scrolls a step and holding it keeps scrolling. Off by default.</T>
+                </tr>
+                <tr>
                     <td>csp</td>
                     <td class="type">{ nonce?: string }</td>
                     <T k="options.csp" as="td" class="doc">The nonce put on every injected <code>&lt;style&gt;</code>, for a strict Content-Security-Policy.</T>

@@ -19,5 +19,10 @@ const rows = Array.from({ length: 20 }, (_, i) => ({ id: i + 1, name: `Student $
                 </tbody>
             </table>
         </div>
+        <div v-scrollbar.always.arrows aria-label="Term notes" role="region" tabindex="0" style="width: 16rem; height: 12rem; overflow: auto; border: 1px solid var(--vt-content-border-color); border-radius: 8px">
+            <div style="width: 26rem; padding: 0.5rem 1rem">
+                <p v-for="row in rows" :key="row.id" style="margin: 0; padding: 0.25rem 0">{{ row.name }}: grade {{ row.grade }}, entered on the term's sheet</p>
+            </div>
+        </div>
     </div>
 </template>

@@ -153,6 +153,8 @@ export interface SpreadsheetConfig extends SheetOptions {
      * (`'native'`).
      */
     scrollbar?: ScrollbarMode;
+    /** Arrows at the ends of the drawn bars, as a native bar has. Off by default. */
+    scrollbarArrows?: boolean;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     id?: string;

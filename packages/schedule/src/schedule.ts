@@ -145,7 +145,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     const buttonPart = partResolver({ style: buttonStyle, unstyled: () => !!current.unstyled, props: () => current as Record<string, unknown> });
 
     const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
-    const bars = scrollbarSlot(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() }));
+    const bars = scrollbarSlot(() => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() }));
     if (!config.unstyled) {
         loadStyle(baseStyle.name, baseStyle.css, styleOptions());
         loadStyle(buttonStyle.name, buttonStyle.css, styleOptions());

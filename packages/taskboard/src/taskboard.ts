@@ -135,7 +135,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
     }
 
     // The board and every column's list, with the ScrollPanel's bars.
-    const bars = scrollbarSet(() => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
+    const bars = scrollbarSet(() => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer }));
 
     // ---- the cards and where they are -------------------------------------------------
 

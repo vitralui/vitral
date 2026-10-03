@@ -134,7 +134,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
 
     // The drawn scrollbars wear the ScrollPanel's classes, so one theme dresses every bar.
-    const barOptions = () => ({ mode: current.scrollbar, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() });
+    const barOptions = () => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() });
     const tableBars = scrollbarSlot(barOptions);
     const chooserBars = scrollbarSlot(barOptions);
 

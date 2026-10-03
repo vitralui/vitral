@@ -22,6 +22,7 @@
         "cssLayer": "Envolve o CSS dos componentes em <code>@layer</code>, para que o CSS da aplicação vença sem <code>!important</code>.",
         "zIndex": "Os patamares de empilhamento de modais, overlays, menus e tooltips.",
         "scrollbar": "As barras de toda caixa que rola dentro de um componente (ScrollPanel, Sidebar, Select, Dialog, DataGrid…) e de todo <code>v-scrollbar</code>: desenhadas pelo tema e mostradas sob o ponteiro (o padrão), sempre visíveis, ou as do próprio navegador.",
+        "scrollbarArrows": "Setas nas pontas de toda barra desenhada, como numa barra nativa: um clique rola um passo e segurar continua rolando. Desligado por padrão.",
         "csp": "O nonce colocado em cada <code>&lt;style&gt;</code> injetado, para uma Content-Security-Policy estrita."
     },
     "autoImport": {

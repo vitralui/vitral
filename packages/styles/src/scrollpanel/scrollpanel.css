@@ -50,7 +50,10 @@
 .vt-scrollpanel-bar {
     position: absolute;
     z-index: 1;
+    display: flex;
+    box-sizing: border-box;
     background: var(--vt-scrollpanel-bar-track-background);
+    border-radius: var(--vt-scrollpanel-bar-border-radius);
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--vt-scrollpanel-bar-transition-duration);
@@ -62,6 +65,7 @@
 }
 
 .vt-scrollpanel-bar-y {
+    flex-direction: column;
     top: var(--vt-scrollpanel-bar-gap);
     bottom: var(--vt-scrollpanel-bar-gap);
     inset-inline-end: var(--vt-scrollpanel-bar-gap);
@@ -69,9 +73,72 @@
 }
 
 .vt-scrollpanel-bar-x {
+    /* Left to right whatever the reading direction: the arrows point the way they scroll. */
+    direction: ltr;
     inset-inline: var(--vt-scrollpanel-bar-gap);
     bottom: var(--vt-scrollpanel-bar-gap);
     height: var(--vt-scrollpanel-bar-size);
+}
+
+/* With arrows the bar is wide enough to aim at them. */
+.vt-scrollpanel-bar-y.vt-scrollpanel-bar-arrows {
+    width: var(--vt-scrollpanel-arrow-size);
+}
+
+.vt-scrollpanel-bar-x.vt-scrollpanel-bar-arrows {
+    height: var(--vt-scrollpanel-arrow-size);
+}
+
+/* Both bars at once: each stops short of the corner where they would meet. */
+.vt-scrollpanel-bars-corner .vt-scrollpanel-bar-y {
+    bottom: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-bar-size));
+}
+
+.vt-scrollpanel-bars-corner .vt-scrollpanel-bar-x {
+    inset-inline-end: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-bar-size));
+}
+
+.vt-scrollpanel-bars-corner .vt-scrollpanel-bar-y.vt-scrollpanel-bar-arrows {
+    bottom: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-arrow-size));
+}
+
+.vt-scrollpanel-bars-corner .vt-scrollpanel-bar-x.vt-scrollpanel-bar-arrows {
+    inset-inline-end: calc(var(--vt-scrollpanel-bar-gap) * 2 + var(--vt-scrollpanel-arrow-size));
+}
+
+/* Where the thumb runs, between the arrows when there are any. */
+.vt-scrollpanel-track {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.vt-scrollpanel-arrow {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--vt-scrollpanel-arrow-size);
+    height: var(--vt-scrollpanel-arrow-size);
+    padding: 1px;
+    color: var(--vt-scrollpanel-arrow-color);
+    border-radius: var(--vt-scrollpanel-bar-border-radius);
+    cursor: pointer;
+    touch-action: none;
+    pointer-events: auto;
+}
+
+.vt-scrollpanel-arrow .vt-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.vt-scrollpanel-arrow:hover,
+.vt-scrollpanel-arrow-active {
+    color: var(--vt-scrollpanel-arrow-hover-color);
+    background: var(--vt-scrollpanel-arrow-hover-background);
 }
 
 .vt-scrollpanel-thumb {
