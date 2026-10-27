@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
-import ColorInput from './ColorInput.vue';
+import InputColor from './InputColor.vue';
 
 function mountField(props: Record<string, unknown> = {}) {
     const value = ref<string | null | undefined>(props.modelValue as string | null | undefined);
@@ -10,7 +10,7 @@ function mountField(props: Record<string, unknown> = {}) {
     mountVt(
         defineComponent(() => () => [
             h('label', { for: 'colour' }, 'Colour of the class'),
-            h(ColorInput, {
+            h(InputColor, {
                 id: 'colour',
                 ...props,
                 modelValue: value.value,
@@ -20,7 +20,7 @@ function mountField(props: Record<string, unknown> = {}) {
         ])
     );
     const input = () => document.querySelector<HTMLInputElement>('#colour')!;
-    const swatch = () => document.querySelector<HTMLButtonElement>('button.vt-colorinput-swatch')!;
+    const swatch = () => document.querySelector<HTMLButtonElement>('button.vt-inputcolor-swatch')!;
     const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
     const type = async (text: string) => {
         input().value = text;
@@ -35,12 +35,12 @@ const opened = async () => {
     await nextTick();
 };
 
-describe('ColorInput', () => {
+describe('InputColor', () => {
     it('is a labelled text box showing the colour as hex, painted in its swatch', () => {
         const { input, swatch } = mountField({ modelValue: '#336699' });
         expect(input().labels?.[0]?.textContent).toBe('Colour of the class');
         expect(input().value).toBe('#336699');
-        expect(swatch().style.getPropertyValue('--vt-colorinput-color')).toBe('#336699');
+        expect(swatch().style.getPropertyValue('--vt-inputcolor-color')).toBe('#336699');
         expect(swatch().getAttribute('aria-label')).toBe('Choose colour');
     });
 
@@ -83,7 +83,7 @@ describe('ColorInput', () => {
         expect(cleared).toHaveLength(1);
         value.value = '#336699';
         await nextTick();
-        document.querySelector<HTMLButtonElement>('button.vt-colorinput-clear')!.click();
+        document.querySelector<HTMLButtonElement>('button.vt-inputcolor-clear')!.click();
         await nextTick();
         expect(value.value).toBeNull();
     });
@@ -117,7 +117,7 @@ describe('ColorInput', () => {
         const { swatch, value } = mountField({ modelValue: '#336699', swatches: ['#336699', 'E53935', 'not a colour'] });
         swatch().click();
         await opened();
-        const options = [...document.querySelectorAll<HTMLButtonElement>('.vt-colorinput-option')];
+        const options = [...document.querySelectorAll<HTMLButtonElement>('.vt-inputcolor-option')];
         expect(options.map((o) => o.getAttribute('aria-label'))).toEqual(['#336699', '#e53935']);
         expect(options[0]!.getAttribute('aria-pressed')).toBe('true');
         options[1]!.click();

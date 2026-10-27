@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getFocusableElements, hexToRgb, rgbToHex } from '@vitral/core';
-import { colorinputStyle } from '@vitral/styles';
+import { inputcolorStyle } from '@vitral/styles';
 import { computed, mergeProps, nextTick, ref, useId, watch } from 'vue';
 import { useComponent, useSplitAttrs } from '../../base/useComponent';
 import { keepFocus } from '../../base/press';
@@ -8,7 +8,7 @@ import { useOverlay } from '../../composables/useOverlay';
 import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import ColorPicker from '../ColorPicker/ColorPicker.vue';
 import Icon from '../Icon/Icon.vue';
-import type { ColorInputEmits, ColorInputProps } from './types';
+import type { InputColorEmits, InputColorProps } from './types';
 
 // A text box for a colour, the way a form holds one: `'#rrggbb'`, or null for
 // none. The swatch at its start shows the colour and is the button that opens
@@ -17,9 +17,9 @@ import type { ColorInputEmits, ColorInputProps } from './types';
 // box is left or Enter is pressed, and anything unreadable is put back on blur,
 // so a half-typed value never wipes the one there was.
 
-defineOptions({ name: 'VtColorInput', inheritAttrs: false });
+defineOptions({ name: 'VtInputColor', inheritAttrs: false });
 
-const props = withDefaults(defineProps<ColorInputProps>(), {
+const props = withDefaults(defineProps<InputColorProps>(), {
     unstyled: undefined,
     variant: undefined,
     defaultColor: '#ff0000',
@@ -28,9 +28,9 @@ const props = withDefaults(defineProps<ColorInputProps>(), {
 });
 const overlayTarget = useOverlayTarget(() => props.appendTo);
 const model = defineModel<string | null>();
-const emit = defineEmits<ColorInputEmits>();
+const emit = defineEmits<InputColorEmits>();
 
-const { part, config, locale } = useComponent(colorinputStyle, props);
+const { part, config, locale } = useComponent(inputcolorStyle, props);
 const { rootAttrs, controlAttrs } = useSplitAttrs();
 const panelId = `${useId()}-panel`;
 
@@ -185,7 +185,7 @@ defineExpose({ show, hide, focus: () => inputRef.value?.focus(), blur: () => inp
             ref="swatchRef"
             type="button"
             v-bind="part('swatch')"
-            :style="{ '--vt-colorinput-color': value ?? undefined }"
+            :style="{ '--vt-inputcolor-color': value ?? undefined }"
             :disabled="!editable"
             :aria-label="locale.aria.chooseColor"
             aria-haspopup="dialog"
@@ -224,7 +224,7 @@ defineExpose({ show, hide, focus: () => inputRef.value?.focus(), blur: () => inp
                         :key="color"
                         type="button"
                         v-bind="part('option', { selected: color === value })"
-                        :style="{ '--vt-colorinput-color': color }"
+                        :style="{ '--vt-inputcolor-color': color }"
                         :aria-label="color"
                         :aria-pressed="color === value ? 'true' : 'false'"
                         @click="set(color)"

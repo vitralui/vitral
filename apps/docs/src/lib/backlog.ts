@@ -40,7 +40,7 @@ export const backlog: BacklogRow[] = [
     { vitral: 'Rating', group: 'Form', note: 'Stars, as a radio group.' },
     { vitral: 'Knob', group: 'Form', note: 'A dial for a bounded number.' },
     { vitral: 'ColorPicker', group: 'Form', note: 'A spectrum, a hue strip and the value in hex, RGB or HSL.' },
-    { vitral: 'ColorInput', group: 'Form', note: 'A colour as a form field: a swatch that opens the picker and the hex typed beside it.' },
+    { vitral: 'InputColor', group: 'Form', note: 'A colour as a form field: a swatch that opens the picker and the hex typed beside it.' },
     { vitral: 'TreeSelect', group: 'Form', note: 'Select over a tree, with checkbox selection.' },
     { vitral: 'CascadeSelect', group: 'Form', note: 'Nested options, one column per level.' },
     { vitral: 'FloatLabel', group: 'Form', note: 'A label that starts inside the field and lifts out of it.' },

@@ -31,7 +31,7 @@ const CONTROLS = new Set([
     'VtRating',
     'VtKnob',
     'VtColorPicker',
-    'VtColorInput',
+    'VtInputColor',
     'VtDatePicker',
     'VtEditor',
     'VtEditorRoot'
@@ -54,7 +54,7 @@ const LABELABLE = new Set([
     'VtToggleSwitch',
     'VtToggleButton',
     'VtColorPicker',
-    'VtColorInput',
+    'VtInputColor',
     'VtDatePicker'
 ]);
 

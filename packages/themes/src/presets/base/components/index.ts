@@ -16,7 +16,6 @@ import chart from './chart';
 import chat from './chat';
 import checkbox from './checkbox';
 import chip from './chip';
-import colorinput from './colorinput';
 import colorpicker from './colorpicker';
 import command from './command';
 import confirmdialog from './confirmdialog';
@@ -50,6 +49,7 @@ import iconfield from './iconfield';
 import iftalabel from './iftalabel';
 import image from './image';
 import inplace from './inplace';
+import inputcolor from './inputcolor';
 import inputgroup from './inputgroup';
 import inputgroupaddon from './inputgroupaddon';
 import inputmask from './inputmask';
@@ -140,7 +140,6 @@ export const components = {
     chat,
     checkbox,
     chip,
-    colorinput,
     colorpicker,
     command,
     confirmdialog,
@@ -174,6 +173,7 @@ export const components = {
     iftalabel,
     image,
     inplace,
+    inputcolor,
     inputgroup,
     inputgroupaddon,
     inputmask,

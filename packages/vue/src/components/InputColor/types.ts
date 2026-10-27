@@ -1,6 +1,6 @@
 import type { BaseProps, InputVariant, OverlayPlacement, Size } from '../../base/types';
 
-export interface ColorInputProps extends BaseProps {
+export interface InputColorProps extends BaseProps {
     /**
      * Offer an opacity slider; the value then carries it as eight hex digits
      * (`'#33669980'`). Off by default: the value is `'#rrggbb'`.
@@ -25,7 +25,7 @@ export interface ColorInputProps extends BaseProps {
     appendTo?: string;
 }
 
-export type ColorInputEmits = {
+export type InputColorEmits = {
     focus: [event: FocusEvent];
     blur: [event: FocusEvent];
     clear: [];

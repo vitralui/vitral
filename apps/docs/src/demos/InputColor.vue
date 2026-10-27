@@ -2,7 +2,7 @@
 import type { DemoMeta } from '../demo';
 
 export const meta: DemoMeta = {
-    title: 'ColorInput',
+    title: 'InputColor',
     category: 'Form',
     description: 'A text box for a colour: the swatch opens the picker, the hex is typed, and empty is null.'
 };
@@ -10,9 +10,9 @@ export const meta: DemoMeta = {
 
 <script setup lang="ts">
 import DemoSection from '../DemoSection.vue';
-import Basic from './ColorInput/Basic.vue';
-import Swatches from './ColorInput/Swatches.vue';
-import SizesAndStates from './ColorInput/SizesAndStates.vue';
+import Basic from './InputColor/Basic.vue';
+import Swatches from './InputColor/Swatches.vue';
+import SizesAndStates from './InputColor/SizesAndStates.vue';
 </script>
 
 <template>
