@@ -3,7 +3,7 @@
     "sections": {
         "Week": {
             "title": "Semana",
-            "description": "O horário comercial fica sombreado; eventos sobrepostos dividem a coluna; a linha vermelha é o agora. A daily se repete em todo dia útil, a folha de pagamento no primeiro e no último dia do mês."
+            "description": "O horário comercial fica sombreado; eventos sobrepostos ficam alinhados em 1 item por linha com \"+N more\" (event-max-stack); a linha vermelha é o agora. A daily se repete em todo dia útil, a folha de pagamento no primeiro e no último dia do mês."
         },
         "Month": {
             "title": "Mês",

@@ -21,7 +21,7 @@ import Week from './Schedule/Week.vue';
 </script>
 
 <template>
-    <DemoSection title="Week" description="Business hours are shaded; overlapping events share the column; the red line is now. The standup repeats every weekday, payroll on the first and last of the month."><Week /></DemoSection>
+    <DemoSection title="Week" description="Business hours are shaded; overlapping events are organized with 1 item per line and '+N more' (event-max-stack); the red line is now. The standup repeats every weekday, payroll on the first and last of the month."><Week /></DemoSection>
     <DemoSection title="Month" description="Events run across the days they cover; a busy day shows “+N more”, which opens the full list."><Month /></DemoSection>
     <DemoSection title="Agenda" description="The next two weeks as a list, day by day."><Agenda /></DemoSection>
     <DemoSection title="Timeline by resource" description="Rooms as rows and time across. Drag a booking to another room, or press Alt with Up and Down."><TimelineByResource /></DemoSection>
