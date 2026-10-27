@@ -111,8 +111,11 @@
     min-height: var(--vt-control-min-height);
     padding: 0 var(--vt-form-field-padding-x);
     font: inherit;
-    color: var(--vt-form-field-color);
-    background: var(--vt-form-field-background);
+    /* The fill and ink the field shows right now, for an autofilled input to repaint. */
+    --vt-field-fill: var(--vt-form-field-background);
+    --vt-field-ink: var(--vt-form-field-color);
+    color: var(--vt-field-ink);
+    background: var(--vt-field-fill);
     border: var(--vt-form-field-border-width) solid var(--vt-form-field-border-color);
     border-radius: var(--vt-form-field-border-radius);
     box-shadow: var(--vt-form-field-shadow);
@@ -123,28 +126,28 @@
 }
 
 .vt-field:not(.vt-field-disabled):hover {
-    background: var(--vt-form-field-hover-background);
+    --vt-field-fill: var(--vt-form-field-hover-background);
     border-color: var(--vt-form-field-hover-border-color);
 }
 
 .vt-field:not(.vt-field-disabled):focus-within,
 .vt-field.vt-field-focus {
-    background: var(--vt-form-field-focus-background);
+    --vt-field-fill: var(--vt-form-field-focus-background);
     border-color: var(--vt-form-field-focus-border-color);
     box-shadow: var(--vt-form-field-focus-shadow);
 }
 
 .vt-field-filled {
-    background: var(--vt-form-field-filled-background);
+    --vt-field-fill: var(--vt-form-field-filled-background);
 }
 
 .vt-field-filled:not(.vt-field-disabled):hover {
-    background: var(--vt-form-field-filled-hover-background);
+    --vt-field-fill: var(--vt-form-field-filled-hover-background);
 }
 
 .vt-field-filled:not(.vt-field-disabled):focus-within,
 .vt-field-filled.vt-field-focus {
-    background: var(--vt-form-field-filled-focus-background);
+    --vt-field-fill: var(--vt-form-field-filled-focus-background);
 }
 
 .vt-field-invalid,
@@ -154,8 +157,8 @@
 }
 
 .vt-field-disabled {
-    background: var(--vt-form-field-disabled-background);
-    color: var(--vt-form-field-disabled-color);
+    --vt-field-fill: var(--vt-form-field-disabled-background);
+    --vt-field-ink: var(--vt-form-field-disabled-color);
     box-shadow: none;
     cursor: default;
 }
@@ -227,6 +230,30 @@
 
 .vt-field-input:disabled {
     cursor: default;
+}
+
+/*
+ * A browser that autofills a saved login paints the bare input in its own
+ * light yellow and black text, with !important, so the page cannot take it
+ * back with a background. Inside a dark field that is a pale slab narrower
+ * than the box around it. An inset shadow is drawn over that background, so
+ * the input covers it with whatever the field shows right now and keeps the
+ * theme's text; the long transition keeps Chrome from flashing the yellow in
+ * before the shadow lands.
+ */
+.vt-field-input:-webkit-autofill {
+    -webkit-text-fill-color: var(--vt-field-ink, var(--vt-form-field-color));
+    caret-color: var(--vt-field-ink, var(--vt-form-field-color));
+    box-shadow: inset 0 0 0 100vmax var(--vt-field-fill, var(--vt-form-field-background));
+    transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+/* Its own rule: a browser that does not know one name drops the whole list. */
+.vt-field-input:autofill {
+    -webkit-text-fill-color: var(--vt-field-ink, var(--vt-form-field-color));
+    caret-color: var(--vt-field-ink, var(--vt-form-field-color));
+    box-shadow: inset 0 0 0 100vmax var(--vt-field-fill, var(--vt-form-field-background));
+    transition: background-color 600000s 0s, color 600000s 0s;
 }
 
 /* An icon button that lives inside a field: clear, reveal, spin. */

@@ -16,6 +16,7 @@ export * from './Chart';
 export * from './Chat';
 export * from './Checkbox';
 export * from './Chip';
+export * from './ColorInput';
 export * from './ColorPicker';
 export * from './Command';
 export * from './ConfirmDialog';

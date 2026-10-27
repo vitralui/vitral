@@ -16,6 +16,7 @@ import chart from './chart';
 import chat from './chat';
 import checkbox from './checkbox';
 import chip from './chip';
+import colorinput from './colorinput';
 import colorpicker from './colorpicker';
 import command from './command';
 import confirmdialog from './confirmdialog';
@@ -139,6 +140,7 @@ export const components = {
     chat,
     checkbox,
     chip,
+    colorinput,
     colorpicker,
     command,
     confirmdialog,

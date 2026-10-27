@@ -33,6 +33,7 @@ export const componentNames = [
     'ChatLauncher',
     'Checkbox',
     'Chip',
+    'ColorInput',
     'ColorPicker',
     'Column',
     'Command',

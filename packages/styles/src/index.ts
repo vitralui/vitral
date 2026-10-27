@@ -17,6 +17,7 @@ export * from './cascadeselect';
 export * from './chat';
 export * from './checkbox';
 export * from './chip';
+export * from './colorinput';
 export * from './colorpicker';
 export * from './command';
 export * from './confirmdialog';

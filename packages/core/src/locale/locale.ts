@@ -575,6 +575,10 @@ export interface Locale {
         opacity: string;
         /** A colour picker's text box for the hex value. */
         hex: string;
+        /** A colour field's swatch, which opens the picker. */
+        chooseColor: string;
+        /** Names a colour field's row of offered colours. */
+        swatches: string;
         /** The button that shows a menubar's items on a small screen. */
         menu: string;
         /** Names a sidebar's navigation. */
@@ -1140,6 +1144,8 @@ export const en: Locale = {
         hue: 'Hue',
         opacity: 'Opacity',
         hex: 'Hex',
+        chooseColor: 'Choose colour',
+        swatches: 'Suggested colours',
         menu: 'Menu',
         navigation: 'Navigation',
         collapseSidebar: 'Collapse sidebar',
@@ -1663,6 +1669,8 @@ export const ptBR: Locale = {
         hue: 'Matiz',
         opacity: 'Opacidade',
         hex: 'Hexadecimal',
+        chooseColor: 'Escolher cor',
+        swatches: 'Cores sugeridas',
         menu: 'Menu',
         navigation: 'Navegação',
         collapseSidebar: 'Recolher barra lateral',

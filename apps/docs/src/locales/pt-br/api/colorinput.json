@@ -1,0 +1,10 @@
+{
+    "props": {
+        "alpha": "Oferece um controle de opacidade; o valor passa a levá-la em oito dígitos hex (`'#33669980'`). Desligado por padrão: o valor é `'#rrggbb'`.",
+        "defaultColor": "A cor em que o painel começa enquanto o valor está vazio. O padrão é `'#ff0000'`.",
+        "swatches": "Cores oferecidas sob o seletor, um toque cada: a paleta de onde o valor costuma vir.",
+        "clearable": "Mostra um botão que esvazia o campo enquanto ele tem uma cor.",
+        "variant": "O padrão é o `inputVariant` do plugin.",
+        "appendTo": "`'body'` (o padrão), `'self'` para renderizar no lugar, ou um seletor."
+    }
+}

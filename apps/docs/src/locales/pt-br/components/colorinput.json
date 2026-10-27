@@ -1,0 +1,8 @@
+{
+    "description": "Uma caixa de texto para uma cor: a amostra abre o seletor, o hex é digitado, e vazio é null.",
+    "sections": {
+        "Basic": { "title": "Básico", "description": "Seis dígitos valem enquanto são digitados; um #rgb curto, ao sair da caixa. Seta para baixo abre o seletor, Esc volta para a caixa." },
+        "Swatches": { "title": "Amostras", "description": "Uma paleta sob o seletor, para as cores de onde um valor costuma vir." },
+        "Sizes and states": { "title": "Tamanhos e estados" }
+    }
+}

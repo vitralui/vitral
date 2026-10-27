@@ -1,0 +1,116 @@
+/* ---- the text box ------------------------------------------------------ */
+
+.vt-colorinput {
+    gap: var(--vt-colorinput-gap);
+    padding-inline-start: calc(var(--vt-form-field-padding-x) - 0.25rem);
+    cursor: text;
+}
+
+.vt-colorinput.vt-field-disabled {
+    cursor: default;
+}
+
+/* The hex is code: digits line up, and 0 and O do not pass for each other. The placeholder stays in the field's own face. */
+.vt-colorinput-input:not(:placeholder-shown) {
+    font-family: var(--vt-font-family-mono);
+}
+
+/*
+ * The colour, and the button that opens the panel. With no colour it shows
+ * the chequer — what "none" looks like — so an empty field reads as empty
+ * rather than as white.
+ */
+.vt-colorinput-swatch,
+.vt-colorinput-option {
+    --vt-chequer: 0.375rem;
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--vt-colorinput-swatch-border-color);
+    cursor: pointer;
+    background-image:
+        linear-gradient(45deg, var(--vt-colorinput-chequer-color) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--vt-colorinput-chequer-color) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--vt-colorinput-chequer-color) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--vt-colorinput-chequer-color) 75%);
+    background-size: var(--vt-chequer) var(--vt-chequer);
+    background-position:
+        0 0,
+        0 calc(var(--vt-chequer) / 2),
+        calc(var(--vt-chequer) / 2) calc(var(--vt-chequer) / -2),
+        calc(var(--vt-chequer) / -2) 0;
+}
+
+.vt-colorinput-swatch {
+    width: var(--vt-colorinput-swatch-size);
+    height: var(--vt-colorinput-swatch-size);
+    border-radius: var(--vt-colorinput-swatch-border-radius);
+}
+
+.vt-field-sm .vt-colorinput-swatch {
+    width: var(--vt-colorinput-swatch-sm-size);
+    height: var(--vt-colorinput-swatch-sm-size);
+}
+
+.vt-field-lg .vt-colorinput-swatch {
+    width: var(--vt-colorinput-swatch-lg-size);
+    height: var(--vt-colorinput-swatch-lg-size);
+}
+
+/* The colour sits inside the border, so it takes the border's inner radius. */
+.vt-colorinput-swatch::after,
+.vt-colorinput-option::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--vt-colorinput-color, transparent);
+}
+
+.vt-colorinput-swatch:focus-visible,
+.vt-colorinput-option:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-colorinput-swatch:disabled {
+    cursor: default;
+}
+
+/* ---- the panel --------------------------------------------------------- */
+
+.vt-colorinput-panel {
+    display: flex;
+    flex-direction: column;
+    width: var(--vt-colorpicker-panel-width);
+    background: var(--vt-colorpicker-panel-background);
+}
+
+/* The picker is the panel's body: the frame is the overlay's, not a second one inside it. */
+.vt-colorinput-picker .vt-colorpicker-panel {
+    width: auto;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+
+.vt-colorinput-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vt-colorinput-swatches-gap);
+    padding: 0 var(--vt-colorpicker-panel-padding) var(--vt-colorpicker-panel-padding);
+}
+
+.vt-colorinput-option {
+    width: var(--vt-colorinput-option-size);
+    height: var(--vt-colorinput-option-size);
+    border-radius: var(--vt-colorinput-option-border-radius);
+}
+
+.vt-colorinput-option-selected {
+    box-shadow:
+        0 0 0 2px var(--vt-colorpicker-panel-background),
+        0 0 0 4px var(--vt-colorinput-option-selected-ring-color);
+}
