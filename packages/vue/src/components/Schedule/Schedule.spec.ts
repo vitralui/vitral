@@ -61,6 +61,15 @@ describe('Schedule', () => {
         await expectNoA11yViolations();
     });
 
+    it('limits overlapping events to 1 per line and shows more button when eventMaxStack is 1', async () => {
+        const { grid } = mountSchedule({ eventMaxStack: 1 }, [standup, review, offsite]);
+        const dayEvents = grid().querySelectorAll('.vt-schedule-day-layer [data-vt-event]');
+        expect(dayEvents).toHaveLength(1);
+        const moreBtn = grid().querySelector('.vt-schedule-more-button.vt-schedule-timed');
+        expect(moreBtn).toBeTruthy();
+        expect(moreBtn?.textContent).toContain('+1 more');
+    });
+
     it('moves the tab stop with the arrows and reports a date click on Enter', async () => {
         const { active, handlers } = mountSchedule();
         const first = active();

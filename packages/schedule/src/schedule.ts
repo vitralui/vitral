@@ -467,23 +467,25 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             const preview: Override = { start: origin.start, end: origin.end, allDay: origin.allDay, resourceId: origin.resourceId };
             const dayBased = at.allDay || drag.anchor.allDay || origin.allDay;
             if (drag.kind === 'move') {
-                if (at.allDay && !origin.allDay && !drag.anchor.allDay) {
+                if (at.allDay && !drag.anchor.allDay) {
                     preview.allDay = true;
                     const by = dayDiff(drag.anchor.at, at.at);
                     preview.start = shiftDays(startOfDay(origin.start), by);
                     const durationDays = Math.max(1, Math.round((origin.end.getTime() - origin.start.getTime()) / (24 * 60 * 60 * 1000)));
                     preview.end = addDays(preview.start, durationDays);
-                } else if (!at.allDay && (origin.allDay || drag.anchor.allDay)) {
+                } else if (!at.allDay && drag.anchor.allDay) {
                     preview.allDay = false;
                     preview.start = at.at;
                     const durationMs = origin.end.getTime() - origin.start.getTime();
                     const durationMinutes = Math.min(1440, Math.max(set.snap, Math.round(durationMs / 60000)));
                     preview.end = addMinutes(at.at, origin.allDay || durationMinutes >= 1440 ? 60 : durationMinutes);
-                } else if (dayBased) {
+                } else if (at.allDay) {
+                    preview.allDay = true;
                     const by = dayDiff(drag.anchor.at, at.at);
                     preview.start = shiftDays(origin.start, by);
                     preview.end = shiftDays(origin.end, by);
                 } else {
+                    preview.allDay = false;
                     const by = at.at.getTime() - drag.anchor.at.getTime();
                     preview.start = new Date(origin.start.getTime() + by);
                     preview.end = new Date(origin.end.getTime() + by);
@@ -500,7 +502,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
                     preview.start = origin.start;
                     preview.end = nextEnd;
                 } else if (edge === 'start') {
-                    if (dayBased) {
+                    if (origin.allDay) {
                         const nextStart = minDate(startOfDay(at.at), addDays(startOfDay(origin.end), -1));
                         preview.start = nextStart;
                         preview.end = origin.end;
@@ -510,7 +512,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
                         preview.end = origin.end;
                     }
                 } else {
-                    if (origin.allDay || dayBased) {
+                    if (origin.allDay) {
                         preview.start = origin.start;
                         preview.end = maxDate(addDays(startOfDay(at.at), 1), addDays(startOfDay(origin.start), 1));
                     } else {

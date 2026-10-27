@@ -91,6 +91,16 @@ describe('layouts', () => {
         expect(out[2]!).toMatchObject({ column: 2, columns: 3, hiddenCount: 2 });
     });
 
+    it('caps overlapping columns at maxColumns = 1 to show 1 item per line plus hiddenCount', () => {
+        const a = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const b = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const c = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const out = layoutTimedEvents([a, b, c], range, d(9, 14, 8), d(9, 14, 16), 0, 1);
+        expect(out).toHaveLength(2);
+        expect(out[0]!).toMatchObject({ column: 0, columns: 1, span: 1 });
+        expect(out[1]!).toMatchObject({ column: 0, columns: 1, span: 1, hiddenCount: 2 });
+    });
+
     it('packs day spans into rows, longest first, marking what runs past the week', () => {
         const long = { s: d(9, 12), e: d(9, 16) };
         const one = { s: d(9, 14), e: d(9, 15) };

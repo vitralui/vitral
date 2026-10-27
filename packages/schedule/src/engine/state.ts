@@ -44,6 +44,8 @@ export interface ScheduleSettings {
     agendaDays: number;
     timelineDays: number;
     maxEventsPerDay: number;
+    eventMaxStack?: number;
+    maxOverlappingEvents?: number;
     editable: boolean;
     selectable: boolean;
     nowIndicator: boolean;
@@ -66,6 +68,8 @@ export function settingsOf(config: ScheduleConfig, locale: Locale): ScheduleSett
         agendaDays: config.agendaDays ?? 7,
         timelineDays: config.timelineDays ?? 1,
         maxEventsPerDay: Math.max(1, config.maxEventsPerDay ?? 3),
+        eventMaxStack: config.eventMaxStack ?? config.maxOverlappingEvents,
+        maxOverlappingEvents: config.eventMaxStack ?? config.maxOverlappingEvents,
         editable: config.editable ?? true,
         selectable: config.selectable ?? true,
         nowIndicator: config.nowIndicator ?? true,

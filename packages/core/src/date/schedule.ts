@@ -224,12 +224,13 @@ export function layoutTimedEvents<T>(
     const flush = () => {
         const totalColumns = columnsEnd.length;
         if (maxColumns > 0 && totalColumns > maxColumns) {
-            const visibleCluster = cluster.filter((c) => c.column < maxColumns - 1);
-            const hiddenCluster = cluster.filter((c) => c.column >= maxColumns - 1);
+            const keepColumns = Math.max(1, maxColumns === 1 ? 1 : maxColumns - 1);
+            const visibleCluster = cluster.filter((c) => c.column < keepColumns);
+            const hiddenCluster = cluster.filter((c) => c.column >= keepColumns);
 
             for (const { row, column } of visibleCluster) {
                 let span = 1;
-                for (let c = column + 1; c < maxColumns - 1; c++) {
+                for (let c = column + 1; c < keepColumns; c++) {
                     const blocked = visibleCluster.some((o) => o.column === c && o.row.s < row.e && o.row.e > row.s);
                     if (blocked) break;
                     span++;
@@ -249,11 +250,15 @@ export function layoutTimedEvents<T>(
             if (hiddenCluster.length > 0) {
                 const minS = Math.min(...hiddenCluster.map((c) => c.row.s));
                 const maxE = Math.max(...hiddenCluster.map((c) => c.row.e));
+                const btnDuration = (minMinutes || 15) * MINUTE;
+                const top = maxColumns === 1
+                    ? Math.max(minS, maxE - btnDuration)
+                    : minS;
                 out.push({
                     item: hiddenCluster[0]!.row.item,
-                    top: (minS - from.getTime()) / total,
-                    height: Math.max((maxE - minS) / total, (minMinutes * MINUTE) / total),
-                    column: maxColumns - 1,
+                    top: (top - from.getTime()) / total,
+                    height: Math.max((maxE - top) / total, btnDuration / total),
+                    column: maxColumns === 1 ? 0 : maxColumns - 1,
                     columns: maxColumns,
                     span: 1,
                     clippedStart: false,

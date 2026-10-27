@@ -468,32 +468,66 @@ describe('a filtered schedule', () => {
 });
 
 describe('week view overlapping events and multi-day spans', () => {
-    it('renders multi-day timed events as horizontal spans in the all-day row', () => {
+    it('keeps timed events in the timed grid and only allDay events in the all-day row', () => {
         const spanTimedEvent: ScheduleEvent = {
             id: 'long',
             title: 'Hackathon',
             start: new Date(2026, 2, 9, 10, 0),
             end: new Date(2026, 2, 11, 18, 0)
         };
-        const { element } = mount({ events: [spanTimedEvent] });
-        const hackathon = element.querySelector('[data-vt-event="long"]');
-        expect(hackathon).toBeTruthy();
-        const allDayRow = element.querySelector('.vt-schedule-allday-row');
-        expect(allDayRow?.contains(hackathon)).toBe(true);
+        const allDayEvent: ScheduleEvent = {
+            id: 'allday-release',
+            title: 'Release',
+            start: new Date(2026, 2, 9),
+            end: new Date(2026, 2, 10),
+            allDay: true
+        };
+        const { element } = mount({ events: [spanTimedEvent, allDayEvent] });
+        const allDayRow = element.querySelector('.vt-schedule-allday-row')!;
+        expect(allDayRow.querySelector('[data-vt-event="allday-release"]')).toBeTruthy();
+        expect(allDayRow.querySelector('[data-vt-event="long"]')).toBeNull();
+        expect(element.querySelector('[data-vt-event="long"]')).toBeTruthy();
     });
 
-    it('limits columns and renders a +N more button when multiple events overlap at the same time', () => {
+    it('limits columns to 1 item per line and renders a +N more button when multiple events overlap', () => {
         const overlaps: ScheduleEvent[] = [
             { id: 'o1', title: 'Task 1', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
             { id: 'o2', title: 'Task 2', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
-            { id: 'o3', title: 'Task 3', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
-            { id: 'o4', title: 'Task 4', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
-            { id: 'o5', title: 'Task 5', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) }
+            { id: 'o3', title: 'Task 3', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) }
         ];
-        const { element } = mount({ events: overlaps });
+        const { element } = mount({ events: overlaps, eventMaxStack: 1 });
+        const visibleEvents = element.querySelectorAll('.vt-schedule-day-layer [data-vt-event]');
+        expect(visibleEvents).toHaveLength(1);
         const moreBtn = element.querySelector<HTMLButtonElement>('.vt-schedule-more-button.vt-schedule-timed');
         expect(moreBtn).toBeTruthy();
-        expect(moreBtn?.textContent?.trim()).toContain('more');
+        expect(moreBtn?.textContent?.trim()).toContain('+2 more');
+    });
+
+    it('preserves timed event without converting to all-day when dragged to the next day', async () => {
+        const changed = vi.fn();
+        const { element, eventButtons } = mount({ minTime: '08:00', maxTime: '12:00', on: { 'event-change': changed } });
+        const cell = (day: number, hour: number) => element.querySelector<HTMLElement>(`[data-vt-slot="${new Date(2026, 2, day, hour, 0).getTime()}"]`)!;
+        // Stub measurements for Monday 9:00 and Tuesday 9:00
+        const c1 = cell(9, 9);
+        const c2 = cell(10, 9);
+        c1.getBoundingClientRect = () => ({ top: 0, left: 0, width: 100, height: 20 }) as DOMRect;
+        c2.getBoundingClientRect = () => ({ top: 0, left: 100, width: 100, height: 20 }) as DOMRect;
+        let under = c1;
+        document.elementsFromPoint = () => [under];
+        const standup = () => eventButtons().find((button) => button.textContent?.includes('Standup'))!;
+        standup().dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: 5, clientY: 0, pointerId: 1, pointerType: 'mouse', button: 0 }));
+        under = c2;
+        document.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, cancelable: true, clientX: 105, clientY: 10, pointerId: 1, pointerType: 'mouse', button: 0 }));
+        document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: 105, clientY: 10, pointerId: 1, pointerType: 'mouse', button: 0 }));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(changed).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'move',
+                allDay: false,
+                start: new Date(2026, 2, 10, 9, 15),
+                end: new Date(2026, 2, 10, 9, 45)
+            })
+        );
     });
 });
 

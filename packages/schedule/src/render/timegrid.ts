@@ -17,15 +17,14 @@ const spanStyle = (placement: { first: number; last: number; row: number }, days
     top: `calc(${placement.row} * (var(--vt-schedule-event-height) + var(--vt-schedule-event-gap)))`
 });
 
-const timedStyle = (placement: { top: number; height: number; column: number; columns: number; span: number }) => ({
+const timedStyle = (placement: { top: number; height: number; column: number; columns: number; span: number; hiddenCount?: number }) => ({
     top: pct(placement.top),
-    height: `max(var(--vt-schedule-event-height), ${pct(placement.height)})`,
+    height: placement.hiddenCount ? 'var(--vt-schedule-event-height)' : `max(var(--vt-schedule-event-height), ${pct(placement.height)})`,
     left: pct(placement.column / placement.columns),
     width: `calc(${pct(placement.span / placement.columns)} - var(--vt-schedule-event-gap))`
 });
 
-const isSpanEvent = (occurrence: Occurrence) =>
-    occurrence.allDay || (occurrence.end.getTime() - occurrence.start.getTime() >= 24 * 60 * 60 * 1000) || (!isSameDay(occurrence.start, occurrence.end) && occurrence.end.getTime() - occurrence.start.getTime() >= 16 * 60 * 60 * 1000);
+const isAllDay = (occurrence: Occurrence) => Boolean(occurrence.allDay);
 
 export function timeGridView(context: ViewContext): Child {
     const { part, locale, settings, days } = context;
@@ -42,18 +41,19 @@ export function timeGridView(context: ViewContext): Child {
     const hourLabel = (minutes: number) => context.formatTime(addMinutes(days[0]!, minutes));
 
     const allDay = layoutDaySpans(
-        context.occurrences.filter((occurrence) => isSpanEvent(occurrence)),
+        context.occurrences.filter((occurrence) => isAllDay(occurrence)),
         (occurrence) => occurrence,
         days[0]!,
         days.length
     );
     const allDayRows = allDay.reduce((rows, placement) => Math.max(rows, placement.row + 1), 0);
 
+    const maxCols = settings.eventMaxStack ?? settings.maxOverlappingEvents ?? 0;
     const timed = days.map((day) => {
         const from = addMinutes(day, settings.minMinutes);
         const to = addMinutes(day, settings.maxMinutes);
-        const list = context.occurrences.filter((occurrence) => !isSpanEvent(occurrence) && occurrence.start < to && occurrence.end > from);
-        return layoutTimedEvents<Occurrence>(list, (occurrence) => occurrence, from, to, Math.min(15, settings.slotMinutes), days.length > 1 ? 3 : 6);
+        const list = context.occurrences.filter((occurrence) => !isAllDay(occurrence) && occurrence.start < to && occurrence.end > from);
+        return layoutTimedEvents<Occurrence>(list, (occurrence) => occurrence, from, to, Math.min(15, settings.slotMinutes), maxCols);
     });
 
     const layerStyle = (index: number) => ({

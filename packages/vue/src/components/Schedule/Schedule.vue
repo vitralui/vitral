@@ -56,6 +56,8 @@ const props = withDefaults(defineProps<ScheduleProps>(), {
     agendaDays: 7,
     timelineDays: 1,
     maxEventsPerDay: 3,
+    eventMaxStack: undefined,
+    maxOverlappingEvents: undefined,
     scrollHeight: '36rem'
 });
 const view = defineModel<ScheduleViewName>('view', { default: 'week' });
@@ -199,6 +201,8 @@ const inputs = (): ScheduleConfig => ({
     agendaDays: props.agendaDays,
     timelineDays: props.timelineDays,
     maxEventsPerDay: props.maxEventsPerDay,
+    eventMaxStack: props.eventMaxStack ?? props.maxOverlappingEvents,
+    maxOverlappingEvents: props.eventMaxStack ?? props.maxOverlappingEvents,
     scrollHeight: props.scrollHeight,
     view: view.value,
     date: date.value,

@@ -21,6 +21,7 @@ let nextId = 100;
 const log = ref('Move, resize or select something. Press an event to open it.');
 const view = ref<ScheduleViewName>('week');
 const date = ref(day(0));
+const maxStack = ref<number | undefined>(undefined);
 
 // ---- opening an event
 // `event-click` hands over the event, which occurrence of it was pressed, and
@@ -59,10 +60,18 @@ function create(selection: ScheduleSelection) {
 </script>
 
 <template>
+    <StackPanel orientation="horizontal" align="center" spacing="1rem" style="margin-bottom: 0.5rem">
+        <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer">
+            <input type="checkbox" :checked="maxStack === 1" @change="maxStack = ($event.target as HTMLInputElement).checked ? 1 : undefined" />
+            1 item por linha (<code>event-max-stack="1"</code>)
+        </label>
+    </StackPanel>
+
     <Schedule
         v-model:view="view"
         v-model:date="date"
         :events="events"
+        :event-max-stack="maxStack"
         scroll-time="08:00"
         style="width: 100%"
         @event-change="apply"

@@ -108,6 +108,14 @@ export interface ScheduleProps extends BaseProps, ScrollbarProps {
     timelineDays?: number;
     /** Events shown in a month cell before "+N more". Defaults to 3. */
     maxEventsPerDay?: number;
+    /**
+     * Maximum concurrent events shown side-by-side in time grid slots before "+N more".
+     * Set to 1 for 1 item per line, cleanly aligned across the full column width.
+     * Defaults to 1 in week view, 3 in day view.
+     */
+    eventMaxStack?: number;
+    /** Alias for `eventMaxStack`. */
+    maxOverlappingEvents?: number;
     /** Height of the scrolling area of the week, day and timeline views. Defaults to `'36rem'`. */
     scrollHeight?: string;
 }
