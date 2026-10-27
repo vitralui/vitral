@@ -241,4 +241,7 @@ export function eventsOnDay(occurrences: readonly Occurrence[], day: Date): Occu
 /** The later of two dates: an end that may not cross its start. */
 export const maxDate = (a: Date, b: Date): Date => (a > b ? a : b);
 
+/** The earlier of two dates: a start that may not cross its end. */
+export const minDate = (a: Date, b: Date): Date => (a < b ? a : b);
+
 export type { ScheduleEvent };

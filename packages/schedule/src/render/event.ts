@@ -10,13 +10,17 @@ import { content, type ViewContext } from './context';
  */
 
 export type EventVariant = 'timed' | 'span' | 'list' | 'lane';
+export type ResizerEdge = 'top' | 'bottom' | 'start' | 'end';
 
 export interface EventOptions {
     variant: EventVariant;
     continuesBefore?: boolean;
     continuesAfter?: boolean;
-    /** Which edge resizes it, if any. */
-    resize?: 'bottom' | 'end' | null;
+    /** Which edges resize it, if any. */
+    resizers?: ResizerEdge[];
+    /** @deprecated */
+    resize?: ResizerEdge | null;
+    short?: boolean;
     style?: Record<string, string>;
     key?: string;
 }
@@ -33,6 +37,7 @@ export function eventView(context: ViewContext, occurrence: Occurrence, options:
             view: context.models.view
         })
     );
+    const resizerList: ResizerEdge[] = options.resizers ?? (options.resize ? [options.resize] : []);
     return h(
         'button',
         mergeAttrs(
@@ -43,7 +48,8 @@ export function eventView(context: ViewContext, occurrence: Occurrence, options:
                 dragging: context.dragging === occurrence.key,
                 allDay: occurrence.allDay,
                 continuesBefore: options.continuesBefore,
-                continuesAfter: options.continuesAfter
+                continuesAfter: options.continuesAfter,
+                short: options.short
             }),
             {
                 'data-vt-event': occurrence.key,
@@ -61,12 +67,14 @@ export function eventView(context: ViewContext, occurrence: Occurrence, options:
                 h('span', part('eventTitle'), titleTextOf(occurrence, locale)),
                 time && options.variant === 'timed' ? h('span', part('eventTime'), time) : null
             ],
-        options.resize && editable
-            ? h(
-                  'span',
-                  mergeAttrs({ key: 'resizer', 'aria-hidden': 'true' }, part('resizer', { edge: options.resize }), {
-                      onPointerdown: (event: PointerEvent) => context.on.eventPointerdown(event, occurrence, 'resize')
-                  })
+        editable && resizerList.length
+            ? resizerList.map((edge) =>
+                  h(
+                      'span',
+                      mergeAttrs({ key: `resizer-${edge}`, 'aria-hidden': 'true' }, part('resizer', { edge }), {
+                          onPointerdown: (event: PointerEvent) => context.on.eventPointerdown(event, occurrence, 'resize', edge)
+                      })
+                  )
               )
             : null
     );

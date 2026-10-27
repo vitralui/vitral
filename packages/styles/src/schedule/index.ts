@@ -19,6 +19,7 @@ export interface ScheduleEventState {
     allDay?: boolean;
     continuesBefore?: boolean;
     continuesAfter?: boolean;
+    short?: boolean;
 }
 
 const cell = (name: string) => (s: ScheduleCellState) => [
@@ -67,7 +68,7 @@ export const scheduleStyle = defineStyle({
         week: 'vt-schedule-week',
         monthCell: cell('vt-schedule-month-cell'),
         dateLabel: (s: { today?: boolean }) => ['vt-schedule-date', { 'vt-schedule-date-today': s.today }],
-        moreButton: 'vt-schedule-more-button',
+        moreButton: (s: { timed?: boolean } = {}) => ['vt-schedule-more-button', { 'vt-schedule-timed': s.timed }],
         weekLayer: 'vt-schedule-layer vt-schedule-week-layer',
         timelineHead: 'vt-schedule-head vt-schedule-timeline-head',
         resourceHeader: 'vt-schedule-resource-header',
@@ -93,12 +94,13 @@ export const scheduleStyle = defineStyle({
                 'vt-schedule-event-dragging': s.dragging,
                 'vt-schedule-event-all-day': s.allDay,
                 'vt-schedule-event-continues-before': s.continuesBefore,
-                'vt-schedule-event-continues-after': s.continuesAfter
+                'vt-schedule-event-continues-after': s.continuesAfter,
+                'vt-schedule-event-short': s.short
             }
         ],
         eventTime: 'vt-schedule-event-time',
         eventTitle: 'vt-schedule-event-title',
-        resizer: (s: { edge?: 'bottom' | 'end' }) => ['vt-schedule-resizer', `vt-schedule-resizer-${s.edge}`],
+        resizer: (s: { edge?: 'top' | 'bottom' | 'start' | 'end' }) => ['vt-schedule-resizer', s.edge && `vt-schedule-resizer-${s.edge}`],
         more: 'vt-schedule-more',
         moreTitle: 'vt-schedule-more-title'
     }

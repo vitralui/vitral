@@ -183,6 +183,8 @@ export interface TimedPlacement<T> {
     /** It starts before the visible span, or ends after it. */
     clippedStart: boolean;
     clippedEnd: boolean;
+    /** The number of overlapping items hidden behind a "+N more" button, if any. */
+    hiddenCount?: number;
 }
 
 /**
@@ -190,8 +192,17 @@ export interface TimedPlacement<T> {
  * side by side. Events are clustered by overlap, each takes the first column
  * free at its start, and then widens to the right over columns that stay free
  * for its whole length. `from`/`to` are the column's visible bounds.
+ * When `maxColumns > 0` and more items overlap, surplus items are represented
+ * as a single overflow placement with `hiddenCount`.
  */
-export function layoutTimedEvents<T>(items: readonly T[], range: (item: T) => { start: Date; end: Date }, from: Date, to: Date, minMinutes = 0): TimedPlacement<T>[] {
+export function layoutTimedEvents<T>(
+    items: readonly T[],
+    range: (item: T) => { start: Date; end: Date },
+    from: Date,
+    to: Date,
+    minMinutes = 0,
+    maxColumns = 0
+): TimedPlacement<T>[] {
     const total = to.getTime() - from.getTime();
     if (total <= 0) return [];
     const rows = items
@@ -211,24 +222,65 @@ export function layoutTimedEvents<T>(items: readonly T[], range: (item: T) => { 
     let clusterEnd = -Infinity;
 
     const flush = () => {
-        const columns = columnsEnd.length;
-        for (const { row, column } of cluster) {
-            let span = 1;
-            for (let c = column + 1; c < columns; c++) {
-                const blocked = cluster.some((o) => o.column === c && o.row.s < row.e && o.row.e > row.s);
-                if (blocked) break;
-                span++;
+        const totalColumns = columnsEnd.length;
+        if (maxColumns > 0 && totalColumns > maxColumns) {
+            const visibleCluster = cluster.filter((c) => c.column < maxColumns - 1);
+            const hiddenCluster = cluster.filter((c) => c.column >= maxColumns - 1);
+
+            for (const { row, column } of visibleCluster) {
+                let span = 1;
+                for (let c = column + 1; c < maxColumns - 1; c++) {
+                    const blocked = visibleCluster.some((o) => o.column === c && o.row.s < row.e && o.row.e > row.s);
+                    if (blocked) break;
+                    span++;
+                }
+                out.push({
+                    item: row.item,
+                    top: (row.s - from.getTime()) / total,
+                    height: (row.e - row.s) / total,
+                    column,
+                    columns: maxColumns,
+                    span,
+                    clippedStart: row.clippedStart,
+                    clippedEnd: row.clippedEnd
+                });
             }
-            out.push({
-                item: row.item,
-                top: (row.s - from.getTime()) / total,
-                height: (row.e - row.s) / total,
-                column,
-                columns,
-                span,
-                clippedStart: row.clippedStart,
-                clippedEnd: row.clippedEnd
-            });
+
+            if (hiddenCluster.length > 0) {
+                const minS = Math.min(...hiddenCluster.map((c) => c.row.s));
+                const maxE = Math.max(...hiddenCluster.map((c) => c.row.e));
+                out.push({
+                    item: hiddenCluster[0]!.row.item,
+                    top: (minS - from.getTime()) / total,
+                    height: Math.max((maxE - minS) / total, (minMinutes * MINUTE) / total),
+                    column: maxColumns - 1,
+                    columns: maxColumns,
+                    span: 1,
+                    clippedStart: false,
+                    clippedEnd: false,
+                    hiddenCount: hiddenCluster.length
+                });
+            }
+        } else {
+            const columns = totalColumns;
+            for (const { row, column } of cluster) {
+                let span = 1;
+                for (let c = column + 1; c < columns; c++) {
+                    const blocked = cluster.some((o) => o.column === c && o.row.s < row.e && o.row.e > row.s);
+                    if (blocked) break;
+                    span++;
+                }
+                out.push({
+                    item: row.item,
+                    top: (row.s - from.getTime()) / total,
+                    height: (row.e - row.s) / total,
+                    column,
+                    columns,
+                    span,
+                    clippedStart: row.clippedStart,
+                    clippedEnd: row.clippedEnd
+                });
+            }
         }
         cluster = [];
         columnsEnd = [];

@@ -1,8 +1,8 @@
-import { addMinutes, fractionOf, isSameDay, layoutDaySpans, layoutTimedEvents, visuallyHidden } from '@vitral/core';
+import { addMinutes, formatMessage, fractionOf, isSameDay, layoutDaySpans, layoutTimedEvents, visuallyHidden } from '@vitral/core';
 import { h, mergeAttrs, type Child } from '@vitral/dom';
 import type { Occurrence, ScheduleCell } from '../engine/types';
 import { pct, type ViewContext } from './context';
-import { eventView } from './event';
+import { eventView, type ResizerEdge } from './event';
 
 /**
  * The week and day views: a grid whose rows are time slots and whose columns
@@ -19,10 +19,13 @@ const spanStyle = (placement: { first: number; last: number; row: number }, days
 
 const timedStyle = (placement: { top: number; height: number; column: number; columns: number; span: number }) => ({
     top: pct(placement.top),
-    height: pct(placement.height),
+    height: `max(var(--vt-schedule-event-height), ${pct(placement.height)})`,
     left: pct(placement.column / placement.columns),
     width: `calc(${pct(placement.span / placement.columns)} - var(--vt-schedule-event-gap))`
 });
+
+const isSpanEvent = (occurrence: Occurrence) =>
+    occurrence.allDay || (occurrence.end.getTime() - occurrence.start.getTime() >= 24 * 60 * 60 * 1000) || (!isSameDay(occurrence.start, occurrence.end) && occurrence.end.getTime() - occurrence.start.getTime() >= 16 * 60 * 60 * 1000);
 
 export function timeGridView(context: ViewContext): Child {
     const { part, locale, settings, days } = context;
@@ -39,7 +42,7 @@ export function timeGridView(context: ViewContext): Child {
     const hourLabel = (minutes: number) => context.formatTime(addMinutes(days[0]!, minutes));
 
     const allDay = layoutDaySpans(
-        context.occurrences.filter((occurrence) => occurrence.allDay),
+        context.occurrences.filter((occurrence) => isSpanEvent(occurrence)),
         (occurrence) => occurrence,
         days[0]!,
         days.length
@@ -49,8 +52,8 @@ export function timeGridView(context: ViewContext): Child {
     const timed = days.map((day) => {
         const from = addMinutes(day, settings.minMinutes);
         const to = addMinutes(day, settings.maxMinutes);
-        const list = context.occurrences.filter((occurrence) => !occurrence.allDay && occurrence.start < to && occurrence.end > from);
-        return layoutTimedEvents<Occurrence>(list, (occurrence) => occurrence, from, to, Math.min(15, settings.slotMinutes));
+        const list = context.occurrences.filter((occurrence) => !isSpanEvent(occurrence) && occurrence.start < to && occurrence.end > from);
+        return layoutTimedEvents<Occurrence>(list, (occurrence) => occurrence, from, to, Math.min(15, settings.slotMinutes), days.length > 1 ? 3 : 6);
     });
 
     const layerStyle = (index: number) => ({
@@ -119,7 +122,10 @@ export function timeGridView(context: ViewContext): Child {
                                           variant: 'span',
                                           continuesBefore: placement.continuesBefore,
                                           continuesAfter: placement.continuesAfter,
-                                          resize: placement.continuesAfter ? null : 'end',
+                                          resizers: [
+                                              placement.continuesBefore ? null : 'start',
+                                              placement.continuesAfter ? null : 'end'
+                                          ].filter((e): e is ResizerEdge => e !== null),
                                           style: spanStyle(placement, days.length)
                                       })
                                   )
@@ -163,13 +169,28 @@ export function timeGridView(context: ViewContext): Child {
                                       'div',
                                       mergeAttrs({ key: 'layer', 'data-vt-layer': '' }, part('dayLayer'), { style: layerStyle(column) }),
                                       timed[column]!.map((placement) =>
-                                          eventView(context, placement.item, {
-                                              variant: 'timed',
-                                              continuesBefore: placement.clippedStart,
-                                              continuesAfter: placement.clippedEnd,
-                                              resize: placement.clippedEnd ? null : 'bottom',
-                                              style: timedStyle(placement)
-                                          })
+                                          placement.hiddenCount
+                                              ? h(
+                                                    'button',
+                                                    mergeAttrs({ key: `more-${placement.top}`, type: 'button' }, part('moreButton', { timed: true }), {
+                                                        style: timedStyle(placement),
+                                                        'aria-label': formatMessage(locale.schedule.moreLabel, { count: placement.hiddenCount, date: context.format(day, locale.schedule.dayTitle) }),
+                                                        'aria-haspopup': 'dialog',
+                                                        onClick: (event: MouseEvent) => context.on.showMore(event, day)
+                                                    }),
+                                                    formatMessage(locale.schedule.more, { count: placement.hiddenCount })
+                                                )
+                                              : eventView(context, placement.item, {
+                                                    variant: 'timed',
+                                                    continuesBefore: placement.clippedStart,
+                                                    continuesAfter: placement.clippedEnd,
+                                                    resizers: [
+                                                        placement.clippedStart ? null : 'top',
+                                                        placement.clippedEnd ? null : 'bottom'
+                                                    ].filter((e): e is ResizerEdge => e !== null),
+                                                    short: (placement.item.end.getTime() - placement.item.start.getTime()) <= 30 * 60000 || placement.height <= 0.04,
+                                                    style: timedStyle(placement)
+                                                })
                                       ),
                                       nowAt(day) !== null ? h('div', mergeAttrs({ key: 'now', 'aria-hidden': 'true' }, part('now'), { style: { top: pct(nowAt(day)!) } })) : null
                                   )

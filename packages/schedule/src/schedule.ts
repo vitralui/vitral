@@ -39,6 +39,7 @@ import {
     isTimed,
     labelOf,
     maxDate,
+    minDate,
     occurrencesOf,
     rangeOf,
     resourceIndexOf,
@@ -107,7 +108,7 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
     /** What the reader has moved since the events were handed over. */
     const overrides = new Map<string, Override>();
     const ical = (options: ICalendarOptions = {}) => toICalendar(current.events ?? [], { defaultDuration: current.defaultDuration, ...options });
-    let drag: { key: string; kind: 'move' | 'resize'; origin: Occurrence; anchor: ScheduleCell & { at: Date }; preview: Override } | null = null;
+    let drag: { key: string; kind: 'move' | 'resize'; origin: Occurrence; anchor: ScheduleCell & { at: Date }; preview: Override; edge?: 'top' | 'bottom' | 'start' | 'end' } | null = null;
     let selecting: { anchor: ScheduleCell; head: ScheduleCell; via: 'pointer' | 'keyboard' } | null = null;
     let focus = { date: new Date(0), resource: 0 };
     let lastRange = '';
@@ -451,11 +452,11 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         }
     });
 
-    const eventDrag = pointerDrag<{ occurrence: Occurrence; kind: 'move' | 'resize'; anchor: ScheduleCell & { at: Date } }>({
+    const eventDrag = pointerDrag<{ occurrence: Occurrence; kind: 'move' | 'resize'; anchor: ScheduleCell & { at: Date }; edge?: 'top' | 'bottom' | 'start' | 'end' }>({
         threshold: 4,
         touchDelay: 300,
-        onStart: ({ occurrence, kind, anchor }) => {
-            drag = { key: occurrence.key, kind, origin: occurrence, anchor, preview: { start: occurrence.start, end: occurrence.end, allDay: occurrence.allDay, resourceId: occurrence.resourceId } };
+        onStart: ({ occurrence, kind, anchor, edge }) => {
+            drag = { key: occurrence.key, kind, origin: occurrence, anchor, edge, preview: { start: occurrence.start, end: occurrence.end, allDay: occurrence.allDay, resourceId: occurrence.resourceId } };
             render();
         },
         onMove: (_, info) => {
@@ -466,7 +467,19 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
             const preview: Override = { start: origin.start, end: origin.end, allDay: origin.allDay, resourceId: origin.resourceId };
             const dayBased = at.allDay || drag.anchor.allDay || origin.allDay;
             if (drag.kind === 'move') {
-                if (dayBased) {
+                if (at.allDay && !origin.allDay && !drag.anchor.allDay) {
+                    preview.allDay = true;
+                    const by = dayDiff(drag.anchor.at, at.at);
+                    preview.start = shiftDays(startOfDay(origin.start), by);
+                    const durationDays = Math.max(1, Math.round((origin.end.getTime() - origin.start.getTime()) / (24 * 60 * 60 * 1000)));
+                    preview.end = addDays(preview.start, durationDays);
+                } else if (!at.allDay && (origin.allDay || drag.anchor.allDay)) {
+                    preview.allDay = false;
+                    preview.start = at.at;
+                    const durationMs = origin.end.getTime() - origin.start.getTime();
+                    const durationMinutes = Math.min(1440, Math.max(set.snap, Math.round(durationMs / 60000)));
+                    preview.end = addMinutes(at.at, origin.allDay || durationMinutes >= 1440 ? 60 : durationMinutes);
+                } else if (dayBased) {
                     const by = dayDiff(drag.anchor.at, at.at);
                     preview.start = shiftDays(origin.start, by);
                     preview.end = shiftDays(origin.end, by);
@@ -476,9 +489,36 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
                     preview.end = new Date(origin.end.getTime() + by);
                 }
                 if (models.view === 'timeline') preview.resourceId = resources()[at.resource]?.id ?? origin.resourceId;
-            } else if (origin.allDay) preview.end = maxDate(addDays(startOfDay(at.at), 1), addDays(startOfDay(origin.start), 1));
-            else if (dayBased) preview.end = maxDate(shiftDays(origin.end, dayDiff(origin.end, at.at)), addMinutes(origin.start, set.snap));
-            else preview.end = maxDate(at.at, addMinutes(origin.start, set.snap));
+            } else if (drag.kind === 'resize') {
+                const edge = drag.edge;
+                if (edge === 'top') {
+                    const nextStart = minDate(at.at, addMinutes(origin.end, -set.snap));
+                    preview.start = nextStart;
+                    preview.end = origin.end;
+                } else if (edge === 'bottom') {
+                    const nextEnd = maxDate(at.at, addMinutes(origin.start, set.snap));
+                    preview.start = origin.start;
+                    preview.end = nextEnd;
+                } else if (edge === 'start') {
+                    if (dayBased) {
+                        const nextStart = minDate(startOfDay(at.at), addDays(startOfDay(origin.end), -1));
+                        preview.start = nextStart;
+                        preview.end = origin.end;
+                    } else {
+                        const nextStart = minDate(at.at, addMinutes(origin.end, -set.snap));
+                        preview.start = nextStart;
+                        preview.end = origin.end;
+                    }
+                } else {
+                    if (origin.allDay || dayBased) {
+                        preview.start = origin.start;
+                        preview.end = maxDate(addDays(startOfDay(at.at), 1), addDays(startOfDay(origin.start), 1));
+                    } else {
+                        preview.start = origin.start;
+                        preview.end = maxDate(at.at, addMinutes(origin.start, set.snap));
+                    }
+                }
+            }
             drag = { ...drag, preview };
             render();
         },
@@ -501,12 +541,12 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         cellDrag.press(event, readCell(el));
     }
 
-    function eventPointerdown(event: PointerEvent, occurrence: Occurrence, kind: 'move' | 'resize') {
+    function eventPointerdown(event: PointerEvent, occurrence: Occurrence, kind: 'move' | 'resize', edge?: 'top' | 'bottom' | 'start' | 'end') {
         if (!isEditable(occurrence, settings())) return;
         const anchor = hit(event.clientX, event.clientY);
         if (!anchor) return;
         if (kind === 'resize') event.stopPropagation();
-        eventDrag.press(event, { occurrence, kind, anchor });
+        eventDrag.press(event, { occurrence, kind, anchor, edge: edge ?? (kind === 'resize' ? 'bottom' : undefined) });
     }
 
     // ---- "+N more" ---------------------------------------------------------------------

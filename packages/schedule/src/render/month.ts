@@ -2,7 +2,7 @@ import { addDays, formatMessage, isSameDay, layoutDaySpans, visuallyHidden, week
 import { h, mergeAttrs, type Child } from '@vitral/dom';
 import type { Occurrence, ScheduleCell } from '../engine/types';
 import { pct, type ViewContext } from './context';
-import { eventView } from './event';
+import { eventView, type ResizerEdge } from './event';
 
 /**
  * The month view: six weeks as rows of day cells. Every event covering a day
@@ -112,7 +112,10 @@ export function monthView(context: ViewContext): Child {
                                               variant: 'span',
                                               continuesBefore: placement.continuesBefore,
                                               continuesAfter: placement.continuesAfter,
-                                              resize: placement.continuesAfter ? null : 'end',
+                                              resizers: [
+                                                  placement.continuesBefore ? null : 'start',
+                                                  placement.continuesAfter ? null : 'end'
+                                              ].filter((e): e is ResizerEdge => e !== null),
                                               style: spanStyle(placement)
                                           })
                                       )

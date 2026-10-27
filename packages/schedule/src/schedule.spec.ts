@@ -287,6 +287,53 @@ describe('its pointer', () => {
         expect(standup().classList.contains('vt-schedule-event-dragging')).toBe(false);
     });
 
+    it('resizes a timed event from the top handle to change start time', async () => {
+        const changed = vi.fn();
+        const { element, eventButtons } = mount({ minTime: '08:00', maxTime: '12:00', on: { 'event-change': changed } });
+        const cell = (day: number, hour: number) => element.querySelector<HTMLElement>(`[data-vt-slot="${new Date(2026, 2, day, hour, 0).getTime()}"]`)!;
+        const now = stub([cell(9, 9), cell(9, 8)]);
+        const standup = () => eventButtons().find((button) => button.textContent?.includes('Standup'))!;
+        const topResizer = standup().querySelector<HTMLElement>('.vt-schedule-resizer-top')!;
+        expect(topResizer).toBeTruthy();
+        topResizer.dispatchEvent(at('pointerdown'));
+        now(cell(9, 8));
+        document.dispatchEvent(at('pointermove', 5, 10));
+        document.dispatchEvent(at('pointerup', 5, 10));
+        await settle();
+        expect(changed).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'resize',
+                start: new Date(2026, 2, 9, 8, 15),
+                end: new Date(2026, 2, 9, 9, 30),
+                via: 'pointer'
+            })
+        );
+    });
+
+    it('resizes an all-day event from the start handle', async () => {
+        const changed = vi.fn();
+        const { element } = mount({ on: { 'event-change': changed } });
+        const offsite = element.querySelector<HTMLButtonElement>('[data-vt-event="3"]')!;
+        const startResizer = offsite.querySelector<HTMLElement>('.vt-schedule-resizer-start')!;
+        expect(startResizer).toBeTruthy();
+        const headerCell = (day: number) =>
+            element.querySelector<HTMLElement>(`[data-vt-slot="${new Date(2026, 2, day).getTime()}"][data-vt-allday="true"]`)!;
+        const now = stub([headerCell(11), headerCell(10)]);
+        startResizer.dispatchEvent(at('pointerdown'));
+        now(headerCell(10));
+        document.dispatchEvent(at('pointermove', 5, 10));
+        document.dispatchEvent(at('pointerup', 5, 10));
+        await settle();
+        expect(changed).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'resize',
+                start: new Date(2026, 2, 10),
+                end: new Date(2026, 2, 13),
+                via: 'pointer'
+            })
+        );
+    });
+
     it('presses empty time to report it', () => {
         const clicked = vi.fn();
         const { element } = mount({ minTime: '08:00', maxTime: '12:00', on: { 'date-click': clicked } });
@@ -419,3 +466,34 @@ describe('a filtered schedule', () => {
         expect(titles()).toHaveLength(5);
     });
 });
+
+describe('week view overlapping events and multi-day spans', () => {
+    it('renders multi-day timed events as horizontal spans in the all-day row', () => {
+        const spanTimedEvent: ScheduleEvent = {
+            id: 'long',
+            title: 'Hackathon',
+            start: new Date(2026, 2, 9, 10, 0),
+            end: new Date(2026, 2, 11, 18, 0)
+        };
+        const { element } = mount({ events: [spanTimedEvent] });
+        const hackathon = element.querySelector('[data-vt-event="long"]');
+        expect(hackathon).toBeTruthy();
+        const allDayRow = element.querySelector('.vt-schedule-allday-row');
+        expect(allDayRow?.contains(hackathon)).toBe(true);
+    });
+
+    it('limits columns and renders a +N more button when multiple events overlap at the same time', () => {
+        const overlaps: ScheduleEvent[] = [
+            { id: 'o1', title: 'Task 1', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
+            { id: 'o2', title: 'Task 2', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
+            { id: 'o3', title: 'Task 3', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
+            { id: 'o4', title: 'Task 4', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) },
+            { id: 'o5', title: 'Task 5', start: new Date(2026, 2, 9, 14, 0), end: new Date(2026, 2, 9, 16, 0) }
+        ];
+        const { element } = mount({ events: overlaps });
+        const moreBtn = element.querySelector<HTMLButtonElement>('.vt-schedule-more-button.vt-schedule-timed');
+        expect(moreBtn).toBeTruthy();
+        expect(moreBtn?.textContent?.trim()).toContain('more');
+    });
+});
+

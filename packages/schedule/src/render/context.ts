@@ -57,7 +57,7 @@ export interface ViewActions {
     gridKeydown: (event: KeyboardEvent) => void;
     eventClick: (event: Event, occurrence: Occurrence) => void;
     eventKeydown: (event: KeyboardEvent, occurrence: Occurrence) => void;
-    eventPointerdown: (event: PointerEvent, occurrence: Occurrence, kind: 'move' | 'resize') => void;
+    eventPointerdown: (event: PointerEvent, occurrence: Occurrence, kind: 'move' | 'resize', edge?: 'top' | 'bottom' | 'start' | 'end') => void;
     showMore: (event: Event, day: Date) => void;
     /** The element the view scrolls, as it is drawn. */
     scroller: (element: Element | null) => void;

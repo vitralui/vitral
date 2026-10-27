@@ -2,7 +2,7 @@ import { addMinutes, fractionOf, isSameDay, layoutLanes, visuallyHidden } from '
 import { h, mergeAttrs, type Child } from '@vitral/dom';
 import type { Occurrence, ScheduleCell } from '../engine/types';
 import { content, pct, type ViewContext } from './context';
-import { eventView } from './event';
+import { eventView, type ResizerEdge } from './event';
 
 /**
  * The timeline: one row per resource, time running across. A row grows to fit
@@ -125,7 +125,10 @@ export function timelineView(context: ViewContext): Child {
                                               variant: 'lane',
                                               continuesBefore: placement.clippedStart,
                                               continuesAfter: placement.clippedEnd,
-                                              resize: placement.clippedEnd ? null : 'end',
+                                              resizers: [
+                                                  placement.clippedStart ? null : 'start',
+                                                  placement.clippedEnd ? null : 'end'
+                                              ].filter((e): e is ResizerEdge => e !== null),
                                               style: eventStyle(placement)
                                           })
                                       ),

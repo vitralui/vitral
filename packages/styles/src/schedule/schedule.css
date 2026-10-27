@@ -314,10 +314,23 @@
 }
 
 .vt-schedule-event-timed {
+    min-height: var(--vt-schedule-event-height);
     flex-flow: row wrap;
     align-content: flex-start;
     gap: 0 0.25rem;
     white-space: normal;
+}
+
+.vt-schedule-event-timed.vt-schedule-event-short {
+    flex-flow: row nowrap;
+    align-items: center;
+    align-content: center;
+    white-space: nowrap;
+}
+
+.vt-schedule-event-timed.vt-schedule-event-short .vt-schedule-event-time {
+    font-size: 0.85em;
+    opacity: 0.8;
 }
 
 .vt-schedule-event-timed .vt-schedule-event-title {
@@ -366,12 +379,26 @@
 .vt-schedule-resizer {
     position: absolute;
     touch-action: none;
+    z-index: 5;
+}
+
+.vt-schedule-resizer-top {
+    inset: 0 0 auto 0;
+    height: var(--vt-schedule-event-resizer-size);
+    cursor: ns-resize;
 }
 
 .vt-schedule-resizer-bottom {
     inset: auto 0 0 0;
     height: var(--vt-schedule-event-resizer-size);
     cursor: ns-resize;
+}
+
+.vt-schedule-resizer-start {
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--vt-schedule-event-resizer-size);
+    cursor: ew-resize;
 }
 
 .vt-schedule-resizer-end {
@@ -456,6 +483,22 @@
     font-weight: 600;
     text-align: start;
     cursor: pointer;
+}
+
+.vt-schedule-more-button.vt-schedule-timed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--vt-schedule-month-more-hover-background);
+    border: 1px dashed var(--vt-schedule-slot-border-color);
+    color: var(--vt-schedule-event-color);
+    z-index: 3;
+}
+
+.vt-schedule-more-button.vt-schedule-timed:hover {
+    background: var(--vt-schedule-slot-hover-background);
+    border-color: var(--vt-schedule-slot-hour-border-color);
 }
 
 .vt-schedule-more-button:hover {

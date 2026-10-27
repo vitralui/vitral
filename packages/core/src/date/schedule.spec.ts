@@ -77,6 +77,20 @@ describe('layouts', () => {
         expect(q!.height).toBeCloseTo(0.5 / 8);
     });
 
+    it('caps overlapping columns at maxColumns and produces a hiddenCount placement', () => {
+        const a = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const b = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const c = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const e = { s: d(9, 14, 9), e: d(9, 14, 11) };
+        const out = layoutTimedEvents([a, b, c, e], range, d(9, 14, 8), d(9, 14, 16), 0, 3);
+        expect(out).toHaveLength(3);
+        expect(out[0]!.columns).toBe(3);
+        expect(out[0]!.column).toBe(0);
+        expect(out[1]!.columns).toBe(3);
+        expect(out[1]!.column).toBe(1);
+        expect(out[2]!).toMatchObject({ column: 2, columns: 3, hiddenCount: 2 });
+    });
+
     it('packs day spans into rows, longest first, marking what runs past the week', () => {
         const long = { s: d(9, 12), e: d(9, 16) };
         const one = { s: d(9, 14), e: d(9, 15) };
