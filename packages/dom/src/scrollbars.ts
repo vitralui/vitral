@@ -340,6 +340,17 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     }
     const view = doc.defaultView;
 
+    /*
+     * A box that slides or grows into place moves without changing size, and
+     * so does one whose drawer or dialog slides in: the transform that ends
+     * is often an ancestor's, and ending it changes what the layer is placed
+     * against. Listened to on the document, so the ancestor's end reaches here.
+     */
+    const onMotionEnd = (event: Event) => {
+        const target = event.target;
+        if (target instanceof Node && (target === el || target.contains(el) || el.contains(target))) schedule();
+    };
+
     el.setAttribute(SCROLLBARS_ATTRIBUTE, '');
     el.addEventListener('scroll', onScroll, { passive: true });
     el.addEventListener('pointerenter', onEnter);
@@ -348,11 +359,10 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     layer.addEventListener('pointerleave', onLeave);
     el.addEventListener('focusin', onFocusIn);
     el.addEventListener('focusout', onFocusOut);
-    // A box that slides or grows into place moves without changing size.
-    el.addEventListener('transitionend', schedule);
+    doc.addEventListener('transitionend', onMotionEnd, true);
+    doc.addEventListener('animationend', onMotionEnd, true);
     // An image or a video inside that finishes loading: `load` does not bubble, but it can be caught.
     el.addEventListener('load', schedule, true);
-    el.addEventListener('animationend', schedule);
     view?.addEventListener('resize', schedule);
     mutations?.observe(el, { childList: true, subtree: true, characterData: true });
     watchChildren();
@@ -451,9 +461,9 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
             el.removeEventListener('pointerleave', onLeave);
             el.removeEventListener('focusin', onFocusIn);
             el.removeEventListener('focusout', onFocusOut);
-            el.removeEventListener('transitionend', schedule);
+            doc.removeEventListener('transitionend', onMotionEnd, true);
+            doc.removeEventListener('animationend', onMotionEnd, true);
             el.removeEventListener('load', schedule, true);
-            el.removeEventListener('animationend', schedule);
             view?.removeEventListener('resize', schedule);
             doc.removeEventListener('scroll', onOuterScroll, { capture: true });
             layer.remove();
