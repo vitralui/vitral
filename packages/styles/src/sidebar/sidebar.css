@@ -164,6 +164,9 @@
     flex-direction: column;
     gap: var(--vt-sidebar-gap);
     min-height: 0;
+    /* The scroll box reaches the sidebar's edge: its bar sits against the border, not a padding inside it. */
+    margin-inline-end: calc(-1 * var(--vt-sidebar-padding));
+    padding-inline-end: var(--vt-sidebar-padding);
     overflow-x: hidden;
     overflow-y: auto;
 }
