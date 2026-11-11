@@ -52,6 +52,39 @@
     overflow: hidden;
 }
 
+/*
+ * One height for the month, the week and the day, when the page sets
+ * `--vt-schedule-height` (and a `scroll-height` no smaller): switching views then
+ * does not move what is under the calendar. The week and the day fill it with
+ * their hours; the month stretches its weeks, and scrolls inside when a busy
+ * month needs more. Unset, every view keeps its own height.
+ */
+.vt-schedule-grid:not(.vt-schedule-grid-timeline) {
+    display: flex;
+    flex-direction: column;
+    height: var(--vt-schedule-height, auto);
+}
+
+.vt-schedule-grid:not(.vt-schedule-grid-timeline) > .vt-schedule-body,
+.vt-schedule-month-body {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.vt-schedule-grid:not(.vt-schedule-grid-timeline) > .vt-schedule-head {
+    flex: none;
+}
+
+.vt-schedule-month-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.vt-schedule-month-body > .vt-schedule-week {
+    flex: 1 0 auto;
+}
+
 .vt-schedule-head {
     overflow: hidden;
     scrollbar-gutter: stable;
@@ -83,8 +116,13 @@
     color: var(--vt-schedule-header-today-color);
 }
 
+/*
+ * The pill's padding is taken back by the margin, so the week's header row is
+ * as tall as the month's and the day's: the row must not jump between views.
+ */
 .vt-schedule-day-link {
     padding: 0.125rem 0.375rem;
+    margin-block: -0.125rem;
     border: 0;
     border-radius: var(--vt-schedule-event-border-radius);
     background: transparent;
