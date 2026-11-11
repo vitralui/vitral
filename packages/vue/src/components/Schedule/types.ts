@@ -116,7 +116,12 @@ export interface ScheduleProps extends BaseProps, ScrollbarProps {
     eventMaxStack?: number;
     /** Alias for `eventMaxStack`. */
     maxOverlappingEvents?: number;
-    /** Height of the scrolling area of the week, day and timeline views. Defaults to `'36rem'`. */
+    /**
+     * Height of the scrolling area of the week, day and timeline views. Defaults to `'36rem'`.
+     * For one height across the month, the week and the day — so switching views does not
+     * move the page — set the CSS variable `--vt-schedule-height` on the component: every
+     * view but the timeline fills it, and the month scrolls inside when a week is busy.
+     */
     scrollHeight?: string;
 }
 

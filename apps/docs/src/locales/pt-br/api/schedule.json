@@ -21,7 +21,7 @@
         "maxEventsPerDay": "Eventos mostrados numa célula do mês antes de \"+N more\". O padrão é 3.",
         "eventMaxStack": "Número máximo de eventos simultâneos mostrados lado a lado na grade de horários antes de agrupar em \"+N more\". Defina como 1 para exibir 1 item por linha, alinhado com a largura total.",
         "maxOverlappingEvents": "Alias para `eventMaxStack`.",
-        "scrollHeight": "Altura da área rolável das visões de semana, dia e linha do tempo. O padrão é `'36rem'`.",
+        "scrollHeight": "Altura da área rolável das visões de semana, dia e linha do tempo. O padrão é `'36rem'`. Para uma altura só no mês, na semana e no dia — trocar de visão sem mexer a página —, defina a variável CSS `--vt-schedule-height` no componente: toda visão menos a linha do tempo a preenche, e o mês rola por dentro quando uma semana enche.",
         "filter": "Mostra só alguns eventos: palavras procuradas no título, na descrição e no local (sem ligar para maiúsculas e acentos), ou uma função que mantém um evento. Os eventos em si ficam como estão.",
         "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
     },

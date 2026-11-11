@@ -94,7 +94,7 @@ describe('token namespaces', () => {
         const { light, dark } = compileTheme(Prism);
         const known = new Set([...Object.keys(light), ...Object.keys(dark)]);
         // Set per instance or per element, not by the theme.
-        const local = new Set(['--vt-schedule-rows', '--vt-schedule-event-accent', '--vt-chart-origin']);
+        const local = new Set(['--vt-schedule-rows', '--vt-schedule-height', '--vt-schedule-event-accent', '--vt-chart-origin']);
         const root = `${process.cwd()}/packages/`;
         const missing: string[] = [];
         for (const name of ['Chart', 'Schedule', 'Taskboard', 'Editor', 'Form']) {
