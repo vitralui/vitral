@@ -3,11 +3,13 @@ import { Tag } from '@vitral/vue';
 import { computed, provide } from 'vue';
 import { categoryName } from '../demo';
 import { entries, entryOf, entryText, sectionText } from '../lib/catalog';
+import { componentChange, memberChange } from '../lib/changes';
 import { T, t } from '../lib/i18n';
 import { apiOf, memberDoc } from '../lib/api';
 import { route, href } from '../lib/router';
 import { demoSourcesKey, slugify } from '../lib/section';
 import { sectionSources } from '../lib/source';
+import ChangeBadge from '../parts/ChangeBadge.vue';
 import CodeBlock from '../parts/CodeBlock.vue';
 import PageEnd from '../parts/PageEnd.vue';
 import Toc from '../parts/Toc.vue';
@@ -44,6 +46,7 @@ const toc = computed(() => [
             <p v-if="text.description">{{ text.description }}</p>
             <div class="doc-head-links">
                 <Tag :value="t('WAI-ARIA tested')" severity="success" />
+                <ChangeBadge :change="componentChange(entry.file)" detail />
             </div>
         </div>
 
@@ -71,7 +74,7 @@ const toc = computed(() => [
                     </thead>
                     <tbody>
                         <tr v-for="prop in api.props" :key="prop.name">
-                            <td>{{ prop.name }}{{ prop.optional ? '' : ' *' }}</td>
+                            <td>{{ prop.name }}{{ prop.optional ? '' : ' *' }} <ChangeBadge :change="memberChange(entry.file, 'props', prop.name)" detail /></td>
                             <td class="type">{{ prop.type }}</td>
                             <td class="doc">{{ memberDoc(entry.file, 'props', prop) ?? '—' }}</td>
                         </tr>
@@ -95,7 +98,7 @@ const toc = computed(() => [
                     </thead>
                     <tbody>
                         <tr v-for="event in api.emits" :key="event.name">
-                            <td>{{ event.name }}</td>
+                            <td>{{ event.name }} <ChangeBadge :change="memberChange(entry.file, 'emits', event.name)" detail /></td>
                             <td class="type">{{ event.type }}</td>
                             <td class="doc">{{ memberDoc(entry.file, 'emits', event) ?? '—' }}</td>
                         </tr>
@@ -115,7 +118,7 @@ const toc = computed(() => [
                     </thead>
                     <tbody>
                         <tr v-for="slot in api.slots" :key="slot.name">
-                            <td>{{ slot.name }}</td>
+                            <td>{{ slot.name }} <ChangeBadge :change="memberChange(entry.file, 'slots', slot.name)" detail /></td>
                             <td class="type">{{ slot.type }}</td>
                             <td class="doc">{{ memberDoc(entry.file, 'slots', slot) ?? '—' }}</td>
                         </tr>

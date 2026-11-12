@@ -1415,6 +1415,31 @@ a {
     color: var(--vt-text-muted-color);
 }
 
+/* "New" and "Updated", beside a component's name or a prop's: smaller than a
+   tag on its own, and in the page's face where the name beside it is code. */
+.change-badge.vt-tag {
+    padding: 0.0625rem 0.375rem;
+    font-family: var(--vt-font-family);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.doc-head-links .change-badge.vt-tag {
+    padding: var(--vt-tag-padding);
+    font-size: var(--vt-tag-font-size);
+    font-weight: var(--vt-tag-font-weight);
+    line-height: var(--vt-tag-line-height);
+}
+
+.pane a .change-badge {
+    margin-inline-start: auto;
+}
+
+.api-table .change-badge {
+    margin-inline-start: 0.25rem;
+}
+
 /* ------------------------------------------------------------- the swatches */
 
 .swatch {
@@ -3561,7 +3586,7 @@ a {
     outline-offset: var(--vt-focus-ring-offset);
 }
 
-.components-card span {
+.components-card > span {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;

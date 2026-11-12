@@ -326,5 +326,11 @@
     "Package manager: {name}": "Gerenciador de pacotes: {name}",
     "Package manager": "Gerenciador de pacotes",
     "Tour": "Tour",
-    "Guided tours with steps that wait, skip and move on by themselves": "Tours guiados com passos que esperam, pulam e avançam sozinhos"
+    "Guided tours with steps that wait, skip and move on by themselves": "Tours guiados com passos que esperam, pulam e avançam sozinhos",
+    "New": "Novo",
+    "Updated": "Atualizado",
+    "New in {version}": "Novo na {version}",
+    "Updated in {version}": "Atualizado na {version}",
+    "New in the next release": "Novo na próxima versão",
+    "Updated in the next release": "Atualizado na próxima versão"
 }

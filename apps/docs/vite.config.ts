@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import { aliases } from '../../aliases.ts';
+import { changes } from '../../scripts/changes.ts';
 import { cssFallbacks } from '../../scripts/css-fallbacks.ts';
 import { sfcMeta } from '../../scripts/sfc-meta.ts';
 import { vitralVue } from '../../scripts/vue-plugin.ts';
@@ -12,7 +13,7 @@ import { vitralVue } from '../../scripts/vue-plugin.ts';
 const workspace = fileURLToPath(new URL('../..', import.meta.url));
 
 export default defineConfig(({ command }) => ({
-    plugins: [sfcMeta(), vitralVue(), cssFallbacks()],
+    plugins: [sfcMeta(), changes(), vitralVue(), cssFallbacks()],
     resolve: { alias: aliases },
     server: { port: 5180, fs: { allow: [workspace] } },
     // The guides quote `import` statements inside code samples, and the dev

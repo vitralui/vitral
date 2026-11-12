@@ -2,10 +2,12 @@
 import { Icon } from '@vitral/vue';
 import { categoryName } from '../demo';
 import { entryText, sections } from '../lib/catalog';
+import { componentChange } from '../lib/changes';
 import { guideSections, guideText, sectionName } from '../lib/guides';
 import { t } from '../lib/i18n';
 import { href, route } from '../lib/router';
 import AddonNav from './AddonNav.vue';
+import ChangeBadge from './ChangeBadge.vue';
 
 /**
  * Every page of a section, grouped: the guides, or the components with the
@@ -33,6 +35,7 @@ defineProps<{ docs: boolean }>();
             <h2>{{ categoryName(group.category) }}</h2>
             <a v-for="entry in group.items" :key="entry.id" :href="href(`/components/${entry.id}`)" :aria-current="route.id === entry.id ? 'page' : undefined">
                 {{ entryText(entry).title }}
+                <ChangeBadge :change="componentChange(entry.file)" />
             </a>
         </template>
     </template>

@@ -3,8 +3,10 @@ import { IconField, InputIcon, InputText } from '@vitral/vue';
 import { computed, ref } from 'vue';
 import { categoryName } from '../demo';
 import { entries, entryText, sections } from '../lib/catalog';
+import { componentChange } from '../lib/changes';
 import { t } from '../lib/i18n';
 import { href } from '../lib/router';
+import ChangeBadge from '../parts/ChangeBadge.vue';
 
 /**
  * The whole catalogue on one page, by category. `/components` used to open
@@ -52,7 +54,7 @@ const count = computed(() => groups.value.reduce((total, group) => total + group
             <ul class="components-grid">
                 <li v-for="{ entry, text } in group.items" :key="entry.id">
                     <a :href="href(`/components/${entry.id}`)" class="components-card">
-                        <b>{{ text.title }}</b>
+                        <b>{{ text.title }} <ChangeBadge :change="componentChange(entry.file)" /></b>
                         <span v-if="text.description">{{ text.description }}</span>
                     </a>
                 </li>

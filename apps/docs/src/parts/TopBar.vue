@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { track } from '../lib/analytics';
+import { version } from '../lib/changes';
 import { t } from '../lib/i18n';
 import { href } from '../lib/router';
 import { Button, Icon, useTheme } from '@vitral/vue';
@@ -80,7 +81,7 @@ function toggleDark() {
             <a ref="brand" class="brand" :href="href('/')">
                 <span class="brand-mark" aria-hidden="true" />
                 Vitral
-                <span class="brand-version">0.2</span>
+                <span class="brand-version">{{ version }}</span>
             </a>
 
             <!-- Kept mounted while the search is open, so the drawer's state and the
