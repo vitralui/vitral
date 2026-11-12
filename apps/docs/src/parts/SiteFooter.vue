@@ -57,6 +57,7 @@ const explore = computed(() => [
             <div>
                 <h4>{{ t('Project') }}</h4>
                 <ul>
+                    <li><a :href="href('/releases')">{{ t("What's new") }}</a></li>
                     <li><a :href="href('/docs/contributing')">{{ t('Contributing') }}</a></li>
                     <li><a :href="`${base}/llms.txt`">llms.txt</a></li>
                     <li><a href="https://github.com/vitralui/vitral" target="_blank" rel="noreferrer">GitHub</a></li>

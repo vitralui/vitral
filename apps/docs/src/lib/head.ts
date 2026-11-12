@@ -109,6 +109,13 @@ function headOf(): PageHead {
             kind: 'CollectionPage'
         };
     }
+    if (name === 'releases') {
+        return {
+            title: t("What's new"),
+            description: metaDescription(t('Every release of Vitral, newest first: the components it added, the ones it changed, and the props, events and slots that came with them.')),
+            kind: 'CollectionPage'
+        };
+    }
     if (name === 'not-found') return notFound();
     if (name === 'charts') {
         return {

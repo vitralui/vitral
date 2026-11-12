@@ -4,7 +4,9 @@ import { iconList } from '@vitral/icons/registry';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../packages/vue/test/a11y';
 import App from './App.vue';
-import { entries } from './lib/catalog';
+import { releases } from 'virtual:vitral-releases';
+import { entries, entryOf } from './lib/catalog';
+import { componentChange } from './lib/changes';
 import { themes } from './lib/presets';
 import { direction, presetId } from './lib/theme';
 import { navigate } from './lib/router';
@@ -294,6 +296,28 @@ describe('the site', () => {
         const links = wrapper.findAll('.components-card').map((link) => link.attributes('href'));
         expect(links).toHaveLength(entries.length);
         for (const entry of entries) expect(links).toContain(`/components/${entry.id}/`);
+    });
+
+    it('keeps only what the last few releases touched when asked, at /components', async () => {
+        const wrapper = await mountSite('/components');
+        const recent = entries.filter((entry) => componentChange(entry.file));
+        const toggle = wrapper.find('.components-recent');
+        // A checkout without the release tags has no history, and then no filter.
+        expect(toggle.exists()).toBe(recent.length > 0);
+        if (!recent.length) return;
+        expect(wrapper.findAll('.components-card .change-badge')).toHaveLength(recent.length);
+        await toggle.trigger('click');
+        expect(wrapper.findAll('.components-card').map((link) => link.attributes('href'))).toEqual(recent.map((entry) => `/components/${entry.id}/`).sort());
+    });
+
+    it('lists every release at /releases, each component linked to its page', async () => {
+        const wrapper = await mountSite('/releases');
+        expect(wrapper.find('.releases-page h1').text()).toBe("What's new");
+        expect(wrapper.findAll('.release')).toHaveLength(releases.length);
+        expect(wrapper.find('.brand-version').attributes('href')).toBe('/releases/');
+        expect(wrapper.find('.brand-version').attributes('aria-current')).toBe('page');
+        for (const link of wrapper.findAll('.release a')) expect(entryOf(link.attributes('href')!.split('/')[2]!)).toBeDefined();
+        await expectNoA11yViolations(wrapper.find('.releases-page').element);
     });
 
     it("opens the pane as a drawer from the bar under the site's, and closes it on the way to a page", async () => {

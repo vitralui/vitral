@@ -29,6 +29,7 @@ interface Hit {
 const all = computed<Hit[]>(() => [
     { label: t('Components'), hint: t('Reference'), path: '/components' },
     { label: t('Icons'), hint: t('Reference'), path: '/icons' },
+    { label: t("What's new"), hint: t('Reference'), path: '/releases' },
     { label: 'Templates', hint: t('Gallery'), path: '/templates' },
     ...templates.map((entry) => ({ label: entry.name, hint: t('{category} template', { category: templateText(entry).category }), path: `/templates/${entry.id}` })),
     ...guides.map((guide) => ({ label: guideText(guide).title, hint: sectionName(guide.meta.section), path: `/docs/${guide.id}` })),

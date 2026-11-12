@@ -7,3 +7,10 @@ declare module 'virtual:vitral-changes' {
     /** What the last few releases added and changed, by component folder (`Button`). */
     export const components: Record<string, ComponentChange>;
 }
+
+declare module 'virtual:vitral-releases' {
+    import type { Release } from '../../../scripts/changes';
+
+    /** Every release, newest first, with what it added and changed. */
+    export const releases: Release[];
+}

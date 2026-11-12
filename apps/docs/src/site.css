@@ -101,13 +101,28 @@ a {
     box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12) inset;
 }
 
+/* Beside the brand rather than inside it: it is a link of its own, to what the
+   version brought. The margin takes back half of the bar's gap. */
 .brand-version {
+    margin-inline-start: -0.5rem;
+    text-decoration: none;
     padding: 0.0625rem 0.375rem;
     border-radius: 999px;
     border: 1px solid var(--vt-content-border-color);
     font-size: 0.6875rem;
     font-weight: 500;
     color: var(--vt-text-muted-color);
+}
+
+.brand-version:hover,
+.brand-version[aria-current='page'] {
+    color: var(--vt-text-color);
+    border-color: var(--vt-form-field-hover-border-color);
+}
+
+.brand-version:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
 }
 
 .top-nav {
@@ -3527,9 +3542,164 @@ a {
     padding: 2.25rem var(--site-gutter) 5rem;
 }
 
-.components-search {
-    max-width: 28rem;
+.releases-page {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 2.25rem var(--site-gutter) 5rem;
+}
+
+.release {
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--vt-content-border-color);
+    scroll-margin-top: calc(var(--site-sticky) + 1rem);
+}
+
+.release header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.release h2 {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+}
+
+.release time,
+.release-quiet {
+    font-size: 0.875rem;
+    color: var(--vt-text-muted-color);
+}
+
+.release-summary {
+    margin: 0.5rem 0 0;
+    line-height: 1.6;
+}
+
+.release-summary::first-letter {
+    text-transform: uppercase;
+}
+
+.release-quiet {
+    margin: 0.5rem 0 0;
+}
+
+.release h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--vt-text-muted-color);
+}
+
+.release ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.release-new {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.release-new li > * {
+    display: block;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--vt-text-color);
+    text-decoration: none;
+}
+
+.release-new a:hover {
+    border-color: color-mix(in srgb, var(--vt-primary-color) 45%, var(--vt-content-border-color));
+}
+
+.release-changed li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 0.75rem;
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+}
+
+.release-changed li > :first-child {
+    min-width: 10rem;
+    font-weight: 500;
+    color: var(--vt-text-color);
+    text-decoration: none;
+}
+
+.release-changed a:hover {
+    color: var(--vt-primary-color);
+}
+
+.release a:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.release-member {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.release-member small {
+    font-size: 0.6875rem;
+    color: var(--vt-text-muted-color);
+}
+
+.release-member code {
+    font-family: var(--vt-font-family-mono);
+    font-size: 0.8125rem;
+    color: var(--vt-primary-color);
+}
+
+.components-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
     margin: 0 0 2rem;
+}
+
+.components-search {
+    flex: 1 1 16rem;
+    max-width: 28rem;
+}
+
+.components-recent small {
+    margin-inline-start: 0.25rem;
+    font-weight: 600;
+    opacity: 0.7;
+}
+
+.components-news {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-inline-start: auto;
+    font-size: 0.875rem;
+    color: var(--vt-text-muted-color);
+    text-decoration: none;
+}
+
+.components-news:hover {
+    color: var(--vt-primary-color);
+}
+
+.components-news .vt-icon {
+    width: 0.875rem;
+    height: 0.875rem;
 }
 
 .components-group {

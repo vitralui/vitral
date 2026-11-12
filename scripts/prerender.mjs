@@ -54,6 +54,7 @@ const pages = [
     '/',
     '/icons',
     '/charts',
+    '/releases',
     '/components',
     '/templates',
     // Not a page anyone links to: rendered so the host has a 404 to serve.
@@ -409,6 +410,7 @@ function writeText(pages) {
         `- [Everything in one file](${origin}${base}llms-full.txt): every page above, concatenated.`,
         `- [Icons](${origin}${base}icons/): the icon set, searchable on the site.`,
         `- [Charts](${origin}${base}charts/): every kind of chart, drawn live with the options behind each one.`,
+        `- [What's new](${origin}${base}releases/): every release, with the components and props it added and changed.`,
         ''
     ].join('\n');
     writeFileSync(join(dist, 'llms.txt'), index);

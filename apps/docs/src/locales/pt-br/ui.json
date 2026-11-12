@@ -332,5 +332,17 @@
     "New in {version}": "Novo na {version}",
     "Updated in {version}": "Atualizado na {version}",
     "New in the next release": "Novo na próxima versão",
-    "Updated in the next release": "Atualizado na próxima versão"
+    "Updated in the next release": "Atualizado na próxima versão",
+    "What's new": "Novidades",
+    "Releases": "Versões",
+    "Version {version}: what is new": "Versão {version}: novidades",
+    "Every release of Vitral, newest first: the components it added, the ones it changed, and the props, events and slots that came with them.": "Todas as versões do Vitral, da mais recente à mais antiga: os componentes que cada uma trouxe, os que alterou e as props, eventos e slots que vieram junto.",
+    "Every release, newest first: the components it added, the ones it changed, and the props, events and slots that came with them. Read from the release tags and the components' own types, not written by hand.": "Todas as versões, da mais recente à mais antiga: os componentes que cada uma trouxe, os que alterou e as props, eventos e slots que vieram junto. Lido das tags de versão e dos tipos dos próprios componentes, não escrito à mão.",
+    "This build has no release history to read.": "Esta build não tem histórico de versões para ler.",
+    "Next release": "Próxima versão",
+    "New components": "Componentes novos",
+    "Updated components": "Componentes atualizados",
+    "Nothing changed in the components themselves.": "Nada mudou nos componentes em si.",
+    "New and updated": "Novos e atualizados",
+    "Nothing new or updated in the last few releases.": "Nada novo ou atualizado nas últimas versões."
 }

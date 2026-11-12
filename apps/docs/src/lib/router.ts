@@ -8,7 +8,7 @@ import { lang, languages, langs, setLinkResolver, type Lang } from './i18n';
  * `/docs/theming` answers with that page and the application takes over from
  * there.
  *
- * Routes: `/`, `/docs/<id>`, `/components`, `/components/<id>`, `/icons`, `/charts`, `/templates`,
+ * Routes: `/`, `/docs/<id>`, `/components`, `/components/<id>`, `/icons`, `/charts`, `/releases`, `/templates`,
  * `/templates/<id>` and `/templates/<id>/preview`. The last one is the
  * template alone, without the site around it.
  *
@@ -20,7 +20,7 @@ import { lang, languages, langs, setLinkResolver, type Lang } from './i18n';
  * arrival so nothing that was shared before breaks.
  */
 export interface Route {
-    name: 'home' | 'doc' | 'components' | 'component' | 'icons' | 'charts' | 'templates' | 'template' | 'template-preview' | 'not-found';
+    name: 'home' | 'doc' | 'components' | 'component' | 'icons' | 'charts' | 'releases' | 'templates' | 'template' | 'template-preview' | 'not-found';
     id: string;
     path: string;
 }
@@ -133,6 +133,7 @@ function parse(path: string): Route {
     if (section === 'components') return id ? { name: 'component', id, path } : { name: 'components', id: '', path };
     if (section === 'icons') return { name: 'icons', id: '', path };
     if (section === 'charts') return { name: 'charts', id: '', path };
+    if (section === 'releases') return { name: 'releases', id: '', path };
     if (section === 'templates') {
         if (!id) return { name: 'templates', id: '', path };
         return { name: view === 'preview' ? 'template-preview' : 'template', id, path };

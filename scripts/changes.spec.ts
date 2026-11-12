@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { history, type Snapshot } from './changes';
+import { history, releaseNotes, type Snapshot } from './changes';
 
 const types = (name: string, props: string, emits = '') =>
     `export interface ${name}Props extends BaseProps {\n${props}\n}\n\nexport type ${name}Emits = {\n${emits}\n};\n`;
@@ -62,5 +62,28 @@ describe('the history of changes', () => {
         expect(history([...steps, snapshot('next', { Button: sized })], 2)).toEqual({
             Button: { status: 'changed', version: 'next', props: { size: { status: 'new', version: 'next' } } }
         });
+    });
+
+    it('tells the same history release by release, newest first', () => {
+        const notes = releaseNotes([
+            snapshot('0.1.0', { Button: button }, { date: '2026-01-01', summary: 'the first release' }),
+            snapshot('0.1.1', { Button: types('Button', '    label?: string | number;\n    rounded?: boolean;'), Tag: types('Tag', '    value?: string;') }, { date: '2026-01-02' }),
+            snapshot('0.1.2', { Button: types('Button', '    label?: string | number;'), Tag: types('Tag', '    value?: string;') }),
+            snapshot('next', { Button: types('Button', '    label?: string | number;'), Tag: types('Tag', '    value?: string;') })
+        ]);
+        expect(notes).toEqual([
+            // A member that went is a change to the component, though there is nothing left to mark.
+            { version: '0.1.2', date: undefined, summary: undefined, components: [{ name: 'Button', status: 'changed' }] },
+            {
+                version: '0.1.1',
+                date: '2026-01-02',
+                summary: undefined,
+                components: [
+                    { name: 'Button', status: 'changed', props: { label: 'changed', rounded: 'new' } },
+                    { name: 'Tag', status: 'new' }
+                ]
+            },
+            { version: '0.1.0', date: '2026-01-01', summary: 'the first release', components: [] }
+        ]);
     });
 });

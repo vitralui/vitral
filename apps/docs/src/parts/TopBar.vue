@@ -2,7 +2,7 @@
 import { track } from '../lib/analytics';
 import { version } from '../lib/changes';
 import { t } from '../lib/i18n';
-import { href } from '../lib/router';
+import { href, route } from '../lib/router';
 import { Button, Icon, useTheme } from '@vitral/vue';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { REPO_URL } from '../lib/links';
@@ -16,6 +16,8 @@ const theme = useTheme();
 const searchButton = ref<HTMLButtonElement | null>(null);
 const inner = ref<HTMLElement | null>(null);
 const brand = ref<HTMLElement | null>(null);
+/** The version beside the brand, where the bar is wide enough to show it. */
+const versionLink = ref<HTMLElement | null>(null);
 
 /**
  * The search opens out of its own button: the field ends where the button
@@ -28,7 +30,7 @@ const place = ref<Record<string, string>>({});
 
 function measure() {
     const bar = inner.value?.getBoundingClientRect();
-    const mark = brand.value?.getBoundingClientRect();
+    const mark = (versionLink.value?.offsetParent ? versionLink.value : brand.value)?.getBoundingClientRect();
     const button = searchButton.value?.getBoundingClientRect();
     if (!bar || !mark || !button || !inner.value) return;
     const gutter = parseFloat(getComputedStyle(inner.value).paddingInlineStart) || 16;
@@ -81,8 +83,8 @@ function toggleDark() {
             <a ref="brand" class="brand" :href="href('/')">
                 <span class="brand-mark" aria-hidden="true" />
                 Vitral
-                <span class="brand-version">{{ version }}</span>
             </a>
+            <a ref="versionLink" class="brand-version" :href="href('/releases')" :aria-label="t('Version {version}: what is new', { version })" :aria-current="route.name === 'releases' ? 'page' : undefined">{{ version }}</a>
 
             <!-- Kept mounted while the search is open, so the drawer's state and the
                  panels' survive it: the field is laid over them. -->

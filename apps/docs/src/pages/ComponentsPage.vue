@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconField, InputIcon, InputText } from '@vitral/vue';
+import { Icon, IconField, InputIcon, InputText, ToggleButton } from '@vitral/vue';
 import { computed, ref } from 'vue';
 import { categoryName } from '../demo';
 import { entries, entryText, sections } from '../lib/catalog';
@@ -14,6 +14,9 @@ import ChangeBadge from '../parts/ChangeBadge.vue';
  * and in the footer all landed the reader on Button without saying why.
  */
 const query = ref('');
+/** Only what the last few releases added or changed. */
+const recent = ref(false);
+const recentCount = entries.filter((entry) => componentChange(entry.file)).length;
 
 const groups = computed(() => {
     const words = query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -21,6 +24,7 @@ const groups = computed(() => {
         .map((section) => ({
             category: section.category,
             items: section.items
+                .filter((entry) => !recent.value || componentChange(entry.file))
                 .map((entry) => ({ entry, text: entryText(entry) }))
                 .filter(({ entry, text }) => {
                     const haystack = `${entry.id} ${text.title} ${text.description ?? ''} ${categoryName(section.category)}`.toLowerCase();
@@ -41,10 +45,17 @@ const count = computed(() => groups.value.reduce((total, group) => total + group
             <p>{{ t('Every component, by what it is for. Each page has live examples, the markup behind them and the API read from the source.') }}</p>
         </div>
 
-        <IconField class="components-search">
-            <InputIcon icon="search" />
-            <InputText v-model="query" type="search" :placeholder="t('Filter by name or purpose')" :aria-label="t('Filter the components')" fluid />
-        </IconField>
+        <div class="components-filters">
+            <IconField class="components-search">
+                <InputIcon icon="search" />
+                <InputText v-model="query" type="search" :placeholder="t('Filter by name or purpose')" :aria-label="t('Filter the components')" fluid />
+            </IconField>
+            <!-- Without a release history to read (see scripts/changes.ts) there is nothing to filter by. -->
+            <ToggleButton v-if="recentCount" v-model="recent" class="components-recent">
+                {{ t('New and updated') }} <small>{{ recentCount }}</small>
+            </ToggleButton>
+            <a :href="href('/releases')" class="components-news">{{ t("What's new") }} <Icon icon="arrowRight" /></a>
+        </div>
         <p class="vt-sr-only" aria-live="polite">{{ t('{count} components', { count }) }}</p>
 
         <section v-for="group in groups" :key="group.category" class="components-group" :aria-labelledby="`components-${group.category}`">
@@ -61,6 +72,6 @@ const count = computed(() => groups.value.reduce((total, group) => total + group
             </ul>
         </section>
 
-        <p v-if="!groups.length" class="components-empty">{{ t('Nothing matches “{query}”.', { query }) }}</p>
+        <p v-if="!groups.length" class="components-empty">{{ query.trim() ? t('Nothing matches “{query}”.', { query }) : t('Nothing new or updated in the last few releases.') }}</p>
     </main>
 </template>

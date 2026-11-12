@@ -15,5 +15,6 @@ export const pages: Partial<Record<Route['name'], LazyComponent>> = {
     template: lazyComponent(() => import('../pages/TemplatePage.vue')),
     'template-preview': lazyComponent(() => import('../pages/TemplateFullscreen.vue')),
     icons: lazyComponent(() => import('../pages/IconsPage.vue')),
-    charts: lazyComponent(() => import('../pages/ChartsPage.vue'))
+    charts: lazyComponent(() => import('../pages/ChartsPage.vue')),
+    releases: lazyComponent(() => import('../pages/ReleasesPage.vue'))
 };
