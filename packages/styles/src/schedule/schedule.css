@@ -551,15 +551,46 @@
 }
 
 .vt-schedule-more {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: var(--vt-schedule-more-gap);
     width: var(--vt-schedule-more-width);
-    max-width: 100%;
+    max-width: calc(100vw - 1rem);
+    padding: var(--vt-schedule-more-padding);
+    font-family: var(--vt-font-family);
+    font-size: var(--vt-font-size);
+    color: var(--vt-schedule-more-color);
+    background: var(--vt-schedule-more-background);
+    border: 1px solid var(--vt-schedule-more-border-color);
+    border-radius: var(--vt-schedule-more-border-radius);
+    box-shadow: var(--vt-schedule-more-shadow);
+    outline: none;
 }
 
 .vt-schedule-more-title {
+    flex: none;
     font-weight: var(--vt-schedule-more-title-font-weight);
+}
+
+/* The panel's height is the window's (`fitHeight`): the list takes what is left and scrolls. */
+.vt-schedule-more-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vt-schedule-more-gap);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* Each event keeps its height; squeezed, twenty-two bars fit and none can be read. */
+.vt-schedule-more-list > *,
+.vt-schedule-more > * {
+    flex: none;
+}
+
+.vt-schedule-more > .vt-schedule-more-list {
+    flex: 0 1 auto;
 }
 
 /* ---- timeline ---- */

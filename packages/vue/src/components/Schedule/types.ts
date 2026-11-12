@@ -106,7 +106,7 @@ export interface ScheduleProps extends BaseProps, ScrollbarProps {
     agendaDays?: number;
     /** Days the timeline spans. Defaults to 1. */
     timelineDays?: number;
-    /** Events shown in a month cell before "+N more". Defaults to 3. */
+    /** Events shown in a month cell, and rows in the week's and day's all-day row, before "+N more". Defaults to 3. */
     maxEventsPerDay?: number;
     /**
      * Maximum concurrent events shown side-by-side in time grid slots before "+N more".

@@ -102,6 +102,7 @@ export const scheduleStyle = defineStyle({
         eventTitle: 'vt-schedule-event-title',
         resizer: (s: { edge?: 'top' | 'bottom' | 'start' | 'end' }) => ['vt-schedule-resizer', s.edge && `vt-schedule-resizer-${s.edge}`],
         more: 'vt-schedule-more',
-        moreTitle: 'vt-schedule-more-title'
+        moreTitle: 'vt-schedule-more-title',
+        moreList: 'vt-schedule-more-list'
     }
 });

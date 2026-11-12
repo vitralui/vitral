@@ -560,11 +560,18 @@ export function createSchedule(element: HTMLElement, config: ScheduleConfig = {}
         more.open();
     }
 
-    /** The day's full list, in an overlay hanging from the button that asked for it. */
+    /**
+     * The day's full list, in an overlay hanging from the button that asked
+     * for it. A busy day lists more than the window holds: the panel takes the
+     * room on its side and the list scrolls under the day's title.
+     */
     const more = createOverlay({
         anchor: () => moreAnchor,
         render: () => (moreDay && drawn ? moreView(drawn, moreDay) : null),
         placement: 'bottom-start',
+        fitHeight: true,
+        scrollbars: () => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() }),
+        scrollers: (panel) => [panel.querySelector('[data-vt-more-list]')],
         target: () => current.overlayTarget,
         zIndex: current.zIndex,
         onClose: () => {

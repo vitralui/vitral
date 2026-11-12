@@ -377,6 +377,38 @@ describe('a month with more than fits', () => {
     });
 });
 
+describe('a day with more than the window holds', () => {
+    const holiday = Array.from({ length: 22 }, (_, n) => ({ id: `h${n}`, title: `Fair ${n}`, start: new Date(2026, 2, 11), end: new Date(2026, 2, 12), allDay: true }));
+
+    it('lists them in a box of their own that scrolls, under the day', () => {
+        const { element } = mount({ view: 'month', events: holiday });
+        element.querySelector<HTMLButtonElement>('.vt-schedule-more-button')!.click();
+        const dialog = document.querySelector<HTMLElement>('[role="dialog"]')!;
+        const list = dialog.querySelector('[data-vt-more-list]')!;
+        expect(list.classList).toContain('vt-schedule-more-list');
+        expect(list.querySelectorAll('[data-vt-event]')).toHaveLength(22);
+        // The title stays out of the list, so it does not scroll away.
+        expect(list.contains(dialog.querySelector('.vt-schedule-more-title'))).toBe(false);
+    });
+
+    it('keeps the week\'s all-day row to `maxEventsPerDay` rows, the rest behind "+N more"', () => {
+        const { element } = mount({ view: 'week', events: holiday });
+        const row = element.querySelector<HTMLElement>('.vt-schedule-allday-row')!;
+        expect(row.style.getPropertyValue('--vt-schedule-rows')).toBe('3');
+        expect(row.querySelectorAll('[data-vt-event]')).toHaveLength(2);
+        const more = row.querySelector<HTMLButtonElement>('.vt-schedule-more-button')!;
+        expect(more.textContent?.trim()).toBe('+20 more');
+        expect(more.getAttribute('aria-label')).toContain('March 11, 2026');
+        more.click();
+        expect(document.querySelectorAll('[role="dialog"] [data-vt-event]')).toHaveLength(22);
+    });
+
+    it('leaves a week that fits as it was', () => {
+        const { element } = mount({ view: 'week' });
+        expect(element.querySelector('.vt-schedule-allday-row .vt-schedule-more-button')).toBeNull();
+    });
+});
+
 describe('what it says to a reader who cannot see it', () => {
     // The hours are narrowed for the timed views: axe over a whole day of
     // half-hour cells is thousands of nodes, and the structure it checks is

@@ -18,7 +18,7 @@
         "defaultDuration": "Minutos que dura um evento com horário e sem fim. O padrão é 60.",
         "agendaDays": "Dias que a agenda lista. O padrão é 7.",
         "timelineDays": "Dias que a linha do tempo abrange. O padrão é 1.",
-        "maxEventsPerDay": "Eventos mostrados numa célula do mês antes de \"+N more\". O padrão é 3.",
+        "maxEventsPerDay": "Eventos mostrados numa célula do mês, e linhas na faixa \"dia inteiro\" da semana e do dia, antes de \"+N more\". O padrão é 3.",
         "eventMaxStack": "Número máximo de eventos simultâneos mostrados lado a lado na grade de horários antes de agrupar em \"+N more\". Defina como 1 para exibir 1 item por linha, alinhado com a largura total.",
         "maxOverlappingEvents": "Alias para `eventMaxStack`.",
         "scrollHeight": "Altura da área rolável das visões de semana, dia e linha do tempo. O padrão é `'36rem'`. Para uma altura só no mês, na semana e no dia — trocar de visão sem mexer a página —, defina a variável CSS `--vt-schedule-height` no componente: toda visão menos a linha do tempo a preenche, e o mês rola por dentro quando uma semana enche.",

@@ -39,6 +39,13 @@ export interface AnchorOptions {
      * still points the anchor's way for as long as it can.
      */
     stayInView?: boolean;
+    /**
+     * Never taller than the room on the side it ended up on: the popup's
+     * `max-height` follows the window, and what is in it scrolls. A list that
+     * can grow without bound — a day's events — otherwise flips to whichever
+     * side has more room and still runs off the top of the screen.
+     */
+    fitHeight?: boolean;
 }
 
 
@@ -49,7 +56,7 @@ export interface AnchorOptions {
  * point an arrow or pick an animation. Returns the cleanup function.
  */
 export function anchorTo(reference: Element, floating: HTMLElement, options: AnchorOptions = {}): () => void {
-    const { placement = 'bottom-start', alignmentOffset = 0, flip: allowFlip = true, matchWidth = false, strategy = 'fixed', arrowPadding = 8, withArrow = false, autoPlace = false, stayInView = false } = options;
+    const { placement = 'bottom-start', alignmentOffset = 0, flip: allowFlip = true, matchWidth = false, strategy = 'fixed', arrowPadding = 8, withArrow = false, autoPlace = false, stayInView = false, fitHeight = false } = options;
     let arrow = options.arrow;
     let made: HTMLElement | null = null;
     if (withArrow && !arrow) {
@@ -77,6 +84,17 @@ export function anchorTo(reference: Element, floating: HTMLElement, options: Anc
     // off the right of the screen. The limiter stops it sliding so far that it
     // leaves the item it belongs to.
     middleware.push(shift({ padding: 8, crossAxis: true, limiter: stayInView ? undefined : limitShift() }));
+    if (fitHeight) {
+        middleware.push(
+            size({
+                padding: 8,
+                apply({ availableHeight }) {
+                    // A floor, so a cramped window still shows a few rows rather than none.
+                    floating.style.maxHeight = `${Math.max(160, Math.floor(availableHeight))}px`;
+                }
+            })
+        );
+    }
     if (matchWidth) {
         middleware.push(
             size({

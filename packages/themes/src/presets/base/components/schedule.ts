@@ -93,10 +93,17 @@ export default {
         emptyPadding: '2rem',
         emptyColor: '{text.mutedColor}'
     },
+    // The "+N more" panel: a popover's surface, so it reads as one over the grid.
     more: {
         width: '16rem',
         gap: '0.25rem',
-        titleFontWeight: '600'
+        titleFontWeight: '600',
+        padding: '{overlay.popover.padding}',
+        background: '{overlay.popover.background}',
+        borderColor: '{overlay.popover.borderColor}',
+        color: '{overlay.popover.color}',
+        borderRadius: '{overlay.popover.borderRadius}',
+        shadow: '{overlay.popover.shadow}'
     },
     colorScheme: {
         light: {

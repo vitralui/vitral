@@ -40,13 +40,24 @@ export function timeGridView(context: ViewContext): Child {
     const canOpenDay = days.length > 1 && context.views.includes('day');
     const hourLabel = (minutes: number) => context.formatTime(addMinutes(days[0]!, minutes));
 
-    const allDay = layoutDaySpans(
+    const allDaySpans = layoutDaySpans(
         context.occurrences.filter((occurrence) => isAllDay(occurrence)),
         (occurrence) => occurrence,
         days[0]!,
         days.length
     );
-    const allDayRows = allDay.reduce((rows, placement) => Math.max(rows, placement.row + 1), 0);
+    // The all-day row holds `maxEventsPerDay` rows, as a month cell does: a
+    // day with more gives up its last row to "+N more". Uncapped, a busy day
+    // grew the row until it pushed the hours off the screen.
+    const max = settings.maxEventsPerDay;
+    const allDayCounts = days.map((_, day) => allDaySpans.filter((placement) => placement.first <= day && placement.last >= day).length);
+    const allDayLimits = allDayCounts.map((count) => (count > max ? max - 1 : max));
+    const allDay = allDaySpans.filter((placement) => placement.row < Math.min(...allDayLimits.slice(placement.first, placement.last + 1)));
+    const allDayHidden = days.map((_, day) => allDayCounts[day]! - allDay.filter((placement) => placement.first <= day && placement.last >= day).length);
+    const allDayRows = Math.max(
+        allDay.reduce((rows, placement) => Math.max(rows, placement.row + 1), 0),
+        ...allDayHidden.map((hidden, day) => (hidden > 0 ? allDayLimits[day]! + 1 : 0))
+    );
 
     const maxCols = settings.eventMaxStack ?? settings.maxOverlappingEvents ?? 0;
     const timed = days.map((day) => {
@@ -128,6 +139,20 @@ export function timeGridView(context: ViewContext): Child {
                                           ].filter((e): e is ResizerEdge => e !== null),
                                           style: spanStyle(placement, days.length)
                                       })
+                                  ),
+                                  days.map((other, column) =>
+                                      allDayHidden[column]! > 0
+                                          ? h(
+                                                'button',
+                                                mergeAttrs({ key: `more-${other.getTime()}`, type: 'button' }, part('moreButton'), {
+                                                    style: spanStyle({ first: column, last: column, row: allDayLimits[column]! }, days.length),
+                                                    'aria-label': formatMessage(locale.schedule.moreLabel, { count: allDayHidden[column]!, date: context.format(other, locale.schedule.dayTitle) }),
+                                                    'aria-haspopup': 'dialog',
+                                                    onClick: (event: MouseEvent) => context.on.showMore(event, other)
+                                                }),
+                                                formatMessage(locale.schedule.more, { count: allDayHidden[column]! })
+                                            )
+                                          : null
                                   )
                               )
                             : null

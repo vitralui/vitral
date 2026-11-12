@@ -26,6 +26,8 @@ export interface OverlayOptions {
     offset?: number;
     /** Make the panel at least as wide as its anchor, which is what a select wants. */
     matchWidth?: boolean;
+    /** Never taller than the room the window has on its side; what is in it scrolls. */
+    fitHeight?: boolean;
     /** Where the panel is put; the nearest overlay scope, else the document's body. */
     target?: OverlayTarget;
     zIndex?: number;
@@ -89,7 +91,7 @@ export function createOverlay(options: OverlayOptions): Overlay {
         release();
         const floating = panel;
         const stops = [
-            anchorTo(anchor!, floating, { placement: options.placement ?? 'bottom-start', offset: options.offset, matchWidth: options.matchWidth }),
+            anchorTo(anchor!, floating, { placement: options.placement ?? 'bottom-start', offset: options.offset, matchWidth: options.matchWidth, fitHeight: options.fitHeight }),
             pushLayer({
                 elements: () => options.inside?.() ?? [anchor!, floating],
                 onEscape: () => close('escape'),
