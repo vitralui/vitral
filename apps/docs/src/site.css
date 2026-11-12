@@ -32,8 +32,10 @@ a {
 }
 
 :root {
-    /* One column for every page — bar, home, documentation, footer — so their edges line up. */
-    --site-max: 1280px;
+    /* One column for every page — bar, home, documentation, footer — so their edges line up.
+       Wide enough that a full HD window is filled, and only a wider one is boxed: the
+       demos, tables and grids are what a page is for, and they use the room. */
+    --site-max: 1920px;
     /* The space between the column and the window's edge, growing with the window. */
     --site-gutter: clamp(1.25rem, 5vw, 4rem);
     --site-bar-height: 56px;
