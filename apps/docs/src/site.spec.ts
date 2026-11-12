@@ -10,6 +10,7 @@ import { componentChange } from './lib/changes';
 import { themes } from './lib/presets';
 import { direction, presetId } from './lib/theme';
 import { navigate } from './lib/router';
+import { addons } from './lib/addons';
 import { apiOf, loadApi } from './lib/api';
 import { guides } from './lib/guides';
 import { lang } from './lib/i18n';
@@ -237,6 +238,28 @@ describe('the site', () => {
         await input.trigger('keydown', { key: 'Escape' });
         await flushPromises();
         expect(wrapper.find('.topbar').classes()).not.toContain('is-searching');
+    });
+
+    it('marks what the last few releases touched in the search and in the menus', async () => {
+        const recent = entries.filter((entry) => componentChange(entry.file));
+        const wrapper = await mountSite('/');
+        const open = async (label: string) => {
+            await wrapper.findAll('.top-nav button').find((entry) => entry.text().startsWith(label))!.trigger('click');
+            return wrapper.find('.mega-panel');
+        };
+        // A category is marked when a component in it is; an addon, when its own component is.
+        const categories = new Set(recent.map((entry) => entry.meta.category));
+        expect((await open('Components')).findAll('.mega-item .change-badge')).toHaveLength(categories.size);
+        const addonsMarked = addons.filter((addon) => recent.some((entry) => entry.id === addon.component));
+        expect((await open('Addons')).findAll('.mega-item .change-badge')).toHaveLength(addonsMarked.length);
+
+        if (!recent.length) return;
+        await wrapper.find('.search-btn').trigger('click');
+        // The longest name, so the search is about that component and little else.
+        const entry = [...recent].sort((a, b) => b.id.length - a.id.length)[0]!;
+        await wrapper.find('.searchbar-input').setValue(entry.id);
+        const hit = wrapper.findAll('.search-item').find((item) => item.text().startsWith(entry.meta.title))!;
+        expect(hit.find('.change-badge').exists()).toBe(true);
     });
 
     it('closes the menus when the page turns over to the other direction', async () => {

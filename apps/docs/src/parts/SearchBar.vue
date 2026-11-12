@@ -4,10 +4,12 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { categoryName } from '../demo';
 import { track } from '../lib/analytics';
 import { entries, entryText } from '../lib/catalog';
+import { componentChange, type Change } from '../lib/changes';
 import { guides, guideText, sectionName } from '../lib/guides';
 import { t } from '../lib/i18n';
 import { navigate } from '../lib/router';
 import { templates, templateText } from '../templates';
+import ChangeBadge from './ChangeBadge.vue';
 
 /**
  * The search, opened in the bar itself: the menus and the buttons step aside
@@ -24,6 +26,8 @@ interface Hit {
     label: string;
     hint: string;
     path: string;
+    /** A component the last few releases added or changed. */
+    change?: Change;
 }
 
 const all = computed<Hit[]>(() => [
@@ -33,7 +37,7 @@ const all = computed<Hit[]>(() => [
     { label: 'Templates', hint: t('Gallery'), path: '/templates' },
     ...templates.map((entry) => ({ label: entry.name, hint: t('{category} template', { category: templateText(entry).category }), path: `/templates/${entry.id}` })),
     ...guides.map((guide) => ({ label: guideText(guide).title, hint: sectionName(guide.meta.section), path: `/docs/${guide.id}` })),
-    ...entries.map((entry) => ({ label: entryText(entry).title, hint: categoryName(entry.meta.category), path: `/components/${entry.id}` }))
+    ...entries.map((entry) => ({ label: entryText(entry).title, hint: categoryName(entry.meta.category), path: `/components/${entry.id}`, change: componentChange(entry.file) }))
 ]);
 
 const iconOf = (path: string) => (path === '/icons' ? 'star' : path.startsWith('/docs') ? 'file' : path.startsWith('/templates') ? 'sidebar' : 'grip');
@@ -124,6 +128,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerdown)
                     >
                         <Icon :icon="iconOf(hit.path)" />
                         {{ hit.label }}
+                        <ChangeBadge :change="hit.change" />
                         <small>{{ hit.hint }}</small>
                     </button>
                 </li>

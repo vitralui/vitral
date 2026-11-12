@@ -2,7 +2,8 @@
 import { Button, Drawer, Icon } from '@vitral/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { categoryName } from '../demo';
-import { sections } from '../lib/catalog';
+import { entryOf, sections } from '../lib/catalog';
+import { componentChange, type Change } from '../lib/changes';
 import { guideSections, sectionName } from '../lib/guides';
 import { t } from '../lib/i18n';
 import { route, href } from '../lib/router';
@@ -10,6 +11,7 @@ import { addons, addonTitle } from '../lib/addons';
 import { chartEntries } from '../lib/charts';
 import { direction } from '../lib/theme';
 import { templateCategories, templates, templateText } from '../templates';
+import ChangeBadge from './ChangeBadge.vue';
 
 /**
  * The bar's menus: a panel per section, anchored under the item that opened it
@@ -70,7 +72,8 @@ const addonLinks = computed(() =>
         ...addon,
         title: addonTitle(addon),
         note: addon.id === 'chart' ? t('{count} kinds, drawn live', { count: chartEntries.length }) : t(addon.note),
-        active: addon.to === '/charts' ? route.value.name === 'charts' : route.value.id === addon.component
+        active: addon.to === '/charts' ? route.value.name === 'charts' : route.value.id === addon.component,
+        change: componentChange(entryOf(addon.component)?.file ?? '')
     }))
 );
 
@@ -118,6 +121,14 @@ const guideNotes: Record<string, string> = {
     Reference: 'Accessibility, layout, contributing',
     AI: 'Documentation a coding agent can read'
 };
+
+/** A category's badge: a new component in it if there is one, otherwise one that changed. */
+const categoryChange = new Map<string, Change | undefined>(
+    sections.map((section) => {
+        const found = section.items.map((entry) => componentChange(entry.file)).filter((change): change is Change => Boolean(change));
+        return [section.category, found.find((change) => change.status === 'new') ?? found[0]];
+    })
+);
 
 const componentCount = computed(() => sections.reduce((total, section) => total + section.items.length, 0));
 
@@ -200,7 +211,7 @@ onBeforeUnmount(() => {
                         <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-item">
                             <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
                             <span>
-                                <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small></b>
+                                <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small> <ChangeBadge :change="categoryChange.get(group.category)" /></b>
                                 <em>{{ t(categoryNotes[group.category]!) }}</em>
                             </span>
                         </a>
@@ -213,7 +224,7 @@ onBeforeUnmount(() => {
                         <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-item" :class="{ 'is-active': addon.active }">
                             <span class="mega-icon"><Icon :icon="addon.icon" /></span>
                             <span>
-                                <b>{{ addon.title }} <code>{{ addon.name }}</code></b>
+                                <b>{{ addon.title }} <code>{{ addon.name }}</code> <ChangeBadge :change="addon.change" /></b>
                                 <em>{{ addon.note }}</em>
                             </span>
                         </a>
@@ -284,7 +295,7 @@ onBeforeUnmount(() => {
                 <a v-for="group in sections" :key="group.category" :href="href(`/components/${group.items[0]!.id}`)" class="mega-drawer-link" @click="leave">
                     <span class="mega-icon"><Icon :icon="categoryIcons[group.category] ?? 'circle'" /></span>
                     <span>
-                        <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small></b>
+                        <b>{{ categoryName(group.category) }} <small>{{ group.items.length }}</small> <ChangeBadge :change="categoryChange.get(group.category)" /></b>
                         <em>{{ t(categoryNotes[group.category]!) }}</em>
                     </span>
                 </a>
@@ -293,7 +304,7 @@ onBeforeUnmount(() => {
                 <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-drawer-link" :aria-current="addon.active ? 'page' : undefined" @click="leave">
                     <span class="mega-icon"><Icon :icon="addon.icon" /></span>
                     <span>
-                        <b>{{ addon.title }}</b>
+                        <b>{{ addon.title }} <ChangeBadge :change="addon.change" /></b>
                         <em>{{ addon.note }}</em>
                     </span>
                 </a>
