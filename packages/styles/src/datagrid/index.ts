@@ -80,7 +80,8 @@ export const datagridStyle = defineStyle({
             align(s),
             pinned(s)
         ],
-        resizer: 'vt-datagrid-resizer',
+        /** `resizing`: its edge is being dragged — the line stays lit and runs down the table. */
+        resizer: (s: { resizing?: boolean }) => ['vt-datagrid-resizer', { 'vt-datagrid-resizing': s.resizing }],
         chooserButton: 'vt-datagrid-chooser-button',
         /** The panel the list sits in, where the table draws it itself rather than in a popover. */
         chooserPanel: 'vt-datagrid-chooser-panel',

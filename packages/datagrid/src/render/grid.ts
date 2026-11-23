@@ -42,6 +42,10 @@ export interface ViewContext<T = Row> {
     /** A column being dragged, and the one it would land before. */
     dragging: string | null;
     dropOn: string | null;
+    /** The column whose edge is being dragged, if one is. */
+    resizing: string | null;
+    /** The table's height when that drag began, for the guide line down the table. */
+    guide: number;
 }
 
 export interface DataGridActions<T = Row> {
@@ -123,7 +127,7 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                     named('aria-label', config.caption && !config.showCaption ? undefined : config.ariaLabel),
                     named('aria-labelledby', config.ariaLabelledby ?? (config.caption && !config.showCaption ? context.ids.caption : undefined)),
                     part('table'),
-                    { id: context.ids.table, style: config.tableStyle, 'aria-busy': context.busy ? 'true' : undefined }
+                    { id: context.ids.table, style: withSizing(sizedTable(context), config.tableStyle), 'aria-busy': context.busy ? 'true' : undefined }
                 ),
                 config.caption ? h('caption', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
                 headView(context),
@@ -135,6 +139,26 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
         footerBar(context),
         loadingMask(context)
     ];
+}
+
+/**
+ * Once every column has a width — the first drag gives them all their
+ * measured one — the table is laid out by those widths alone: fixed layout,
+ * as wide as they add up to. Left to the automatic layout, the browser shares
+ * any spare room out among the columns, and a column dragged to 240px drew at
+ * whatever was left, the edge drifting away from the pointer.
+ */
+function sizedTable<T>(context: ViewContext<T>): Record<string, string> {
+    if (!context.config.resizableColumns || !context.columns.length || !context.columns.every((column) => column.width)) return {};
+    const total = context.columns.reduce((sum, column) => sum + (column.width ?? 0), 0);
+    return { width: `${total}px`, 'min-width': `${total}px`, 'table-layout': 'fixed' };
+}
+
+/** The sizing under the host's own table style, which wins — as text or as an object. */
+function withSizing(sizing: Record<string, string>, own: string | Record<string, string> | undefined): string | Record<string, string> | undefined {
+    if (!Object.keys(sizing).length) return own;
+    if (typeof own === 'string') return `${Object.entries(sizing).map(([key, value]) => `${key}: ${value}`).join('; ')}; ${own}`;
+    return { ...sizing, ...own };
 }
 
 /** The bar below the table, when the host draws one. */
@@ -306,7 +330,8 @@ function headView<T>(context: ViewContext<T>): Child {
                     canResize(column)
                         ? h(
                               'span',
-                              mergeAttrs({ role: 'separator', tabindex: '0', 'aria-orientation': 'vertical' }, part('resizer'), {
+                              mergeAttrs({ role: 'separator', tabindex: '0', 'aria-orientation': 'vertical' }, part('resizer', { resizing: context.resizing === column.key }), {
+                                  style: context.resizing === column.key && context.guide ? { '--vt-datagrid-resizer-guide': `${context.guide}px` } : undefined,
                                   'aria-label': formatMessage(locale.aria.resizeColumn, { column: column.header }),
                                   // What a drag would start from, which is what the engine resizes from too.
                                   'aria-valuenow': String(Math.round(column.width ?? column.column.minWidth ?? MIN_COLUMN_WIDTH)),

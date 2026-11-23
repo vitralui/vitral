@@ -590,6 +590,8 @@
  */
 .vt-datagrid-resizer {
     position: absolute;
+    /* Above the next header cell, which is positioned and opaque and would cover the trailing half. */
+    z-index: 1;
     inset-block: 0;
     inset-inline-end: calc(var(--vt-datagrid-resizer-width) / -2);
     width: var(--vt-datagrid-resizer-width);
@@ -610,8 +612,29 @@
 }
 
 .vt-datagrid-resizer:hover::after,
-.vt-datagrid-resizer:focus-visible::after {
+.vt-datagrid-resizer:focus-visible::after,
+.vt-datagrid-resizing::after {
     background: var(--vt-datagrid-resizer-color);
+}
+
+/*
+ * While an edge is dragged its line runs down the whole table, so where the
+ * column will end is read against the rows and not just the header. The
+ * container's scroll clips it at the table's end.
+ */
+.vt-datagrid-resizing::after {
+    inset-block-end: auto;
+    height: var(--vt-datagrid-resizer-guide, 100%);
+}
+
+/*
+ * During the drag the pointer leaves the handle at once, and wanders over
+ * text: the cursor stays the resize one everywhere and nothing gets selected.
+ */
+:root.vt-column-resizing,
+:root.vt-column-resizing * {
+    cursor: col-resize !important;
+    user-select: none !important;
 }
 
 .vt-datagrid-resizer:focus-visible {

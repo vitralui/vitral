@@ -98,6 +98,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     let pageSize: SelectHandle | null = null;
     let dragging: string | null = null;
     let dropOn: string | null = null;
+    /** The column whose edge is being dragged, and the table's height for the guide line it draws. */
+    let resizing: string | null = null;
+    let guide = 0;
     let activeRow = 0;
     let filterTimer: ReturnType<typeof setTimeout> | undefined;
     let sourceRun = 0;
@@ -320,16 +323,40 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             const next = columnAfter(column);
             const from = event.clientX;
             const rtl = getComputedStyle(element).direction === 'rtl';
-            writeLayout({ ...tableLayout(current, withShared()), widths: { ...start, ...tableLayout(current, withShared()).widths } });
-            let last = from;
+            // Every column gets its measured width first: from here the table
+            // is laid out by the widths alone, so the edge stays under the pointer.
+            const base: ColumnLayout = { ...tableLayout(current, withShared()), widths: { ...start, ...tableLayout(current, withShared()).widths } };
+            writeLayout(base);
+            resizing = column.key;
+            guide = Math.round((element.querySelector('table') as HTMLElement | null)?.getBoundingClientRect().height ?? 0);
+            document.documentElement.classList.add('vt-column-resizing');
+            render();
+            // The width follows the distance from where the drag began, not the
+            // sum of each step: a step lost against the minimum would leave the
+            // edge behind the pointer for the rest of the drag.
+            let pending: PointerEvent | null = null;
+            let frame = 0;
+            const flush = () => {
+                frame = 0;
+                if (!pending) return;
+                const moved = pending;
+                pending = null;
+                applyResize(column, (moved.clientX - from) * (rtl ? -1 : 1), next, start, moved, base);
+            };
             const move = (moved: PointerEvent) => {
-                applyResize(column, (moved.clientX - last) * (rtl ? -1 : 1), next, start, moved);
-                last = moved.clientX;
+                pending = moved;
+                // One layout a frame: a pointer reports faster than the screen draws.
+                frame ||= requestAnimationFrame(flush);
             };
             const stop = () => {
+                if (frame) cancelAnimationFrame(frame);
+                flush();
+                resizing = null;
+                document.documentElement.classList.remove('vt-column-resizing');
                 document.removeEventListener('pointermove', move);
                 document.removeEventListener('pointerup', stop);
                 document.removeEventListener('pointercancel', stop);
+                render();
             };
             // From the document: a capture on the header is dropped when the
             // header is redrawn, which is every step of the drag.
@@ -495,9 +522,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         emit('column-reorder', { originalEvent: event, key, order: next.order, layout: next });
     }
 
-    function applyResize(column: ResolvedColumn<T>, delta: number, next: string | undefined, start: Record<string, number>, event: Event) {
-        if (!delta) return;
-        const layout = resizeColumn(tableLayout(current, withShared()), column.key, delta, {
+    /**
+     * `base` is the layout the drag began on, when there is one: the delta is
+     * then the whole distance from there. The keyboard steps from the layout
+     * as it stands.
+     */
+    function applyResize(column: ResolvedColumn<T>, delta: number, next: string | undefined, start: Record<string, number>, event: Event, base?: ColumnLayout) {
+        if (!delta && !base) return;
+        const layout = resizeColumn(base ?? tableLayout(current, withShared()), column.key, delta, {
             min: column.column.minWidth,
             mode: current.columnResizeMode ?? 'fit',
             next: (current.columnResizeMode ?? 'fit') === 'fit' ? next : undefined,
@@ -593,7 +625,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                     }))
             },
             dragging,
-            dropOn
+            dropOn,
+            resizing,
+            guide
         };
         const emptyMessage = current.emptyMessage ?? (hasActiveFilter(applied) ? locale().emptySearchMessage : locale().emptyMessage);
         root.attrs(

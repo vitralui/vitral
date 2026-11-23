@@ -443,6 +443,33 @@ describe('its columns', () => {
         expect(resized).toHaveBeenCalled();
     });
 
+    it('follow the pointer from where the drag began, past the minimum and back', () => {
+        // jsdom measures nothing, so the layout's widths are what the drag starts from.
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((step: FrameRequestCallback) => {
+            step(0);
+            // Already run: no frame left pending, as after a real one.
+            return 0;
+        });
+        const { headers } = mount({ resizableColumns: true, columnResizeMode: 'expand', columnLayout: { widths: { name: 200, city: 200, age: 200 } } });
+        const edge = () => headers()[0]!.querySelector<HTMLElement>('[role="separator"]')!;
+        edge().dispatchEvent(new PointerEvent('pointerdown', { clientX: 500, bubbles: true, cancelable: true }));
+        expect(edge().classList.contains('vt-datagrid-resizing')).toBe(true);
+        expect(document.documentElement.classList.contains('vt-column-resizing')).toBe(true);
+        // Far past the minimum, then back: a step lost at the minimum is not carried along.
+        document.dispatchEvent(new PointerEvent('pointermove', { clientX: 100 }));
+        expect(handle!.state().columnLayout.widths!.name).toBe(48);
+        document.dispatchEvent(new PointerEvent('pointermove', { clientX: 540 }));
+        expect(handle!.state().columnLayout.widths!.name).toBe(240);
+        document.dispatchEvent(new PointerEvent('pointerup', { clientX: 540 }));
+        expect(document.documentElement.classList.contains('vt-column-resizing')).toBe(false);
+        expect(edge().classList.contains('vt-datagrid-resizing')).toBe(false);
+        // Every column sized: the table is laid out by the widths, as wide as they add up to.
+        const table = headers()[0]!.closest('table')!;
+        expect(table.style.tableLayout).toBe('fixed');
+        expect(table.style.width).toBe('640px');
+        vi.restoreAllMocks();
+    });
+
     it('move with Ctrl and an arrow', () => {
         const { headers, headings } = mount({ reorderableColumns: true });
         headers()[1]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', ctrlKey: true, bubbles: true, cancelable: true }));

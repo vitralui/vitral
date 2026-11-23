@@ -330,7 +330,8 @@ describe('the site', () => {
         if (!recent.length) return;
         expect(wrapper.findAll('.components-card .change-badge')).toHaveLength(recent.length);
         await toggle.trigger('click');
-        expect(wrapper.findAll('.components-card').map((link) => link.attributes('href'))).toEqual(recent.map((entry) => `/components/${entry.id}/`).sort());
+        // The page keeps its own grouping; what is asked is which cards are left.
+        expect(wrapper.findAll('.components-card').map((link) => link.attributes('href')).sort()).toEqual(recent.map((entry) => `/components/${entry.id}/`).sort());
     });
 
     it('lists every release at /releases, each component linked to its page', async () => {
