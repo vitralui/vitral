@@ -44,8 +44,6 @@ export interface ViewContext<T = Row> {
     dropOn: string | null;
     /** The column whose edge is being dragged, if one is. */
     resizing: string | null;
-    /** The table's height when that drag began, for the guide line down the table. */
-    guide: number;
 }
 
 export interface DataGridActions<T = Row> {
@@ -126,7 +124,7 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                     { key: 'table' },
                     named('aria-label', config.caption && !config.showCaption ? undefined : config.ariaLabel),
                     named('aria-labelledby', config.ariaLabelledby ?? (config.caption && !config.showCaption ? context.ids.caption : undefined)),
-                    part('table'),
+                    part('table', { sized: sized(context) }),
                     { id: context.ids.table, style: withSizing(sizedTable(context), config.tableStyle), 'aria-busy': context.busy ? 'true' : undefined }
                 ),
                 config.caption ? h('caption', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
@@ -149,10 +147,33 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
  * whatever was left, the edge drifting away from the pointer.
  */
 function sizedTable<T>(context: ViewContext<T>): Record<string, string> {
-    if (!context.config.resizableColumns || !context.columns.length || !context.columns.every((column) => column.width)) return {};
+    if (!sized(context)) return {};
     const total = context.columns.reduce((sum, column) => sum + (column.width ?? 0), 0);
-    return { width: `${total}px`, 'min-width': `${total}px`, 'table-layout': 'fixed' };
+    // Never narrower than the grid: what the columns leave goes to the filler
+    // column at the end, so the rows' stripes and rules still reach the edge.
+    return { width: `${total}px`, 'min-width': '100%', 'table-layout': 'fixed' };
 }
+
+/** Whether the columns are laid out by their widths alone (see `sizedTable`). */
+function sized<T>(context: ViewContext<T>): boolean {
+    return !!context.config.resizableColumns && !!context.columns.length && context.columns.every((column) => column.width);
+}
+
+/**
+ * The empty column after the last, while the widths lay the table out: it
+ * takes the room the columns do not, so no column is stretched past the width
+ * it was given (its edge would leave the pointer) and every row — its stripe,
+ * its rule — still runs to the grid's edge, as in a spreadsheet. Nothing to
+ * read in it, so it is hidden from assistive technology.
+ */
+function filler<T>(context: ViewContext<T>, tag: 'th' | 'td', look: 'headerCell' | 'filterCell' | 'bodyCell' | 'footerCell'): VElement[] {
+    if (!sized(context)) return [];
+    // Dressed as the row's other cells (ground, rules, stripes), emptied of padding.
+    return [h(tag, mergeAttrs({ key: '__filler', role: 'presentation', 'aria-hidden': 'true' }, context.part(look, {}), context.part('fillerCell')))];
+}
+
+/** How many columns a cell spanning the row covers: the filler is one too. */
+const span = <T,>(context: ViewContext<T>) => String(Math.max(1, context.columns.length) + (sized(context) ? 1 : 0));
 
 /** The sizing under the host's own table style, which wins — as text or as an object. */
 function withSizing(sizing: Record<string, string>, own: string | Record<string, string> | undefined): string | Record<string, string> | undefined {
@@ -326,12 +347,11 @@ function headView<T>(context: ViewContext<T>): Child {
                                       ? h('span', part('sortStatus'), context.sorts[sortIndex(column)]!.order === 1 ? locale.aria.sortAscending : locale.aria.sortDescending)
                                       : null
                               )
-                            : (content(column.column.headerContent?.({ column: column.column })) ?? column.header),
+                            : h('span', part('headerTitle'), content(column.column.headerContent?.({ column: column.column })) ?? column.header),
                     canResize(column)
                         ? h(
                               'span',
                               mergeAttrs({ role: 'separator', tabindex: '0', 'aria-orientation': 'vertical' }, part('resizer', { resizing: context.resizing === column.key }), {
-                                  style: context.resizing === column.key && context.guide ? { '--vt-datagrid-resizer-guide': `${context.guide}px` } : undefined,
                                   'aria-label': formatMessage(locale.aria.resizeColumn, { column: column.header }),
                                   // What a drag would start from, which is what the engine resizes from too.
                                   'aria-valuenow': String(Math.round(column.width ?? column.column.minWidth ?? MIN_COLUMN_WIDTH)),
@@ -343,7 +363,7 @@ function headView<T>(context: ViewContext<T>): Child {
                           )
                         : null
                 )
-            )
+            ).concat(filler(context, 'th', 'headerCell'))
         ),
         filterRow
             ? h(
@@ -376,7 +396,7 @@ function headView<T>(context: ViewContext<T>): Child {
                                 ))
                               : null
                       )
-                  )
+                  ).concat(filler(context, 'td', 'filterCell'))
               )
             : null
     );
@@ -403,7 +423,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
             h(
                 'tr',
                 part('emptyRow'),
-                h('td', mergeAttrs(part('emptyCell'), { colspan: String(Math.max(1, columns.length)) }), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
+                h('td', mergeAttrs(part('emptyCell'), { colspan: span(context) }), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
             )
         );
     }
@@ -421,7 +441,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                     mergeAttrs({ key: `group-${line.group.key}` }, part('groupRow')),
                     h(
                         'th',
-                        mergeAttrs(part('groupCell'), { colspan: String(Math.max(1, columns.length)), scope: 'colgroup' }),
+                        mergeAttrs(part('groupCell'), { colspan: span(context), scope: 'colgroup' }),
                         h(
                             'button',
                             mergeAttrs({ type: 'button' }, part('groupToggle'), {
@@ -492,7 +512,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                                   column.column.body?.({ row, index: rows.offset + index, field: column.field, value: valueOf(row, column), column: column.column })
                               ) ?? cellText(valueOf(row, column), locale.code))
                     )
-                )
+                ).concat(filler(context, 'td', 'bodyCell'))
             );
             if (!expanded) return main;
             // The detail spans the table in a row of its own, right under the row it belongs to.
@@ -501,7 +521,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                 h(
                     'tr',
                     mergeAttrs({ key: `${key}-detail`, id: detailId }, part('expansionRow')),
-                    h('td', mergeAttrs(part('expansionCell'), { colspan: String(Math.max(1, columns.length)) }), content(config.content!.rowExpansion!({ row, index: rows.offset + index })))
+                    h('td', mergeAttrs(part('expansionCell'), { colspan: span(context) }), content(config.content!.rowExpansion!({ row, index: rows.offset + index })))
                 )
             ];
         })
@@ -549,7 +569,7 @@ function skeletonBody<T>(context: ViewContext<T>): Child {
                                   h('span', part('checkbox'), h('span', part('skeleton', { box: true, round: column.selectionMode === 'single' })))
                                 : h('span', mergeAttrs(part('skeleton'), { style: { width: barWidth(index, position) } })))
                     )
-                )
+                ).concat(filler(context, 'td', 'bodyCell'))
             )
         )
     );
@@ -570,7 +590,7 @@ function footView<T>(context: ViewContext<T>): Child {
                     mergeAttrs({ key: column.key }, part('footerCell', { align: column.align, ...pinnedState(column) }), { style: stickyStyle(column) }),
                     content(column.column.footerContent?.({ column: column.column })) ?? column.column.footer ?? ''
                 )
-            )
+            ).concat(filler(context, 'td', 'footerCell'))
         )
     );
 }

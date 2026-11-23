@@ -63,6 +63,37 @@ describe('createTooltip', () => {
         expect(host.hasAttribute('aria-describedby')).toBe(false);
     });
 
+    it('goes when the pointer is elsewhere, even if no leave ever came', () => {
+        const host = makeHost();
+        const elsewhere = document.createElement('div');
+        document.body.appendChild(elsewhere);
+        createTooltip(host, { text: 'Save the file' });
+        host.dispatchEvent(new MouseEvent('mouseenter'));
+        expect(tip()).not.toBeNull();
+        // Over the tooltip, it stays (hoverable)…
+        tip()!.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerType: 'mouse' }));
+        vi.advanceTimersByTime(500);
+        expect(tip()).not.toBeNull();
+        // …and with the pointer elsewhere it goes, without a mouseleave from the host or the tooltip.
+        elsewhere.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerType: 'mouse' }));
+        vi.advanceTimersByTime(150);
+        expect(tip()).toBeNull();
+    });
+
+    it('opened by keyboard focus, it does not mind the pointer elsewhere', () => {
+        const host = makeHost();
+        const elsewhere = document.createElement('div');
+        document.body.appendChild(elsewhere);
+        focusVisible(host, true);
+        createTooltip(host, { text: 'Save the file' });
+        host.focus();
+        host.dispatchEvent(new FocusEvent('focusin'));
+        expect(tip()).not.toBeNull();
+        elsewhere.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerType: 'mouse' }));
+        vi.advanceTimersByTime(500);
+        expect(tip()).not.toBeNull();
+    });
+
     it('is dismissed by Escape, which goes no further', () => {
         const host = makeHost();
         const below = vi.fn();

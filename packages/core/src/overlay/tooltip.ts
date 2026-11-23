@@ -68,6 +68,8 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
     let release: (() => void) | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let pointerInside = false;
+    /** Opened by the pointer (not by keyboard focus): then the pointer anywhere else closes it. */
+    let byPointer = false;
 
     const enabled = () => !options.disabled && !!options.text;
 
@@ -120,6 +122,8 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
         ZIndex.set('tooltip', el, options.zIndex ?? 1100);
         describe(true);
         document.addEventListener('keydown', onDocumentKeydown, true);
+        byPointer = pointerInside;
+        if (byPointer) document.addEventListener('pointermove', onDocumentPointerMove, { capture: true, passive: true });
     }
 
     function hide() {
@@ -133,6 +137,8 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
         textEl = null;
         describe(false);
         document.removeEventListener('keydown', onDocumentKeydown, true);
+        document.removeEventListener('pointermove', onDocumentPointerMove, true);
+        byPointer = false;
     }
 
     function onEnter() {
@@ -162,6 +168,27 @@ export function createTooltip(host: HTMLElement, initial: TooltipOptions = {}): 
     function onPointerDown() {
         pointerInside = false;
         hide();
+    }
+
+    /**
+     * The net under `mouseleave`: the browser does not always send it — a
+     * host disabled or redrawn under the pointer, a fast sweep from the host
+     * over the tooltip and off — and the tooltip stayed for good. While one
+     * opened by the pointer is shown, a pointer over neither the host nor the
+     * tooltip closes it, after the same grace as a leave.
+     */
+    function onDocumentPointerMove(event: PointerEvent) {
+        if (!el || !byPointer || event.pointerType === 'touch') return;
+        const target = event.target as Node | null;
+        const over = !!target && (host.contains(target) || el.contains(target));
+        if (over) {
+            if (!pointerInside) {
+                pointerInside = true;
+                clearTimer();
+            }
+            return;
+        }
+        if (pointerInside || timer === undefined) onLeave();
     }
 
     // Escape dismisses the tooltip and nothing else: the key is spent, so a

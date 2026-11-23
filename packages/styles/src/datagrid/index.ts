@@ -69,7 +69,8 @@ export const datagridStyle = defineStyle({
         header: 'vt-datagrid-header',
         footer: 'vt-datagrid-footer',
         tableContainer: (s: DataGridState) => ['vt-datagrid-table-container', { 'vt-datagrid-flex-scroll': s.flexScroll }],
-        table: 'vt-datagrid-table',
+        /** `sized`: laid out by the columns' widths (after a resize), each cell kept to its column. */
+        table: (s: { sized?: boolean }) => ['vt-datagrid-table', { 'vt-datagrid-table-sized': s.sized }],
         caption: 'vt-datagrid-caption',
         hiddenCaption: 'vt-sr-only',
         thead: 'vt-datagrid-thead',
@@ -80,7 +81,7 @@ export const datagridStyle = defineStyle({
             align(s),
             pinned(s)
         ],
-        /** `resizing`: its edge is being dragged — the line stays lit and runs down the table. */
+        /** `resizing`: its edge is being dragged — the line stays lit, in the header only. */
         resizer: (s: { resizing?: boolean }) => ['vt-datagrid-resizer', { 'vt-datagrid-resizing': s.resizing }],
         chooserButton: 'vt-datagrid-chooser-button',
         /** The panel the list sits in, where the table draws it itself rather than in a popover. */
@@ -90,6 +91,8 @@ export const datagridStyle = defineStyle({
         chooserLabel: 'vt-datagrid-chooser-label',
         chooserCheckbox: 'vt-datagrid-chooser-checkbox',
         headerTitle: 'vt-datagrid-header-title',
+        /** The empty column after the last, while the widths lay the table out: it takes the room left. */
+        fillerCell: 'vt-datagrid-filler-cell',
         sortButton: 'vt-datagrid-sort-button',
         sortIcon: (s: { active?: boolean }) => ['vt-datagrid-sort-icon', s.active ? 'vt-datagrid-sort-icon-active' : 'vt-datagrid-sort-icon-idle'],
         sortBadge: 'vt-datagrid-sort-badge',

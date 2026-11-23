@@ -601,6 +601,12 @@
     -webkit-touch-callout: none;
 }
 
+/* The last column's handle stays inside the table: half of it past the edge gave the grid a scrollbar for nothing. */
+.vt-datagrid-header-cell:last-child > .vt-datagrid-resizer,
+.vt-datagrid-header-cell:has(+ .vt-datagrid-filler-cell) > .vt-datagrid-resizer {
+    inset-inline-end: 0;
+}
+
 .vt-datagrid-resizer::after {
     content: '';
     position: absolute;
@@ -615,16 +621,6 @@
 .vt-datagrid-resizer:focus-visible::after,
 .vt-datagrid-resizing::after {
     background: var(--vt-datagrid-resizer-color);
-}
-
-/*
- * While an edge is dragged its line runs down the whole table, so where the
- * column will end is read against the rows and not just the header. The
- * container's scroll clips it at the table's end.
- */
-.vt-datagrid-resizing::after {
-    inset-block-end: auto;
-    height: var(--vt-datagrid-resizer-guide, 100%);
 }
 
 /*
@@ -767,4 +763,37 @@
 
 .vt-datagrid-chooser-checkbox {
     accent-color: var(--vt-primary-color);
+}
+
+/* ---- laid out by the columns' widths --------------------------------
+   Once a column was resized every cell keeps to its column: the text of a
+   narrow one goes down to the next line (a long word breaks), it never runs
+   over the next column; the header's title ends in an ellipsis, and the
+   header is opaque. The empty column at the end takes the room left, so the
+   rows' stripes and rules reach the grid's edge. */
+
+.vt-datagrid-table-sized .vt-datagrid-body-cell,
+.vt-datagrid-table-sized .vt-datagrid-footer-cell {
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+.vt-datagrid-table-sized .vt-datagrid-header-cell,
+.vt-datagrid-table-sized .vt-datagrid-filter-cell {
+    background: var(--vt-datagrid-header-cell-sticky-background);
+}
+
+.vt-datagrid-table-sized .vt-datagrid-sort-button {
+    min-width: 0;
+}
+
+.vt-datagrid-table-sized .vt-datagrid-header-title {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vt-datagrid .vt-datagrid-filler-cell {
+    padding: 0;
 }

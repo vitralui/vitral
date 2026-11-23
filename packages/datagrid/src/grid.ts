@@ -98,9 +98,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     let pageSize: SelectHandle | null = null;
     let dragging: string | null = null;
     let dropOn: string | null = null;
-    /** The column whose edge is being dragged, and the table's height for the guide line it draws. */
+    /** The column whose edge is being dragged. */
     let resizing: string | null = null;
-    let guide = 0;
     let activeRow = 0;
     let filterTimer: ReturnType<typeof setTimeout> | undefined;
     let sourceRun = 0;
@@ -328,7 +327,6 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             const base: ColumnLayout = { ...tableLayout(current, withShared()), widths: { ...start, ...tableLayout(current, withShared()).widths } };
             writeLayout(base);
             resizing = column.key;
-            guide = Math.round((element.querySelector('table') as HTMLElement | null)?.getBoundingClientRect().height ?? 0);
             document.documentElement.classList.add('vt-column-resizing');
             render();
             // The width follows the distance from where the drag began, not the
@@ -626,8 +624,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             },
             dragging,
             dropOn,
-            resizing,
-            guide
+            resizing
         };
         const emptyMessage = current.emptyMessage ?? (hasActiveFilter(applied) ? locale().emptySearchMessage : locale().emptyMessage);
         root.attrs(

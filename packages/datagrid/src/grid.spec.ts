@@ -470,6 +470,30 @@ describe('its columns', () => {
         vi.restoreAllMocks();
     });
 
+    it('laid out by their widths, never narrower than the grid: an empty column takes the room left, on every row', () => {
+        const { table, rows, headers } = mount({ resizableColumns: true, stripedRows: true, columnLayout: { widths: { name: 120, city: 120, age: 80 } } });
+        expect(table().classList.contains('vt-datagrid-table-sized')).toBe(true);
+        expect(table().style.width).toBe('320px');
+        expect(table().style.minWidth).toBe('100%');
+        // The filler ends the header and every row, dressed as their cells and hidden from assistive technology.
+        const last = headers().at(-1)!;
+        expect(last.classList.contains('vt-datagrid-filler-cell')).toBe(true);
+        expect(last.classList.contains('vt-datagrid-header-cell')).toBe(true);
+        expect(last.getAttribute('aria-hidden')).toBe('true');
+        for (const row of rows()) {
+            const cell = row.cells[row.cells.length - 1]!;
+            expect(cell.classList.contains('vt-datagrid-filler-cell') && cell.classList.contains('vt-datagrid-body-cell')).toBe(true);
+        }
+        // No line down the table while a column is dragged: the handle in the header is enough.
+        expect(headers()[0]!.querySelector<HTMLElement>('[role="separator"]')!.getAttribute('style')).toBeNull();
+    });
+
+    it('take no filler while the browser lays them out', () => {
+        const { table, headers } = mount({ resizableColumns: true });
+        expect(table().classList.contains('vt-datagrid-table-sized')).toBe(false);
+        expect(headers().some((cell) => cell.classList.contains('vt-datagrid-filler-cell'))).toBe(false);
+    });
+
     it('move with Ctrl and an arrow', () => {
         const { headers, headings } = mount({ reorderableColumns: true });
         headers()[1]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', ctrlKey: true, bubbles: true, cancelable: true }));
