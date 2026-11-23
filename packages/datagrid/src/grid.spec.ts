@@ -488,6 +488,15 @@ describe('its columns', () => {
         expect(headers()[0]!.querySelector<HTMLElement>('[role="separator"]')!.getAttribute('style')).toBeNull();
     });
 
+    it('keep a column pinned to the end at the edge: the filler goes before it', () => {
+        const pinnedEnd = columns.map((column) => (column.field === 'age' ? { ...column, pinned: 'right' as const } : column));
+        const { headers, rows } = mount({ columns: pinnedEnd, resizableColumns: true, columnLayout: { widths: { name: 120, city: 120, age: 80 } } });
+        const order = headers().map((cell) => (cell.classList.contains('vt-datagrid-filler-cell') ? 'filler' : cell.textContent?.trim()));
+        expect(order).toEqual(['Name', 'City', 'filler', 'Age']);
+        const cells = Array.from(rows()[0]!.cells);
+        expect(cells[2]!.classList.contains('vt-datagrid-filler-cell')).toBe(true);
+    });
+
     it('take no filler while the browser lays them out', () => {
         const { table, headers } = mount({ resizableColumns: true });
         expect(table().classList.contains('vt-datagrid-table-sized')).toBe(false);

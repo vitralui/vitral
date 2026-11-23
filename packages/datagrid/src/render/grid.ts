@@ -172,6 +172,17 @@ function filler<T>(context: ViewContext<T>, tag: 'th' | 'td', look: 'headerCell'
     return [h(tag, mergeAttrs({ key: '__filler', role: 'presentation', 'aria-hidden': 'true' }, context.part(look, {}), context.part('fillerCell')))];
 }
 
+/**
+ * A row's cells with the filler among them: before the columns pinned to the
+ * end, which stay at the grid's edge (row actions, say), or else last.
+ */
+function withFiller<T>(context: ViewContext<T>, cells: Child[], tag: 'th' | 'td', look: 'headerCell' | 'filterCell' | 'bodyCell' | 'footerCell'): Child[] {
+    const extra = filler(context, tag, look);
+    if (!extra.length) return cells;
+    const end = context.columns.findIndex((column) => column.sticky?.side === 'right');
+    return end < 0 ? [...cells, ...extra] : [...cells.slice(0, end), ...extra, ...cells.slice(end)];
+}
+
 /** How many columns a cell spanning the row covers: the filler is one too. */
 const span = <T,>(context: ViewContext<T>) => String(Math.max(1, context.columns.length) + (sized(context) ? 1 : 0));
 
@@ -290,7 +301,7 @@ function headView<T>(context: ViewContext<T>): Child {
         h(
             'tr',
             mergeAttrs({ key: 'header-row' }, part('headerRow'), { onDragover: context.on.dragOver, onDrop: context.on.drop }),
-            columns.map((column) =>
+            withFiller(context, columns.map((column) =>
                 h(
                     'th',
                     mergeAttrs(
@@ -363,13 +374,13 @@ function headView<T>(context: ViewContext<T>): Child {
                           )
                         : null
                 )
-            ).concat(filler(context, 'th', 'headerCell'))
+            ), 'th', 'headerCell')
         ),
         filterRow
             ? h(
                   'tr',
                   mergeAttrs({ key: 'filter-row' }, part('filterRow')),
-                  columns.map((column) =>
+                  withFiller(context, columns.map((column) =>
                       h(
                           'td',
                           mergeAttrs({ key: column.key }, part('filterCell', { align: column.align, ...pinnedState(column) }), { style: stickyStyle(column) }),
@@ -396,7 +407,7 @@ function headView<T>(context: ViewContext<T>): Child {
                                 ))
                               : null
                       )
-                  ).concat(filler(context, 'td', 'filterCell'))
+                  ), 'td', 'filterCell')
               )
             : null
     );
@@ -471,7 +482,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                     onClick: (event: MouseEvent) => context.on.rowClick(row, index, event),
                     onKeydown: (event: KeyboardEvent) => context.on.rowKeydown(event, index)
                 }),
-                columns.map((column) =>
+                withFiller(context, columns.map((column) =>
                     h(
                         'td',
                         mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), column.selectionMode ? part('selectionCell') : {}, {
@@ -512,7 +523,7 @@ function bodyView<T>(context: ViewContext<T>): Child {
                                   column.column.body?.({ row, index: rows.offset + index, field: column.field, value: valueOf(row, column), column: column.column })
                               ) ?? cellText(valueOf(row, column), locale.code))
                     )
-                ).concat(filler(context, 'td', 'bodyCell'))
+                ), 'td', 'bodyCell')
             );
             if (!expanded) return main;
             // The detail spans the table in a row of its own, right under the row it belongs to.
@@ -556,7 +567,7 @@ function skeletonBody<T>(context: ViewContext<T>): Child {
             h(
                 'tr',
                 mergeAttrs({ key: `skeleton-${index}` }, part('row', { skeleton: true }), { 'aria-hidden': 'true' }),
-                columns.map((column, position) =>
+                withFiller(context, columns.map((column, position) =>
                     h(
                         'td',
                         mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), column.selectionMode ? part('selectionCell') : {}, {
@@ -569,7 +580,7 @@ function skeletonBody<T>(context: ViewContext<T>): Child {
                                   h('span', part('checkbox'), h('span', part('skeleton', { box: true, round: column.selectionMode === 'single' })))
                                 : h('span', mergeAttrs(part('skeleton'), { style: { width: barWidth(index, position) } })))
                     )
-                ).concat(filler(context, 'td', 'bodyCell'))
+                ), 'td', 'bodyCell')
             )
         )
     );
@@ -584,13 +595,13 @@ function footView<T>(context: ViewContext<T>): Child {
         h(
             'tr',
             part('footerRow'),
-            columns.map((column) =>
+            withFiller(context, columns.map((column) =>
                 h(
                     'td',
                     mergeAttrs({ key: column.key }, part('footerCell', { align: column.align, ...pinnedState(column) }), { style: stickyStyle(column) }),
                     content(column.column.footerContent?.({ column: column.column })) ?? column.column.footer ?? ''
                 )
-            ).concat(filler(context, 'td', 'footerCell'))
+            ), 'td', 'footerCell')
         )
     );
 }
