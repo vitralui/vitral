@@ -75,6 +75,12 @@ export interface DataGridColumn<T = Row> {
     description?: string;
     /** How the column's value is worked out, shown under its description. */
     formula?: string;
+    /** Whether the column says what a row is about (`'dimension'`) or measures it (`'metric'`), drawn as a tag by its name. */
+    kind?: 'dimension' | 'metric';
+    /** Where the value comes from, in a line under the description: a table and field, a system. */
+    source?: string;
+    /** Rules and exceptions worth a warning: "Can be empty", "Orders without a customer are left out". */
+    notes?: string | string[];
     footer?: string;
     sortable?: boolean;
     sortField?: string;
@@ -406,6 +412,9 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
     /** The side bar's panel open at first; none by default. */
     sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /** Over the data dictionary: the module the table belongs to, in small capitals, and a line under its title. */
+    dictionaryModule?: string;
+    dictionarySubtitle?: string;
     /**
      * Whether a header's menu button is always there (`'always'`, the
      * default: a touch screen has no pointer to bring it out) or only while

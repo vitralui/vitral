@@ -603,4 +603,19 @@ describe('DataGrid collapsedGroups', () => {
         expect(open.value).toBe('columns');
         wrapper.unmount();
     });
+
+    it('takes a column’s kind, source and notes, and heads the dictionary with its module', async () => {
+        const wrapper = mountVt(DataGrid, {
+            props: { value: people, dataKey: 'id', sideBar: ['dictionary'], sideBarOpen: 'dictionary', dictionaryModule: 'People', dictionarySubtitle: 'Who is who.' },
+            slots: { default: () => [h(Column, { field: 'name', header: 'Name', kind: 'dimension', source: 'people.name', notes: ['Can be empty'] })] }
+        });
+        await nextTick();
+        const element = wrapper.element as HTMLElement;
+        expect(element.querySelector('.vt-datagrid-dictionary-module')?.textContent).toBe('Module · People');
+        expect(element.querySelector('.vt-datagrid-dictionary-subtitle')?.textContent).toBe('Who is who.');
+        expect(element.querySelector('[data-dictionary="name"] .vt-datagrid-column-kind')?.textContent).toBe('Dimension');
+        expect(element.querySelector('[data-dictionary="name"] .vt-datagrid-column-source')?.textContent).toBe('Source: people.name');
+        expect(element.querySelector('[data-dictionary="name"] [role="note"]')?.textContent).toBe('Can be empty');
+        wrapper.unmount();
+    });
 });

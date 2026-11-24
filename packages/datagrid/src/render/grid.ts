@@ -106,12 +106,19 @@ export interface ToolbarView {
 }
 
 /** A column in the data dictionary: what it holds, how it is worked out, and whether it is on show. */
-export interface DictionaryEntry {
+export interface DictionaryEntry extends ColumnAbout {
     key: string;
     header: string;
+    visible: boolean;
+}
+
+/** What a column says about itself: what it holds, how it is worked out, where it comes from, its rules. */
+export interface ColumnAbout {
     description: Content;
     formula?: string;
-    visible: boolean;
+    kind?: 'dimension' | 'metric';
+    source?: string;
+    notes?: string[];
 }
 export type PivotZone = 'rows' | 'columns' | 'values';
 
@@ -139,6 +146,9 @@ export interface SideBarView {
     dropOn: string | null;
     pivot?: PivotPanelView;
     dictionary?: DictionaryEntry[];
+    /** The module the table belongs to and a line under the dictionary's title. */
+    dictionaryModule?: string;
+    dictionarySubtitle?: string;
 }
 
 /** A column's filter panel as it is drawn: conditions on its values, or a list of them to tick. */
@@ -945,14 +955,38 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
 }
 
 /** Whether a column says what it holds, which its header and the data dictionary show. */
-export const hasDescription = <T>(column: DataGridColumn<T>): boolean => !!(column.description || column.formula || column.descriptionContent);
+export const hasDescription = <T>(column: DataGridColumn<T>): boolean =>
+    !!(column.description || column.formula || column.descriptionContent || column.source || column.notes?.length || column.kind);
+
+/** A column's own account of itself, for its info button or the data dictionary. */
+export const columnAbout = <T>(column: DataGridColumn<T>, place: 'info' | 'dictionary'): ColumnAbout => ({
+    description: column.descriptionContent?.({ column, place }) ?? column.description ?? null,
+    formula: column.formula,
+    kind: column.kind,
+    source: column.source,
+    notes: column.notes === undefined ? undefined : ([] as string[]).concat(column.notes).filter(Boolean)
+});
+
+/** A column's kind as a tag: a dimension says what a row is about, a metric measures it. */
+const kindTag = <T>(context: ViewContext<T>, kind: 'dimension' | 'metric' | undefined): Child =>
+    kind ? h('span', context.part('columnKind', { kind }), kind === 'metric' ? context.locale.datagrid.metric : context.locale.datagrid.dimension) : null;
 
 /** What a column holds and how it is worked out, as its info button and the data dictionary show them. */
-function aboutColumn<T>(context: ViewContext<T>, description: Content, formula: string | undefined): Child[] {
+function aboutColumn<T>(context: ViewContext<T>, about: ColumnAbout): Child[] {
     const { part, locale } = context;
     const words = locale.datagrid;
+    const { description, formula, source, notes } = about;
     return [
         h('div', mergeAttrs({ key: 'description' }, part('columnDescription')), content(description) ?? h('span', part('columnNoDescription'), words.noDescription)),
+        source ? h('div', mergeAttrs({ key: 'source' }, part('columnSource')), formatMessage(words.source, { source })) : null,
+        notes?.length
+            ? h(
+                  'div',
+                  mergeAttrs({ key: 'notes' }, part('columnNotes'), { role: 'note', 'aria-label': words.notes }),
+                  iconView('warning'),
+                  notes.length === 1 ? h('p', null, notes[0]) : h('ul', null, notes.map((note, at) => h('li', { key: at }, note)))
+              )
+            : null,
         formula
             ? h(
                   'div',
@@ -971,8 +1005,13 @@ export function columnInfoView<T>(context: ViewContext<T>, column: ResolvedColum
     return h(
         'div',
         mergeAttrs({ id: `${context.ids.table}-info` }, part('columnInfo'), { role: 'dialog', 'aria-labelledby': titleId }),
-        h('h3', mergeAttrs(part('columnInfoTitle'), { id: titleId }), column.header || formatMessage(locale.datagrid.columnInfo, { column: column.key })),
-        aboutColumn(context, column.column.descriptionContent?.({ column: column.column, place: 'info' }) ?? column.column.description, column.column.formula)
+        h(
+            'div',
+            part('columnInfoHeading'),
+            h('h3', mergeAttrs(part('columnInfoTitle'), { id: titleId }), column.header || formatMessage(locale.datagrid.columnInfo, { column: column.key })),
+            kindTag(context, column.column.kind)
+        ),
+        aboutColumn(context, columnAbout(column.column, 'info'))
     ) as VElement;
 }
 
@@ -1222,6 +1261,14 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
     };
     /** Every column, shown or hidden, with what it holds and how it is worked out; the search finds them by either. */
     const dictionaryPanel = () => [
+        side.dictionaryModule || side.dictionarySubtitle
+            ? h(
+                  'div',
+                  mergeAttrs({ key: 'heading' }, part('dictionaryHeading')),
+                  side.dictionaryModule ? h('span', part('dictionaryModule'), formatMessage(words.module, { module: side.dictionaryModule })) : null,
+                  side.dictionarySubtitle ? h('p', part('dictionarySubtitle'), side.dictionarySubtitle) : null
+              )
+            : null,
         h(
             'span',
             mergeAttrs({ key: 'search' }, part('filterField')),
@@ -1244,8 +1291,14 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                 h(
                     'div',
                     mergeAttrs({ key: entry.key }, part('dictionaryEntry', { hidden: !entry.visible }), { 'data-dictionary': entry.key }),
-                    h('dt', part('dictionaryTerm'), h('span', null, entry.header), entry.visible ? null : h('span', part('dictionaryHidden'), words.hiddenColumn)),
-                    h('dd', part('dictionaryDetail'), aboutColumn(context, entry.description, entry.formula))
+                    h(
+                        'dt',
+                        part('dictionaryTerm'),
+                        h('span', null, entry.header),
+                        kindTag(context, entry.kind),
+                        entry.visible ? null : h('span', part('dictionaryHidden'), words.hiddenColumn)
+                    ),
+                    h('dd', part('dictionaryDetail'), aboutColumn(context, entry))
                 )
             )
         )

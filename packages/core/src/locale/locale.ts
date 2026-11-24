@@ -747,6 +747,12 @@ export interface Locale {
         formula: string;
         noDescription: string;
         hiddenColumn: string;
+        /** A column's kind, where it comes from, its rules, and the module over the dictionary. `{source}` `{module}` */
+        dimension: string;
+        metric: string;
+        source: string;
+        notes: string;
+        module: string;
         /** The toolbar over the grid. */
         toolbar: string;
         density: string;
@@ -1372,6 +1378,11 @@ export const en: Locale = {
         formula: 'Formula',
         noDescription: 'No description yet.',
         hiddenColumn: 'Hidden',
+        dimension: 'Dimension',
+        metric: 'Metric',
+        source: 'Source: {source}',
+        notes: 'Notes',
+        module: 'Module · {module}',
         toolbar: 'Table tools',
         density: 'Row density',
         densities: { small: 'Compact', normal: 'Normal', large: 'Comfortable' },
@@ -1989,6 +2000,11 @@ export const ptBR: Locale = {
         formula: 'Fórmula',
         noDescription: 'Ainda sem descrição.',
         hiddenColumn: 'Oculta',
+        dimension: 'Dimensão',
+        metric: 'Métrica',
+        source: 'Fonte: {source}',
+        notes: 'Observações',
+        module: 'Módulo · {module}',
         toolbar: 'Ferramentas da tabela',
         density: 'Densidade das linhas',
         densities: { small: 'Compacta', normal: 'Normal', large: 'Confortável' },

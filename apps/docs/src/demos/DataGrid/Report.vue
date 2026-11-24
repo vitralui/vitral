@@ -66,6 +66,8 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         data-key="id"
         aria-label="Sales report"
         state-key="docs-sales-report"
+        dictionary-module="Sales"
+        dictionary-subtitle="What every column of the report holds, and where it comes from."
         :side-bar="['columns', 'dictionary']"
         toolbar
         show-gridlines
@@ -83,17 +85,17 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         <template #header>
             <strong>Sales report</strong>
         </template>
-        <Column field="date" header="Order date" sortable description="The day the order was placed, not the day it was invoiced.">
+        <Column field="date" header="Order date" sortable kind="dimension" source="orders.placed_at" description="The day the order was placed, not the day it was invoiced.">
             <template #body="{ data }">{{ day.format(data.date) }}</template>
         </Column>
-        <Column field="customer" header="Customer" sortable description="Who bought, as on the order." />
+        <Column field="customer" header="Customer" sortable kind="dimension" source="orders.customer_id" notes="Orders without a customer are left out of the report." description="Who bought, as on the order." />
         <Column field="product" header="Product" sortable description="What was sold, one line of the order." />
-        <Column field="seller" header="Seller" sortable description="The person credited with the sale." />
-        <Column field="quantity" header="Quantity" align="right" sortable description="Units on the line." />
+        <Column field="seller" header="Seller" sortable kind="dimension" notes="Can be empty, for orders placed online." description="The person credited with the sale." />
+        <Column field="quantity" header="Quantity" align="right" sortable kind="metric" description="Units on the line." />
         <Column field="price" header="Unit price" align="right" sortable description="The price of one unit when the order was placed.">
             <template #body="{ data }">{{ money.format(data.price) }}</template>
         </Column>
-        <Column header="Gross sale" align="right" :export-value="gross" description="What the line is worth before discounts and freight." formula="quantity × unit price">
+        <Column header="Gross sale" align="right" :export-value="gross" kind="metric" description="What the line is worth before discounts and freight." formula="quantity × unit price">
             <template #body="{ data }">{{ money.format(gross(data)) }}</template>
         </Column>
         <Column field="discount" header="Discount" align="right" sortable description="Taken off the line, by a coupon or by the seller.">
@@ -102,7 +104,7 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         <Column field="freight" header="Freight" align="right" sortable :visible="false" description="What the customer paid for delivery.">
             <template #body="{ data }">{{ money.format(data.freight) }}</template>
         </Column>
-        <Column header="Net sale" align="right" :export-value="net" formula="gross sale − discount + freight">
+        <Column header="Net sale" align="right" :export-value="net" kind="metric" :notes="['Returns are taken off on the day they come back.', 'Taxes are not counted.']" formula="gross sale − discount + freight">
             <template #description>What the line brings in. <em>Freight</em> is counted, since the customer pays it.</template>
             <template #body="{ data }">{{ money.format(net(data)) }}</template>
         </Column>

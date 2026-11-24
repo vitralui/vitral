@@ -1840,3 +1840,79 @@
     margin: 0;
     font-size: 0.875rem;
 }
+
+/* A column's kind, where its value comes from, and the rules worth a warning. */
+.vt-datagrid-column-info-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vt-datagrid-column-kind {
+    padding: 0 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    border-radius: var(--vt-border-radius-sm);
+    color: var(--vt-primary-color);
+    background: color-mix(in srgb, var(--vt-primary-color) 12%, transparent);
+}
+
+.vt-datagrid-column-kind-metric {
+    color: var(--vt-success-color, #15803d);
+    background: color-mix(in srgb, var(--vt-success-color, #15803d) 12%, transparent);
+}
+
+.vt-datagrid-column-source {
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
+.vt-datagrid-column-notes {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    border-radius: var(--vt-border-radius-sm);
+    color: var(--vt-text-color);
+    background: color-mix(in srgb, var(--vt-warn-color, #b45309) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--vt-warn-color, #b45309) 35%, transparent);
+}
+
+.vt-datagrid-column-notes > .vt-icon,
+.vt-datagrid-column-notes > svg {
+    flex: none;
+    margin-top: 0.125rem;
+    color: var(--vt-warn-color, #b45309);
+}
+
+.vt-datagrid-column-notes p,
+.vt-datagrid-column-notes ul {
+    margin: 0;
+}
+
+.vt-datagrid-column-notes ul {
+    padding-inline-start: 1rem;
+}
+
+.vt-datagrid-dictionary-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.vt-datagrid-dictionary-module {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--vt-text-muted-color);
+}
+
+.vt-datagrid-dictionary-subtitle {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}

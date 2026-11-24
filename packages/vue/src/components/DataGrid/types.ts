@@ -161,6 +161,10 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * values, and the `v-model`s bound to them hear it; "Reset columns" in a column's menu puts the columns back.
      */
     stateKey?: string;
+    /** Over the data dictionary: the module the table belongs to, in small capitals. */
+    dictionaryModule?: string;
+    /** A line under the data dictionary's title. */
+    dictionarySubtitle?: string;
     /** Whether a header's menu button is always there (`'always'`, the default) or only while the header is pointed at. */
     headerTools?: 'always' | 'hover';
     /** The least height of the box the rows scroll in, a CSS length, so a grid with few rows or none keeps its shape. */
@@ -423,6 +427,12 @@ export interface ColumnProps {
     description?: string;
     /** How the column's value is worked out, shown under its description. */
     formula?: string;
+    /** Whether the column says what a row is about (`'dimension'`) or measures it (`'metric'`), drawn as a tag by its name. */
+    kind?: 'dimension' | 'metric';
+    /** Where the value comes from, in a line under the description. */
+    source?: string;
+    /** Rules and exceptions worth a warning: "Can be empty", "Orders without a customer are left out". */
+    notes?: string | string[];
     footer?: string;
     sortable?: boolean;
     /** A column of selection controls: checkboxes with a select-all (`multiple`) or radios (`single`). */

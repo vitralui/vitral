@@ -182,3 +182,39 @@ describe('a header laid out as a report’s', () => {
         expect(element.classList).toContain('vt-datagrid-tools-on-hover');
     });
 });
+
+describe('a dictionary as a report’s', () => {
+    const described: DataGridColumn<Sale>[] = [
+        { field: 'customer', header: 'Customer', kind: 'dimension', description: 'Who bought.', source: 'orders.customer_id', notes: 'Can be empty' },
+        { field: 'gross', header: 'Gross sale', kind: 'metric', notes: ['Returns are taken off', 'Freight is not counted'] },
+        { field: 'discount', header: 'Discount' }
+    ];
+
+    it('tags each column a dimension or a metric, says where it comes from, and warns of its rules', () => {
+        const { element } = mount({ columns: described, sideBar: true, sideBarOpen: 'dictionary', dictionaryModule: 'Sales', dictionarySubtitle: 'Every column of the report.' });
+        expect(element.querySelector('.vt-datagrid-dictionary-module')!.textContent).toBe('Module · Sales');
+        expect(element.querySelector('.vt-datagrid-dictionary-subtitle')!.textContent).toBe('Every column of the report.');
+        const customer = element.querySelector('[data-dictionary="customer"]')!;
+        expect(customer.querySelector('.vt-datagrid-column-kind')!.textContent).toBe('Dimension');
+        expect(customer.querySelector('.vt-datagrid-column-source')!.textContent).toBe('Source: orders.customer_id');
+        expect(customer.querySelector('[role="note"]')!.textContent).toBe('Can be empty');
+        const gross = element.querySelector('[data-dictionary="gross"]')!;
+        expect(gross.querySelector('.vt-datagrid-column-kind-metric')!.textContent).toBe('Metric');
+        expect(Array.from(gross.querySelectorAll('[role="note"] li'), (li) => li.textContent)).toEqual(['Returns are taken off', 'Freight is not counted']);
+        // The search finds a column by its source and its rules too.
+        const search = element.querySelector('[data-side-search]') as HTMLInputElement;
+        search.value = 'freight';
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(Array.from(element.querySelectorAll('[data-dictionary]'), (entry) => entry.getAttribute('data-dictionary'))).toEqual(['gross']);
+    });
+
+    it('shows the tag and the rules in a header’s info popover too', async () => {
+        const { element, info } = mount({ columns: described });
+        info('gross')!.click();
+        const popover = document.querySelector('.vt-datagrid-column-info') as HTMLElement;
+        expect(popover.querySelector('.vt-datagrid-column-kind')!.textContent).toBe('Metric');
+        expect(popover.querySelectorAll('[role="note"] li')).toHaveLength(2);
+        await expectNoA11yViolations(popover);
+        expect(element).toBeTruthy();
+    });
+});

@@ -58,7 +58,7 @@ import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type Cel
 import { toXlsx, type DataGridXlsxOptions } from './engine/xlsx';
 import { pivotOf, PIVOT_KEY, type PivotConfig } from './engine/pivot';
 import { distinctValues, filterKind, optionLabel, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
-import { columnInfoView, hasDescription, type DictionaryEntry, type PivotPanelView, type PivotZone, type SideBarView, type SidePanel, type ToolbarView } from './render/grid';
+import { columnAbout, columnInfoView, hasDescription, type DictionaryEntry, type PivotPanelView, type PivotZone, type SideBarView, type SidePanel, type ToolbarView } from './render/grid';
 import { chooserView, filterPanelView, filtersByMenu, frameRows, gridView, offersMenu, type FilterPanelView, type DataGridActions, type DrawnColumn, type EditingView, type ViewContext, type VirtualRows } from './render/grid';
 
 /**
@@ -2309,12 +2309,11 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         return declaredColumns(own)
             .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander)
             .map(({ column, key }) => ({
+                ...columnAbout(column, 'dictionary'),
                 key,
                 header: column.header ?? column.field ?? key,
-                description: column.descriptionContent?.({ column, place: 'dictionary' }) ?? column.description ?? null,
-                formula: column.formula,
                 visible: !hidden.includes(key),
-                text: `${column.header ?? column.field ?? key} ${column.description ?? ''} ${column.formula ?? ''}`
+                text: [column.header ?? column.field ?? key, column.description, column.formula, column.source, ...([] as string[]).concat(column.notes ?? [])].join(' ')
             }))
             .filter((entry) => !query || normalizeText(entry.text, locale().code).includes(query))
             .map(({ text: _text, ...entry }) => entry);
@@ -2357,7 +2356,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             dragging: sideDragging,
             dropOn: sideDropOn,
             pivot: open === 'pivot' ? pivotPanel() : undefined,
-            dictionary: open === 'dictionary' ? dictionaryEntries() : undefined
+            dictionary: open === 'dictionary' ? dictionaryEntries() : undefined,
+            dictionaryModule: current.dictionaryModule,
+            dictionarySubtitle: current.dictionarySubtitle
         };
     }
 
