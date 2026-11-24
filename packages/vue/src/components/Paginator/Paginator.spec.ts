@@ -117,4 +117,26 @@ describe('Paginator', () => {
         mountPager({ first: 20, rowsPerPageOptions: [10, 20], template: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown' });
         await expectNoA11yViolations();
     });
+
+    it('takes a typed page on Enter, holding it to the pages that exist, and labels the page size', async () => {
+        const { first, onPage } = mountPager({ template: 'PageInput RowsPerPageLabel RowsPerPageDropdown', rowsPerPageOptions: [10, 20] });
+        const box = document.querySelector<HTMLInputElement>('.vt-paginator-page-input-box')!;
+        expect(box.value).toBe('1');
+        expect(document.querySelector('.vt-paginator-page-input')!.textContent).toContain('of 10');
+        expect(document.querySelector('.vt-paginator-rows-per-page-label')!.textContent).toBe('Page size:');
+        box.value = '4';
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        await nextTick();
+        expect(first.value).toBe(30);
+        expect(onPage).toHaveBeenLastCalledWith({ page: 3, first: 30, rows: 10, pageCount: 10 });
+        box.value = '99';
+        box.dispatchEvent(new Event('change', { bubbles: true }));
+        await nextTick();
+        expect(first.value).toBe(90);
+        box.value = 'x';
+        box.dispatchEvent(new Event('change', { bubbles: true }));
+        await nextTick();
+        expect(first.value).toBe(90);
+        expect(box.value).toBe('10');
+    });
 });

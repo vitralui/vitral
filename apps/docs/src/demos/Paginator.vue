@@ -12,11 +12,13 @@ export const meta: DemoMeta = {
 import DemoSection from '../DemoSection.vue';
 import Basic from './Paginator/Basic.vue';
 import CurrentPageReport from './Paginator/CurrentPageReport.vue';
+import PageInput from './Paginator/PageInput.vue';
 import StartAndEnd from './Paginator/StartAndEnd.vue';
 </script>
 
 <template>
     <DemoSection title="Basic" description="120 records, ten per page, with a choice of page size."><Basic /></DemoSection>
     <DemoSection title="Current page report" description="The report follows the locale (`pageReport`); a template of your own can say it differently."><CurrentPageReport /></DemoSection>
+    <DemoSection title="Typed page" description="`PageInput` takes the page typed, on Enter or when the box is left; `RowsPerPageLabel` names the page-size choice."><PageInput /></DemoSection>
     <DemoSection title="Start and end content"><StartAndEnd /></DemoSection>
 </template>

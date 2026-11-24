@@ -2335,13 +2335,13 @@ function paginatorView<T>(context: ViewContext<T>): Child {
                 return h(
                     'label',
                     mergeAttrs({ key: 'page-input' }, pagePart('pageInput')),
-                    h('span', null, locale.datagrid.pageInput),
+                    h('span', null, locale.pageInput),
                     h(
                         'input',
                         mergeAttrs({ type: 'text', inputmode: 'numeric' }, pagePart('pageInputBox'), {
                             value: String(count ? page + 1 : 0),
                             size: String(Math.max(2, String(count).length)),
-                            'aria-label': locale.datagrid.pageInput,
+                            'aria-label': locale.pageInput,
                             'data-page-input': '',
                             onKeydown: (event: KeyboardEvent) => {
                                 if (event.key !== 'Enter') return;
@@ -2351,10 +2351,10 @@ function paginatorView<T>(context: ViewContext<T>): Child {
                             onChange: (event: Event) => context.on.pageInput(Number((event.target as HTMLInputElement).value))
                         })
                     ),
-                    h('span', null, formatMessage(locale.datagrid.pageOfCount, { count: count }))
+                    h('span', null, formatMessage(locale.pageOfCount, { count: count }))
                 );
             case 'RowsPerPageLabel':
-                return (config.rowsPerPageOptions ?? []).length ? h('span', mergeAttrs({ key: 'rows-per-page-label' }, pagePart('rowsPerPageLabel'), { 'aria-hidden': 'true' }), `${locale.datagrid.pageSize}:`) : null;
+                return (config.rowsPerPageOptions ?? []).length ? h('span', mergeAttrs({ key: 'rows-per-page-label' }, pagePart('rowsPerPageLabel'), { 'aria-hidden': 'true' }), `${locale.pageSize}:`) : null;
             case 'RowsPerPageDropdown': {
                 const options = config.rowsPerPageOptions ?? [];
                 if (!options.length) return null;

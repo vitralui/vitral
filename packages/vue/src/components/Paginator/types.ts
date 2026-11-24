@@ -1,6 +1,17 @@
 import type { BaseProps } from '../../base/types';
 
-export type PaginatorTemplateItem = 'FirstPageLink' | 'PrevPageLink' | 'PageLinks' | 'NextPageLink' | 'LastPageLink' | 'RowsPerPageDropdown' | 'CurrentPageReport';
+export type PaginatorTemplateItem =
+    | 'FirstPageLink'
+    | 'PrevPageLink'
+    | 'PageLinks'
+    | 'NextPageLink'
+    | 'LastPageLink'
+    | 'RowsPerPageDropdown'
+    | 'CurrentPageReport'
+    /** "Page [n] of N": a page typed and taken on Enter or when the box is left. */
+    | 'PageInput'
+    /** "Page size:" before the rows-per-page select. */
+    | 'RowsPerPageLabel';
 
 export interface PaginatorProps extends BaseProps {
     /** Rows in the whole data, across pages. */

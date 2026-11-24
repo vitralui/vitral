@@ -71,6 +71,14 @@ watch(
     }
 );
 
+// A page past either end is the end; what is not a number puts the box back.
+function typePage(event: Event) {
+    const box = event.target as HTMLInputElement;
+    const typed = Math.trunc(Number(box.value));
+    if (Number.isFinite(typed) && box.value.trim() !== '') changePage(Math.min(Math.max(typed, 1), pageCount.value) - 1);
+    box.value = String(pageCount.value ? page.value + 1 : 0);
+}
+
 const pageLabel = (n: number) => formatMessage(locale.value.aria.page, { page: n + 1 });
 </script>
 
@@ -132,6 +140,21 @@ const pageLabel = (n: number) => formatMessage(locale.value.aria.page, { page: n
                 <Icon icon="chevronsRight" />
             </button>
             <span v-else-if="item === 'CurrentPageReport'" v-bind="part('current')" aria-live="polite">{{ report }}</span>
+            <label v-else-if="item === 'PageInput'" v-bind="part('pageInput')">
+                <span>{{ locale.pageInput }}</span>
+                <input
+                    type="text"
+                    inputmode="numeric"
+                    v-bind="part('pageInputBox')"
+                    :value="pageCount ? page + 1 : 0"
+                    :size="Math.max(2, String(pageCount).length)"
+                    :aria-label="locale.pageInput"
+                    @keydown.enter.prevent="typePage"
+                    @change="typePage"
+                />
+                <span>{{ formatMessage(locale.pageOfCount, { count: pageCount }) }}</span>
+            </label>
+            <span v-else-if="item === 'RowsPerPageLabel' && rowOptions.length" v-bind="part('rowsPerPageLabel')" aria-hidden="true">{{ locale.pageSize }}:</span>
             <Select
                 v-else-if="item === 'RowsPerPageDropdown' && rowOptions.length"
                 v-bind="part('rowsPerPage')"

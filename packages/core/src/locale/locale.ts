@@ -33,6 +33,10 @@ export interface Locale {
     /** `{first}`, `{last}`, `{total}`, `{page}`, `{pageCount}` */
     pageReport: string;
     rowsPerPage: string;
+    /** A paginator's typed page and its page-size label. `{count}` */
+    pageInput: string;
+    pageOfCount: string;
+    pageSize: string;
     /** Password strength meter. */
     passwordPrompt: string;
     weak: string;
@@ -781,10 +785,6 @@ export interface Locale {
         toolbar: string;
         density: string;
         densities: { small: string; normal: string; large: string };
-        /** The paginator's typed page and its page-size label. `{count}` */
-        pageInput: string;
-        pageOfCount: string;
-        pageSize: string;
         /** The side bar's pivot panel. `{field}` `{zone}` */
         pivotPanel: string;
         pivotMode: string;
@@ -838,6 +838,9 @@ export const en: Locale = {
     searchMessage: '{count} results are available',
     pageReport: '{first}–{last} of {total}',
     rowsPerPage: 'Rows per page',
+    pageInput: 'Page',
+    pageOfCount: 'of {count}',
+    pageSize: 'Page size',
     passwordPrompt: 'Enter a password',
     weak: 'Weak',
     medium: 'Medium',
@@ -1432,9 +1435,6 @@ export const en: Locale = {
         toolbar: 'Table tools',
         density: 'Row density',
         densities: { small: 'Compact', normal: 'Normal', large: 'Comfortable' },
-        pageInput: 'Page',
-        pageOfCount: 'of {count}',
-        pageSize: 'Page size',
         pivotPanel: 'Pivot',
         pivotMode: 'Pivot mode',
         pivotRows: 'Rows',
@@ -1482,6 +1482,9 @@ export const ptBR: Locale = {
     searchMessage: '{count} resultados disponíveis',
     pageReport: '{first}–{last} de {total}',
     rowsPerPage: 'Linhas por página',
+    pageInput: 'Página',
+    pageOfCount: 'de {count}',
+    pageSize: 'Tamanho da página',
     passwordPrompt: 'Digite uma senha',
     weak: 'Fraca',
     medium: 'Média',
@@ -2076,9 +2079,6 @@ export const ptBR: Locale = {
         toolbar: 'Ferramentas da tabela',
         density: 'Densidade das linhas',
         densities: { small: 'Compacta', normal: 'Normal', large: 'Confortável' },
-        pageInput: 'Página',
-        pageOfCount: 'de {count}',
-        pageSize: 'Tamanho da página',
         pivotPanel: 'Pivô',
         pivotMode: 'Modo pivô',
         pivotRows: 'Linhas',
