@@ -1,7 +1,5 @@
 import {
-    flattenGroups,
     getField,
-    groupRows,
     isBlankFilter,
     isSelected,
     orderColumns,
@@ -13,9 +11,9 @@ import {
     type CompositeFilter,
     type FilterConstraint,
     type FilterMeta,
-    type GroupedRow,
     type SortMeta
 } from '@vitral/core';
+import { childrenOf, groupFields, groupLines, treeRows, type GridLine, type TreePlace } from './rows';
 import type { LoadRequest, Row, DataGridColumn, DataGridConfig, DataGridModels } from './types';
 
 /**
@@ -38,6 +36,16 @@ export interface ResolvedColumn<T = Row> {
     width?: number;
     align?: 'left' | 'center' | 'right';
     selectionMode?: 'single' | 'multiple';
+    /** The groups this column sits in, outermost first: one heading row each. */
+    groups: ColumnGroupRef<T>[];
+    /** Where it stands among the columns drawn, from 1: what `aria-colindex` says when columns are left out of view. */
+    position: number;
+}
+
+/** A group of columns a column sits in, as the header draws it. */
+export interface ColumnGroupRef<T = Row> {
+    key: string;
+    column: DataGridColumn<T>;
 }
 
 export const keyOf = (column: DataGridColumn, index: number): string => String(column.key ?? column.field ?? `column-${index}`);
@@ -53,13 +61,34 @@ export const defaultModels = (): DataGridModels => ({
     selection: null,
     columnLayout: {},
     collapsedGroups: [],
-    expandedRows: []
+    expandedRows: [],
+    expandedTree: []
 });
 
-/** The columns as declared, before the reader's layout: hidden ones are already out. */
-export function declaredColumns<T>(config: DataGridConfig<T>): { column: DataGridColumn<T>; key: string }[] {
-    return (config.columns ?? []).filter((column) => !column.hidden).map((column, index) => ({ column, key: keyOf(column, index) }));
+/**
+ * The columns as declared, before the reader's layout: hidden ones are already
+ * out, and a group is the columns inside it, each knowing the groups it is in.
+ * A column is keyed by where it stands among the columns, as it was before
+ * groups, so a layout stored from a flat table still fits.
+ */
+export function declaredColumns<T>(config: DataGridConfig<T>): { column: DataGridColumn<T>; key: string; groups: ColumnGroupRef<T>[] }[] {
+    const out: { column: DataGridColumn<T>; key: string; groups: ColumnGroupRef<T>[] }[] = [];
+    const walk = (list: DataGridColumn<T>[], groups: ColumnGroupRef<T>[], path: string) =>
+        list
+            .filter((column) => !column.hidden)
+            .forEach((column, index) => {
+                if (column.columns) walk(column.columns, [...groups, { key: String(column.key ?? `group-${path}${index}`), column }], `${path}${index}-`);
+                else out.push({ column, key: keyOf(column, out.length), groups });
+            });
+    walk(config.columns ?? [], [], '');
+    return out;
 }
+
+/** How many heading rows the groups take over the columns' own. */
+export const groupDepth = (columns: readonly { groups: readonly unknown[] }[]): number => columns.reduce((deepest, column) => Math.max(deepest, column.groups.length), 0);
+
+/** The width a column without one is given where every column needs one: a grid that draws its columns as they come into view. */
+export const VIRTUAL_COLUMN_WIDTH = 150;
 
 /**
  * The layout the table draws from: what the reader changed, over what the
@@ -74,11 +103,18 @@ export function tableLayout<T>(config: DataGridConfig<T>, models: DataGridModels
     return { order: given.order, hidden: given.hidden ?? [], widths, pinned };
 }
 
-/** The columns to draw, in order, with their widths and sticky offsets. */
+/**
+ * The columns to draw, in order, with their widths and sticky offsets. A grid
+ * that draws its columns as they come into view needs every width, so there a
+ * column without one has its minimum, or `VIRTUAL_COLUMN_WIDTH`.
+ */
 export function tableColumns<T>(config: DataGridConfig<T>, models: DataGridModels): ResolvedColumn<T>[] {
     const declared = declaredColumns(config);
-    const layout = tableLayout(config, models);
-    const byKey = new Map(declared.map((entry) => [entry.key, entry.column]));
+    const given = tableLayout(config, models);
+    const byKey = new Map(declared.map((entry) => [entry.key, entry]));
+    const layout = config.virtualColumns
+        ? { ...given, widths: { ...Object.fromEntries(declared.map(({ column, key }) => [key, column.minWidth ?? VIRTUAL_COLUMN_WIDTH])), ...given.widths } }
+        : given;
     const order = orderColumns(
         declared.map((entry) => entry.key),
         layout
@@ -86,8 +122,8 @@ export function tableColumns<T>(config: DataGridConfig<T>, models: DataGridModel
     const sticky = stickyOffsets(order, layout);
     return order
         .filter((key) => byKey.has(key))
-        .map((key) => {
-            const column = byKey.get(key)!;
+        .map((key, index) => {
+            const { column, groups } = byKey.get(key)!;
             return {
                 column,
                 key,
@@ -98,9 +134,17 @@ export function tableColumns<T>(config: DataGridConfig<T>, models: DataGridModel
                 sticky: sticky[key],
                 width: layout.widths?.[key],
                 align: column.align,
-                selectionMode: column.selectionMode
+                selectionMode: column.selectionMode,
+                groups,
+                position: index + 1
             };
         });
+}
+
+/** A pinned band's rows: the list it was given, or what its function makes of the rows the query let through. */
+export function pinnedRowsOf<T>(rows: DataGridConfig<T>['pinnedTopRows'], resolved: ResolvedRows<T>): T[] {
+    if (!rows) return [];
+    return typeof rows === 'function' ? rows({ rows: resolved.all, page: resolved.page }) : rows;
 }
 
 /** The sort the table is in, however it was expressed. */
@@ -131,6 +175,8 @@ export const modeOf = (config: DataGridConfig): TableMode => (config.dataSource 
 export interface ResolvedRows<T = Row> {
     /** The rows on the page. */
     page: T[];
+    /** In a tree, where each row shown stands in it. */
+    tree?: Map<T, TreePlace>;
     /** Every row the query matched, which is what select-all covers; the page itself for a server. */
     all: T[];
     total: number;
@@ -146,6 +192,12 @@ export function resolveRows<T>(config: DataGridConfig<T>, models: DataGridModels
     if (mode === 'lazy') return { page: value, all: value, total: config.totalRecords ?? value.length, offset };
     if (mode === 'source') return { page: remote?.items ?? [], all: remote?.items ?? [], total: remote?.total ?? 0, offset };
     const request = loadRequest(config, models, filters);
+    if (config.treeData) {
+        // A tree pages over the rows it shows, the open rows' rows among them.
+        const tree = treeRows(value, childrenOf(config.treeData), request, new Set((models.expandedTree ?? []).map(String)), (row, path) => treeKey(config, row, path));
+        const page = config.paginator ? tree.rows.slice(models.first, models.first + models.rows) : tree.rows;
+        return { page, all: tree.rows, total: tree.rows.length, offset, tree: tree.places };
+    }
     const processed = queryData(value, { ...request, first: undefined, rows: undefined });
     const page = config.paginator ? queryData(processed.items, { first: models.first, rows: models.rows }).items : processed.items;
     return { page, all: processed.items, total: processed.total, offset };
@@ -161,15 +213,19 @@ export function resolveRows<T>(config: DataGridConfig<T>, models: DataGridModels
  * to selection, to the keyboard and to every event the grid emits, and shifting
  * it because a heading was inserted would break all three.
  */
-export function linesOf<T>(config: DataGridConfig<T>, models: DataGridModels, page: T[]): GroupedRow<T>[] {
-    if (!config.groupBy) return page.map((row, index) => ({ kind: 'row', row, index }));
-    const groups = groupRows(page, config.groupBy);
-    return flattenGroups(groups, page, new Set(models.collapsedGroups ?? []));
+export function linesOf<T>(config: DataGridConfig<T>, models: DataGridModels, page: T[], tree?: Map<T, TreePlace>): GridLine<T>[] {
+    if (tree) return page.map((row, index) => ({ kind: 'row', row, index, tree: tree.get(row) }));
+    const fields = groupFields(config.groupBy);
+    if (!fields.length) return page.map((row, index) => ({ kind: 'row', row, index }));
+    return groupLines(page, fields, new Set(models.collapsedGroups ?? []));
 }
 
+/** What a row of a tree is opened by: its `dataKey` value, or its place in the tree as handed in. */
+export const treeKey = (config: DataGridConfig, row: unknown, path: string): string | number => (config.dataKey ? (getField(row, config.dataKey) as string | number) : path);
+
 /** What a group's heading says: what the template asked for, or the value itself. */
-export function groupTitle<T>(config: DataGridConfig<T>, group: { value: unknown; rows: T[] }): string {
-    if (config.groupLabel) return config.groupLabel({ value: group.value, count: group.rows.length, rows: group.rows });
+export function groupTitle<T>(config: DataGridConfig<T>, group: { value: unknown; rows: T[] }, field = groupFields(config.groupBy)[0] ?? '', level = 0): string {
+    if (config.groupLabel) return config.groupLabel({ value: group.value, count: group.rows.length, rows: group.rows, field, level });
     return group.value === null || group.value === undefined || group.value === '' ? '—' : String(group.value);
 }
 
@@ -180,7 +236,9 @@ export function hasActiveFilter(filters: FilterMeta): boolean {
 
 /** A column takes a filter box when it has a field to filter and a filter to put in it. */
 export function isFilterable(column: ResolvedColumn, filters: FilterMeta): boolean {
-    return !column.selectionMode && !!column.filterField && (!!column.column.filterContent || !!filters[column.filterField]);
+    // A list of values is ticked in its panel; a box in the row could not hold it.
+    if (column.column.filter === 'set' && !column.column.filterContent) return false;
+    return !column.selectionMode && !!column.filterField && (!!column.column.filterContent || !!column.column.filter || !!filters[column.filterField]);
 }
 
 export const selectionKind = (config: DataGridConfig, columns: ResolvedColumn[]): 'single' | 'multiple' | undefined =>

@@ -1,5 +1,5 @@
 {
-    "description": "Uma tabela de dados que ordena, filtra, pagina e seleciona, localmente ou no seu servidor, com colunas que o leitor pode redimensionar, reordenar, fixar e ocultar.",
+    "description": "Uma tabela de dados que ordena, filtra, pagina e seleciona, localmente ou no seu servidor, desenha só as linhas e colunas à vista, agrupa as colunas sob títulos e prende linhas nas bordas, com colunas que o leitor pode redimensionar, reordenar, fixar e ocultar.",
     "sections": {
         "Sort, filter, page and select": {
             "title": "Ordenar, filtrar, paginar e selecionar",
@@ -39,6 +39,78 @@
         "Rows that open": {
             "title": "Linhas que abrem",
             "description": "Uma coluna com `expander` desenha o botão que abre uma linha, e o slot `#expansion` desenha o que abre abaixo dela, na largura toda — aqui as linhas de um pedido. O botão diz se a linha está aberta e qual região controla. `v-model:expandedRows` são as chaves das linhas abertas, por `data-key`, para a aplicação abrir uma por conta própria ou lembrá-las."
+        },
+        "A hundred thousand rows": {
+            "title": "Cem mil linhas",
+            "description": "`virtual-scroll` desenha as linhas à vista e algumas de cada lado, e reserva o espaço das demais, então a barra de rolagem fica do tamanho que teria com todas as linhas lá. A ordenação e a busca continuam passando pelas cem mil. Cada linha é medida quando é desenhada, então as linhas mantêm suas próprias alturas; a tabela continua dizendo a um leitor de tela quantas linhas tem e onde cada uma está, e as setas alcançam linhas ainda não desenhadas. `scrollToIndex()` traz uma linha para a vista."
+        },
+        "Columns in groups": {
+            "title": "Colunas em grupos",
+            "description": "`&lt;ColumnGroup&gt;` põe um título sobre as colunas que estão dentro dele, e grupos se aninham — aqui as metades do ano sobre os trimestres. Só as colunas são ordenadas, movidas e redimensionadas: arraste Units do Q2 para fora do trimestre e o título se divide em dois, como acontece onde termina o bloco fixo."
+        },
+        "Rows pinned to the top and the bottom": {
+            "title": "Linhas fixas no topo e no rodapé",
+            "description": "`pinned-top-rows` e `pinned-bottom-rows` seguram linhas paradas enquanto as outras rolam entre elas. Cada uma é uma lista, ou uma função das linhas que os filtros deixam passar — o total aqui acompanha o que você digita. As colunas as desenham como desenham qualquer linha, e o `pinned` do slot `#body` as distingue."
+        },
+        "Columns drawn as they come into view": {
+            "title": "Colunas desenhadas conforme entram na vista",
+            "description": "`virtual-columns` faz pelas colunas o que `virtual-scroll` faz pelas linhas: um ano de leituras diárias de dois mil sensores são 730.000 células, das quais algumas centenas são desenhadas. As colunas fixas estão sempre lá. Toda coluna precisa de uma largura, então a que não tem recebe seu `min-width`, ou 150px."
+        },
+        "One height, or the content's": {
+            "title": "Uma altura, ou a do conteúdo",
+            "description": "Sem `row-height` uma linha tem a altura do que está nela, e texto longo quebra. Com ele toda linha tem essa altura e a célula fica numa linha só, terminando em reticências."
+        },
+        "Layout: a trading desk": {
+            "title": "Layout: uma mesa de operações",
+            "description": "Denso e ao vivo: células pequenas com linhas de grade, um instrumento fixo à esquerda, colunas reunidas sob Price e Session, e linhas de uma só altura desenhadas conforme entram na vista. Um décimo das cotações muda a cada segundo — pause, ordene por uma coluna, e a ordem se mantém."
+        },
+        "Layout: a contact list": {
+            "title": "Layout: uma lista de contatos",
+            "description": "Espaçoso, para ler pessoas em vez de números: linhas grandes, um avatar, e a empresa e o e-mail sob cada nome, o estágio como tag, uma busca no cabeçalho e páginas de seis."
+        },
+        "Layout: a panel it fills": {
+            "title": "Layout: um painel que ele preenche",
+            "description": "`scroll-height=&quot;flex&quot;` deixa o grid ocupar a altura que o painel lhe dá: a barra de ferramentas fica em cima, uma barra de status embaixo diz quantos pedidos a busca deixa passar, quantos estão selecionados e quanto somam, e cinco mil pedidos rolam entre elas."
+        },
+        "Layout: stock, by category": {
+            "title": "Layout: estoque, por categoria",
+            "description": "Linhas reunidas por categoria, o estoque disponível desenhado como uma barra contra a capacidade, e os totais do que a busca deixa passar fixos sob as linhas."
+        },
+        "Cells you edit": {
+            "title": "Células que você edita",
+            "description": "Uma coluna com `editable` pode ser alterada onde está. Dê um duplo clique numa célula, ou vá até ela com as setas e pressione Enter, F2 ou simplesmente comece a digitar; Enter mantém o valor, Tab mantém e segue para a próxima célula, Escape descarta. A caixa acompanha o valor: um número é lido nos seus próprios decimais, uma data ganha um campo de data, um booleano um checkbox. `validate` recusa um valor com uma mensagem — tente um nome em branco ou um estoque negativo — e o slot `#editor` desenha um editor seu, como em Category. Ctrl+Z e Ctrl+Y desfazem e refazem; `undo-redo` os desliga."
+        },
+        "Rows edited whole": {
+            "title": "Linhas editadas inteiras",
+            "description": "`edit-mode=&quot;row&quot;` abre todas as células editáveis de uma linha de uma vez, e as salva ou descarta juntas, então uma linha nunca fica alterada pela metade. Uma coluna com `row-editor` desenha os botões: Edit, depois Save e Cancel. Enter salva, Escape cancela; um valor recusado mantém a linha aberta."
+        },
+        "Filters and menus": {
+            "title": "Filtros e menus",
+            "description": "Com `filter-display=&quot;menu&quot;`, uma coluna com `filter` desenha um botão no cabeçalho que abre o seu painel de filtro. O tipo acompanha os valores: texto, números e datas ganham duas condições unidas por E ou Ou, comparadas do jeito que você escolher; `filter=&quot;set&quot;` lista os valores da coluna para marcar, com uma busca para listas longas. `column-menu` acrescenta um menu a cada cabeçalho — ordenar, fixar, ocultar, restaurar — e `context-menu` um no clique direito sobre uma célula, aqui com um comando da própria página antes de Copy, Copy row e Export."
+        },
+        "Groups inside groups": {
+            "title": "Grupos dentro de grupos",
+            "description": "`group-by` aceita uma lista: aqui as linhas se juntam por região, depois por país, cada cabeçalho um passo para dentro. Uma coluna com `aggregate` calcula um valor sobre as linhas de cada grupo — `sum`, `avg`, `min`, `max`, `count` ou uma função sua — e o desenha sob a coluna, pelo slot `#aggregate` quando você o formata. `status-bar` conta as linhas; `expandAll()` e `collapseAll()` abrem e fecham todos os grupos."
+        },
+        "A tree": {
+            "title": "Uma árvore",
+            "description": "`tree-data` nomeia o campo onde estão as linhas de cada linha (ou uma função que as encontra): o grid vira um tree grid, as linhas de cada linha sob ela com um botão, e `v-model:expanded-tree` guarda as abertas. Ordenar organiza as linhas lado a lado, e uma busca mantém o que combina junto com as pastas acima, abrindo o caminho — tente “vue”. Pelo teclado, as setas direita e esquerda abrem e fecham uma linha."
+        },
+        "Rows you drag": {
+            "title": "Linhas que você arrasta",
+            "description": "Uma coluna com `row-drag` desenha uma alça: arraste uma linha por ela para outro lugar, ou foque nela e pressione Ctrl com uma seta. O grid devolve as linhas na nova ordem com `row-reorder` e deixa com você guardá-las, já que são suas."
+        },
+        "Like a spreadsheet": {
+            "title": "Como uma planilha",
+            "description": "`cell-selection` permite marcar um bloco de células: arraste por cima, ou segure Shift com as setas, Ctrl+A para todas. Ctrl+C copia o bloco como uma planilha copia e Ctrl+V cola um bloco — cada valor lido do tipo que a célula guarda e conferido pela sua coluna — enquanto Delete o esvazia, tudo como um passo só para o Ctrl+Z. `fill-handle` põe um quadrado no canto do bloco: arraste-o para baixo ou para o lado e números em sequência continuam a sequência. A barra de status soma o bloco, `range-change` o entrega ao gráfico abaixo, e `exportExcel()` grava uma pasta de trabalho de verdade, com números ainda números."
+        },
+        "A pivot": {
+            "title": "Um pivô",
+            "description": "`pivot` vira as linhas: os valores dos seus campos `rows` descem pelo lado, os valores dos seus campos `columns` vão pelo topo em grupos dentro de grupos, e em cada célula os seus `values` calculados sobre as linhas que se encontram ali, uma soma a menos que um `aggregate` diga outra coisa. O resultado são linhas e colunas como quaisquer outras — ordene uma coluna do pivô, pagine, exporte. Alterne entre as linhas e dois pivôs delas."
+        },
+        "A side bar": {
+            "title": "Um painel lateral",
+            "description": "`side-bar` coloca painéis ao lado do grid, abertos pelas suas abas. O painel de colunas lista todas as colunas — marque uma para mostrá-la ou escondê-la, busque na lista, ou arraste uma coluna pela alça (Ctrl com uma seta no teclado) para outro lugar. O painel de filtros guarda o filtro de cada coluna, um aberto por vez, com um botão para limpar todos. `side-bar-open` diz qual painel começa aberto; uma lista como `['columns']` mantém só alguns."
         }
     }
 }

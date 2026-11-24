@@ -34,6 +34,26 @@ a column layout that is plain data an application can store and hand back —
 and `toCSV()` / `exportCSV()` to write what is on show (every filtered row,
 the page, or the selection) as a file a spreadsheet opens safely.
 
+It scales and works as a spreadsheet does, with nothing to install:
+
+- **Scale and layout**: virtual rows and virtual columns, column groups,
+  rows pinned to the top or the bottom, fixed or automatic row heights.
+- **Editing**: a cell or a whole row, an editor by value kind or of the
+  host's own, `validate` and `parseValue`, Tab and Enter as in a sheet, and
+  undo and redo.
+- **Filters and menus**: a filter panel under each header (two conditions, or
+  a list of values to tick), a column menu, and a menu on right click.
+- **Rows**: groups inside groups with totals (`aggregate`), tree data, rows
+  dragged into another order, and a status bar.
+- **Cells**: a block of cells marked with the pointer or Shift; copy and paste
+  that a spreadsheet understands; a fill handle that carries a series on;
+  cells that flash when they change; and `exportExcel()`, a real `.xlsx` in
+  which numbers stay numbers and dates stay dates.
+- **Analysis**: `pivot` turns the rows about. `sideBar` adds panels to show,
+  hide and reorder the columns, and to hold every column's filter.
+
+Each of these is off unless asked for, or can be turned off.
+
 Everything the reader can change is state the table keeps and publishes through
 `change`, so a host can bind it. A cell, a header, a footer or a filter a host
 wants to draw itself takes a function returning a string or a node, which is

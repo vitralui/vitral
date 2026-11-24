@@ -18,6 +18,30 @@ export interface CellContext<T = Row> {
     field?: string;
     value: unknown;
     column: DataGridColumn<T>;
+    /** Set on a row pinned to the top or the bottom of the grid, which a cell may draw differently (a total, say). */
+    pinned?: 'top' | 'bottom';
+}
+
+/**
+ * What an editor is given: the cell, the value as it stands in the editor, and
+ * how to change it, keep it or drop it. An editor a host draws calls
+ * `setValue` as the reader types, and `commit` or `cancel` when it is done;
+ * the grid does the same on Enter, Tab and Escape.
+ */
+export interface EditorContext<T = Row> {
+    row: T;
+    index: number;
+    field?: string;
+    /** The value in the editor: what the cell held, until the reader changes it. */
+    value: unknown;
+    column: DataGridColumn<T>;
+    /** Why the value was refused, while it is. */
+    error?: string;
+    /** The id the editor's message is drawn under, for `aria-errormessage`. */
+    errorId: string;
+    setValue: (value: unknown) => void;
+    commit: () => void;
+    cancel: () => void;
 }
 
 /** Content a host draws itself: a string, a node it made, or nothing. */
@@ -28,6 +52,13 @@ export type PaginatorItem = 'FirstPageLink' | 'PrevPageLink' | 'PageLinks' | 'Ne
 export interface DataGridColumn<T = Row> {
     /** Identifies the column when `field` does not (two columns on one field, or none). */
     key?: string;
+    /**
+     * Makes this a group of columns rather than a column: its `header` is drawn
+     * over theirs, across all of them, and groups nest. Only the columns are
+     * sorted, filtered, moved and sized; a column moved away from the rest of
+     * its group splits the heading in two, as a pinned one does.
+     */
+    columns?: DataGridColumn<T>[];
     /** The field (dotted path) a cell shows, sorts and filters by. */
     field?: string;
     header?: string;
@@ -37,6 +68,19 @@ export interface DataGridColumn<T = Row> {
     filterField?: string;
     filterPlaceholder?: string;
     filterMatchMode?: string;
+    /**
+     * Filters this column from a panel its header opens, when the grid's
+     * `filterDisplay` takes in `'menu'`: conditions on its values (`true`
+     * reads the kind — text, number or date — from the values themselves), or
+     * `'set'`, a list of its values to tick.
+     */
+    filter?: boolean | 'text' | 'number' | 'date' | 'set';
+    /** The values a `'set'` filter lists, in place of the ones in the rows: what a server would have. */
+    filterOptions?: unknown[];
+    /** The ways a condition may compare, by match mode, in place of the ones its kind offers. */
+    filterMatchModes?: string[];
+    /** Offer this column's menu, when the grid has `columnMenu`. True by default. */
+    menu?: boolean;
     /** A column of selection controls: checkboxes with a select-all (`multiple`) or radios (`single`). */
     selectionMode?: 'single' | 'multiple';
     /** A column of buttons that open each row's detail, drawn by `content.rowExpansion`. */
@@ -56,6 +100,42 @@ export interface DataGridColumn<T = Row> {
     bodyStyle?: Record<string, string>;
     /** Draws the cell. Without it, the field's value is shown as text. */
     body?: (context: CellContext<T>) => Content;
+    /**
+     * The reader can change this column's cells: every row's, or the rows the
+     * function allows. A cell is edited on a double click, Enter, F2 or by
+     * typing into it, and kept with Enter or Tab or dropped with Escape.
+     */
+    editable?: boolean | ((row: T) => boolean);
+    /**
+     * Draws the editor, in place of the text box the grid draws: a select, a
+     * date picker, anything that calls `setValue` and `commit`.
+     */
+    editor?: (context: EditorContext<T>) => Content;
+    /**
+     * Turns what was typed into the value kept. Without it, the text box reads
+     * a number into a number, a date into a date and a boolean into a boolean,
+     * the kind the cell held before.
+     */
+    parseValue?: (text: string, row: T) => unknown;
+    /** Refuses a value: a message says why, and the editor stays open. Anything but a string lets it through. */
+    validate?: (value: unknown, row: T) => string | null | undefined | boolean;
+    /** Writes a kept value into the row. Without it, the value goes into `field`. */
+    setValue?: (row: T, value: unknown) => void;
+    /**
+     * A column of buttons that edit a row as a whole: Edit, then Save and
+     * Cancel. For a grid whose `editMode` is `'row'`.
+     */
+    rowEditor?: boolean;
+    /**
+     * A value worked out over a group's rows, drawn under this column on the
+     * group's heading: `'sum'`, `'avg'`, `'min'`, `'max'` or `'count'`, or a
+     * function of the rows and their values in this column.
+     */
+    aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | ((context: { rows: T[]; values: unknown[] }) => unknown);
+    /** How the value worked out over a group is drawn; a number in the reader's own way by default. */
+    aggregateContent?: (context: { value: unknown; rows: T[]; column: DataGridColumn<T> }) => Content;
+    /** A handle that drags the row to another place, or moves it with Ctrl and an arrow key. */
+    rowDrag?: boolean;
     /** Include this column in `toCSV()` and `exportCSV()`. Defaults to true for a column with a `field` or an `exportValue`. */
     exportable?: boolean;
     /** What an export writes for a row, in place of the field's value: a formatted date, a name for an id. */
@@ -73,6 +153,16 @@ export interface DataGridColumn<T = Row> {
      * the box its control will be.
      */
     skeleton?: (context: { column: DataGridColumn<T>; index: number }) => Content;
+}
+
+/** An item of a column's menu or a cell's: a label and what it does, or a separator. */
+export interface GridMenuItem {
+    label?: string;
+    /** An icon of `@vitral/icons`, by name. */
+    icon?: string;
+    disabled?: boolean;
+    separator?: boolean;
+    onSelect?: () => void;
 }
 
 /** Where the table is in its pages, for whatever a host draws around it. */
@@ -118,7 +208,42 @@ export interface DataGridContent<T = Row> {
     rowsPerPage?: (context: RowsPerPageContext) => Content;
 }
 
+/** A change the reader made to a cell. */
+export interface CellEditEvent<T = Row> {
+    originalEvent?: Event;
+    row: T;
+    /** Its index among the rows on show. */
+    index: number;
+    /** The column, by key. */
+    key: string;
+    field?: string;
+    value: unknown;
+    newValue: unknown;
+}
+
+import type { PivotConfig } from './pivot';
+
+/** What a status bar counts. */
+export interface StatusContext<T = Row> {
+    /** Every row handed in. */
+    total: number;
+    /** The rows the filters let through. */
+    filtered: number;
+    selected: number;
+    rows: T[];
+    /** What the cells marked as a range add up to, when some are. */
+    range?: { count: number; numbers: number; sum: number; avg: number; min: number; max: number };
+}
+
 export interface DataGridEvents<T = Row> {
+    /** A row was dragged, or moved with the keyboard, to another place; `value` is the rows in their new order. */
+    'row-reorder'?: (event: { originalEvent?: Event; row: T; dragIndex: number; dropIndex: number; value: T[] }) => void;
+    /** The block of cells marked changed: its rows (by index among every row) and columns, and the values in it. */
+    'range-change'?: (event: { range: { rows: number[]; keys: string[] } | null; values: unknown[][] }) => void;
+    /** Many cells changed at once — a paste, a fill, a block emptied — as one step undo takes back. */
+    'cells-change'?: (event: { originalEvent?: Event; source: 'paste' | 'fill' | 'clear'; changes: CellEditEvent<T>[] }) => void;
+    /** A row of a tree was opened or shut. */
+    'tree-toggle'?: (event: { originalEvent?: Event; row: T; key: string | number; expanded: boolean }) => void;
     page?: (event: { first: number; rows: number; page: number; pageCount: number }) => void;
     sort?: (event: { originalEvent?: Event; sortField: string | null; sortOrder: 1 | -1 | null; multiSortMeta: SortMeta[] }) => void;
     filter?: (event: { filters: FilterMeta; filteredValue: T[] }) => void;
@@ -132,6 +257,17 @@ export interface DataGridEvents<T = Row> {
     'column-reorder'?: (event: ColumnEvent & { order: string[] }) => void;
     'column-toggle'?: (event: ColumnEvent & { visible: boolean }) => void;
     'column-pin'?: (event: ColumnEvent & { side: 'left' | 'right' | null }) => void;
+    /** An editor opened in a cell. */
+    'cell-edit-start'?: (event: Omit<CellEditEvent<T>, 'newValue'>) => void;
+    /** A cell kept a new value, which is already in the row. */
+    'cell-edit-complete'?: (event: CellEditEvent<T>) => void;
+    /** An editor closed without keeping what was typed. */
+    'cell-edit-cancel'?: (event: Omit<CellEditEvent<T>, 'newValue'>) => void;
+    /** A row being edited as a whole was saved: every cell it changed, already in the row. */
+    'row-edit-save'?: (event: { originalEvent?: Event; row: T; index: number; changes: CellEditEvent<T>[] }) => void;
+    'row-edit-cancel'?: (event: { originalEvent?: Event; row: T; index: number }) => void;
+    /** An edit was undone, or done again: the row holds `newValue` now. */
+    'cell-edit-undo'?: (event: CellEditEvent<T> & { redo: boolean }) => void;
     /** Anything the reader changed: the models a framework binds back. */
     change?: (state: DataGridModels) => void;
 }
@@ -166,7 +302,12 @@ export interface DataGridModels {
     collapsedGroups: string[];
     /** The keys (by `dataKey`) of the rows whose detail is open. */
     expandedRows: (string | number)[];
+    /** The keys (by `dataKey`) of the rows of a tree whose rows show under them. */
+    expandedTree: (string | number)[];
 }
+
+/** The rows a pinned band holds: a list, or a function of the rows the query let through (totals that follow the filters). */
+export type PinnedRows<T = Row> = T[] | ((context: { rows: T[]; page: T[] }) => T[]);
 
 export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /**
@@ -174,11 +315,57 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * count and a toggle. The grouping happens after the query, so sorting and
      * filtering still decide which rows there are and what order they come in.
      * Rows are gathered by value rather than by adjacency, so sorting by some
-     * other column keeps the groups together and sorts inside them.
+     * other column keeps the groups together and sorts inside them. A list
+     * groups by each field in turn: groups inside groups.
      */
-    groupBy?: string;
+    groupBy?: string | string[];
     /** What a group's heading says; the value itself by default. */
-    groupLabel?: (context: { value: unknown; count: number; rows: T[] }) => string;
+    groupLabel?: (context: { value: unknown; count: number; rows: T[]; field: string; level: number }) => string;
+    /**
+     * The rows hold rows of their own, found in this field or by this
+     * function: a tree, each row's rows under it with a toggle to show them.
+     * Sorting orders the rows beside one another; a filter keeps a row that
+     * matches and the rows above it, and opens the way down to it.
+     */
+    treeData?: string | ((row: T) => T[] | null | undefined);
+    /**
+     * A bar under the grid that counts the rows: how many, how many the
+     * filters let through, how many are selected. The function is handed those
+     * counts and the rows, and draws the bar's content instead.
+     */
+    statusBar?: boolean | ((context: StatusContext<T>) => Content);
+    /**
+     * Cells can be marked as a block: dragged over, or reached with Shift and
+     * the arrows, Ctrl+A for all. Ctrl+C copies the block as a spreadsheet
+     * does, Delete empties what can be edited in it, and the status bar adds
+     * up its numbers. Moves the keyboard through cells.
+     */
+    cellSelection?: boolean;
+    /** A handle at the marked block's corner: dragged down or across, it carries the block's values on. */
+    fillHandle?: boolean;
+    /** Ctrl+V pastes text from a spreadsheet into the cells that can be edited. On by default; `false` turns it off. */
+    clipboard?: boolean;
+    /**
+     * A cell whose value changes flashes, up or down for a number: live
+     * values a reader can follow. A number is how long, in milliseconds.
+     */
+    flashCells?: boolean | number;
+    /**
+     * Turns the rows about: the values of `rows` fields down the side, the
+     * values of `columns` fields across the top, and in each cell `values`
+     * worked out over the rows that meet there. The pivot is sorted,
+     * filtered, paged and exported as the grid's own rows are.
+     */
+    pivot?: PivotConfig<T>;
+    /**
+     * A bar along the grid's side with panels the reader opens from its tabs:
+     * `'columns'` lists every column to show, hide or drag into another
+     * order; `'filters'` holds each column's filter, open one at a time.
+     * `true` is both.
+     */
+    sideBar?: boolean | ('columns' | 'filters')[];
+    /** The side bar's panel open at first; none by default. */
+    sideBarOpen?: 'columns' | 'filters' | null;
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
     columns?: DataGridColumn<T>[];
@@ -217,11 +404,28 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     removableSort?: boolean;
 
     globalFilterFields?: string[];
-    /** `'row'` puts a filter box under each filterable column's header. */
-    filterDisplay?: 'row';
+    /**
+     * `'row'` puts a filter box under each filterable column's header; `'menu'`
+     * a button in the header that opens the column's filter panel; `'both'`, both.
+     */
+    filterDisplay?: 'row' | 'menu' | 'both';
     filterDelay?: number;
 
     selectionMode?: 'single' | 'multiple';
+
+    /**
+     * What the keyboard moves through: rows (the default), or cells, which the
+     * arrow keys, Home, End and the page keys move between, as in a
+     * spreadsheet. A grid with an editable column moves through cells unless
+     * told otherwise.
+     */
+    navigation?: 'row' | 'cell';
+    /** `'cell'` (the default) edits a cell at a time; `'row'` opens every editable cell of a row at once, saved or dropped together. */
+    editMode?: 'cell' | 'row';
+    /** A single click opens a cell's editor, rather than a double click. */
+    editOnClick?: boolean;
+    /** Ctrl+Z and Ctrl+Y (⌘ on a Mac) undo and redo the reader's edits. On by default; `false` turns them off. */
+    undoRedo?: boolean;
 
     resizableColumns?: boolean;
     columnResizeMode?: 'fit' | 'expand';
@@ -229,6 +433,44 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     columnToggle?: boolean;
     /** A name two tables share: they scroll sideways together and keep one column layout. */
     group?: string;
+    /**
+     * A button in each header that opens the column's menu: sort, pin, fit,
+     * hide. The function is handed the column and the items the grid would
+     * offer, and answers with the items to offer instead.
+     */
+    columnMenu?: boolean | ((context: { column: DataGridColumn<T>; key: string; items: GridMenuItem[] }) => GridMenuItem[]);
+    /**
+     * A menu on a right click (or Shift+F10) over a cell: copy the cell, copy
+     * the row, export. The function is handed the cell and the items the grid
+     * would offer, and answers with the items to offer instead.
+     */
+    contextMenu?: boolean | ((context: { row: T; index: number; column: DataGridColumn<T>; key: string; value: unknown; items: GridMenuItem[] }) => GridMenuItem[]);
+
+    /**
+     * Draws only the rows in view, and a few either side, in place of every
+     * row: a hundred thousand rows cost what thirty do. The grid scrolls in
+     * `scrollHeight` (400px when it has none); a row is measured once drawn, so
+     * rows keep their own heights. The table still says how many rows it has,
+     * and where each drawn one is, through `aria-rowcount` and `aria-rowindex`.
+     */
+    virtualScroll?: boolean;
+    /**
+     * Draws only the columns in view, past the pinned ones, which always are.
+     * The grid is then laid out by the columns' widths: a column without one
+     * gets `minWidth`, or 150px.
+     */
+    virtualColumns?: boolean;
+    /** How many rows a virtual grid draws beyond each edge of the view, so a quick scroll does not show a gap. 6 by default. */
+    overscan?: number;
+    /**
+     * Every row this many pixels tall, its cells kept to one line that ends in
+     * an ellipsis. Without it a row is as tall as its content, which may wrap.
+     */
+    rowHeight?: number;
+    /** Rows held at the top of the grid, under the header, while the rest scroll: a target, a row to compare with. */
+    pinnedTopRows?: PinnedRows<T>;
+    /** Rows held at the bottom of the grid, over the footer, while the rest scroll: the totals, worked out from the rows the filters let through. */
+    pinnedBottomRows?: PinnedRows<T>;
 
     stripedRows?: boolean;
     showGridlines?: boolean;

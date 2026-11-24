@@ -99,6 +99,22 @@ describe('a table with no framework in it', () => {
         expect(rows()[0]!.textContent).toContain('No results found');
     });
 
+    it('applies filters the host hands in as the reader would: reported, from the first page, and only when they changed', () => {
+        const filtered = vi.fn();
+        const filters = { city: { value: null as string | null, matchMode: 'contains' } };
+        const { rows } = mount({ filters, paginator: true, rows: 2, first: 2, on: { filter: filtered } });
+        // The same object, changed inside: what a search box bound to it does.
+        filters.city.value = 'o';
+        handle!.update({ filters });
+        expect(rows().map((row) => row.cells[1]!.textContent)).toEqual(['São Paulo', 'Lisboa']);
+        expect(filtered).toHaveBeenCalledTimes(1);
+        expect(handle!.state().first).toBe(0);
+        // Handed back unchanged, they are not applied again.
+        handle!.update({ filters: { city: { value: 'o', matchMode: 'contains' } }, first: 2 });
+        expect(filtered).toHaveBeenCalledTimes(1);
+        expect(handle!.state().first).toBe(2);
+    });
+
     it('selects rows by checkbox, by row and by keyboard, and reports each', () => {
         const selected = vi.fn();
         const { element, rows } = mount({

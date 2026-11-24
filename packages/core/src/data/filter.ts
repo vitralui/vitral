@@ -8,6 +8,8 @@ export const FilterMatchMode = {
     EQUALS: 'equals',
     NOT_EQUALS: 'notEquals',
     IN: 'in',
+    /** One of a list, where an empty list matches nothing: a set of values the reader unticked. */
+    ANY_OF: 'anyOf',
     LESS_THAN: 'lt',
     LESS_THAN_OR_EQUAL_TO: 'lte',
     GREATER_THAN: 'gt',
@@ -70,6 +72,12 @@ const registry: Record<string, FilterFn> = {
     equals: equalTo,
     notEquals: (value, filter, locale) => isBlankFilter(filter) || !equalTo(value, filter, locale),
     in: (value, filter) => isBlankFilter(filter) || (filter as unknown[]).some((item) => equals(item, value)),
+    // No list is no filter; an empty one lets nothing through. A blank value is `null` in the list.
+    anyOf: (value, filter) => {
+        if (!Array.isArray(filter)) return true;
+        const own = value === undefined || value === '' ? null : value;
+        return filter.some((item) => equals(item, own));
+    },
     lt: order((v, f) => v < f),
     lte: order((v, f) => v <= f),
     gt: order((v, f) => v > f),

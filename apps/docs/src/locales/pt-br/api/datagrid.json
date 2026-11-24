@@ -1,6 +1,6 @@
 {
     "props": {
-        "groupBy": "Agrupa as linhas por este campo e põe um cabeçalho sobre cada bloco, com uma contagem e um botão de alternar. O agrupamento acontece depois da consulta, então ordenação e filtros continuam decidindo quais linhas existem; `v-model:collapsedGroups` guarda quais delas o leitor fechou.",
+        "groupBy": "Junta as linhas por este campo e põe um cabeçalho sobre cada grupo, com uma contagem e um botão. O agrupamento acontece depois da consulta, então ordenar e filtrar ainda decidem quais linhas existem; `v-model:collapsedGroups` guarda quais delas o leitor fechou. Uma lista agrupa por cada campo por vez: grupos dentro de grupos.",
         "groupLabel": "O que o cabeçalho de um grupo diz; por padrão, o próprio valor.",
         "dataKey": "Um campo que identifica uma linha, para a seleção e as chaves das linhas.",
         "dataSource": "As linhas vêm de uma fonte de dados, local ou remota, em vez de `value`.",
@@ -9,7 +9,7 @@
         "loadingMode": "Como a tabela espera. `'mask'` a cobre com um indicador de carregamento e mantém as linhas que tinha; `'skeleton'` desenha linhas provisórias nas próprias células — mesmo espaçamento, tamanho, alinhamento e colunas fixas —, então ela tem a forma que terá quando as linhas chegarem. Um `<Column>` desenha a sua com o slot `#skeleton`.",
         "skeletonRows": "Quantas linhas provisórias o esqueleto desenha. Por padrão, tantas quantas a página tem agora, então uma tabela que busca de novo mantém a altura; sem nenhuma, uma página inteira quando paginada, e 5 quando não.",
         "removableSort": "Um terceiro clique numa coluna ordenada a tira da ordenação.",
-        "filterDisplay": "`'row'` põe uma caixa de filtro sob o cabeçalho de cada coluna filtrável.",
+        "filterDisplay": "`'row'` põe uma caixa de filtro sob o cabeçalho de cada coluna filtrável; `'menu'` um botão no cabeçalho de cada coluna com `filter`, que abre o seu painel de filtro; `'both'`, os dois.",
         "filterDelay": "Milissegundos a esperar depois da digitação antes de consultar de novo uma tabela lazy ou uma fonte de dados.",
         "resizableColumns": "Uma alça na borda final de cada coluna, arrastada (ou usada pelo teclado) para definir sua largura.",
         "columnResizeMode": "`'fit'` tira a largura da coluna seguinte, mantendo a da tabela; `'expand'` alarga a tabela.",
@@ -18,16 +18,48 @@
         "group": "Um nome que duas tabelas compartilham: elas rolam na horizontal juntas e mantêm um só layout de colunas.",
         "scrollHeight": "Uma altura CSS, ou `'flex'` para preencher um pai flex. O cabeçalho fica visível.",
         "caption": "Dá nome à tabela. Oculto a menos que `showCaption`; sem ele, nomeie a tabela com `aria-label`.",
-        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`."
+        "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`.",
+        "virtualScroll": "Desenha só as linhas à vista, e algumas de cada lado, no lugar de todas: cem mil linhas custam o que custam trinta. O grid rola em `scrollHeight` (400px quando não tem); uma linha é medida quando desenhada, então as linhas mantêm suas próprias alturas. A tabela continua dizendo quantas linhas tem e onde está cada uma desenhada.",
+        "virtualColumns": "Desenha só as colunas à vista, além das fixas, que sempre são desenhadas. Uma coluna sem `width` recebe seu `minWidth`, ou 150px.",
+        "overscan": "Quantas linhas um grid virtual desenha além de cada borda da vista. 6 por padrão.",
+        "rowHeight": "Toda linha com esta altura em pixels, com as células numa linha só que termina em reticências. Sem ela, uma linha tem a altura do seu conteúdo.",
+        "pinnedTopRows": "Linhas presas no topo, sob o cabeçalho, enquanto as outras rolam: uma lista, ou uma função das linhas que os filtros deixam passar.",
+        "pinnedBottomRows": "Linhas presas no rodapé enquanto as outras rolam — os totais: uma lista, ou uma função das linhas que os filtros deixam passar, para que acompanhem os filtros.",
+        "navigation": "Por onde o teclado anda: linhas, ou células, entre as quais as setas, Home, End e as teclas de página se movem, como numa planilha. Um grid com uma coluna editável anda por células, a menos que se diga o contrário.",
+        "editMode": "`'cell'` (o padrão) edita uma célula por vez; `'row'` abre todas as células editáveis de uma linha, salvas ou descartadas juntas.",
+        "editOnClick": "Um clique simples abre o editor de uma célula, em vez de um duplo clique.",
+        "undoRedo": "Ctrl+Z e Ctrl+Y (⌘ no Mac) desfazem e refazem as edições do leitor. Ligado por padrão; `false` desliga.",
+        "columnMenu": "Um botão em cada cabeçalho que abre o menu da coluna: ordenar, fixar, ocultar, restaurar. A função recebe `{ column, key, items }` e responde com os itens a oferecer no lugar.",
+        "contextMenu": "Um menu no clique direito sobre uma célula: copiar a célula, copiar a linha, exportar. A função recebe `{ row, index, column, key, value, items }` e responde com os itens a oferecer no lugar.",
+        "treeData": "As linhas guardam linhas próprias, achadas neste campo ou por esta função: uma árvore, as linhas de cada linha sob ela, com um botão para mostrá-las. `v-model:expandedTree` guarda as chaves das linhas abertas.",
+        "statusBar": "Uma barra sob o grid que conta as linhas: quantas, quantas os filtros deixam passar, quantas estão selecionadas. A função, ou o slot `#status`, desenha o conteúdo da barra a partir dessas contagens.",
+        "cellSelection": "As células podem ser marcadas como um bloco: arrastando por cima, ou com Shift e as setas, Ctrl+A para todas. Ctrl+C copia o bloco como uma planilha copia, Delete esvazia o que pode ser editado nele, e a barra de status soma os seus números.",
+        "fillHandle": "Uma alça no canto do bloco marcado: arrastada para baixo ou para o lado, ela continua os valores do bloco.",
+        "clipboard": "Ctrl+V cola o texto de uma planilha nas células que podem ser editadas. Ligado por padrão; `false` desliga.",
+        "flashCells": "Uma célula cujo valor muda pisca, para cima ou para baixo num número. Um número diz por quanto tempo, em milissegundos.",
+        "pivot": "Vira as linhas: os valores dos campos `rows` descem pelo lado, os valores dos campos `columns` vão pelo topo, e em cada célula os `values` calculados sobre as linhas que se encontram ali (`aggregate`, uma soma por padrão). O pivô é ordenado, filtrado, paginado e exportado como as linhas do próprio grid.",
+        "sideBar": "Uma barra ao lado do grid com painéis abertos pelas suas abas: `'columns'` lista todas as colunas para mostrar, esconder ou arrastar para outra ordem; `'filters'` guarda o filtro de cada coluna filtrável, um aberto por vez. `true` são os dois.",
+        "sideBarOpen": "O painel da barra lateral aberto de início."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",
         "column-reorder": "Uma coluna foi movida.",
         "column-toggle": "Uma coluna foi mostrada ou ocultada.",
-        "column-pin": "Uma coluna foi fixada numa borda, ou solta."
+        "column-pin": "Uma coluna foi fixada numa borda, ou solta.",
+        "cell-edit-start": "Um editor abriu numa célula.",
+        "cell-edit-complete": "Uma célula manteve um novo valor, que já está na linha.",
+        "cell-edit-cancel": "Um editor fechou sem manter o que foi digitado.",
+        "cell-edit-undo": "Uma edição foi desfeita, ou refeita: a linha agora tem `newValue`.",
+        "row-edit-save": "Uma linha editada inteira foi salva: cada célula que ela mudou, já na linha.",
+        "row-edit-cancel": "Uma linha editada inteira foi fechada sem salvar.",
+        "row-reorder": "Uma linha foi arrastada, ou movida com Ctrl e uma seta, para outro lugar; `value` são as linhas na nova ordem.",
+        "tree-toggle": "Uma linha de uma árvore foi aberta ou fechada.",
+        "range-change": "O bloco de células marcado mudou: as suas linhas (pelo índice entre todas as linhas) e colunas, e os valores nele.",
+        "cells-change": "Muitas células mudaram de uma vez (uma colagem, um preenchimento, um bloco esvaziado), como um passo que o desfazer leva de volta."
     },
     "slots": {
         "default": "Os `<Column>`s.",
-        "expansion": "O detalhe de uma linha expandida, numa linha inteira abaixo dela. Recebe `data` e `index`; uma coluna com `expander` mostra o botão que abre e fecha."
+        "expansion": "O detalhe de uma linha expandida, numa linha inteira abaixo dela. Recebe `data` e `index`; uma coluna com `expander` mostra o botão que abre e fecha.",
+        "status": "O conteúdo da barra de status, a partir do que ela conta; desenha a barra mesmo sem `status-bar`."
     }
 }

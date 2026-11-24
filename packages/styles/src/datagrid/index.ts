@@ -8,6 +8,8 @@ export interface DataGridState {
     scrollable?: boolean;
     flexScroll?: boolean;
     loading?: boolean;
+    /** Every row one height (`rowHeight`), its cells kept to one line. */
+    fixedRows?: boolean;
 }
 
 export interface DataGridCellState {
@@ -16,6 +18,21 @@ export interface DataGridCellState {
     pinned?: 'left' | 'right';
     /** The last pinned column on its side: the one that casts the shadow. */
     pinnedEdge?: boolean;
+}
+
+export interface DataGridBodyCellState extends DataGridCellState {
+    /** Its editor is open. */
+    editing?: boolean;
+    /** The reader may edit it. */
+    editable?: boolean;
+    /** It is in the block of cells marked, and on which of the block's edges. */
+    inRange?: boolean;
+    rangeTop?: boolean;
+    rangeBottom?: boolean;
+    rangeStart?: boolean;
+    rangeEnd?: boolean;
+    /** The fill handle, dragged, would write it. */
+    fillTarget?: boolean;
 }
 
 export interface DataGridHeaderCellState extends DataGridCellState {
@@ -34,6 +51,11 @@ export interface DataGridRowState {
     skeleton?: boolean;
     /** Its detail is open under it. */
     expanded?: boolean;
+    /** It is being dragged by its handle. */
+    dragging?: boolean;
+    /** A dragged row would land before it, or after it. */
+    dropBefore?: boolean;
+    dropAfter?: boolean;
 }
 
 export interface DataGridSkeletonState {
@@ -63,7 +85,8 @@ export const datagridStyle = defineStyle({
                 'vt-datagrid-sm': s.size === 'small',
                 'vt-datagrid-lg': s.size === 'large',
                 'vt-datagrid-scrollable': s.scrollable,
-                'vt-datagrid-loading': s.loading
+                'vt-datagrid-loading': s.loading,
+                'vt-datagrid-fixed-rows': s.fixedRows
             }
         ],
         header: 'vt-datagrid-header',
@@ -81,6 +104,10 @@ export const datagridStyle = defineStyle({
             align(s),
             pinned(s)
         ],
+        /** A row of the headings of groups of columns, over the columns' own. */
+        columnGroupRow: 'vt-datagrid-column-group-row',
+        /** A group's heading, across the run of its columns. */
+        columnGroupCell: (s: DataGridCellState) => ['vt-datagrid-header-cell', 'vt-datagrid-column-group-cell', align(s), pinned(s)],
         /** `resizing`: its edge is being dragged — the line stays lit, in the header only. */
         resizer: (s: { resizing?: boolean }) => ['vt-datagrid-resizer', { 'vt-datagrid-resizing': s.resizing }],
         chooserButton: 'vt-datagrid-chooser-button',
@@ -109,27 +136,124 @@ export const datagridStyle = defineStyle({
         tbody: 'vt-datagrid-tbody',
         row: (s: DataGridRowState) => [
             'vt-datagrid-row',
-            { 'vt-datagrid-row-selectable': s.selectable, 'vt-datagrid-row-selected': s.selected, 'vt-datagrid-row-skeleton': s.skeleton, 'vt-datagrid-row-expanded': s.expanded }
+            {
+                'vt-datagrid-row-selectable': s.selectable,
+                'vt-datagrid-row-selected': s.selected,
+                'vt-datagrid-row-skeleton': s.skeleton,
+                'vt-datagrid-row-expanded': s.expanded,
+                'vt-datagrid-row-dragging': s.dragging,
+                'vt-datagrid-row-drop-before': s.dropBefore,
+                'vt-datagrid-row-drop-after': s.dropAfter
+            }
         ],
         expander: (s: { expanded?: boolean }) => ['vt-datagrid-expander', { 'vt-datagrid-expander-expanded': s.expanded }],
         expanderIcon: (s: { expanded?: boolean }) => ['vt-datagrid-expander-icon', { 'vt-datagrid-expander-icon-expanded': s.expanded }],
         expansionRow: 'vt-datagrid-expansion-row',
         expansionCell: 'vt-datagrid-expansion-cell',
-        bodyCell: (s: DataGridCellState) => ['vt-datagrid-body-cell', align(s), pinned(s)],
+        /** The room the rows out of view would take, in a virtual grid. */
+        spacerRow: 'vt-datagrid-spacer-row',
+        spacerCell: 'vt-datagrid-spacer-cell',
+        /** A row held at the top or the bottom while the rest scroll. */
+        pinnedRow: (s: { position?: 'top' | 'bottom' }) => ['vt-datagrid-pinned-row', { 'vt-datagrid-pinned-row-top': s.position === 'top', 'vt-datagrid-pinned-row-bottom': s.position === 'bottom' }],
+        pinnedRowCell: 'vt-datagrid-pinned-row-cell',
+        bodyCell: (s: DataGridBodyCellState) => [
+            'vt-datagrid-body-cell',
+            align(s),
+            pinned(s),
+            {
+                'vt-datagrid-cell-editing': s.editing,
+                'vt-datagrid-cell-editable': s.editable,
+                'vt-datagrid-cell-in-range': s.inRange,
+                'vt-datagrid-cell-range-top': s.rangeTop,
+                'vt-datagrid-cell-range-bottom': s.rangeBottom,
+                'vt-datagrid-cell-range-start': s.rangeStart,
+                'vt-datagrid-cell-range-end': s.rangeEnd,
+                'vt-datagrid-cell-fill-target': s.fillTarget
+            }
+        ],
+        /** The square at the marked block's corner that carries its values on. */
+        fillHandle: 'vt-datagrid-fill-handle',
+        /** The box a cell is edited in, where the grid draws it: the shared field classes, as the filter box. */
+        editorField: (s: { invalid?: boolean }) => ['vt-field vt-field-sm vt-field-fluid vt-datagrid-editor-field', { 'vt-field-invalid': s.invalid }],
+        editorInput: 'vt-datagrid-editor-input',
+        /** Why a value was refused, under its editor. */
+        editorError: 'vt-datagrid-editor-error',
+        /** The buttons that edit a row as a whole. */
+        rowEditor: 'vt-datagrid-row-editor',
+        rowEditorButton: (s: { action?: string }) => ['vt-datagrid-row-editor-button', s.action ? `vt-datagrid-row-editor-${s.action}` : ''],
+        /** Says an undo or a redo to a screen reader. */
+        announcer: 'vt-sr-only',
+        /** A header's buttons besides its title: the filter panel's and the column menu's. */
+        /** A header's title and its buttons, on one line. */
+        headerContent: 'vt-datagrid-header-content',
+        headerTools: 'vt-datagrid-header-tools',
+        headerToolButton: (s: { kind?: string; active?: boolean; open?: boolean }) => [
+            'vt-datagrid-header-tool',
+            s.kind ? `vt-datagrid-header-tool-${s.kind}` : '',
+            { 'vt-datagrid-header-tool-active': s.active, 'vt-datagrid-header-tool-open': s.open }
+        ],
+        /** A column's filter panel, where the grid draws it: a card from the header's button. */
+        filterPanel: (s: { kind?: string; inline?: boolean }) => ['vt-datagrid-filter-panel', s.kind ? `vt-datagrid-filter-panel-${s.kind}` : '', { 'vt-datagrid-filter-panel-inline': s.inline }],
+        filterPanelBody: 'vt-datagrid-filter-panel-body',
+        filterCondition: 'vt-datagrid-filter-condition',
+        filterOperator: 'vt-datagrid-filter-operator',
+        filterOperatorOption: 'vt-datagrid-filter-operator-option',
+        filterValues: 'vt-datagrid-filter-values',
+        filterValue: (s: { all?: boolean }) => ['vt-datagrid-filter-value', { 'vt-datagrid-filter-value-all': s.all }],
+        filterMore: 'vt-datagrid-filter-more',
+        filterPanelFooter: 'vt-datagrid-filter-panel-footer',
+        filterClear: 'vt-datagrid-filter-clear',
         selectionCell: 'vt-datagrid-selection-cell',
         checkbox: 'vt-datagrid-checkbox',
         checkboxInput: 'vt-datagrid-checkbox-input',
         checkboxIcon: 'vt-datagrid-checkbox-icon',
         /** The heading over a run of rows that share the grouping field. */
-        groupRow: 'vt-datagrid-group-row',
-        groupCell: 'vt-datagrid-group-cell',
+        groupRow: (s: { values?: boolean }) => ['vt-datagrid-group-row', { 'vt-datagrid-group-row-values': s.values }],
+        groupCell: (s: DataGridCellState & { level?: number; lead?: boolean }) => [
+            'vt-datagrid-group-cell',
+            align(s),
+            pinned(s),
+            { 'vt-datagrid-group-cell-nested': !!s.level, 'vt-datagrid-group-cell-lead': s.lead }
+        ],
+        /** A value worked out over a group's rows, beside its title. */
+        groupAggregate: 'vt-datagrid-group-aggregate',
+        /** A row of a tree's first cell: the indentation, the toggle, the content. */
+        treeCell: 'vt-datagrid-tree-cell',
+        treeToggle: (s: { expanded?: boolean }) => ['vt-datagrid-tree-toggle', { 'vt-datagrid-tree-toggle-expanded': s.expanded }],
+        treeIcon: (s: { expanded?: boolean }) => ['vt-datagrid-tree-icon', { 'vt-datagrid-tree-icon-expanded': s.expanded }],
+        treeSpacer: 'vt-datagrid-tree-spacer',
+        treeContent: 'vt-datagrid-tree-content',
+        /** The handle a row is dragged by. */
+        rowDragHandle: 'vt-datagrid-row-drag-handle',
+        /** The table and the side bar beside it. */
+        bodyArea: 'vt-datagrid-body-area',
+        /** The side bar: its tabs down the edge, the panel open, and what the panels hold. */
+        sideBar: (s: { open?: boolean }) => ['vt-datagrid-side-bar', { 'vt-datagrid-side-bar-open': s.open }],
+        sideTabs: 'vt-datagrid-side-tabs',
+        sideTab: (s: { open?: boolean }) => ['vt-datagrid-side-tab', { 'vt-datagrid-side-tab-open': s.open }],
+        sideTabIcon: 'vt-datagrid-side-tab-icon',
+        sideTabLabel: 'vt-datagrid-side-tab-label',
+        sidePanel: (s: { panel?: string }) => ['vt-datagrid-side-panel', s.panel ? `vt-datagrid-side-panel-${s.panel}` : ''],
+        sidePanelTitle: 'vt-datagrid-side-panel-title',
+        sideColumns: 'vt-datagrid-side-columns',
+        sideColumn: (s: { dragging?: boolean; dropping?: boolean }) => ['vt-datagrid-side-column', { 'vt-datagrid-side-column-dragging': s.dragging, 'vt-datagrid-side-column-drop': s.dropping }],
+        sideColumnHandle: 'vt-datagrid-side-column-handle',
+        sideFilter: (s: { open?: boolean; active?: boolean }) => ['vt-datagrid-side-filter', { 'vt-datagrid-side-filter-open': s.open, 'vt-datagrid-side-filter-active': s.active }],
+        sideFilterToggle: 'vt-datagrid-side-filter-toggle',
+        sideFilterIcon: (s: { open?: boolean }) => ['vt-datagrid-side-filter-icon', { 'vt-datagrid-side-filter-icon-open': s.open }],
+        sideFilterLabel: 'vt-datagrid-side-filter-label',
+        sideFilterActive: 'vt-datagrid-side-filter-active',
+        /** The bar that counts the rows. */
+        statusBar: 'vt-datagrid-status-bar',
+        statusItem: (s: { kind?: string }) => ['vt-datagrid-status-item', s.kind ? `vt-datagrid-status-${s.kind}` : ''],
         groupToggle: 'vt-datagrid-group-toggle',
         groupIcon: (s: { collapsed?: boolean }) => ['vt-datagrid-group-icon', { 'vt-datagrid-group-icon-collapsed': s.collapsed }],
         groupTitle: 'vt-datagrid-group-title',
         groupCount: 'vt-datagrid-group-count',
         emptyRow: 'vt-datagrid-empty-row',
         emptyCell: 'vt-datagrid-empty-cell',
-        tfoot: 'vt-datagrid-tfoot',
+        /** `sticky`: it holds rows pinned to the bottom, and stays at the bottom of the box. */
+        tfoot: (s: { sticky?: boolean }) => ['vt-datagrid-tfoot', { 'vt-datagrid-tfoot-sticky': s.sticky }],
         footerRow: 'vt-datagrid-footer-row',
         footerCell: (s: DataGridCellState) => ['vt-datagrid-footer-cell', align(s), pinned(s)],
         paginator: (s: { position?: 'top' | 'bottom' }) => ['vt-datagrid-paginator', { 'vt-datagrid-paginator-top': s.position === 'top' }],

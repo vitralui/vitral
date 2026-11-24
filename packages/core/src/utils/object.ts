@@ -54,6 +54,21 @@ export function getField(data: unknown, field: FieldAccessor | undefined | null)
     return current;
 }
 
+/**
+ * Writes `value` at `field` on `data`, the way `getField` reads it: a dotted
+ * path walks nested objects, and makes the ones that are missing.
+ */
+export function setField(data: unknown, field: string, value: unknown): void {
+    if (data == null) return;
+    const parts = field.split('.');
+    let current = data as Dict;
+    for (const part of parts.slice(0, -1)) {
+        if (current[part] == null || typeof current[part] !== 'object') current[part] = {};
+        current = current[part] as Dict;
+    }
+    current[parts.at(-1)!] = value;
+}
+
 /** Structural equality; with a `dataKey`, only that field is compared. */
 export function equals(a: unknown, b: unknown, dataKey?: string): boolean {
     if (dataKey) return deepEquals(getField(a, dataKey), getField(b, dataKey));

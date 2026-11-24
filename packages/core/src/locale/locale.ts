@@ -675,6 +675,82 @@ export interface Locale {
         /** Heads a table's column of buttons that open each row's detail. */
         rowDetails: string;
     };
+
+    /** What a data grid says beyond its table: its editors, and what they refuse. */
+    datagrid: {
+        /** Names a cell's editor. `{column}` */
+        editCell: string;
+        /** Refuses text that is not a number, in a cell that holds numbers. */
+        notANumber: string;
+        /** Refuses text that is not a date, in a cell that holds dates. */
+        notADate: string;
+        /** A row being edited: the buttons that keep and drop what was typed. */
+        saveRow: string;
+        cancelRow: string;
+        /** The button that starts editing a row. */
+        editRow: string;
+        /** Announced when an edit is undone or done again. `{column}` */
+        undone: string;
+        redone: string;
+        /** The filter panel: how a value is compared, by match mode, and the words around it. */
+        matchModes: Record<string, string>;
+        /** The control choosing how a condition compares. */
+        condition: string;
+        /** Joins two conditions. */
+        and: string;
+        or: string;
+        /** The box a condition's value is typed into. */
+        filterValue: string;
+        /** Empties a column's filter. */
+        clearFilter: string;
+        /** A list of a column's values: its search, its select-all, and a blank value. */
+        searchValues: string;
+        selectAll: string;
+        blank: string;
+        /** Said when the list stops short. `{count}` */
+        moreValues: string;
+        /** The button that opens a column's menu. `{column}` */
+        columnMenu: string;
+        /** A column's menu. */
+        sortAscending: string;
+        sortDescending: string;
+        clearSort: string;
+        pinStart: string;
+        pinEnd: string;
+        unpin: string;
+        fitColumn: string;
+        hideColumn: string;
+        resetColumns: string;
+        /** The menu a right click opens on a cell. */
+        copy: string;
+        copyRow: string;
+        exportCsv: string;
+        exportExcel: string;
+        /** Said when many cells change at once. `{count}` `{refused}` */
+        cellsChanged: string;
+        cellsChangedRefused: string;
+        /** A row's drag handle, and what is said when a row moves. `{position}` `{count}` */
+        moveRow: string;
+        dragHandle: string;
+        moved: string;
+        /** The side bar: its name, its panels, and what is in them. `{column}` */
+        sideBar: string;
+        columnsPanel: string;
+        filtersPanel: string;
+        searchColumns: string;
+        clearAllFilters: string;
+        moveColumn: string;
+        noFilters: string;
+        /** The status bar. `{count}` `{total}` `{value}` */
+        statusRows: string;
+        statusFiltered: string;
+        statusSelected: string;
+        statusCount: string;
+        statusSum: string;
+        statusAvg: string;
+        statusMin: string;
+        statusMax: string;
+    };
 }
 
 export function formatMessage(template: string, params: Record<string, string | number>): string {
@@ -1203,6 +1279,75 @@ export const en: Locale = {
         clearSignature: 'Clear the signature',
         onThisPage: 'On this page',
         rowDetails: 'Details'
+    },
+    datagrid: {
+        editCell: 'Edit {column}',
+        notANumber: 'Enter a number',
+        notADate: 'Enter a date',
+        saveRow: 'Save',
+        cancelRow: 'Cancel',
+        editRow: 'Edit row',
+        undone: 'Undone: {column}',
+        redone: 'Done again: {column}',
+        matchModes: {
+            contains: 'Contains',
+            notContains: 'Does not contain',
+            startsWith: 'Starts with',
+            endsWith: 'Ends with',
+            equals: 'Equals',
+            notEquals: 'Does not equal',
+            lt: 'Less than',
+            lte: 'Less than or equal to',
+            gt: 'Greater than',
+            gte: 'Greater than or equal to',
+            dateIs: 'On',
+            dateIsNot: 'Not on',
+            dateBefore: 'Before',
+            dateAfter: 'After'
+        },
+        condition: 'Condition',
+        and: 'And',
+        or: 'Or',
+        filterValue: 'Value',
+        clearFilter: 'Clear',
+        searchValues: 'Search values',
+        selectAll: 'Select all',
+        blank: '(Blank)',
+        moreValues: '{count} more: search to find them',
+        columnMenu: 'Options for {column}',
+        sortAscending: 'Sort ascending',
+        sortDescending: 'Sort descending',
+        clearSort: 'Clear sort',
+        pinStart: 'Pin to the start',
+        pinEnd: 'Pin to the end',
+        unpin: 'Unpin',
+        fitColumn: 'Fit to content',
+        hideColumn: 'Hide column',
+        resetColumns: 'Reset columns',
+        copy: 'Copy',
+        copyRow: 'Copy row',
+        exportCsv: 'Export to CSV',
+        exportExcel: 'Export to Excel',
+        cellsChanged: '{count} cells changed',
+        cellsChangedRefused: '{count} cells changed, {refused} refused',
+        moveRow: 'Move row',
+        dragHandle: 'Drag handle',
+        moved: 'Moved to row {position} of {count}',
+        sideBar: 'Tool panels',
+        columnsPanel: 'Columns',
+        filtersPanel: 'Filters',
+        searchColumns: 'Search columns',
+        clearAllFilters: 'Clear all filters',
+        moveColumn: 'Move {column}',
+        noFilters: 'No column can be filtered here.',
+        statusRows: '{count} rows',
+        statusFiltered: '{count} of {total} rows',
+        statusSelected: '{count} selected',
+        statusCount: 'Count: {count}',
+        statusSum: 'Sum: {value}',
+        statusAvg: 'Average: {value}',
+        statusMin: 'Min: {value}',
+        statusMax: 'Max: {value}'
     }
 };
 
@@ -1728,5 +1873,74 @@ export const ptBR: Locale = {
         clearSignature: 'Limpar a assinatura',
         onThisPage: 'Nesta página',
         rowDetails: 'Detalhes'
+    },
+    datagrid: {
+        editCell: 'Editar {column}',
+        notANumber: 'Digite um número',
+        notADate: 'Digite uma data',
+        saveRow: 'Salvar',
+        cancelRow: 'Cancelar',
+        editRow: 'Editar linha',
+        undone: 'Desfeito: {column}',
+        redone: 'Refeito: {column}',
+        matchModes: {
+            contains: 'Contém',
+            notContains: 'Não contém',
+            startsWith: 'Começa com',
+            endsWith: 'Termina com',
+            equals: 'Igual a',
+            notEquals: 'Diferente de',
+            lt: 'Menor que',
+            lte: 'Menor ou igual a',
+            gt: 'Maior que',
+            gte: 'Maior ou igual a',
+            dateIs: 'Em',
+            dateIsNot: 'Fora de',
+            dateBefore: 'Antes de',
+            dateAfter: 'Depois de'
+        },
+        condition: 'Condição',
+        and: 'E',
+        or: 'Ou',
+        filterValue: 'Valor',
+        clearFilter: 'Limpar',
+        searchValues: 'Buscar valores',
+        selectAll: 'Selecionar tudo',
+        blank: '(Vazio)',
+        moreValues: 'Mais {count}: busque para encontrá-los',
+        columnMenu: 'Opções de {column}',
+        sortAscending: 'Ordem crescente',
+        sortDescending: 'Ordem decrescente',
+        clearSort: 'Tirar a ordenação',
+        pinStart: 'Fixar no início',
+        pinEnd: 'Fixar no fim',
+        unpin: 'Desafixar',
+        fitColumn: 'Ajustar ao conteúdo',
+        hideColumn: 'Ocultar coluna',
+        resetColumns: 'Restaurar colunas',
+        copy: 'Copiar',
+        copyRow: 'Copiar linha',
+        exportCsv: 'Exportar para CSV',
+        exportExcel: 'Exportar para Excel',
+        cellsChanged: '{count} células alteradas',
+        cellsChangedRefused: '{count} células alteradas, {refused} recusadas',
+        moveRow: 'Mover linha',
+        dragHandle: 'Alça de arraste',
+        moved: 'Movida para a linha {position} de {count}',
+        sideBar: 'Painéis de ferramentas',
+        columnsPanel: 'Colunas',
+        filtersPanel: 'Filtros',
+        searchColumns: 'Buscar colunas',
+        clearAllFilters: 'Limpar todos os filtros',
+        moveColumn: 'Mover {column}',
+        noFilters: 'Nenhuma coluna pode ser filtrada aqui.',
+        statusRows: '{count} linhas',
+        statusFiltered: '{count} de {total} linhas',
+        statusSelected: '{count} selecionadas',
+        statusCount: 'Contagem: {count}',
+        statusSum: 'Soma: {value}',
+        statusAvg: 'Média: {value}',
+        statusMin: 'Mín.: {value}',
+        statusMax: 'Máx.: {value}'
     }
 };

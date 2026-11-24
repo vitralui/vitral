@@ -35,6 +35,7 @@ export const componentNames = [
     'Chip',
     'ColorPicker',
     'Column',
+    'ColumnGroup',
     'Command',
     'CommandDialog',
     'CommandEmpty',

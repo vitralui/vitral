@@ -77,6 +77,12 @@ export default {
         sm: { padding: '0.25rem 0.5rem', fontSize: '{formField.sm.fontSize}' },
         lg: { padding: '0.875rem 1rem', fontSize: '{formField.lg.fontSize}' }
     },
+    // Rows held at the top or the bottom while the rest scroll: opaque, as the sticky header is.
+    pinnedRow: {
+        background: '{overlay.popover.background}',
+        color: '{text.color}',
+        fontWeight: '600'
+    },
     footerCell: {
         color: '{text.color}',
         fontWeight: '600'

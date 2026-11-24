@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { createDataGrid, type CellContext, type PageContext, type RowsPerPageContext, type DataGridColumn, type DataGridConfig, type DataGridHandle, type DataGridModels } from '@vitral/datagrid';
+import { setField } from '@vitral/core';
+import { createDataGrid, type CellContext, type EditorContext, type PageContext, type RowsPerPageContext, type DataGridColumn, type DataGridConfig, type DataGridHandle, type DataGridModels } from '@vitral/datagrid';
 import { mergeAttrs, type PassThrough, type PassThroughContext as DomPassThroughContext } from '@vitral/dom';
 import { flattenTokens, type TokenTree } from '@vitral/themes';
 import {
@@ -13,6 +14,7 @@ import {
     onBeforeUnmount,
     onMounted,
     onUpdated,
+    reactive,
     render,
     shallowRef,
     toRaw,
@@ -29,6 +31,7 @@ import { useOverlayTarget } from '../../composables/useOverlayTarget';
 import { useVitral } from '../../config/config';
 import Select from '../Select/Select.vue';
 import Column from './Column.vue';
+import ColumnGroup from './ColumnGroup.vue';
 import type { ColumnLayoutLike, DataGridEmits, DataGridFilterEvent, DataGridFilterMeta, DataGridProps, DataGridSlots, DataGridSortEvent, SortMetaLike } from './types';
 
 // The table is `@vitral/datagrid`'s framework-free renderer; this component
@@ -49,7 +52,11 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     pageLinkSize: 5,
     paginatorPosition: 'bottom',
     alwaysShowPaginator: true,
-    columnResizeMode: 'fit'
+    columnResizeMode: 'fit',
+    // A boolean prop left out is false to Vue; undo is on unless turned off.
+    undoRedo: true,
+    clipboard: true,
+    flashCells: undefined
 });
 const first = defineModel<number>('first', { default: 0 });
 const rows = defineModel<number>('rows', { default: 10 });
@@ -63,6 +70,7 @@ const selection = defineModel<unknown>('selection');
 const columnLayout = defineModel<ColumnLayoutLike | null>('columnLayout');
 const collapsedGroups = defineModel<string[] | null>('collapsedGroups');
 const expandedRows = defineModel<(string | number)[] | null>('expandedRows');
+const expandedTree = defineModel<(string | number)[] | null>('expandedTree');
 const emit = defineEmits<DataGridEmits>();
 const slots = defineSlots<DataGridSlots>();
 
@@ -83,7 +91,9 @@ type ColumnSlotFn = (props: Record<string, unknown>) => VNode[];
 interface ColumnDef {
     key: string;
     props: Record<string, unknown>;
-    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton', ColumnSlotFn>>;
+    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton' | 'editor' | 'aggregate' | 'default', ColumnSlotFn>>;
+    /** A `<ColumnGroup>`'s own columns. */
+    children?: ColumnDef[];
 }
 
 // Template attributes arrive as written: `sort-field`, and `sortable` as ''.
@@ -103,19 +113,43 @@ function toColumn(vnode: VNode, index: number): ColumnDef {
 }
 
 const isColumn = (vnode: VNode) => vnode.type === Column || (vnode.type as { name?: string } | null)?.name === 'VtColumn';
+const isGroup = (vnode: VNode) => vnode.type === ColumnGroup || (vnode.type as { name?: string } | null)?.name === 'VtColumnGroup';
 
 /** The parts the template wrote as children, by name, from the last read. */
 const parts = shallowRef<Map<string, Slots>>(new Map());
 
-function collect(nodes: unknown, out: ColumnDef[], found: Map<string, Slots>) {
+/**
+ * The `<Column>`s, and the `<ColumnGroup>`s with theirs inside. A column is
+ * keyed by its place among every column, groups or not, as the table keys it.
+ */
+function collect(nodes: unknown, out: ColumnDef[], found: Map<string, Slots>, count = { columns: 0 }) {
     collectParts(nodes, found, (vnode) => {
-        if (isColumn(vnode)) out.push(toColumn(vnode, out.length));
+        if (isColumn(vnode)) out.push(toColumn(vnode, count.columns++));
+        else if (isGroup(vnode)) {
+            const group = toColumn(vnode, 0);
+            group.key = String(group.props.columnKey ?? '');
+            group.children = [];
+            collect(group.slots.default?.({}), group.children, found, count);
+            out.push(group);
+        }
     });
 }
 
-/** What one `<Column>` declared, as the table reads a column. */
+/** What one `<Column>` declared, as the table reads a column; a `<ColumnGroup>` as a column of columns. */
 function toTableColumn(def: ColumnDef): DataGridColumn {
     const p = def.props;
+    if (def.children) {
+        return {
+            key: def.key || undefined,
+            header: p.header as string | undefined,
+            align: p.align as 'left' | 'center' | 'right' | undefined,
+            hidden: truthy(p.hidden),
+            headerClass: normalizeClass(p.headerClass) || undefined,
+            headerStyle: normalizeStyle(p.headerStyle) as Record<string, string> | undefined,
+            headerContent: def.slots.header && (() => node(`group-header:${def.key || p.header}`, () => def.slots.header!({ column: p }))),
+            columns: def.children.map(toTableColumn)
+        };
+    }
     const field = p.field as string | undefined;
     const own = def.slots;
     return {
@@ -128,6 +162,11 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         filterField: p.filterField as string | undefined,
         filterPlaceholder: p.filterPlaceholder as string | undefined,
         filterMatchMode: p.filterMatchMode as string | undefined,
+        // `filter` alone on a column is an empty string: a filter whose kind is read from the values.
+        filter: p.filter === '' ? true : (p.filter as DataGridColumn['filter']),
+        filterOptions: p.filterOptions as unknown[] | undefined,
+        filterMatchModes: p.filterMatchModes as string[] | undefined,
+        menu: p.menu === undefined ? undefined : truthy(p.menu),
         selectionMode: p.selectionMode as 'single' | 'multiple' | undefined,
         align: p.align as 'left' | 'center' | 'right' | undefined,
         hidden: truthy(p.hidden),
@@ -140,11 +179,40 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         exportable: p.exportable === undefined ? undefined : truthy(p.exportable),
         exportValue: p.exportValue as DataGridColumn['exportValue'],
         exportHeader: p.exportHeader as string | undefined,
+        editable: p.editable === undefined ? undefined : typeof p.editable === 'function' ? (p.editable as (row: unknown) => boolean) : truthy(p.editable),
+        parseValue: p.parseValue as DataGridColumn['parseValue'],
+        validate: p.validate as DataGridColumn['validate'],
+        // Written through the row's reactive proxy by default, so the rest of the page sees the change.
+        setValue: (p.setValue as DataGridColumn['setValue']) ?? (field ? (row: unknown, value: unknown) => setField(reactive(row as object), field, value) : undefined),
+        rowEditor: truthy(p.rowEditor),
+        aggregate: p.aggregate as DataGridColumn['aggregate'],
+        aggregateContent: own.aggregate && ((context: { value: unknown; rows: unknown[] }) => node(`aggregate:${def.key}:${context.rows.length}:${String(context.value)}`, () => own.aggregate!({ value: context.value, rows: context.rows, column: p }))),
+        rowDrag: truthy(p.rowDrag),
+        editor:
+            own.editor &&
+            ((context: EditorContext) =>
+                node(`editor:${def.key}:${context.index}`, () =>
+                    own.editor!({
+                        data: context.row,
+                        field,
+                        index: context.index,
+                        column: p,
+                        value: context.value,
+                        error: context.error,
+                        errorId: context.errorId,
+                        setValue: context.setValue,
+                        commit: context.commit,
+                        cancel: context.cancel
+                    })
+                )),
         headerClass: normalizeClass(p.headerClass) || undefined,
         bodyClass: normalizeClass(p.bodyClass) || undefined,
         headerStyle: normalizeStyle(p.headerStyle) as Record<string, string> | undefined,
         bodyStyle: normalizeStyle(p.bodyStyle) as Record<string, string> | undefined,
-        body: own.body && ((context: CellContext) => node(`body:${def.key}:${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p }))),
+        body:
+            own.body &&
+            ((context: CellContext) =>
+                node(`body:${def.key}:${context.pinned ?? ''}${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p, pinned: context.pinned }))),
         headerContent: own.header && (() => node(`header:${def.key}`, () => own.header!({ column: p }))),
         footerContent: own.footer && (() => node(`footer:${def.key}`, () => own.footer!({ column: p }))),
         skeleton: own.skeleton && ((context: { index: number }) => node(`skeleton:${def.key}:${context.index}`, () => own.skeleton!({ column: p, index: context.index }))),
@@ -296,12 +364,19 @@ const models = (): Partial<DataGridModels> => ({
     selection: selection.value,
     columnLayout: (columnLayout.value ?? {}) as DataGridModels['columnLayout'],
     collapsedGroups: collapsedGroups.value ?? [],
-    expandedRows: expandedRows.value ?? []
+    expandedRows: expandedRows.value ?? [],
+    expandedTree: expandedTree.value ?? []
 });
 
 const inputs = (): DataGridConfig => ({
     groupBy: props.groupBy,
     groupLabel: props.groupLabel,
+    treeData: props.treeData,
+    // The `#status` slot draws the bar too, unless `status-bar` is turned off outright.
+    statusBar:
+        slots.status && props.statusBar !== false
+            ? (context: Parameters<NonNullable<DataGridSlots['status']>>[0]) => node(`status:${context.filtered}:${context.selected}:${context.range?.count ?? 0}`, () => slots.status!(context))
+            : props.statusBar,
     value: toRaw(props.value),
     columns: columns.value,
     dataKey: props.dataKey,
@@ -322,8 +397,27 @@ const inputs = (): DataGridConfig => ({
     removableSort: props.removableSort,
     globalFilterFields: props.globalFilterFields,
     filterDisplay: props.filterDisplay,
+    columnMenu: props.columnMenu,
+    contextMenu: props.contextMenu,
     filterDelay: props.filterDelay,
     selectionMode: props.selectionMode,
+    navigation: props.navigation,
+    editMode: props.editMode,
+    editOnClick: props.editOnClick,
+    undoRedo: props.undoRedo,
+    cellSelection: props.cellSelection,
+    fillHandle: props.fillHandle,
+    clipboard: props.clipboard,
+    flashCells: props.flashCells,
+    pivot: props.pivot as DataGridConfig['pivot'],
+    sideBar: props.sideBar,
+    sideBarOpen: props.sideBarOpen,
+    virtualScroll: props.virtualScroll,
+    virtualColumns: props.virtualColumns,
+    overscan: props.overscan,
+    rowHeight: props.rowHeight,
+    pinnedTopRows: props.pinnedTopRows,
+    pinnedBottomRows: props.pinnedBottomRows,
     resizableColumns: props.resizableColumns,
     columnResizeMode: props.columnResizeMode,
     reorderableColumns: props.reorderableColumns,
@@ -348,10 +442,15 @@ const inputs = (): DataGridConfig => ({
     ...models()
 });
 
+/** The filters as the table last knew them, as text: see the watch on `filters`. */
+const filtersText = (value: unknown) => JSON.stringify(value ?? {});
+let knownFilters = filtersText(filters.value);
+
 /** What the reader changed, put back where the application bound it. */
 let writing = false;
 function published(state: DataGridModels) {
     writing = true;
+    knownFilters = filtersText(state.filters);
     first.value = state.first;
     rows.value = state.rows;
     if (props.sortMode === 'multiple') multiSortMeta.value = state.multiSortMeta;
@@ -364,6 +463,7 @@ function published(state: DataGridModels) {
     columnLayout.value = state.columnLayout as ColumnLayoutLike;
     collapsedGroups.value = state.collapsedGroups;
     expandedRows.value = state.expandedRows;
+    expandedTree.value = state.expandedTree;
     writing = false;
 }
 
@@ -381,7 +481,17 @@ const events: DataGridConfig['on'] = {
     'column-resize': (event) => emit('column-resize', event),
     'column-reorder': (event) => emit('column-reorder', event),
     'column-toggle': (event) => emit('column-toggle', event),
-    'column-pin': (event) => emit('column-pin', event)
+    'column-pin': (event) => emit('column-pin', event),
+    'row-reorder': (event) => emit('row-reorder', event),
+    'range-change': (event) => emit('range-change', event),
+    'cells-change': (event) => emit('cells-change', event),
+    'tree-toggle': (event) => emit('tree-toggle', event),
+    'cell-edit-start': (event) => emit('cell-edit-start', event),
+    'cell-edit-complete': (event) => emit('cell-edit-complete', event),
+    'cell-edit-cancel': (event) => emit('cell-edit-cancel', event),
+    'cell-edit-undo': (event) => emit('cell-edit-undo', event),
+    'row-edit-save': (event) => emit('row-edit-save', event),
+    'row-edit-cancel': (event) => emit('row-edit-cancel', event)
 };
 
 onMounted(() => {
@@ -406,7 +516,7 @@ function push(next: Partial<DataGridConfig>) {
 
 // Deep, over the reactive props (not their raw objects), so a change made in place is seen too.
 watch(
-    () => [props.value, columns.value, props.dataSource, props.lazy, props.totalRecords, props.loading, props.loadingMode, props.skeletonRows, props.group],
+    () => [props.value, columns.value, props.dataSource, props.lazy, props.totalRecords, props.loading, props.loadingMode, props.skeletonRows, props.group, props.pinnedTopRows, props.pinnedBottomRows],
     () => push(inputs()),
     { deep: true }
 );
@@ -423,8 +533,26 @@ watch(
         props.removableSort,
         props.globalFilterFields,
         props.filterDisplay,
+        props.treeData,
+        props.statusBar,
+        props.columnMenu,
+        props.contextMenu,
         props.filterDelay,
         props.selectionMode,
+        props.navigation,
+        props.editMode,
+        props.editOnClick,
+        props.undoRedo,
+        props.cellSelection,
+        props.fillHandle,
+        props.clipboard,
+        props.flashCells,
+        props.pivot,
+        props.sideBar,
+        props.virtualScroll,
+        props.virtualColumns,
+        props.overscan,
+        props.rowHeight,
         props.resizableColumns,
         props.columnResizeMode,
         props.reorderableColumns,
@@ -447,7 +575,7 @@ watch(
 
 // The models: what the application changed, which is not what the table just published.
 watch(
-    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, filters.value, selection.value, columnLayout.value, collapsedGroups.value, expandedRows.value],
+    () => [first.value, rows.value, sortField.value, sortOrder.value, multiSortMeta.value, selection.value, columnLayout.value, collapsedGroups.value, expandedRows.value, expandedTree.value],
     () => {
         if (writing || !table) return;
         const state = table.state();
@@ -457,12 +585,25 @@ watch(
         if (sortField.value !== state.sortField) next.sortField = sortField.value;
         if ((sortOrder.value ?? null) !== state.sortOrder) next.sortOrder = (sortOrder.value as 1 | -1 | null) ?? null;
         if (multiSortMeta.value && multiSortMeta.value !== state.multiSortMeta) next.multiSortMeta = multiSortMeta.value as DataGridModels['multiSortMeta'];
-        if (filters.value !== state.filters) next.filters = (filters.value ?? {}) as DataGridModels['filters'];
         if (selection.value !== state.selection) next.selection = selection.value;
         if (columnLayout.value && columnLayout.value !== state.columnLayout) next.columnLayout = columnLayout.value as DataGridModels['columnLayout'];
         if (collapsedGroups.value && collapsedGroups.value !== state.collapsedGroups) next.collapsedGroups = collapsedGroups.value;
         if (expandedRows.value && expandedRows.value !== state.expandedRows) next.expandedRows = expandedRows.value;
+        if (expandedTree.value && expandedTree.value !== state.expandedTree) next.expandedTree = expandedTree.value;
         if (Object.keys(next).length) push(next);
+    },
+    { deep: true }
+);
+
+// The filters on their own, and deep: a search box bound to `filters.global.value`
+// changes the object the table already holds, which no comparison by identity
+// sees. So they are compared as text with what the table last knew of them.
+watch(
+    filters,
+    (value) => {
+        if (!table || filtersText(value) === knownFilters) return;
+        knownFilters = filtersText(value);
+        push({ filters: { ...(value ?? {}) } as DataGridModels['filters'] });
     },
     { deep: true }
 );
@@ -494,6 +635,29 @@ onBeforeUnmount(() => {
 
 defineExpose({
     reload: () => table?.reload(),
+    /** Scrolls a row into view by its place among the rows on show; in a virtual grid, draws it. */
+    scrollToIndex: (index: number) => table?.scrollToIndex(index),
+    /** Opens a cell's editor, by the row's place among the rows on show and the column's key. */
+    startEdit: (index: number, key: string) => table?.startEdit(index, key),
+    /** Closes the editors, keeping what was typed (if it passes) or, with `cancel`, dropping it. */
+    stopEdit: (cancel?: boolean) => table?.stopEdit(cancel) ?? true,
+    /** Puts the keyboard on a cell. */
+    focusCell: (index: number, key: string) => table?.focusCell(index, key),
+    /** Marks the block of cells from one to another: `{ index, key }`, the index among the rows on show. */
+    selectRange: (anchor: { index: number; key: string }, focus?: { index: number; key: string }) => table?.selectRange(anchor, focus),
+    clearRange: () => table?.clearRange(),
+    /** The block marked, its rows by index among every row, and the values in it. */
+    getRange: () => table?.getRange() ?? null,
+    /** The rows as the bytes of an Excel workbook, numbers, dates and booleans kept as such. */
+    toXlsx: (options?: Parameters<DataGridHandle['toXlsx']>[0]) => table?.toXlsx(options) ?? new Uint8Array(),
+    /** Downloads the rows as an Excel workbook. */
+    exportExcel: (options?: Parameters<DataGridHandle['exportExcel']>[0]) => table?.exportExcel(options),
+    /** Opens every group, or every row of a tree that holds rows. */
+    expandAll: () => table?.expandAll(),
+    /** Shuts every group, or every row of a tree. */
+    collapseAll: () => table?.collapseAll(),
+    undo: () => table?.undo(),
+    redo: () => table?.redo(),
     /** The table as CSV; see `@vitral/datagrid`'s `toCSV`. */
     toCSV: (options?: Parameters<DataGridHandle['toCSV']>[0]) => table?.toCSV(options) ?? '',
     /** Hands the reader the table as a CSV file. */

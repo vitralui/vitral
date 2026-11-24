@@ -99,3 +99,14 @@
         transition: none;
     }
 }
+
+/* An item's content drawn as a button, by the kit's menu with no framework. */
+button.vt-menu-item-content {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    font: inherit;
+    text-align: start;
+    background: transparent;
+    border: 0;
+}

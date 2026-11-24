@@ -138,24 +138,34 @@ export function createMenu(config: MenuConfig = {}): MenuHandle {
                 'aria-labelledby': current.ariaLabelledby,
                 onKeydown
             }),
-            (current.items ?? []).map((item, index) =>
-                item.separator
-                    ? h('div', mergeAttrs({ key: index, role: 'separator' }, part('separator')))
-                    : h(
-                          'button',
-                          mergeAttrs({ key: index, id: itemId(index), type: 'button', role: 'menuitem' }, part('item', { disabled: item.disabled, focused: active === index }), {
-                              tabindex: active === index ? '0' : '-1',
-                              disabled: item.disabled,
-                              onClick: () => choose(index),
-                              onMousemove: () => {
-                                  if (item.disabled || active === index) return;
-                                  active = index;
-                                  overlay.update();
-                              }
-                          }),
-                          item.icon ? iconView(item.icon, part('itemIcon')) : null,
-                          h('span', part('itemLabel'), item.label ?? '')
-                      )
+            // The menu component's own build — a list, an item, the item's content —
+            // so its stylesheet draws this one; the wrappers are no part of the menu's ARIA.
+            h(
+                'div',
+                mergeAttrs(part('list'), { role: 'none' }),
+                (current.items ?? []).map((item, index) =>
+                    item.separator
+                        ? h('div', mergeAttrs({ key: index, role: 'separator' }, part('separator')))
+                        : h(
+                              'div',
+                              mergeAttrs({ key: index, role: 'none' }, part('item', { disabled: item.disabled, focused: active === index })),
+                              h(
+                                  'button',
+                                  mergeAttrs({ id: itemId(index), type: 'button', role: 'menuitem' }, part('itemContent'), {
+                                      tabindex: active === index ? '0' : '-1',
+                                      disabled: item.disabled,
+                                      onClick: () => choose(index),
+                                      onMousemove: () => {
+                                          if (item.disabled || active === index) return;
+                                          active = index;
+                                          overlay.update();
+                                      }
+                                  }),
+                                  item.icon ? iconView(item.icon, part('itemIcon')) : null,
+                                  h('span', part('itemLabel'), item.label ?? '')
+                              )
+                          )
+                )
             )
         ) as VElement;
     }
