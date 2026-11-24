@@ -177,6 +177,12 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      */
     dictionary?: Record<string, { description?: string; formula?: string; kind?: 'dimension' | 'metric'; source?: string; notes?: string | string[] }>;
     /**
+     * The toolbar's columns button opens a drawer at the page's edge instead of the panel: the columns shown and their
+     * order, the rows' grouping (or the pivot) and how each number column is worked out, changed together and only on
+     * "Apply".
+     */
+    columnsDrawer?: boolean;
+    /**
      * The rows a download from the toolbar writes, in place of the ones the DataGrid holds: with `lazy`, every row the
      * filters let through, fetched from the server, rather than the page on show.
      */

@@ -7,7 +7,8 @@ import type { FilterKind } from '../engine/filters';
 import { cellText, expansionKey, groupDepth, groupTitle, isExpanded, isFilterable, rowKey, type ColumnGroupRef, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { VirtualWindow } from '../engine/virtual';
 import { cellValue, editorKind, isEditable, type EditorKind } from '../engine/edit';
-import type { Content, PageContext, Row, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
+import type { Content, PageContext, Row, DataGridAggregate, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
+import { drawerView, type ColumnsDrawerView, type DrawerTab } from './drawer';
 
 /**
  * The table as plain objects. It is drawn in boxes rather than a `<table>`,
@@ -81,6 +82,8 @@ export interface ViewContext<T = Row> {
     menus: { filter: boolean; column: boolean; open: string | null; info: boolean; infoOpen: string | null };
     /** The buttons over the grid, when it has a toolbar. */
     toolbar?: ToolbarView[];
+    /** The columns drawer, while it is open. */
+    drawer?: ColumnsDrawerView;
     /** The filter panel, while one is open. */
     filterPanel?: FilterPanelView;
     /** A row being dragged, and where it would land: before or after the row at that index. */
@@ -288,6 +291,23 @@ export interface DataGridActions<T = Row> {
     toolbar: (key: string, event: MouseEvent) => void;
     /** The paginator's page box: the page typed, taken on Enter or when it is left. */
     pageInput: (page: number) => void;
+    /** The columns drawer: its tabs, what is changed in it, and "Apply" or "Cancel". */
+    drawerTab: (tab: DrawerTab, focus: boolean) => void;
+    drawerToggle: (key: string, visible: boolean) => void;
+    drawerAll: (visible: boolean) => void;
+    drawerMoveKey: (key: string, event: KeyboardEvent) => void;
+    drawerDragStart: (key: string, event: DragEvent) => void;
+    drawerDragOver: (key: string, event: DragEvent) => void;
+    drawerDrop: (event: DragEvent) => void;
+    drawerDragEnd: () => void;
+    drawerPivot: (on: boolean) => void;
+    drawerGroup: (level: number, field: string | null) => void;
+    drawerPivotColumn: (field: string | null) => void;
+    drawerAggregate: (key: string, how: DataGridAggregate | null) => void;
+    drawerSearch: (text: string) => void;
+    drawerClear: () => void;
+    drawerApply: () => void;
+    drawerCancel: () => void;
     /** Opens or shuts a row of a tree. */
     toggleTree: (row: T, key: string | number, event: Event) => void;
     /** A row's drag handle: dragged, or moved with Ctrl and an arrow key. */
@@ -388,6 +408,7 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
         footerBar(context),
         statusBar(context),
         loadingMask(context),
+        context.drawer ? drawerView(context, context.drawer) : null,
         h(
             'div',
             mergeAttrs({ key: 'announcer' }, part('announcer'), {

@@ -17,7 +17,9 @@ import {
     toggleColumn,
     toggleSelection,
     toggleSort,
+    createFocusTrap,
     type ColumnLayout,
+    type FocusTrap,
     type FilterConstraint,
     type FilterMeta,
     type Locale
@@ -25,7 +27,8 @@ import {
 import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
 import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, table as tableIcon } from '@vitral/icons';
-import { baseStyle, datagridLayoutStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
+import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
+import type { ColumnsDrawerView, DrawerTab } from './render/drawer';
 import {
     allSelectedState,
     declaredColumns,
@@ -121,6 +124,8 @@ export interface DataGridHandle<T = Row> {
      * the page's own, say — or, given null, shuts the one open.
      */
     openSidePanel(panel: SidePanel | null): void;
+    /** Opens the columns drawer, on one of its tabs; or shuts it, as "Cancel" does. */
+    openColumnsDrawer(tab?: DrawerTab | false): void;
     /** Removes everything this table added to the element. */
     destroy(): void;
     readonly element: HTMLElement;
@@ -176,6 +181,20 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     // The side bar: the panel open, the columns panel's search, a column of its list being dragged.
     let sidePanel: SidePanel | null = config.sideBarOpen ?? null;
     let sideSearch = '';
+    // The columns drawer while it is open: what the reader changes in it, kept apart until "Apply".
+    let drawerDraft: {
+        tab: DrawerTab;
+        order: string[];
+        hidden: string[];
+        pivot: boolean;
+        groupBy: string[];
+        pivotColumns: string[];
+        aggregates: Record<string, DataGridAggregate>;
+        search: string;
+        dragging: string | null;
+        dropOn: string | null;
+    } | null = null;
+    let drawerTrap: FocusTrap | null = null;
     let sideDragging: string | null = null;
     let sideDropOn: string | null = null;
     // The pivot panel: a field being dragged, where it would land, and the selects that say how each value is worked out.
@@ -264,6 +283,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         loadStyle(baseStyle.name, baseStyle.css, styleOptions());
         loadStyle(datagridStyle.name, datagridStyle.css, styleOptions());
         if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
+        if (config.columnsDrawer) drawerStyles();
     }
 
     // ---- what the host hears ------------------------------------------------------
@@ -771,7 +791,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if (!item) return;
             if (typeof item === 'object') return item.onClick(event);
             if (item === 'dictionary') return showPanel(sidePanel === 'dictionary' ? null : 'dictionary');
-            if (item === 'columns') return sidePanels().includes('columns') ? showPanel(sidePanel === 'columns' ? null : 'columns') : setChooser(!chooserOpen);
+            if (item === 'columns') {
+                if (current.columnsDrawer) return openDrawer('visible');
+                return sidePanels().includes('columns') ? showPanel(sidePanel === 'columns' ? null : 'columns') : setChooser(!chooserOpen);
+            }
             const words = locale().datagrid;
             if (item === 'pivot') {
                 const on = !(own.pivot && own.pivot.enabled !== false);
@@ -816,6 +839,108 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             });
             cellMenu.open(event.currentTarget as HTMLElement);
         },
+        drawerTab(tab, focus) {
+            if (!drawerDraft) return;
+            drawerDraft.tab = tab;
+            render();
+            if (focus) (element.querySelector(`[data-drawer-tab="${tab}"]`) as HTMLElement | null)?.focus();
+        },
+        drawerToggle(key, visible) {
+            if (!drawerDraft) return;
+            const hidden = drawerDraft.hidden.filter((entry) => entry !== key);
+            // The table keeps a column: the last one shown cannot be hidden.
+            if (!visible && drawerDraft.order.length - hidden.length > 1) hidden.push(key);
+            drawerDraft.hidden = hidden;
+            render();
+        },
+        drawerAll(visible) {
+            if (!drawerDraft) return;
+            drawerDraft.hidden = visible ? [] : drawerDraft.order.slice(1);
+            render();
+        },
+        drawerMoveKey(key, event) {
+            if (!drawerDraft || !(event.ctrlKey || event.metaKey) || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return;
+            event.preventDefault();
+            const order = drawerDraft.order;
+            const at = order.indexOf(key);
+            const to = event.key === 'ArrowUp' ? at - 1 : at + 1;
+            if (to < 0 || to >= order.length) return;
+            order.splice(at, 1);
+            order.splice(to, 0, key);
+            render();
+            (element.querySelector(`[data-drawer-column="${cssEscape(key)}"] [role="button"]`) as HTMLElement | null)?.focus();
+        },
+        drawerDragStart(key, event) {
+            if (!drawerDraft) return;
+            drawerDraft.dragging = key;
+            event.dataTransfer?.setData('text/plain', key);
+            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+            render();
+        },
+        drawerDragOver(key, event) {
+            if (!drawerDraft?.dragging) return;
+            event.preventDefault();
+            if (drawerDraft.dropOn === key) return;
+            drawerDraft.dropOn = key;
+            render();
+        },
+        drawerDrop(event) {
+            if (!drawerDraft) return;
+            const { dragging, dropOn, order } = drawerDraft;
+            drawerDraft.dragging = drawerDraft.dropOn = null;
+            if (dragging && dropOn && dragging !== dropOn) {
+                event.preventDefault();
+                // Taken out and put where the card it was dropped on stood: after it when it came from above, before it from below.
+                const to = order.indexOf(dropOn);
+                order.splice(order.indexOf(dragging), 1);
+                order.splice(to, 0, dragging);
+            }
+            render();
+        },
+        drawerDragEnd() {
+            if (!drawerDraft?.dragging) return;
+            drawerDraft.dragging = drawerDraft.dropOn = null;
+            render();
+        },
+        drawerPivot(on) {
+            if (!drawerDraft) return;
+            drawerDraft.pivot = on;
+            render();
+        },
+        drawerGroup(level, field) {
+            if (!drawerDraft) return;
+            const next = drawerDraft.groupBy.slice(0, level);
+            if (field) next.push(field);
+            // A subgroup stays when its group is changed to another field.
+            if (level === 0 && field && drawerDraft.groupBy[1] && drawerDraft.groupBy[1] !== field) next.push(drawerDraft.groupBy[1]);
+            drawerDraft.groupBy = next;
+            render();
+        },
+        drawerPivotColumn(field) {
+            if (!drawerDraft) return;
+            drawerDraft.pivotColumns = field ? [field] : [];
+            render();
+        },
+        drawerAggregate(key, how) {
+            if (!drawerDraft) return;
+            const next = { ...drawerDraft.aggregates };
+            if (how) next[key] = how;
+            else delete next[key];
+            drawerDraft.aggregates = next;
+            render();
+        },
+        drawerSearch(text) {
+            if (!drawerDraft) return;
+            drawerDraft.search = text;
+            render();
+        },
+        drawerClear() {
+            if (!drawerDraft) return;
+            drawerDraft.aggregates = {};
+            render();
+        },
+        drawerApply: applyDrawer,
+        drawerCancel: () => closeDrawer(),
         pageInput(page) {
             const size = models.rows;
             const count = pageCount(rowsNow().total, size);
@@ -1127,7 +1252,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         return items.filter((item) => {
             if (item === 'dictionary') return sidePanels().includes('dictionary');
             if (item === 'pivot') return sidePanels().includes('pivot');
-            if (item === 'columns') return sidePanels().includes('columns') || !!current.columnToggle;
+            if (item === 'columns') return sidePanels().includes('columns') || !!current.columnToggle || !!current.columnsDrawer;
             return true;
         });
     }
@@ -1139,7 +1264,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         return items.map((item): ToolbarView => {
             if (typeof item === 'object') return { key: item.key, label: item.label, icon: item.icon, showLabel: !item.icon || !!item.showLabel };
             if (item === 'dictionary') return { key: item, label: words.dictionaryPanel, icon: 'bookOpen', showLabel: true, pressed: sidePanel === 'dictionary' };
-            if (item === 'columns') return { key: item, label: words.columnsPanel, icon: 'columns', showLabel: false, pressed: sidePanels().includes('columns') ? sidePanel === 'columns' : chooserOpen };
+            if (item === 'columns')
+                return {
+                    key: item,
+                    label: words.columnsPanel,
+                    icon: 'columns',
+                    showLabel: false,
+                    pressed: current.columnsDrawer ? !!drawerDraft : sidePanels().includes('columns') ? sidePanel === 'columns' : chooserOpen
+                };
             if (item === 'export') return { key: item, label: words.download, icon: 'download', showLabel: false, popup: 'menu' };
             if (item === 'pivot') return { key: item, label: words.pivotMode, icon: 'table', showLabel: false, pressed: !!own.pivot && own.pivot.enabled !== false };
             return { key: item, label: words.density, icon: 'rows', showLabel: false, popup: 'menu' };
@@ -2264,6 +2396,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             cellFocus: cellNav() ? tabCell(lines) : undefined,
             menus: { filter: true, column: !!current.columnMenu, open: menuKey, info: current.columnInfo !== false, infoOpen: infoKey },
             toolbar: toolbarView(),
+            drawer: drawerViewOf(),
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
             sideBar: sideBarOf(),
@@ -2418,6 +2551,126 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         pivot.rows.includes(field) ? 'rows' : (pivot.columns ?? []).includes(field) ? 'columns' : pivot.values.some((value) => value.field === field) ? 'values' : null;
 
     /** The pivot changed from the panel: worked out again, drawn, and reported. */
+    /** The Drawer's, the ToggleSwitch's and the Button's sheets, which the columns drawer wears. */
+    function drawerStyles() {
+        for (const style of [drawerStyle, toggleswitchStyle, buttonStyle]) loadStyle(style.name, style.css, styleOptions());
+    }
+
+    /** The columns the drawer lists: every one handed in that the reader may hide, in the order they stand. */
+    function drawerColumns() {
+        const layout = tableLayout(described(own), withShared());
+        const declared = declaredColumns(described(own)).filter(({ column }) => column.toggleable !== false && !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander);
+        const order = layout.order ?? [];
+        const place = (key: string) => (order.includes(key) ? order.indexOf(key) : order.length + declared.findIndex((entry) => entry.key === key));
+        return { layout, declared: [...declared].sort((a, b) => place(a.key) - place(b.key)) };
+    }
+
+    const pivotOn = () => !!own.pivot && own.pivot.enabled !== false;
+
+    function openDrawer(tab: DrawerTab) {
+        if (!current.unstyled) drawerStyles();
+        closeMenus();
+        const { layout, declared } = drawerColumns();
+        const pivot = pivotNow();
+        drawerDraft = {
+            tab,
+            order: declared.map((entry) => entry.key),
+            hidden: declared.filter((entry) => (layout.hidden ?? []).includes(entry.key)).map((entry) => entry.key),
+            pivot: pivotOn(),
+            groupBy: pivotOn() ? [...(pivot.rows ?? [])] : groupFields(own.groupBy),
+            pivotColumns: [...(pivot.columns ?? [])],
+            aggregates: pivotOn()
+                ? Object.fromEntries(
+                      (pivot.values ?? []).flatMap((value) => {
+                          const entry = declared.find((column) => column.column.field === value.field);
+                          return entry && typeof value.aggregate === 'string' ? [[entry.key, value.aggregate as DataGridAggregate]] : [];
+                      })
+                  )
+                : Object.fromEntries(declared.flatMap(({ column, key }) => (typeof column.aggregate === 'string' ? [[key, column.aggregate]] : []))),
+            search: '',
+            dragging: null,
+            dropOn: null
+        };
+        render();
+        const dialog = element.querySelector('[data-columns-drawer]') as HTMLElement | null;
+        if (dialog) {
+            drawerTrap = createFocusTrap(dialog, { initialFocus: `[data-drawer-tab="${tab}"]` });
+            drawerTrap.activate();
+        }
+    }
+
+    function closeDrawer() {
+        if (!drawerDraft) return;
+        drawerDraft = null;
+        render();
+        // Focus goes back where it was: the toolbar's button, as a rule.
+        drawerTrap?.deactivate();
+        drawerTrap = null;
+        // Opened by a press that left focus nowhere (a tap, Safari's click): the toolbar's button takes it back.
+        if (!document.activeElement || document.activeElement === document.body) (element.querySelector('[data-toolbar="columns"]') as HTMLElement | null)?.focus();
+    }
+
+    /** Everything changed in the drawer, at once. */
+    function applyDrawer() {
+        const draft = drawerDraft;
+        if (!draft) return;
+        const { layout, declared } = drawerColumns();
+        const keys = new Set(draft.order);
+        const hidden = [...(layout.hidden ?? []).filter((key) => !keys.has(key)), ...draft.hidden];
+        const order = [...draft.order, ...(layout.order ?? []).filter((key) => !keys.has(key))];
+        const nextLayout = { ...layout, order, hidden };
+        if (JSON.stringify([layout.order, layout.hidden]) !== JSON.stringify([nextLayout.order, nextLayout.hidden])) {
+            writeLayout(nextLayout);
+            emit('column-reorder', { key: draft.order[0] ?? '', order, layout: nextLayout });
+        }
+        const fieldOf = (key: string) => declared.find((entry) => entry.key === key)?.column.field;
+        if (draft.pivot) {
+            const values = Object.entries(draft.aggregates).flatMap(([key, aggregate]) => {
+                const field = fieldOf(key);
+                return typeof field === 'string' ? [{ field, aggregate }] : [];
+            });
+            setPivot({ ...pivotNow(), enabled: true, rows: draft.groupBy, columns: draft.pivotColumns, values });
+        } else {
+            if (pivotOn()) setPivot({ ...pivotNow(), enabled: false });
+            if (JSON.stringify(draft.groupBy) !== JSON.stringify(groupFields(own.groupBy))) setGroupBy(draft.groupBy);
+            const was = Object.fromEntries(declared.flatMap(({ column, key }) => (typeof column.aggregate === 'string' ? [[key, column.aggregate]] : [])));
+            if (JSON.stringify(draft.aggregates) !== JSON.stringify(was)) {
+                // A column the reader set to none says so, over an aggregate of its own.
+                const cleared = Object.fromEntries(Object.keys(was).filter((key) => !(key in draft.aggregates)).map((key) => [key, undefined]));
+                setAggregates({ ...cleared, ...draft.aggregates } as Record<string, DataGridAggregate>);
+            }
+        }
+        closeDrawer();
+    }
+
+    function drawerViewOf(): ColumnsDrawerView | undefined {
+        const draft = drawerDraft;
+        if (!draft) return undefined;
+        const { declared } = drawerColumns();
+        const byKey = new Map(declared.map((entry) => [entry.key, entry]));
+        const headerOf = (key: string) => {
+            const column = byKey.get(key)?.column;
+            return column?.header ?? column?.field ?? key;
+        };
+        const search = normalizeText(draft.search.trim(), locale().code);
+        return {
+            tab: draft.tab,
+            columns: draft.order.map((key) => ({ key, header: headerOf(key), visible: !draft.hidden.includes(key) })),
+            dragging: draft.dragging,
+            dropOn: draft.dropOn,
+            pivotAvailable: sidePanels().includes('pivot') || !!own.pivot,
+            pivot: draft.pivot,
+            fields: pivotFields(),
+            groupBy: draft.groupBy,
+            pivotColumns: draft.pivotColumns,
+            values: declared
+                .filter(({ column }) => typeof column.field === 'string' && numeric(column.field))
+                .filter(({ key }) => !search || normalizeText(headerOf(key), locale().code).includes(search))
+                .map(({ key }) => ({ key, header: headerOf(key), how: draft.aggregates[key] ?? null })),
+            search: draft.search
+        };
+    }
+
     /** Groups the rows by these fields in turn, or not at all: what the columns drawer does. */
     function setGroupBy(fields: string[]) {
         own = { ...own, groupBy: fields.length ? fields : undefined };
@@ -2601,6 +2854,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if ('filters' in changedModels && filtersKey(models.filters) !== filtersKey(applied)) applyFilters(models.filters);
             if (current.group !== wasGroup) joinGroup();
             if (!current.unstyled && current.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
+            if (!current.unstyled && current.columnsDrawer) drawerStyles();
             if ('value' in next || 'dataSource' in next || 'lazy' in next) {
                 if (current.dataSource) requestSource();
             }
@@ -2632,6 +2886,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         toXlsx: (options = {}) => xlsx(options),
         openSidePanel(panel) {
             showPanel(panel);
+        },
+        openColumnsDrawer(tab = 'visible') {
+            if (tab === false) closeDrawer();
+            else openDrawer(tab);
         },
         exportExcel(options = {}) {
             if (typeof document === 'undefined') return;
@@ -2686,6 +2944,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             columnMenu.destroy();
             cellMenu.destroy();
             infoOverlay.destroy();
+            drawerTrap?.deactivate();
             destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
             howSelects.forEach(({ select }) => select.destroy());
@@ -2750,11 +3009,12 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
             const name_ = String(column.key ?? column.field ?? '');
             const about = dictionary[name_];
             // The reader's pick of how the values are worked out, over the column's own.
-            const how = aggregates && name_ in aggregates ? aggregates[name_] : undefined;
-            if (!about && how === undefined) return column;
+            const picked = !!aggregates && name_ in aggregates;
+            const how = picked ? aggregates![name_] : undefined;
+            if (!about && !picked) return column;
             const out = { ...column } as Record<string, unknown>;
             if (about) for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
-            if (aggregates && name_ in aggregates) out.aggregate = how ?? undefined;
+            if (picked) out.aggregate = how ?? undefined;
             return out as DataGridColumn<T>;
         });
     const filled = fill(columns);

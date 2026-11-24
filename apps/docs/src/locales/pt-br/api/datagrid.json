@@ -50,7 +50,8 @@
         "dictionary": "O que cada coluna guarda, de uma vez, pela chave ou campo: `{ [campo]: { description, formula, kind, source, notes } }`. O que um `<Column>` diz por si vale mais que o dito aqui.",
         "exportRows": "As linhas que um download pela barra de ferramentas grava, no lugar das que o DataGrid tem: com `lazy`, todas as linhas que os filtros deixam passar, buscadas no servidor, e não só a página na tela.",
         "aggregates": "Como os valores de cada coluna são calculados num grupo e na linha de totais, pela chave da coluna, acima do `aggregate` da própria coluna: o que quem lê escolhe na gaveta de colunas, guardado por `v-model:aggregates`.",
-        "totalRow": "Uma linha no rodapé com o valor de cada coluna calculado sobre todas as linhas que os filtros deixam passar, pelo seu `aggregate`. Um objeto dá os valores pela chave da coluna: o que um servidor calculou."
+        "totalRow": "Uma linha no rodapé com o valor de cada coluna calculado sobre todas as linhas que os filtros deixam passar, pelo seu `aggregate`. Um objeto dá os valores pela chave da coluna: o que um servidor calculou.",
+        "columnsDrawer": "O botão de colunas da barra de ferramentas abre uma gaveta na borda da página em vez do painel: as colunas mostradas e a ordem delas, o agrupamento das linhas (ou o pivô) e como cada coluna de números é calculada, mudados juntos e só ao \"Aplicar\"."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",

@@ -747,6 +747,26 @@ export interface Locale {
         formula: string;
         noDescription: string;
         hiddenColumn: string;
+        /** The columns drawer. */
+        drawerVisible: string;
+        drawerOrganize: string;
+        drawerValues: string;
+        drawerVisibleHelp: string;
+        drawerOrganizeHelp: string;
+        drawerValuesHelp: string;
+        drawerAll: string;
+        drawerMoveHint: string;
+        drawerGroupBy: string;
+        drawerSubgroup: string;
+        drawerNone: string;
+        drawerRowGroups: string;
+        drawerNoGrouping: string;
+        drawerNoValues: string;
+        drawerClearValues: string;
+        drawerColumn: string;
+        drawerValue: string;
+        drawerCancel: string;
+        drawerApply: string;
         /** The toolbar's download menu. */
         download: string;
         excelFile: string;
@@ -1382,6 +1402,25 @@ export const en: Locale = {
         formula: 'Formula',
         noDescription: 'No description yet.',
         hiddenColumn: 'Hidden',
+        drawerVisible: 'Visible columns',
+        drawerOrganize: 'Organization',
+        drawerValues: 'Column values',
+        drawerVisibleHelp: 'Choose the columns the table shows, and drag them into the order you want.',
+        drawerOrganizeHelp: 'Group the rows by one column, and by another inside it; or turn the table into a pivot.',
+        drawerValuesHelp: 'Choose how each number column is worked out in the groups and in the totals.',
+        drawerAll: 'All',
+        drawerMoveHint: 'Ctrl and the arrow keys move it.',
+        drawerGroupBy: 'Group by',
+        drawerSubgroup: 'Subgroup',
+        drawerNone: 'None',
+        drawerRowGroups: 'Row groups',
+        drawerNoGrouping: 'No grouping selected.',
+        drawerNoValues: 'No number column to work out.',
+        drawerClearValues: 'Clear values',
+        drawerColumn: 'Column',
+        drawerValue: 'Value',
+        drawerCancel: 'Cancel',
+        drawerApply: 'Apply',
         download: 'Download',
         excelFile: 'Excel (.xlsx)',
         csvFile: 'CSV (.csv)',
@@ -2007,6 +2046,25 @@ export const ptBR: Locale = {
         formula: 'Fórmula',
         noDescription: 'Ainda sem descrição.',
         hiddenColumn: 'Oculta',
+        drawerVisible: 'Colunas visíveis',
+        drawerOrganize: 'Organização',
+        drawerValues: 'Valores de coluna',
+        drawerVisibleHelp: 'Escolha as colunas que a tabela mostra e arraste-as para a ordem que quiser.',
+        drawerOrganizeHelp: 'Agrupe as linhas por uma coluna, e por outra dentro dela; ou transforme a tabela numa tabela dinâmica.',
+        drawerValuesHelp: 'Escolha como cada coluna de números é calculada nos grupos e nos totais.',
+        drawerAll: 'Todos',
+        drawerMoveHint: 'Ctrl e as setas a movem.',
+        drawerGroupBy: 'Agrupar',
+        drawerSubgroup: 'Subgrupo',
+        drawerNone: 'Nenhum',
+        drawerRowGroups: 'Grupo de linhas',
+        drawerNoGrouping: 'Nenhum agrupamento selecionado.',
+        drawerNoValues: 'Nenhuma coluna de números para calcular.',
+        drawerClearValues: 'Limpar valores',
+        drawerColumn: 'Coluna',
+        drawerValue: 'Valor',
+        drawerCancel: 'Cancelar',
+        drawerApply: 'Aplicar',
         download: 'Baixar',
         excelFile: 'Excel (.xlsx)',
         csvFile: 'CSV (.csv)',

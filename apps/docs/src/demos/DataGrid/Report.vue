@@ -68,8 +68,10 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         state-key="docs-sales-report"
         dictionary-module="Sales"
         dictionary-subtitle="What every column of the report holds, and where it comes from."
-        :side-bar="['columns', 'dictionary']"
+        :side-bar="['columns', 'pivot', 'dictionary']"
         toolbar
+        columns-drawer
+        total-row
         show-gridlines
         resizable-columns
         reorderable-columns
@@ -91,14 +93,14 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         <Column field="customer" header="Customer" sortable kind="dimension" source="orders.customer_id" notes="Orders without a customer are left out of the report." description="Who bought, as on the order." />
         <Column field="product" header="Product" sortable description="What was sold, one line of the order." />
         <Column field="seller" header="Seller" sortable kind="dimension" notes="Can be empty, for orders placed online." description="The person credited with the sale." />
-        <Column field="quantity" header="Quantity" align="right" sortable kind="metric" description="Units on the line." />
+        <Column field="quantity" header="Quantity" align="right" sortable kind="metric" aggregate="sum" description="Units on the line." />
         <Column field="price" header="Unit price" align="right" sortable description="The price of one unit when the order was placed.">
             <template #body="{ data }">{{ money.format(data.price) }}</template>
         </Column>
         <Column header="Gross sale" align="right" :export-value="gross" kind="metric" description="What the line is worth before discounts and freight." formula="quantity × unit price">
             <template #body="{ data }">{{ money.format(gross(data)) }}</template>
         </Column>
-        <Column field="discount" header="Discount" align="right" sortable description="Taken off the line, by a coupon or by the seller.">
+        <Column field="discount" header="Discount" align="right" sortable aggregate="sum" description="Taken off the line, by a coupon or by the seller.">
             <template #body="{ data }">{{ money.format(data.discount) }}</template>
         </Column>
         <Column field="freight" header="Freight" align="right" sortable :visible="false" description="What the customer paid for delivery.">

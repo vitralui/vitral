@@ -430,6 +430,7 @@ const inputs = (): DataGridConfig => ({
     columnInfo: props.columnInfo,
     toolbar: props.toolbar as DataGridConfig['toolbar'],
     exportRows: props.exportRows as DataGridConfig['exportRows'],
+    columnsDrawer: props.columnsDrawer,
     stateKey: props.stateKey,
     headerTools: props.headerTools,
     minHeight: props.minHeight,
@@ -587,6 +588,7 @@ watch(
         props.columnInfo,
         props.toolbar,
         props.exportRows,
+        props.columnsDrawer,
         props.headerTools,
         props.minHeight,
         props.dictionary,
@@ -703,6 +705,7 @@ defineExpose({
     exportExcel: (options?: Parameters<DataGridHandle['exportExcel']>[0]) => table?.exportExcel(options),
     /** Opens a panel of the side bar — the data dictionary from a button of the page's own — or, given null, shuts it. */
     openSidePanel: (panel: Parameters<DataGridHandle['openSidePanel']>[0]) => table?.openSidePanel(panel),
+    openColumnsDrawer: (tab?: Parameters<DataGridHandle['openColumnsDrawer']>[0]) => table?.openColumnsDrawer(tab),
     /** Opens every group, or every row of a tree that holds rows. */
     expandAll: () => table?.expandAll(),
     /** Shuts every group, or every row of a tree. */
