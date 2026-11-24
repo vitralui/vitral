@@ -723,6 +723,14 @@ export interface Locale {
         pinEnd: string;
         unpin: string;
         fitColumn: string;
+        fitAllColumns: string;
+        /** The column menu's submenus, and its moves. */
+        pinColumn: string;
+        noPin: string;
+        valueAggregation: string;
+        moveLeft: string;
+        moveRight: string;
+        pickColumns: string;
         hideColumn: string;
         resetColumns: string;
         /** The menu a right click opens on a cell. */
@@ -1383,7 +1391,14 @@ export const en: Locale = {
         pinStart: 'Pin to the start',
         pinEnd: 'Pin to the end',
         unpin: 'Unpin',
-        fitColumn: 'Fit to content',
+        fitColumn: 'Autosize this column',
+        fitAllColumns: 'Autosize all columns',
+        pinColumn: 'Pin column',
+        noPin: 'No pin',
+        valueAggregation: 'Value aggregation',
+        moveLeft: 'Move left',
+        moveRight: 'Move right',
+        pickColumns: 'Choose columns',
         hideColumn: 'Hide column',
         resetColumns: 'Reset columns',
         copy: 'Copy',
@@ -2028,7 +2043,14 @@ export const ptBR: Locale = {
         pinStart: 'Fixar no início',
         pinEnd: 'Fixar no fim',
         unpin: 'Desafixar',
-        fitColumn: 'Ajustar ao conteúdo',
+        fitColumn: 'Autoajustar esta coluna',
+        fitAllColumns: 'Autoajustar todas as colunas',
+        pinColumn: 'Fixar coluna',
+        noPin: 'Não fixar',
+        valueAggregation: 'Agregação de valor',
+        moveLeft: 'Mover para a esquerda',
+        moveRight: 'Mover para a direita',
+        pickColumns: 'Escolher colunas',
         hideColumn: 'Ocultar coluna',
         resetColumns: 'Restaurar colunas',
         copy: 'Copiar',

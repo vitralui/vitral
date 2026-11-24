@@ -10,6 +10,7 @@ import {
     moveColumn,
     pageCount,
     pageOf,
+    MIN_COLUMN_WIDTH,
     pinColumn,
     resizeColumn,
     selectRows,
@@ -26,7 +27,7 @@ import {
 } from '@vitral/core';
 import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
-import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, table as tableIcon } from '@vitral/icons';
+import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, sigma, table as tableIcon } from '@vitral/icons';
 import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
 import type { ColumnsDrawerView, DrawerTab } from './render/drawer';
 import {
@@ -143,7 +144,7 @@ let counter = 0;
 
 export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridConfig<T> = {}): DataGridHandle<T> {
     // The menus and the side bar name their icons; the ones the base set lacks are made known.
-    registerIcons([pin, columnsIcon, tableIcon, bookOpen, download, infoIcon, rowsIcon]);
+    registerIcons([pin, columnsIcon, tableIcon, bookOpen, download, infoIcon, rowsIcon, sigma]);
     // What the host handed in, and what the grid works from: the same, or its pivot.
     let own: DataGridConfig<T> = { ...config };
     let current: DataGridConfig<T> = pivoted(own);
@@ -1424,29 +1425,63 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         requestRows();
     }
 
-    /** What a column's menu offers: sort it, pin it, hide it, or put every column back as it was. */
+    /**
+     * What a column's menu offers: sort it, filter it, pin it, how its values are worked out, fit it to what it
+     * holds, move it, hide it, pick the columns, or put every column back as it was.
+     */
     function columnItems(column: ResolvedColumn<T>): GridMenuItem[] {
         const words = locale().datagrid;
         const sorted = sortsOf(current, models).find((sort) => sort.field === column.sortField);
         const side = column.sticky?.side ?? null;
         const event = () => new Event('menu');
         const layout = tableLayout(current, withShared());
-        const visible = columnsNow().filter((entry) => !entry.selectionMode).length;
+        const shown = columnsNow().filter((entry) => !entry.selectionMode);
+        const at = shown.findIndex((entry) => entry.key === column.key);
+        const how = typeof column.column.aggregate === 'string' ? column.column.aggregate : null;
+        const hows: (DataGridAggregate | null)[] = [null, 'sum', 'min', 'max', 'avg', 'count'];
+        const canPick = current.columnsDrawer || sidePanels().includes('columns') || !!current.columnToggle;
         return [
             ...(column.column.sortable
                 ? [
                       { label: words.sortAscending, icon: 'arrowUp', disabled: sorted?.order === 1, onSelect: () => setSort(column, 1) },
                       { label: words.sortDescending, icon: 'arrowDown', disabled: sorted?.order === -1, onSelect: () => setSort(column, -1) },
-                      { label: words.clearSort, icon: 'close', disabled: !sorted, onSelect: () => setSort(column, null) },
+                      ...(sorted ? [{ label: words.clearSort, icon: 'close', onSelect: () => setSort(column, null) }] : []),
                       { separator: true }
                   ]
                 : []),
             ...(filtersByMenu(current, column) ? [{ label: formatMessage(locale().aria.filterColumn, { column: column.header }), icon: 'filter', onSelect: () => openFilter(column, element.querySelector(`[data-filter-button="${cssEscape(column.key)}"]`)) }, { separator: true }] : []),
-            { label: words.pinStart, icon: 'pin', disabled: side === 'left', onSelect: () => actions.pin(column, 'left', event()) },
-            { label: words.pinEnd, icon: 'pin', disabled: side === 'right', onSelect: () => actions.pin(column, 'right', event()) },
-            { label: words.unpin, disabled: !side, onSelect: () => actions.pin(column, null, event()) },
+            {
+                label: words.pinColumn,
+                icon: 'pin',
+                items: [
+                    { label: words.pinStart, checked: side === 'left', onSelect: () => actions.pin(column, 'left', event()) },
+                    { label: words.pinEnd, checked: side === 'right', onSelect: () => actions.pin(column, 'right', event()) },
+                    { label: words.noPin, checked: !side, onSelect: () => actions.pin(column, null, event()) }
+                ]
+            },
+            // Numbers can be worked out over the rows: summed under each group and in the totals row.
+            ...(typeof column.field === 'string' && numeric(column.field) && !pivotOn()
+                ? [
+                      {
+                          label: words.valueAggregation,
+                          icon: 'sigma',
+                          items: hows.map((each) => ({
+                              label: each ? words.aggregates[each as 'sum'] : words.drawerNone,
+                              checked: how === each,
+                              onSelect: () => setAggregates({ ...(own.aggregates ?? {}), [column.key]: each ?? undefined } as Record<string, DataGridAggregate>)
+                          }))
+                      }
+                  ]
+                : []),
             { separator: true },
-            ...(column.column.toggleable !== false ? [{ label: words.hideColumn, icon: 'eyeOff', disabled: visible <= 1, onSelect: () => actions.setVisible(column.key, false, event()) }] : []),
+            { label: words.fitColumn, onSelect: () => fitColumns([column.key]) },
+            { label: words.fitAllColumns, onSelect: () => fitColumns(shown.map((entry) => entry.key)) },
+            { separator: true },
+            { label: words.moveLeft, icon: 'arrowLeft', disabled: at <= 0, onSelect: () => move(column.key, shown[at - 1]!.key, event()) },
+            { label: words.moveRight, icon: 'arrowRight', disabled: at < 0 || at >= shown.length - 1, onSelect: () => move(column.key, shown[at + 2]?.key ?? null, event()) },
+            { separator: true },
+            ...(column.column.toggleable !== false ? [{ label: words.hideColumn, icon: 'eyeOff', disabled: shown.length <= 1, onSelect: () => actions.setVisible(column.key, false, event()) }] : []),
+            ...(canPick ? [{ label: words.pickColumns, icon: 'columns', onSelect: () => actions.toolbar('columns', new MouseEvent('menu')) }] : []),
             {
                 label: words.resetColumns,
                 icon: 'refresh',
@@ -1456,12 +1491,46 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         ];
     }
 
+    /**
+     * Widens or narrows columns to what they hold: the header and the rows drawn, each laid out on one line
+     * in a box of its own beside the table, so the table's own widths do not hold them in.
+     */
+    function fitColumns(keys: string[]) {
+        const table = element.querySelector('[data-grid-table]');
+        if (!table) return;
+        const box = document.createElement('div');
+        box.setAttribute('aria-hidden', 'true');
+        box.style.cssText = 'position:absolute;visibility:hidden;inset-inline-start:-99999px;top:0;width:max-content;contain:layout';
+        table.appendChild(box);
+        const widths: Record<string, number> = {};
+        for (const key of keys) {
+            let widest = 0;
+            for (const cell of Array.from(element.querySelectorAll(`[data-section] [data-column="${cssEscape(key)}"], [data-section] [data-col="${cssEscape(key)}"]`))) {
+                const copy = cell.cloneNode(true) as HTMLElement;
+                copy.removeAttribute('id');
+                copy.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+                copy.style.cssText += ';display:flex;width:max-content;white-space:nowrap;position:static';
+                box.appendChild(copy);
+                widest = Math.max(widest, Math.ceil(copy.getBoundingClientRect().width));
+                copy.remove();
+            }
+            const column = columnByKey(key);
+            if (widest > 0) widths[key] = Math.max(widest + 2, column?.column.minWidth ?? MIN_COLUMN_WIDTH);
+        }
+        box.remove();
+        if (!Object.keys(widths).length) return;
+        const now = tableLayout(current, withShared());
+        const next = { ...now, widths: { ...measured(), ...now.widths, ...widths } };
+        writeLayout(next);
+        for (const key of Object.keys(widths)) emit('column-resize', { originalEvent: new Event('fit'), key, width: widths[key]!, layout: next });
+    }
+
     /** The items as the menu takes them: what the host's function made of them, with no separator at either end or two together. */
     function menuItems(items: GridMenuItem[], customise: (items: GridMenuItem[]) => GridMenuItem[]): MenuItem[] {
         const out: MenuItem[] = [];
         for (const item of customise(items)) {
             if (item.separator && (!out.length || out.at(-1)!.separator)) continue;
-            out.push({ ...item });
+            out.push({ ...item } as MenuItem);
         }
         while (out.at(-1)?.separator) out.pop();
         return out;

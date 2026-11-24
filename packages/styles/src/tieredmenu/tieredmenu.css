@@ -111,6 +111,24 @@
     transform: scaleX(-1);
 }
 
+/* An item's content drawn as a button, by the kit's menu with no framework. */
+button.vt-tieredmenu-item-content {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    font: inherit;
+    text-align: start;
+    background: transparent;
+    border: 0;
+}
+
+/* A button's own colour would otherwise win over the hover and focus colours. */
+.vt-tieredmenu-item:not(.vt-tieredmenu-item-disabled) > button.vt-tieredmenu-item-content:hover,
+.vt-tieredmenu-item-active > button.vt-tieredmenu-item-content,
+button.vt-tieredmenu-item-content:focus-visible {
+    background: var(--vt-tieredmenu-item-focus-background);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .vt-tieredmenu-item-content {
         transition: none;

@@ -195,7 +195,7 @@ describe('filtering from a header', () => {
 });
 
 describe('a column’s menu', () => {
-    const items = () => Array.from(document.querySelectorAll('[role="menuitem"]'));
+    const items = () => Array.from(document.querySelectorAll('[role="menuitem"], [role="menuitemradio"]'));
     const pick = (label: string) => (items().find((item) => item.textContent === label) as HTMLElement).click();
 
     it('sorts, pins and hides from a button in the header', () => {
@@ -210,6 +210,7 @@ describe('a column’s menu', () => {
         expect(on.sort).toHaveBeenCalledWith(expect.objectContaining({ sortField: 'total', sortOrder: -1 }));
         button().click();
         expect((items().find((item) => item.textContent === 'Sort descending') as HTMLButtonElement).disabled).toBe(true);
+        pick('Pin column');
         pick('Pin to the start');
         expect(on['column-pin']).toHaveBeenCalledWith(expect.objectContaining({ key: 'total', side: 'left' }));
         button().click();
@@ -218,6 +219,75 @@ describe('a column’s menu', () => {
         (element.querySelector('[data-menu-button="customer"]') as HTMLButtonElement).click();
         pick('Reset columns');
         expect(element.querySelector(':is([role="columnheader"],[role="rowheader"])[data-column="total"]')).not.toBeNull();
+    });
+
+    it('opens its submenus by the keyboard, ticks the choice made, and goes back a level', async () => {
+        const { element } = mount({ columnMenu: true });
+        (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        const pin = items().find((item) => item.textContent === 'Pin column') as HTMLElement;
+        expect(pin.getAttribute('aria-haspopup')).toBe('menu');
+        expect(pin.getAttribute('aria-expanded')).toBe('false');
+        // Walk down to it, then the right arrow opens it on its first item.
+        const menu = document.querySelector('[role="menu"]') as HTMLElement;
+        while (document.activeElement !== pin) menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        expect(pin.closest('[role="none"]')!.querySelector('[data-submenu]')).not.toBeNull();
+        expect(document.activeElement!.textContent).toBe('Pin to the start');
+        const radios = Array.from(document.querySelectorAll('[data-submenu] [role="menuitemradio"]'), (item) => [item.textContent, item.getAttribute('aria-checked')]);
+        expect(radios).toEqual([
+            ['Pin to the start', 'false'],
+            ['Pin to the end', 'false'],
+            ['No pin', 'true']
+        ]);
+        menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        expect(document.querySelector('[data-submenu]')).toBeNull();
+        expect(document.querySelector('[role="menu"]')).not.toBeNull();
+        expect(document.activeElement!.textContent).toBe('Pin column');
+    });
+
+    it('works a number column out by the aggregation picked, and none takes it off', () => {
+        const aggregates = vi.fn();
+        const { element } = mount({ columnMenu: true, totalRow: true, on: { 'aggregates-change': aggregates } });
+        const open = () => (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        open();
+        expect(items().map((item) => item.textContent)).toContain('Value aggregation');
+        pick('Value aggregation');
+        expect(Array.from(document.querySelectorAll('[data-submenu] [role="menuitemradio"]'), (item) => item.textContent)).toEqual(['None', 'Sum', 'Min', 'Max', 'Average', 'Count']);
+        pick('Sum');
+        expect(aggregates).toHaveBeenLastCalledWith({ aggregates: { total: 'sum' } });
+        expect(element.querySelector('[data-section="foot"]')?.textContent ?? element.textContent).toContain('755');
+        open();
+        pick('Value aggregation');
+        expect(document.querySelector('[data-submenu] [aria-checked="true"]')!.textContent).toBe('Sum');
+        pick('None');
+        expect(aggregates).toHaveBeenLastCalledWith({ aggregates: { total: undefined } });
+        // A text column has nothing to work out.
+        (element.querySelector('[data-menu-button="customer"]') as HTMLButtonElement).click();
+        expect(items().map((item) => item.textContent)).not.toContain('Value aggregation');
+    });
+
+    it('moves a column left and right, the ends not going further', () => {
+        const { element } = mount({ columnMenu: true });
+        const headers = () => Array.from(element.querySelectorAll('[data-section="head"] [role="columnheader"]'), (th) => th.getAttribute('data-column'));
+        (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        pick('Move left');
+        expect(headers()).toEqual(['customer', 'total', 'city', 'placed']);
+        (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        pick('Move right');
+        expect(headers()).toEqual(['customer', 'city', 'total', 'placed']);
+        (element.querySelector('[data-menu-button="customer"]') as HTMLButtonElement).click();
+        expect((items().find((item) => item.textContent === 'Move left') as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('fits a column, or all of them, to what they hold', () => {
+        const resize = vi.fn();
+        const { element } = mount({ columnMenu: true, on: { 'column-resize': resize } });
+        // jsdom lays nothing out: every copy measures 0 wide, so the least width a column may have is what it gets.
+        (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        pick('Autosize this column');
+        (element.querySelector('[data-menu-button="total"]') as HTMLButtonElement).click();
+        pick('Autosize all columns');
+        expect(document.querySelector('[data-grid-table] > [aria-hidden="true"]')).toBeNull();
     });
 
     it('takes a function that changes what it offers', () => {

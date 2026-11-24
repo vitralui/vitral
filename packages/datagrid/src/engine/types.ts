@@ -237,6 +237,10 @@ export interface GridMenuItem {
     disabled?: boolean;
     separator?: boolean;
     onSelect?: () => void;
+    /** Items opened beside this one: a submenu. */
+    items?: GridMenuItem[];
+    /** One of a choice: ticked when true. */
+    checked?: boolean;
 }
 
 /** Where the table is in its pages, for whatever a host draws around it. */
