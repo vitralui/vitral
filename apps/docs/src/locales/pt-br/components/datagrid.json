@@ -72,6 +72,10 @@
             "title": "Layout: um painel que ele preenche",
             "description": "`scroll-height=&quot;flex&quot;` deixa o grid ocupar a altura que o painel lhe dá: a barra de ferramentas fica em cima, uma barra de status embaixo diz quantos pedidos a busca deixa passar, quantos estão selecionados e quanto somam, e cinco mil pedidos rolam entre elas."
         },
+        "Sparklines": {
+            "title": "Sparklines",
+            "description": "`sparkline` numa coluna desenha seus números como um gráfico da altura da célula: uma linha com o menor, o maior e o último ponto marcados, uma área com todas as linhas na mesma escala (`domain: &quot;column&quot;`), colunas com os resgates abaixo do zero, e uma barra para um número só, colorida pelo valor. O ponteiro parado num ponto lê o valor, e um leitor de tela ouve o primeiro, o último, o menor e o maior. Os preços mudam conforme os fundos fecham."
+        },
         "Layout: stock, by category": {
             "title": "Layout: estoque, por categoria",
             "description": "Linhas reunidas por categoria, o estoque disponível desenhado como uma barra contra a capacidade, e os totais do que a busca deixa passar fixos sob as linhas."

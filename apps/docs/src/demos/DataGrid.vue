@@ -30,6 +30,7 @@ import GroupedRows from './DataGrid/GroupedRows.vue';
 import LayoutContacts from './DataGrid/LayoutContacts.vue';
 import LayoutFill from './DataGrid/LayoutFill.vue';
 import LayoutInventory from './DataGrid/LayoutInventory.vue';
+import Sparklines from './DataGrid/Sparklines.vue';
 import LayoutTrading from './DataGrid/LayoutTrading.vue';
 import MultipleSort from './DataGrid/MultipleSort.vue';
 import PinnedRows from './DataGrid/PinnedRows.vue';
@@ -71,5 +72,6 @@ import VirtualRows from './DataGrid/VirtualRows.vue';
     <DemoSection title="Layout: a contact list" description="Roomy, for reading people rather than numbers: large rows, an avatar, and the company and email under each name, the stage as a tag, a search in the header and pages of six."><LayoutContacts /></DemoSection>
     <DemoSection title="Layout: a panel it fills" description="`scroll-height=&quot;flex&quot;` lets the grid take the height its panel gives it: the toolbar stays on top, a status bar below says how many orders the search lets through, how many are selected and what they add up to, and five thousand orders scroll between them."><LayoutFill /></DemoSection>
     <DemoSection title="Layout: stock, by category" description="Rows gathered by category, the stock on hand drawn as a bar against capacity, and the totals of whatever the search lets through pinned under the rows."><LayoutInventory /></DemoSection>
+    <DemoSection title="Sparklines" description="`sparkline` on a column draws its numbers as a chart a cell tall: a line with the lowest, highest and last points dotted, an area with every row on one scale (`domain: &quot;column&quot;`), columns with withdrawals below zero, and a bar for one number, coloured by its value. A pointer resting on a point reads it, and a screen reader hears the first, last, lowest and highest. The prices move as funds close."><Sparklines /></DemoSection>
     <DemoSection title="Loading as skeleton rows" description="`loading-mode=&quot;skeleton&quot;` draws the wait as placeholder rows in the table's own cells — the same padding, size, alignment and pinned columns — so nothing moves when the rows arrive. There are as many as the page holds, or `skeleton-rows`. A column draws its own placeholder with the `#skeleton` slot, as the name does here; the others draw a bar a line tall, and the selection column the box its checkbox will be."><SkeletonLoading /></DemoSection>
 </template>

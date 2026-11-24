@@ -336,7 +336,18 @@ export const datagridStyle = defineStyle({
         loadingText: 'vt-sr-only',
         /** What a placeholder cell holds: a bar a line of text tall, or a control's box. */
         skeleton: (s: DataGridSkeletonState) => ['vt-datagrid-skeleton', { 'vt-datagrid-skeleton-box': s.box, 'vt-datagrid-skeleton-round': s.round }],
-        selectionHeaderText: 'vt-sr-only'
+        selectionHeaderText: 'vt-sr-only',
+        /** A chart a cell tall: its box, the SVG, and the marks in it. */
+        sparkline: (s: { type?: string; empty?: boolean }) => ['vt-datagrid-sparkline', `vt-datagrid-sparkline-type-${s.type}`, { 'vt-datagrid-sparkline-empty': s.empty }],
+        sparklineSvg: 'vt-datagrid-sparkline-svg',
+        sparklineLine: 'vt-datagrid-sparkline-line',
+        sparklineArea: 'vt-datagrid-sparkline-area',
+        sparklineColumn: (s: { negative?: boolean }) => ['vt-datagrid-sparkline-column', { 'vt-datagrid-sparkline-negative': s.negative }],
+        sparklineMarker: (s: { kind?: string }) => ['vt-datagrid-sparkline-marker', `vt-datagrid-sparkline-marker-${s.kind}`],
+        sparklineHit: 'vt-datagrid-sparkline-hit',
+        sparklineTrack: 'vt-datagrid-sparkline-track',
+        sparklineFill: (s: { negative?: boolean }) => ['vt-datagrid-sparkline-fill', { 'vt-datagrid-sparkline-negative': s.negative }],
+        sparklineText: 'vt-datagrid-sparkline-text'
     }
 });
 

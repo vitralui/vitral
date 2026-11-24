@@ -9,6 +9,7 @@ import type { VirtualWindow } from '../engine/virtual';
 import { cellValue, editorKind, isEditable, type EditorKind } from '../engine/edit';
 import type { Content, PageContext, Row, DataGridAggregate, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
 import { drawerView, type ColumnsDrawerView, type DrawerTab } from './drawer';
+import { sparklineDomain, sparklinePoints, sparklineView } from './sparkline';
 
 /**
  * The table as plain objects. It is drawn in boxes rather than a `<table>`,
@@ -2012,8 +2013,24 @@ function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row:
                 pinned,
                 key: column.key
             })
-        ) ?? cellText(value, context.locale.code)
+        ) ?? (column.column.sparkline ? sparklineCell(context, column, row, value) : cellText(value, context.locale.code))
     );
+}
+
+// The range a column's sparklines share, worked out once a drawing — a row's numbers may change in place between two.
+const sharedDomains = new WeakMap<object, Map<string, [number, number]>>();
+
+function sparklineCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: T, value: unknown): Child {
+    const spark = column.column.sparkline!;
+    const shared = spark.domain ?? (spark.type === 'bar' ? 'column' : 'cell');
+    let domain: [number, number] | undefined = Array.isArray(shared) ? shared : undefined;
+    if (shared === 'column') {
+        let byColumn = sharedDomains.get(context);
+        if (!byColumn) sharedDomains.set(context, (byColumn = new Map()));
+        domain = byColumn.get(column.key);
+        if (!domain) byColumn.set(column.key, (domain = sparklineDomain(spark, context.rows.all, (r) => valueOf(r, column))));
+    }
+    return sparklineView({ spark, row, values: sparklinePoints(spark, row, value), domain, locale: context.locale, part: context.part });
 }
 
 /** Where a cell stands in the marked block: in it, on which of its edges, or under a fill. */

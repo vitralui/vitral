@@ -781,6 +781,8 @@ export interface Locale {
         source: string;
         notes: string;
         module: string;
+        /** A sparkline, as a screen reader names it. `{count}` `{first}` `{last}` `{min}` `{max}` */
+        sparkline: string;
         /** The toolbar over the grid. */
         toolbar: string;
         density: string;
@@ -1432,6 +1434,7 @@ export const en: Locale = {
         source: 'Source: {source}',
         notes: 'Notes',
         module: 'Module · {module}',
+        sparkline: '{count} points, from {first} to {last}, lowest {min}, highest {max}',
         toolbar: 'Table tools',
         density: 'Row density',
         densities: { small: 'Compact', normal: 'Normal', large: 'Comfortable' },
@@ -2076,6 +2079,7 @@ export const ptBR: Locale = {
         source: 'Fonte: {source}',
         notes: 'Observações',
         module: 'Módulo · {module}',
+        sparkline: '{count} pontos, de {first} a {last}, menor {min}, maior {max}',
         toolbar: 'Ferramentas da tabela',
         density: 'Densidade das linhas',
         densities: { small: 'Compacta', normal: 'Normal', large: 'Confortável' },

@@ -1,3 +1,4 @@
+import type { DataGridSparkline } from '@vitral/datagrid';
 import type { BaseProps, Size, ScrollbarProps } from '../../base/types';
 
 // The data-layer shapes from @vitral/core, restated for the SFC compiler.
@@ -535,6 +536,12 @@ export interface ColumnProps {
     aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | ((context: { rows: any[]; values: unknown[] }) => unknown);
     /** In a DataGrid, a handle that drags the row to another place, or moves it with Ctrl and an arrow key. */
     rowDrag?: boolean;
+    /**
+     * Draws the cell's numbers as a small chart: `{ type: 'line' | 'area' | 'column' | 'bar', markers, domain,
+     * color, labels, format }`. A cell's own `#body` still wins.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sparkline?: DataGridSparkline<any>;
     headerClass?: unknown;
     headerStyle?: unknown;
     bodyClass?: unknown;

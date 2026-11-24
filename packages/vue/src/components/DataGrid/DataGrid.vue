@@ -196,6 +196,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         aggregate: p.aggregate as DataGridColumn['aggregate'],
         aggregateContent: own.aggregate && ((context: { value: unknown; rows: unknown[] }) => node(`aggregate:${def.key}:${context.rows.length}:${String(context.value)}`, () => own.aggregate!({ value: context.value, rows: context.rows, column: p }))),
         rowDrag: truthy(p.rowDrag),
+        sparkline: p.sparkline as DataGridColumn['sparkline'],
         editor:
             own.editor &&
             ((context: EditorContext) =>

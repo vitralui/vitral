@@ -55,6 +55,42 @@ export type Content = string | number | Node | null | undefined;
 
 export type PaginatorItem = 'FirstPageLink' | 'PrevPageLink' | 'PageLinks' | 'NextPageLink' | 'LastPageLink' | 'RowsPerPageDropdown' | 'CurrentPageReport';
 
+/** One of a sparkline's points, for its colour or whether it is dotted. */
+export interface DataGridSparklinePoint<T = Row> {
+    value: number;
+    index: number;
+    values: number[];
+    row: T;
+}
+
+/** A chart a cell tall, drawn from the cell's numbers. */
+export interface DataGridSparkline<T = Row> {
+    /**
+     * `'line'` (the default), `'area'`, `'column'` (a bar for each number, one below zero hanging under it),
+     * or `'bar'`: one number as a bar across the cell, as a share of the range, with the number beside it.
+     */
+    type?: 'line' | 'area' | 'column' | 'bar';
+    /** The numbers, read from the row: the cell's value by default, a list of numbers (or one, for a bar). */
+    values?: (row: T) => unknown;
+    /**
+     * The range the marks are drawn against: each cell's own (`'cell'`, the default for a line, an area and
+     * columns), the range over every row (`'column'`, the default for a bar: from 0 to the largest), or fixed.
+     */
+    domain?: 'cell' | 'column' | [number, number];
+    /** The points dotted: `'first'`, `'last'`, `'min'`, `'max'`, `'negative'`, or a test of each point. */
+    markers?: ('first' | 'last' | 'min' | 'max' | 'negative')[] | ((point: Omit<DataGridSparklinePoint, 'row'>) => boolean);
+    /** A CSS colour for the marks, or a colour by point (a column, a dot, the bar); none leaves the theme's. */
+    color?: string | ((point: DataGridSparklinePoint<T>) => string | undefined);
+    /** What each point is called beside its number: a list (the months), or one by row. */
+    labels?: string[] | ((row: T) => string[]);
+    /** How a number is written; the locale's way, by default. */
+    format?: (value: number, index: number) => string;
+    /** False leaves out the name a pointer resting on a point reads. */
+    tooltip?: boolean;
+    /** False leaves out the number beside a bar. */
+    text?: boolean;
+}
+
 export interface DataGridColumn<T = Row> {
     /** Identifies the column when `field` does not (two columns on one field, or none). */
     key?: string;
@@ -170,6 +206,8 @@ export interface DataGridColumn<T = Row> {
     aggregateContent?: (context: { value: unknown; rows: T[]; column: DataGridColumn<T> }) => Content;
     /** A handle that drags the row to another place, or moves it with Ctrl and an arrow key. */
     rowDrag?: boolean;
+    /** Draws the cell's numbers as a small chart: a line, an area, columns, or a bar. `body` still wins. */
+    sparkline?: DataGridSparkline<T>;
     /** Include this column in `toCSV()` and `exportCSV()`. Defaults to true for a column with a `field` or an `exportValue`. */
     exportable?: boolean;
     /** What an export writes for a row, in place of the field's value: a formatted date, a name for an id. */
