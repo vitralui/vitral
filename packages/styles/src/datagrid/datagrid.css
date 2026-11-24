@@ -1916,3 +1916,47 @@
     font-size: 0.8125rem;
     color: var(--vt-text-muted-color);
 }
+
+/*
+ * The side bar's tabs on a strip of their own colour, and the columns panel's
+ * ticks drawn round, as a report's are: `--vt-datagrid-side-check-radius`
+ * puts the square back.
+ */
+.vt-datagrid-side-tabs {
+    background: var(--vt-datagrid-side-tabs-background, color-mix(in srgb, var(--vt-primary-color) 6%, var(--vt-datagrid-background)));
+    border-inline-start: 1px solid var(--vt-datagrid-border-color);
+}
+
+.vt-datagrid-side-panel-columns .vt-datagrid-filter-value input[type='checkbox'] {
+    appearance: none;
+    flex: none;
+    display: inline-grid;
+    place-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    border: 1.5px solid var(--vt-form-field-border-color, var(--vt-datagrid-border-color));
+    border-radius: var(--vt-datagrid-side-check-radius, 50%);
+    background: var(--vt-form-field-background, transparent) center / 0.75rem no-repeat;
+    cursor: pointer;
+    transition:
+        background-color 0.15s,
+        border-color 0.15s;
+}
+
+.vt-datagrid-side-panel-columns .vt-datagrid-filter-value input[type='checkbox']:checked {
+    border-color: var(--vt-primary-color);
+    background-color: var(--vt-primary-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+
+.vt-datagrid-side-panel-columns .vt-datagrid-filter-value input[type='checkbox']:indeterminate {
+    border-color: var(--vt-primary-color);
+    background-color: var(--vt-primary-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E");
+}
+
+.vt-datagrid-side-panel-columns .vt-datagrid-filter-value input[type='checkbox']:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: 2px;
+}
