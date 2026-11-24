@@ -2297,7 +2297,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** The side bar's panels, as asked for. */
     const sidePanels = (): SidePanel[] =>
         current.sideBar === true
-            ? ['columns', 'filters', ...(declaredColumns(own).some(({ column }) => hasDescription(column)) ? (['dictionary'] as const) : [])]
+            ? ['columns', 'filters', ...(declaredColumns(described(own)).some(({ column }) => hasDescription(column)) ? (['dictionary'] as const) : [])]
             : current.sideBar
               ? current.sideBar.filter((panel) => panel === 'columns' || panel === 'filters' || panel === 'pivot' || panel === 'dictionary')
               : [];
@@ -2306,7 +2306,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function dictionaryEntries(): DictionaryEntry[] {
         const hidden = tableLayout(current, withShared()).hidden ?? [];
         const query = normalizeText(sideSearch.trim(), locale().code);
-        return declaredColumns(own)
+        return declaredColumns(described(own))
             .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander)
             .map(({ column, key }) => ({
                 ...columnAbout(column, 'dictionary'),
@@ -2369,7 +2369,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     /** The fields a pivot can be built from: the columns handed in that read a field. */
     const pivotFields = () =>
-        declaredColumns(own)
+        declaredColumns(described(own))
             .filter(({ column }) => typeof column.field === 'string' && !column.selectionMode && !column.rowDrag && !column.rowEditor)
             .map(({ column }) => ({ field: column.field as string, header: column.header ?? (column.field as string) }));
 
@@ -2666,7 +2666,32 @@ function writeState(key: string, models: DataGridModels, size: 'small' | 'large'
 }
 
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
-function pivoted<T>(config: DataGridConfig<T>): DataGridConfig<T> {
+const ABOUT = ['description', 'formula', 'kind', 'source', 'notes'] as const;
+// The columns as the dictionary fills them, kept while neither changes, so a column stays the same object between draws.
+const describedCache = new WeakMap<object, { dictionary: object; columns: DataGridColumn<any>[] }>();
+
+/** The columns with what the grid's `dictionary` says of each filled in where the column says nothing itself. */
+function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
+    const { dictionary, columns } = config;
+    if (!dictionary || !columns) return config;
+    const cached = describedCache.get(columns);
+    if (cached?.dictionary === dictionary) return { ...config, columns: cached.columns };
+    const fill = (list: DataGridColumn<T>[]): DataGridColumn<T>[] =>
+        list.map((column) => {
+            if (column.columns) return { ...column, columns: fill(column.columns) };
+            const about = dictionary[String(column.key ?? column.field ?? '')];
+            if (!about) return column;
+            const out = { ...column } as Record<string, unknown>;
+            for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
+            return out as DataGridColumn<T>;
+        });
+    const filled = fill(columns);
+    describedCache.set(columns, { dictionary, columns: filled });
+    return { ...config, columns: filled };
+}
+
+function pivoted<T>(raw: DataGridConfig<T>): DataGridConfig<T> {
+    const config = described(raw);
     if (!config.pivot || config.pivot.enabled === false) return config;
     const { rows, columns } = pivotOf((config.value ?? []) as T[], config.pivot, (config.columns ?? []) as DataGridColumn<T>[], config.locale?.code);
     return { ...config, value: rows as T[], columns: columns as DataGridColumn<T>[], dataKey: PIVOT_KEY, groupBy: undefined, treeData: undefined };

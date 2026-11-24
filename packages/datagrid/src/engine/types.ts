@@ -412,6 +412,11 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
     /** The side bar's panel open at first; none by default. */
     sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /**
+     * What every column holds, at once, by its key or field, rather than on
+     * each column: what a column says itself wins over what is said here.
+     */
+    dictionary?: Record<string, DataGridColumnAbout>;
     /** Over the data dictionary: the module the table belongs to, in small capitals, and a line under its title. */
     dictionaryModule?: string;
     dictionarySubtitle?: string;
@@ -617,3 +622,12 @@ export type DataGridToolbarItem =
           showLabel?: boolean;
           onClick: (event: MouseEvent) => void;
       };
+
+/** What a column says about itself, as the grid's `dictionary` gives it for many columns at once. */
+export interface DataGridColumnAbout {
+    description?: string;
+    formula?: string;
+    kind?: 'dimension' | 'metric';
+    source?: string;
+    notes?: string | string[];
+}

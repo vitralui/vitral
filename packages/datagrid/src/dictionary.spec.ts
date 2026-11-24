@@ -218,3 +218,29 @@ describe('a dictionary as a report’s', () => {
         expect(element).toBeTruthy();
     });
 });
+
+describe('a dictionary handed in at once', () => {
+    it('fills in what each column holds by its field, a column’s own words winning', () => {
+        const plain: DataGridColumn<Sale>[] = [
+            { field: 'customer', header: 'Customer', description: 'Said by the column.' },
+            { field: 'gross', header: 'Gross sale' },
+            { field: 'discount', header: 'Discount' }
+        ];
+        const { element, info } = mount({
+            columns: plain,
+            sideBar: true,
+            sideBarOpen: 'dictionary',
+            dictionary: {
+                customer: { description: 'Said by the dictionary.', kind: 'dimension' },
+                gross: { description: 'Before discounts.', kind: 'metric', source: 'orders.total', notes: 'Can be empty' }
+            }
+        });
+        expect(element.querySelector('[data-side-tab="dictionary"]')).not.toBeNull();
+        expect(info('gross')).not.toBeNull();
+        expect(info('discount')).toBeNull();
+        const customer = element.querySelector('[data-dictionary="customer"]')!;
+        expect(customer.textContent).toContain('Said by the column.');
+        expect(customer.querySelector('.vt-datagrid-column-kind')!.textContent).toBe('Dimension');
+        expect(element.querySelector('[data-dictionary="gross"] .vt-datagrid-column-source')!.textContent).toBe('Source: orders.total');
+    });
+});

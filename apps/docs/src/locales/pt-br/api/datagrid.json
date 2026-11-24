@@ -46,7 +46,8 @@
         "headerTools": "Se o botão de menu de um cabeçalho fica sempre à vista (`'always'`, o padrão) ou só enquanto o mouse está sobre o cabeçalho.",
         "minHeight": "A altura mínima da caixa onde as linhas rolam, um comprimento CSS, para que um grid com poucas linhas ou nenhuma mantenha a forma.",
         "dictionaryModule": "Sobre o dicionário de dados: o módulo a que a tabela pertence, em versaletes.",
-        "dictionarySubtitle": "Uma linha sob o título do dicionário de dados."
+        "dictionarySubtitle": "Uma linha sob o título do dicionário de dados.",
+        "dictionary": "O que cada coluna guarda, de uma vez, pela chave ou campo: `{ [campo]: { description, formula, kind, source, notes } }`. O que um `<Column>` diz por si vale mais que o dito aqui."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",

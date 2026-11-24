@@ -161,6 +161,11 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * values, and the `v-model`s bound to them hear it; "Reset columns" in a column's menu puts the columns back.
      */
     stateKey?: string;
+    /**
+     * What every column holds, at once, by its key or field: `{ [field]: { description, formula, kind, source, notes } }`.
+     * What a `<Column>` says itself wins over what is said here.
+     */
+    dictionary?: Record<string, { description?: string; formula?: string; kind?: 'dimension' | 'metric'; source?: string; notes?: string | string[] }>;
     /** Over the data dictionary: the module the table belongs to, in small capitals. */
     dictionaryModule?: string;
     /** A line under the data dictionary's title. */
