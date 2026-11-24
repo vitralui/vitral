@@ -242,6 +242,8 @@ export interface DataGridEvents<T = Row> {
     'range-change'?: (event: { range: { rows: number[]; keys: string[] } | null; values: unknown[][] }) => void;
     /** Many cells changed at once — a paste, a fill, a block emptied — as one step undo takes back. */
     'cells-change'?: (event: { originalEvent?: Event; source: 'paste' | 'fill' | 'clear'; changes: CellEditEvent<T>[] }) => void;
+    /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
+    'pivot-change'?: (event: { pivot: PivotConfig<T> }) => void;
     /** A row of a tree was opened or shut. */
     'tree-toggle'?: (event: { originalEvent?: Event; row: T; key: string | number; expanded: boolean }) => void;
     page?: (event: { first: number; rows: number; page: number; pageCount: number }) => void;
@@ -360,12 +362,13 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /**
      * A bar along the grid's side with panels the reader opens from its tabs:
      * `'columns'` lists every column to show, hide or drag into another
-     * order; `'filters'` holds each column's filter, open one at a time.
-     * `true` is both.
+     * order; `'filters'` holds each column's filter, open one at a time;
+     * `'pivot'` builds a pivot from the columns' fields, by dragging them
+     * into rows, columns and values. `true` is the columns and the filters.
      */
-    sideBar?: boolean | ('columns' | 'filters')[];
+    sideBar?: boolean | ('columns' | 'filters' | 'pivot')[];
     /** The side bar's panel open at first; none by default. */
-    sideBarOpen?: 'columns' | 'filters' | null;
+    sideBarOpen?: 'columns' | 'filters' | 'pivot' | null;
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
     columns?: DataGridColumn<T>[];

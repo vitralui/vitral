@@ -741,6 +741,19 @@ export interface Locale {
         clearAllFilters: string;
         moveColumn: string;
         noFilters: string;
+        /** The side bar's pivot panel. `{field}` `{zone}` */
+        pivotPanel: string;
+        pivotMode: string;
+        pivotRows: string;
+        pivotColumns: string;
+        pivotValues: string;
+        pivotFields: string;
+        pivotDropHere: string;
+        pivotAddTo: string;
+        pivotRemove: string;
+        pivotFieldOptions: string;
+        pivotHow: string;
+        aggregates: { sum: string; avg: string; min: string; max: string; count: string; custom: string };
         /** The status bar. `{count}` `{total}` `{value}` */
         statusRows: string;
         statusFiltered: string;
@@ -1340,6 +1353,18 @@ export const en: Locale = {
         clearAllFilters: 'Clear all filters',
         moveColumn: 'Move {column}',
         noFilters: 'No column can be filtered here.',
+        pivotPanel: 'Pivot',
+        pivotMode: 'Pivot mode',
+        pivotRows: 'Rows',
+        pivotColumns: 'Columns',
+        pivotValues: 'Values',
+        pivotFields: 'Fields',
+        pivotDropHere: 'Drag fields here',
+        pivotAddTo: 'Add to {zone}',
+        pivotRemove: 'Remove {field} from {zone}',
+        pivotFieldOptions: 'Options for {field}',
+        pivotHow: 'How {field} is worked out',
+        aggregates: { sum: 'Sum', avg: 'Average', min: 'Min', max: 'Max', count: 'Count', custom: 'Custom' },
         statusRows: '{count} rows',
         statusFiltered: '{count} of {total} rows',
         statusSelected: '{count} selected',
@@ -1934,6 +1959,18 @@ export const ptBR: Locale = {
         clearAllFilters: 'Limpar todos os filtros',
         moveColumn: 'Mover {column}',
         noFilters: 'Nenhuma coluna pode ser filtrada aqui.',
+        pivotPanel: 'Pivô',
+        pivotMode: 'Modo pivô',
+        pivotRows: 'Linhas',
+        pivotColumns: 'Colunas',
+        pivotValues: 'Valores',
+        pivotFields: 'Campos',
+        pivotDropHere: 'Arraste campos para cá',
+        pivotAddTo: 'Adicionar em {zone}',
+        pivotRemove: 'Remover {field} de {zone}',
+        pivotFieldOptions: 'Opções de {field}',
+        pivotHow: 'Como {field} é calculado',
+        aggregates: { sum: 'Soma', avg: 'Média', min: 'Mínimo', max: 'Máximo', count: 'Contagem', custom: 'Personalizado' },
         statusRows: '{count} linhas',
         statusFiltered: '{count} de {total} linhas',
         statusSelected: '{count} selecionadas',

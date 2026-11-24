@@ -5,7 +5,7 @@ import { expectNoA11yViolations } from '../../../test/a11y';
 import { mountVt, press } from '../../../test/utils';
 import Column from './Column.vue';
 import { DataGrid as DataGridParts } from './index';
-import type { ColumnLayoutLike } from './types';
+import type { ColumnLayoutLike, DataGridPivot } from './types';
 import DataGrid from './DataGrid.vue';
 
 interface Person {
@@ -533,6 +533,29 @@ describe('DataGrid collapsedGroups', () => {
         // And a press still reports back the key it shut.
         (wrapper.element as HTMLElement).querySelectorAll<HTMLElement>('.vt-datagrid-group-toggle')[1]!.click();
         expect(shut.value).toEqual(['Recife', 'Porto', 'Lisboa']);
+        wrapper.unmount();
+    });
+
+    it('builds a pivot in the side bar, kept by v-model:pivot', async () => {
+        const pivot = ref<DataGridPivot>({ enabled: false, rows: [], values: [] });
+        const Host = defineComponent(
+            () => () =>
+                h(DataGrid, { value: people, dataKey: 'id', sideBar: ['pivot'], sideBarOpen: 'pivot', pivot: pivot.value, 'onUpdate:pivot': (v: DataGridPivot) => (pivot.value = v) }, () => defaultColumns())
+        );
+        const wrapper = mountVt(Host);
+        await nextTick();
+        const element = wrapper.element as HTMLElement;
+        const headers = () => Array.from(element.querySelectorAll('thead tr:last-child th'), (th) => th.textContent?.trim());
+        (element.querySelector('[data-pivot-field="country"] input') as HTMLInputElement).click();
+        await nextTick();
+        expect(pivot.value.rows).toEqual(['country']);
+        (element.querySelector('[data-pivot-mode]') as HTMLInputElement).click();
+        await nextTick();
+        expect(pivot.value.enabled).toBe(true);
+        expect(headers()).not.toContain('Name');
+        (element.querySelector('[data-pivot-mode]') as HTMLInputElement).click();
+        await nextTick();
+        expect(headers()).toEqual(['Name', 'City', 'Country', 'Age']);
         wrapper.unmount();
     });
 });

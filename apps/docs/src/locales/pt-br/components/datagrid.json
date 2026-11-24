@@ -106,7 +106,7 @@
         },
         "A pivot": {
             "title": "Um pivô",
-            "description": "`pivot` vira as linhas: os valores dos seus campos `rows` descem pelo lado, os valores dos seus campos `columns` vão pelo topo em grupos dentro de grupos, e em cada célula os seus `values` calculados sobre as linhas que se encontram ali, uma soma a menos que um `aggregate` diga outra coisa. O resultado são linhas e colunas como quaisquer outras — ordene uma coluna do pivô, pagine, exporte. Alterne entre as linhas e dois pivôs delas."
+            "description": "`pivot` vira as linhas: os valores dos seus campos `rows` descem pelo lado, os valores dos seus campos `columns` vão pelo topo em grupos dentro de grupos, e em cada célula os seus `values` calculados sobre as linhas que se encontram ali, uma soma a menos que um `aggregate` diga outra coisa. O resultado são linhas e colunas como quaisquer outras — ordene uma coluna do pivô, pagine, exporte. Com `'pivot'` em `side-bar`, quem lê o monta: arraste um campo para Linhas, Colunas ou Valores (ou marque-o, ou mande-o pelo seu menu), diga como um valor é calculado, e desligue o pivô para ver as linhas de novo; `v-model:pivot` guarda o que foi montado. Alterne entre as linhas e dois pivôs delas."
         },
         "A side bar": {
             "title": "Um painel lateral",

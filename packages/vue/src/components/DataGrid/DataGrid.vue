@@ -32,7 +32,7 @@ import { useVitral } from '../../config/config';
 import Select from '../Select/Select.vue';
 import Column from './Column.vue';
 import ColumnGroup from './ColumnGroup.vue';
-import type { ColumnLayoutLike, DataGridEmits, DataGridFilterEvent, DataGridFilterMeta, DataGridProps, DataGridSlots, DataGridSortEvent, SortMetaLike } from './types';
+import type { ColumnLayoutLike, DataGridEmits, DataGridFilterEvent, DataGridFilterMeta, DataGridPivot, DataGridProps, DataGridSlots, DataGridSortEvent, SortMetaLike } from './types';
 
 // The table is `@vitral/datagrid`'s framework-free renderer; this component
 // only hands it the props, the columns the `<Column>`s declared, the Vitral
@@ -486,6 +486,10 @@ const events: DataGridConfig['on'] = {
     'range-change': (event) => emit('range-change', event),
     'cells-change': (event) => emit('cells-change', event),
     'tree-toggle': (event) => emit('tree-toggle', event),
+    'pivot-change': (event) => {
+        emit('update:pivot', event.pivot as DataGridPivot);
+        emit('pivot-change', event as { pivot: DataGridPivot });
+    },
     'cell-edit-start': (event) => emit('cell-edit-start', event),
     'cell-edit-complete': (event) => emit('cell-edit-complete', event),
     'cell-edit-cancel': (event) => emit('cell-edit-cancel', event),

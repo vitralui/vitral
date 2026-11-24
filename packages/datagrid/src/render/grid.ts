@@ -83,7 +83,21 @@ export interface ViewContext<T = Row> {
     sideBar?: SideBarView;
 }
 
-export type SidePanel = 'columns' | 'filters';
+export type SidePanel = 'columns' | 'filters' | 'pivot';
+export type PivotZone = 'rows' | 'columns' | 'values';
+
+/** The pivot panel: whether the pivot is on, what is in each place, and the fields to take from. */
+export interface PivotPanelView {
+    enabled: boolean;
+    rows: { field: string; header: string }[];
+    columns: { field: string; header: string }[];
+    /** `control` is the select that says how the value is worked out. */
+    values: { field: string; header: string; control?: Content }[];
+    fields: { field: string; header: string; used: boolean }[];
+    dragging: { field: string; from: PivotZone | 'fields' } | null;
+    dropZone: PivotZone | 'fields' | null;
+    dropBefore: string | null;
+}
 
 export interface SideBarView {
     panels: SidePanel[];
@@ -94,6 +108,7 @@ export interface SideBarView {
     /** A column of the list being dragged, and the one it would land before. */
     dragging: string | null;
     dropOn: string | null;
+    pivot?: PivotPanelView;
 }
 
 /** A column's filter panel as it is drawn: conditions on its values, or a list of them to tick. */
@@ -217,6 +232,16 @@ export interface DataGridActions<T = Row> {
     sideDragEnd: () => void;
     sideFilter: (key: string) => void;
     clearAllFilters: (event: Event) => void;
+    /** The pivot panel: on and off, a field ticked, sent from its menu, removed, moved or dragged. */
+    pivotEnable: (on: boolean) => void;
+    pivotTick: (field: string, on: boolean) => void;
+    pivotFieldMenu: (field: string, event: MouseEvent) => void;
+    pivotRemove: (zone: PivotZone, at: number) => void;
+    pivotMoveKey: (zone: PivotZone, at: number, event: KeyboardEvent) => void;
+    pivotDragStart: (field: string, from: PivotZone | 'fields', event: DragEvent) => void;
+    pivotDragOver: (zone: PivotZone | 'fields', before: string | null, event: DragEvent) => void;
+    pivotDrop: (event: DragEvent) => void;
+    pivotDragEnd: () => void;
     /** Opens or shuts a row of a tree. */
     toggleTree: (row: T, key: string | number, event: Event) => void;
     /** A row's drag handle: dragged, or moved with Ctrl and an arrow key. */
@@ -970,6 +995,7 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
     const side = context.sideBar!;
     const words = locale.datagrid;
     const panelId = (panel: SidePanel) => `${context.ids.table}-side-${panel}`;
+    const panelName = (panel: SidePanel) => (panel === 'columns' ? words.columnsPanel : panel === 'pivot' ? words.pivotPanel : words.filtersPanel);
     const tabs = h(
         'div',
         mergeAttrs(part('sideTabs'), { role: 'toolbar', 'aria-orientation': 'vertical', 'aria-label': words.sideBar }),
@@ -982,8 +1008,8 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                     'data-side-tab': panel,
                     onClick: () => context.on.sideTab(panel)
                 }),
-                iconView(panel === 'columns' ? 'columns' : 'filter', part('sideTabIcon')),
-                h('span', part('sideTabLabel'), panel === 'columns' ? words.columnsPanel : words.filtersPanel)
+                iconView(panel === 'columns' ? 'columns' : panel === 'pivot' ? 'table' : 'filter', part('sideTabIcon')),
+                h('span', part('sideTabLabel'), panelName(panel))
             )
         )
     );
@@ -1104,14 +1130,147 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                   'div',
                   mergeAttrs({ key: side.open, id: panelId(side.open) }, part('sidePanel', { panel: side.open }), {
                       role: 'region',
-                      'aria-label': side.open === 'columns' ? words.columnsPanel : words.filtersPanel
+                      'aria-label': panelName(side.open)
                   }),
-                  h('h2', part('sidePanelTitle'), side.open === 'columns' ? words.columnsPanel : words.filtersPanel),
-                  side.open === 'columns' ? columnsPanel() : filtersPanel()
+                  h('h2', part('sidePanelTitle'), panelName(side.open)),
+                  side.open === 'columns' ? columnsPanel() : side.open === 'pivot' ? (side.pivot ? pivotPanelView(context, side.pivot) : null) : filtersPanel()
               )
             : null,
         tabs
     ) as VElement;
+}
+
+/**
+ * The side bar's pivot panel: a switch that turns the pivot on and off, the
+ * three places a field can go — down the side, across the top, worked out in
+ * the cells — and the fields to take them from. A field is dragged into a
+ * place or within one, ticked to put it where its kind suggests, or sent to
+ * a place from its menu; in a place, Ctrl and an arrow move it.
+ */
+function pivotPanelView<T>(context: ViewContext<T>, view: PivotPanelView): Child[] {
+    const { part, locale } = context;
+    const words = locale.datagrid;
+    const zoneName = (zone: PivotZone) => (zone === 'rows' ? words.pivotRows : zone === 'columns' ? words.pivotColumns : words.pivotValues);
+    const dropping = (zone: PivotZone | 'fields', before: string | null) => view.dropZone === zone && view.dropBefore === before;
+    const zone = (name: PivotZone) => {
+        const items: { field: string; header: string; control?: Content }[] = view[name];
+        return h(
+            'section',
+            mergeAttrs({ key: name }, part('pivotZone', { zone: name, dropping: view.dropZone === name })),
+            h('h3', mergeAttrs(part('pivotZoneTitle'), { id: `${context.ids.table}-pivot-${name}` }), zoneName(name)),
+            h(
+                'ul',
+                mergeAttrs(part('pivotZoneList'), {
+                    'aria-labelledby': `${context.ids.table}-pivot-${name}`,
+                    'data-pivot-zone': name,
+                    onDragover: (event: DragEvent) => context.on.pivotDragOver(name, null, event),
+                    onDrop: context.on.pivotDrop
+                }),
+                items.length
+                    ? items.map((item, at) =>
+                          h(
+                              'li',
+                              mergeAttrs({ key: item.field }, part('pivotItem', { dragging: view.dragging?.field === item.field && view.dragging.from === name, dropping: dropping(name, item.field) }), {
+                                  'data-pivot-item': item.field,
+                                  onDragover: (event: DragEvent) => context.on.pivotDragOver(name, item.field, event)
+                              }),
+                              h(
+                                  'span',
+                                  mergeAttrs(part('sideColumnHandle'), {
+                                      role: 'button',
+                                      tabindex: '0',
+                                      draggable: 'true',
+                                      'aria-label': formatMessage(words.moveColumn, { column: item.header }),
+                                      'aria-roledescription': words.dragHandle,
+                                      onDragstart: (event: DragEvent) => context.on.pivotDragStart(item.field, name, event),
+                                      onDragend: context.on.pivotDragEnd,
+                                      onKeydown: (event: KeyboardEvent) => context.on.pivotMoveKey(name, at, event)
+                                  }),
+                                  iconView('grip')
+                              ),
+                              h('span', part('pivotItemLabel'), item.header),
+                              name === 'values' && item.control ? h('span', part('pivotItemHow'), item.control) : null,
+                              h(
+                                  'button',
+                                  mergeAttrs({ type: 'button' }, part('headerToolButton'), {
+                                      'aria-label': formatMessage(words.pivotRemove, { field: item.header, zone: zoneName(name) }),
+                                      onClick: () => context.on.pivotRemove(name, at)
+                                  }),
+                                  iconView('close')
+                              )
+                          )
+                      )
+                    : [h('li', mergeAttrs({ key: 'empty' }, part('pivotEmpty')), words.pivotDropHere)]
+            )
+        );
+    };
+    return [
+        h(
+            'label',
+            mergeAttrs({ key: 'mode' }, part('filterValue', { all: true })),
+            h('input', {
+                type: 'checkbox',
+                role: 'switch',
+                checked: view.enabled,
+                'data-pivot-mode': '',
+                onChange: (event: Event) => context.on.pivotEnable((event.target as HTMLInputElement).checked)
+            }),
+            h('span', null, words.pivotMode)
+        ),
+        zone('rows'),
+        zone('columns'),
+        zone('values'),
+        h(
+            'section',
+            mergeAttrs({ key: 'fields' }, part('pivotZone', { zone: 'fields', dropping: view.dropZone === 'fields' })),
+            h('h3', mergeAttrs(part('pivotZoneTitle'), { id: `${context.ids.table}-pivot-fields` }), words.pivotFields),
+            h(
+                'ul',
+                mergeAttrs(part('sideColumns'), {
+                    'aria-labelledby': `${context.ids.table}-pivot-fields`,
+                    'data-pivot-zone': 'fields',
+                    onDragover: (event: DragEvent) => context.on.pivotDragOver('fields', null, event),
+                    onDrop: context.on.pivotDrop
+                }),
+                view.fields.map((field) =>
+                    h(
+                        'li',
+                        mergeAttrs({ key: field.field }, part('sideColumn', { dragging: view.dragging?.field === field.field && view.dragging.from === 'fields' }), { 'data-pivot-field': field.field }),
+                        h(
+                            'span',
+                            mergeAttrs(part('sideColumnHandle'), {
+                                draggable: 'true',
+                                'aria-hidden': 'true',
+                                onDragstart: (event: DragEvent) => context.on.pivotDragStart(field.field, 'fields', event),
+                                onDragend: context.on.pivotDragEnd
+                            }),
+                            iconView('grip')
+                        ),
+                        h(
+                            'label',
+                            part('filterValue'),
+                            h('input', {
+                                type: 'checkbox',
+                                checked: field.used,
+                                onChange: (event: Event) => context.on.pivotTick(field.field, (event.target as HTMLInputElement).checked)
+                            }),
+                            h('span', null, field.header)
+                        ),
+                        h(
+                            'button',
+                            mergeAttrs({ type: 'button' }, part('headerToolButton'), {
+                                'aria-label': formatMessage(words.pivotFieldOptions, { field: field.header }),
+                                'aria-haspopup': 'menu',
+                                'data-pivot-menu': field.field,
+                                onClick: (event: MouseEvent) => context.on.pivotFieldMenu(field.field, event)
+                            }),
+                            iconView('moreVertical')
+                        )
+                    )
+                )
+            )
+        )
+    ];
 }
 
 /** A cell of a heading row: a group over a run of columns, a column's own header, or a spacer. */

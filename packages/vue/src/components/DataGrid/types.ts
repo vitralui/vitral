@@ -141,16 +141,18 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /**
      * Turns the rows about: the values of the `rows` fields down the side, the values of the `columns` fields
      * across the top, and in each cell the `values` worked out over the rows that meet there (`aggregate`, a sum
-     * by default). The pivot is sorted, filtered, paged and exported as the grid's own rows are.
+     * by default). The pivot is sorted, filtered, paged and exported as the grid's own rows are. A side bar with
+     * a `'pivot'` panel lets the reader build it by dragging fields; `v-model:pivot` keeps what they built.
      */
     pivot?: DataGridPivot;
     /**
      * A bar along the grid's side with panels opened from its tabs: `'columns'` lists every column to show, hide
-     * or drag into another order; `'filters'` holds each filterable column's filter, open one at a time. `true` is both.
+     * or drag into another order; `'filters'` holds each filterable column's filter, open one at a time; `'pivot'`
+     * builds a pivot by dragging the columns' fields into rows, columns and values. `true` is the columns and the filters.
      */
-    sideBar?: boolean | ('columns' | 'filters')[];
+    sideBar?: boolean | ('columns' | 'filters' | 'pivot')[];
     /** The side bar's panel open at first. */
-    sideBarOpen?: 'columns' | 'filters' | null;
+    sideBarOpen?: 'columns' | 'filters' | 'pivot' | null;
 
     /** A handle on every column's trailing edge, dragged (or keyed) to set its width. */
     resizableColumns?: boolean;
@@ -257,6 +259,8 @@ export interface DataGridColumnEvent {
 
 /** What a DataGrid's pivot puts where. */
 export interface DataGridPivot {
+    /** False keeps the pivot as set up but shows the rows themselves. True by default. */
+    enabled?: boolean;
     rows: string[];
     columns?: string[];
     values: {
@@ -320,6 +324,9 @@ export type DataGridEmits = {
     /** A row of a tree was opened or shut. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     'tree-toggle': [event: { originalEvent?: Event; row: any; key: string | number; expanded: boolean }];
+    /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
+    'pivot-change': [event: { pivot: DataGridPivot }];
+    'update:pivot': [pivot: DataGridPivot];
     /** An editor opened in a cell. */
     'cell-edit-start': [event: Omit<DataGridCellEditEvent, 'newValue'>];
     /** A cell kept a new value, which is already in the row. */

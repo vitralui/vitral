@@ -3,6 +3,7 @@ import {
     dropTarget,
     en,
     formatMessage,
+    getField,
     normalizeText,
     layoutFor,
     loadStyle,
@@ -23,7 +24,7 @@ import {
 } from '@vitral/core';
 import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
-import { columns as columnsIcon, pin, registerIcons } from '@vitral/icons';
+import { columns as columnsIcon, pin, registerIcons, table as tableIcon } from '@vitral/icons';
 import { baseStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
 import {
     allSelectedState,
@@ -55,9 +56,9 @@ import { toCSV, type DataGridCsvOptions } from './engine/export';
 import { childrenOf, groupFields, groupKeys, treeKeys } from './engine/rows';
 import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type CellRef, type RangeBox } from './engine/range';
 import { toXlsx, type DataGridXlsxOptions } from './engine/xlsx';
-import { pivotOf, PIVOT_KEY } from './engine/pivot';
+import { pivotOf, PIVOT_KEY, type PivotConfig } from './engine/pivot';
 import { distinctValues, filterKind, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
-import { type SideBarView, type SidePanel } from './render/grid';
+import { type PivotPanelView, type PivotZone, type SideBarView, type SidePanel } from './render/grid';
 import { chooserView, filterPanelView, filtersByMenu, frameRows, gridView, offersMenu, type FilterPanelView, type DataGridActions, type DrawnColumn, type EditingView, type ViewContext, type VirtualRows } from './render/grid';
 
 /**
@@ -130,7 +131,7 @@ let counter = 0;
 
 export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridConfig<T> = {}): DataGridHandle<T> {
     // The menus and the side bar name their icons; the ones the base set lacks are made known.
-    registerIcons([pin, columnsIcon]);
+    registerIcons([pin, columnsIcon, tableIcon]);
     // What the host handed in, and what the grid works from: the same, or its pivot.
     let own: DataGridConfig<T> = { ...config };
     let current: DataGridConfig<T> = pivoted(own);
@@ -161,6 +162,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     let sideSearch = '';
     let sideDragging: string | null = null;
     let sideDropOn: string | null = null;
+    // The pivot panel: a field being dragged, where it would land, and the selects that say how each value is worked out.
+    let pivotDrag: { field: string; from: PivotZone | 'fields' } | null = null;
+    let pivotDrop: { zone: PivotZone | 'fields'; before: string | null } | null = null;
+    const howSelects = new Map<string, { host: HTMLElement; select: ReturnType<typeof createSelect> }>();
     const modeHosts: HTMLElement[] = [];
     const modeSelects: (SelectHandle | undefined)[] = [];
     /** The context the last draw produced, which the column list draws from. */
@@ -650,6 +655,81 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if (!cell) return;
             event.preventDefault();
             openCellMenu(at, cell);
+        },
+        pivotEnable(on) {
+            setPivot({ ...pivotNow(), enabled: on });
+        },
+        pivotTick(field, on) {
+            placeField(field, on ? (numeric(field) ? 'values' : 'rows') : 'fields', null);
+            focusPivot(field, 'fields');
+        },
+        pivotFieldMenu(field, event) {
+            const words = locale().datagrid;
+            const pivot = pivotNow();
+            const header = pivotFields().find((entry) => entry.field === field)?.header ?? field;
+            const now = zoneOf(pivot, field);
+            const zones: [PivotZone, string][] = [
+                ['rows', words.pivotRows],
+                ['columns', words.pivotColumns],
+                ['values', words.pivotValues]
+            ];
+            const items: GridMenuItem[] = zones.map(([zone, name]) => ({ label: formatMessage(words.pivotAddTo, { zone: name }), disabled: now === zone, onSelect: () => placeField(field, zone, null) }));
+            if (now) items.push({ separator: true }, { label: formatMessage(words.pivotRemove, { field: header, zone: zones.find(([zone]) => zone === now)![1] }), icon: 'close', onSelect: () => placeField(field, 'fields', null) });
+            closeMenus();
+            cellMenu.update({ ...menuSettings(), ariaLabel: formatMessage(words.pivotFieldOptions, { field: header }), items: menuItems(items, (base) => base) });
+            cellMenu.open(event.currentTarget as HTMLElement);
+        },
+        pivotRemove(zone, at) {
+            const field = zoneFields(pivotNow(), zone)[at];
+            if (field === undefined) return;
+            placeField(field, 'fields', null);
+            focusPivot(field, 'fields');
+        },
+        pivotMoveKey(zone, at, event) {
+            const fields = zoneFields(pivotNow(), zone);
+            const field = fields[at];
+            if (field === undefined) return;
+            if (event.key === 'Delete' || event.key === 'Backspace') {
+                event.preventDefault();
+                placeField(field, 'fields', null);
+                focusPivot(field, 'fields');
+                return;
+            }
+            if (!(event.ctrlKey || event.metaKey) || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown')) return;
+            event.preventDefault();
+            if (event.key === 'ArrowUp' ? at === 0 : at === fields.length - 1) return;
+            placeField(field, zone, event.key === 'ArrowUp' ? fields[at - 1]! : (fields[at + 2] ?? null));
+            focusPivot(field, zone);
+        },
+        pivotDragStart(field, from, event) {
+            pivotDrag = { field, from };
+            event.dataTransfer?.setData('text/plain', field);
+            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+            render();
+        },
+        pivotDragOver(zone, before, event) {
+            if (!pivotDrag) return;
+            event.preventDefault();
+            // A field's own line answers first; the list around it must not undo where it said.
+            event.stopPropagation();
+            if (pivotDrop?.zone === zone && pivotDrop.before === before) return;
+            pivotDrop = { zone, before };
+            render();
+        },
+        pivotDrop(event) {
+            const drag = pivotDrag;
+            const drop = pivotDrop;
+            pivotDrag = null;
+            pivotDrop = null;
+            event.preventDefault();
+            if (!drag || !drop || drop.before === drag.field) return render();
+            placeField(drag.field, drop.zone, drop.before);
+        },
+        pivotDragEnd() {
+            if (!pivotDrag) return;
+            pivotDrag = null;
+            pivotDrop = null;
+            render();
         },
         sideTab(panel) {
             sidePanel = sidePanel === panel ? null : panel;
@@ -2093,7 +2173,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     }
 
     /** The side bar's panels, as asked for. */
-    const sidePanels = (): SidePanel[] => (current.sideBar === true ? ['columns', 'filters'] : current.sideBar ? current.sideBar.filter((panel) => panel === 'columns' || panel === 'filters') : []);
+    const sidePanels = (): SidePanel[] =>
+        current.sideBar === true ? ['columns', 'filters'] : current.sideBar ? current.sideBar.filter((panel) => panel === 'columns' || panel === 'filters' || panel === 'pivot') : [];
 
     /** The columns the columns panel lists, in the order they stand, hidden ones in their place. */
     function sideColumns() {
@@ -2130,8 +2211,130 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                       }))
                     : [],
             dragging: sideDragging,
-            dropOn: sideDropOn
+            dropOn: sideDropOn,
+            pivot: open === 'pivot' ? pivotPanel() : undefined
         };
+    }
+
+    // ---- the pivot panel -------------------------------------------------------------
+
+    /** The pivot as set up, or an empty one, off, before there is any. */
+    const pivotNow = (): PivotConfig<T> => own.pivot ?? { enabled: false, rows: [], columns: [], values: [] };
+
+    /** The fields a pivot can be built from: the columns handed in that read a field. */
+    const pivotFields = () =>
+        declaredColumns(own)
+            .filter(({ column }) => typeof column.field === 'string' && !column.selectionMode && !column.rowDrag && !column.rowEditor)
+            .map(({ column }) => ({ field: column.field as string, header: column.header ?? (column.field as string) }));
+
+    /** Whether a field holds numbers, which go to the values when ticked and are summed. */
+    const numeric = (field: string) => {
+        const first = ((own.value ?? []) as T[]).map((row) => getField(row, field)).find((value) => value !== null && value !== undefined && value !== '');
+        return typeof first === 'number';
+    };
+
+    const zoneOf = (pivot: PivotConfig<T>, field: string): PivotZone | null =>
+        pivot.rows.includes(field) ? 'rows' : (pivot.columns ?? []).includes(field) ? 'columns' : pivot.values.some((value) => value.field === field) ? 'values' : null;
+
+    /** The pivot changed from the panel: worked out again, drawn, and reported. */
+    function setPivot(next: PivotConfig<T>) {
+        own = { ...own, pivot: next };
+        current = pivoted(own);
+        forget();
+        if (!clampPage()) render();
+        emit('pivot-change', { pivot: next });
+    }
+
+    /**
+     * A field put in a place, before another field there or at its end — or,
+     * put back among the fields, taken out of every place. A field sits in
+     * one place at a time; a value keeps how it was worked out as it moves.
+     * The first field placed in a grid with no pivot yet turns the pivot on.
+     */
+    function placeField(field: string, zone: PivotZone | 'fields', before: string | null) {
+        const pivot = pivotNow();
+        const kept = pivot.values.find((value) => value.field === field);
+        const rows = pivot.rows.filter((entry) => entry !== field);
+        const columns = (pivot.columns ?? []).filter((entry) => entry !== field);
+        const values = pivot.values.filter((value) => value.field !== field);
+        const at = (list: string[]) => (before && list.includes(before) ? list.indexOf(before) : list.length);
+        if (zone === 'rows') rows.splice(at(rows), 0, field);
+        else if (zone === 'columns') columns.splice(at(columns), 0, field);
+        else if (zone === 'values') values.splice(at(values.map((value) => value.field)), 0, kept ?? { field, aggregate: numeric(field) ? 'sum' : 'count' });
+        setPivot({ ...pivot, enabled: own.pivot ? pivot.enabled : zone !== 'fields', rows, columns, values });
+    }
+
+    /** The select that says how a value is worked out, kept a field's own across draws. */
+    function howControl(value: PivotConfig<T>['values'][number], header: string): Content {
+        const words = locale().datagrid;
+        const how = typeof value.aggregate === 'function' ? 'custom' : (value.aggregate ?? 'sum');
+        const kinds: (keyof typeof words.aggregates)[] = ['sum', 'avg', 'min', 'max', 'count', ...(how === 'custom' ? (['custom'] as const) : [])];
+        const settings = {
+            options: kinds.map((kind) => ({ label: words.aggregates[kind], value: kind })),
+            optionValue: 'value',
+            value: how,
+            size: 'small' as const,
+            ariaLabel: formatMessage(words.pivotHow, { field: header }),
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer,
+            pt: { root: { class: 'vt-datagrid-pivot-how-select' } }
+        };
+        const entry = howSelects.get(value.field);
+        if (entry) {
+            entry.select.update(settings);
+            return entry.host;
+        }
+        const host = document.createElement('span');
+        const select = createSelect(host, {
+            ...settings,
+            onChange: (next) => {
+                if (next === 'custom') return;
+                const pivot = pivotNow();
+                setPivot({ ...pivot, values: pivot.values.map((entry) => (entry.field === value.field ? { ...entry, aggregate: next as 'sum' } : entry)) });
+            }
+        });
+        howSelects.set(value.field, { host, select });
+        return host;
+    }
+
+    function pivotPanel(): PivotPanelView {
+        const pivot = pivotNow();
+        const fields = pivotFields();
+        const headerOf = (field: string) => fields.find((entry) => entry.field === field)?.header ?? field;
+        // A value taken out lets its select go.
+        for (const [field, entry] of howSelects) {
+            if (pivot.values.some((value) => value.field === field)) continue;
+            entry.select.destroy();
+            howSelects.delete(field);
+        }
+        return {
+            enabled: !!own.pivot && pivot.enabled !== false,
+            rows: pivot.rows.map((field) => ({ field, header: headerOf(field) })),
+            columns: (pivot.columns ?? []).map((field) => ({ field, header: headerOf(field) })),
+            values: pivot.values.map((value) => ({ field: value.field, header: value.header ?? headerOf(value.field), control: howControl(value, value.header ?? headerOf(value.field)) })),
+            fields: fields.map((entry) => ({ ...entry, used: zoneOf(pivot, entry.field) !== null })),
+            dragging: pivotDrag,
+            dropZone: pivotDrop?.zone ?? null,
+            dropBefore: pivotDrop?.before ?? null
+        };
+    }
+
+    /** The list a place holds, by field. */
+    const zoneFields = (pivot: PivotConfig<T>, zone: PivotZone) => (zone === 'values' ? pivot.values.map((value) => value.field) : zone === 'rows' ? pivot.rows : (pivot.columns ?? []));
+
+    /** After a draw, the keyboard back on a field's handle in its place, or on its box among the fields. */
+    function focusPivot(field: string, zone: PivotZone | 'fields') {
+        requestAnimationFrame(() => {
+            const target =
+                zone === 'fields'
+                    ? element.querySelector(`[data-pivot-field="${cssEscape(field)}"] input`)
+                    : element.querySelector(`[data-pivot-zone="${zone}"] [data-pivot-item="${cssEscape(field)}"] [role="button"]`);
+            (target as HTMLElement | null)?.focus();
+        });
     }
 
     /** What the status bar counts. */
@@ -2271,6 +2474,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             columnMenu.destroy();
             cellMenu.destroy();
             modeSelects.forEach((select) => select?.destroy());
+            howSelects.forEach(({ select }) => select.destroy());
             pageSize?.destroy();
             root.clear();
         }
@@ -2280,7 +2484,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
 function pivoted<T>(config: DataGridConfig<T>): DataGridConfig<T> {
-    if (!config.pivot) return config;
+    if (!config.pivot || config.pivot.enabled === false) return config;
     const { rows, columns } = pivotOf((config.value ?? []) as T[], config.pivot, (config.columns ?? []) as DataGridColumn<T>[], config.locale?.code);
     return { ...config, value: rows as T[], columns: columns as DataGridColumn<T>[], dataKey: PIVOT_KEY, groupBy: undefined, treeData: undefined };
 }

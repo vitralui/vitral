@@ -243,6 +243,14 @@ export const datagridStyle = defineStyle({
         sideFilterIcon: (s: { open?: boolean }) => ['vt-datagrid-side-filter-icon', { 'vt-datagrid-side-filter-icon-open': s.open }],
         sideFilterLabel: 'vt-datagrid-side-filter-label',
         sideFilterActive: 'vt-datagrid-side-filter-active',
+        /** The pivot panel: its places, the fields in them, and what a place says while empty. */
+        pivotZone: (s: { zone?: string; dropping?: boolean }) => ['vt-datagrid-pivot-zone', s.zone ? `vt-datagrid-pivot-zone-${s.zone}` : '', { 'vt-datagrid-pivot-zone-drop': s.dropping }],
+        pivotZoneTitle: 'vt-datagrid-pivot-zone-title',
+        pivotZoneList: 'vt-datagrid-pivot-zone-list',
+        pivotItem: (s: { dragging?: boolean; dropping?: boolean }) => ['vt-datagrid-pivot-item', { 'vt-datagrid-pivot-item-dragging': s.dragging, 'vt-datagrid-pivot-item-drop': s.dropping }],
+        pivotItemLabel: 'vt-datagrid-pivot-item-label',
+        pivotItemHow: 'vt-datagrid-pivot-item-how',
+        pivotEmpty: 'vt-datagrid-pivot-empty',
         /** The bar that counts the rows. */
         statusBar: 'vt-datagrid-status-bar',
         statusItem: (s: { kind?: string }) => ['vt-datagrid-status-item', s.kind ? `vt-datagrid-status-${s.kind}` : ''],

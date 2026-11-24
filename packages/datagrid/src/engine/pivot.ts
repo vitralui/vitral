@@ -11,6 +11,8 @@ import type { Content, DataGridColumn, Row } from './types';
 
 /** What a pivot puts where. */
 export interface PivotConfig<T = Row> {
+    /** False keeps the pivot as it is set up but shows the rows themselves. True by default. */
+    enabled?: boolean;
     /** The fields whose values go down the side, a column each. */
     rows: string[];
     /** The fields whose values go across the top, in groups inside groups. With none, one column a value. */
@@ -26,6 +28,23 @@ export interface PivotConfig<T = Row> {
     totals?: boolean;
     /** The heading of the totals' columns. */
     totalsHeader?: string;
+}
+
+/**
+ * A value with nothing of its own to draw it: drawn as its column draws its
+ * values — a sum of money still money — when it is the same kind of value,
+ * a sum, an average, a least or a most. A count is a number of rows, and an
+ * empty cell (no rows met there) stays empty.
+ */
+function drawnAsSource<T>(value: PivotConfig<T>['values'][number], source: DataGridColumn<T> | undefined, key: string): DataGridColumn<Row>['body'] {
+    const how = value.aggregate ?? 'sum';
+    if (!source?.body || typeof how !== 'string' || how === 'count') return undefined;
+    const body = source.body;
+    return (context) => {
+        const worked = (context.row as Row)[key];
+        if (worked === undefined || worked === null) return '';
+        return body({ ...context, row: { [value.field]: worked } as T, value: worked, field: value.field, column: source });
+    };
 }
 
 /** The key a pivot's row is known by. */
@@ -78,7 +97,9 @@ export function pivotOf<T>(rows: readonly T[], config: PivotConfig<T>, declared:
             header: value.header ?? `${source?.header ?? value.field}`,
             align: 'right',
             sortable: true,
-            body: value.content ? ({ row }) => value.content!({ value: (row as Row)[`${PIVOT_KEY}:${path}:${at}`], rows: ((row as Row)[`${PIVOT_KEY}:rows:${path}`] as T[]) ?? [] }) : undefined
+            body: value.content
+                ? ({ row }) => value.content!({ value: (row as Row)[`${PIVOT_KEY}:${path}:${at}`], rows: ((row as Row)[`${PIVOT_KEY}:rows:${path}`] as T[]) ?? [] })
+                : drawnAsSource(value, source, `${PIVOT_KEY}:${path}:${at}`)
         };
     };
     const measures = (path: string) => config.values.map((value, at) => measure(value, at, path));

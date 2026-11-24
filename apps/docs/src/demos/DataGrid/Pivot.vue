@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Column, DataGrid, SelectButton, StackPanel, useVitral, type DataGridPivot } from '@vitral/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface Sale {
     id: number;
@@ -46,21 +46,21 @@ const view = ref('year');
 
 const { config } = useVitral();
 const money = computed(() => new Intl.NumberFormat(config.locale.code, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }));
-const pivot = computed<DataGridPivot | undefined>(() =>
-    view.value === 'flat'
-        ? undefined
-        : {
-              rows: ['region', 'product'],
-              columns: view.value === 'year' ? ['year'] : ['year', 'quarter'],
-              values: [{ field: 'revenue', header: 'Revenue', content: ({ value }) => (value === undefined ? '' : money.value.format(value as number)) }]
-          }
-);
+// Each view a pivot; the rows themselves are the pivot turned off, so the side bar still holds it.
+const pivotOf = (name: string): DataGridPivot => ({
+    enabled: name !== 'flat',
+    rows: ['region', 'product'],
+    columns: name === 'quarter' ? ['year', 'quarter'] : ['year'],
+    values: [{ field: 'revenue' }]
+});
+const pivot = ref<DataGridPivot>(pivotOf(view.value));
+watch(view, (name) => (pivot.value = pivotOf(name)));
 </script>
 
 <template>
     <StackPanel spacing="1rem" style="width: 100%">
         <SelectButton v-model="view" :options="views" option-label="label" option-value="value" :allow-empty="false" aria-label="View" size="small" />
-        <DataGrid :value="sales" data-key="id" aria-label="Sales pivot" :pivot="pivot" sort-mode="multiple" :multi-sort-meta="[{ field: 'region', order: 1 }, { field: 'product', order: 1 }]" show-gridlines size="small" paginator :rows="12" class="demo-table">
+        <DataGrid :value="sales" data-key="id" aria-label="Sales pivot" v-model:pivot="pivot" :side-bar="['pivot']" side-bar-open="pivot" sort-mode="multiple" :multi-sort-meta="[{ field: 'region', order: 1 }, { field: 'product', order: 1 }]" show-gridlines size="small" paginator :rows="12" class="demo-table">
             <Column field="region" header="Region" sortable />
             <Column field="product" header="Product" sortable />
             <Column field="year" header="Year" sortable />

@@ -50,7 +50,8 @@ It scales and works as a spreadsheet does, with nothing to install:
   cells that flash when they change; and `exportExcel()`, a real `.xlsx` in
   which numbers stay numbers and dates stay dates.
 - **Analysis**: `pivot` turns the rows about. `sideBar` adds panels to show,
-  hide and reorder the columns, and to hold every column's filter.
+  hide and reorder the columns, to hold every column's filter, and to build
+  the pivot by dragging fields into rows, columns and values.
 
 Each of these is off unless asked for, or can be turned off.
 
