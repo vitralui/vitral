@@ -148,11 +148,20 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /**
      * A bar along the grid's side with panels opened from its tabs: `'columns'` lists every column to show, hide
      * or drag into another order; `'filters'` holds each filterable column's filter, open one at a time; `'pivot'`
-     * builds a pivot by dragging the columns' fields into rows, columns and values. `true` is the columns and the filters.
+     * builds a pivot by dragging the columns' fields into rows, columns and values; `'dictionary'` is the data
+     * dictionary, every column with its `description` and `formula`, found by a search. `true` is the columns and the
+     * filters, and the dictionary when a column has a description.
      */
-    sideBar?: boolean | ('columns' | 'filters' | 'pivot')[];
-    /** The side bar's panel open at first. */
-    sideBarOpen?: 'columns' | 'filters' | 'pivot' | null;
+    sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
+    /** The side bar's panel open; `v-model:side-bar-open` follows the reader's tabs and opens one from the page. */
+    sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /** A button by each header whose column has a `description`, which opens it. On by default. */
+    columnInfo?: boolean;
+    /**
+     * Buttons over the grid: `'dictionary'`, `'columns'`, `'export'` (an Excel workbook) and `'density'` (how close
+     * the rows sit, kept by `v-model:size`), or an object for a button of your own. `true` is the ones that apply.
+     */
+    toolbar?: boolean | DataGridToolbarItem[];
 
     /** A handle on every column's trailing edge, dragged (or keyed) to set its width. */
     resizableColumns?: boolean;
@@ -326,6 +335,10 @@ export type DataGridEmits = {
     'tree-toggle': [event: { originalEvent?: Event; row: any; key: string | number; expanded: boolean }];
     /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
     'pivot-change': [event: { pivot: DataGridPivot }];
+    /** The reader picked how close the rows sit, from the toolbar. */
+    'update:size': [size: 'small' | 'large' | undefined];
+    /** A side bar's panel was opened or shut. */
+    'update:sideBarOpen': [panel: 'columns' | 'filters' | 'pivot' | 'dictionary' | null];
     'update:pivot': [pivot: DataGridPivot];
     /** An editor opened in a cell. */
     'cell-edit-start': [event: Omit<DataGridCellEditEvent, 'newValue'>];
@@ -396,6 +409,10 @@ export interface ColumnProps {
     /** Filter by this field instead of `field`. */
     filterField?: string;
     header?: string;
+    /** What the column holds: a button by its header opens it, and the side bar's data dictionary lists it. */
+    description?: string;
+    /** How the column's value is worked out, shown under its description. */
+    formula?: string;
     footer?: string;
     sortable?: boolean;
     /** A column of selection controls: checkboxes with a select-all (`multiple`) or radios (`single`). */
@@ -487,6 +504,8 @@ export interface ColumnSlots {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: (props: { data: any; field?: string; index: number; column: Record<string, unknown>; pinned?: 'top' | 'bottom' }) => unknown;
     header?: (props: { column: Record<string, unknown> }) => unknown;
+    /** The column's description, drawn in place of `description`, by its header and in the data dictionary. */
+    description?: (props: { column: Record<string, unknown> }) => unknown;
     footer?: (props: { column: Record<string, unknown> }) => unknown;
     /** A custom filter control. Set `filterModel.value` (then call `filterCallback()` if the object is not reactive). */
     filter?: (props: { field: string; filterModel: FilterConstraintLike | CompositeFilterLike | undefined; filterCallback: () => void }) => unknown;
@@ -513,3 +532,6 @@ export interface ColumnSlots {
     /** A cell of a placeholder row, while a DataGrid loads as `skeleton`: `index` is the row's. Without it, a bar a line of text tall. */
     skeleton?: (props: { column: Record<string, unknown>; index: number }) => unknown;
 }
+
+/** A button of a DataGrid's toolbar: one the grid knows by name, or one of your own. */
+export type DataGridToolbarItem = 'dictionary' | 'columns' | 'export' | 'density' | { key: string; label: string; icon?: string; showLabel?: boolean; onClick: (event: MouseEvent) => void };

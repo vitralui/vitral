@@ -68,6 +68,13 @@ export interface DataGridColumn<T = Row> {
     /** The field (dotted path) a cell shows, sorts and filters by. */
     field?: string;
     header?: string;
+    /**
+     * What the column holds, in a sentence or two. A button by its header
+     * opens it, and the side bar's data dictionary lists it with the rest.
+     */
+    description?: string;
+    /** How the column's value is worked out, shown under its description. */
+    formula?: string;
     footer?: string;
     sortable?: boolean;
     sortField?: string;
@@ -150,6 +157,8 @@ export interface DataGridColumn<T = Row> {
     exportHeader?: string;
     /** Draws the header, beside or instead of `header`. */
     headerContent?: (context: { column: DataGridColumn<T> }) => Content;
+    /** Draws the description, in place of `description`: in the popover by its header (`'info'`), or in the data dictionary. */
+    descriptionContent?: (context: { column: DataGridColumn<T>; place: 'info' | 'dictionary' }) => Content;
     footerContent?: (context: { column: DataGridColumn<T> }) => Content;
     /** Draws the filter control for this column, instead of the text box. */
     filterContent?: (context: { column: DataGridColumn<T>; value: unknown; setValue: (value: unknown) => void }) => Content;
@@ -250,6 +259,10 @@ export interface DataGridEvents<T = Row> {
     'cells-change'?: (event: { originalEvent?: Event; source: 'paste' | 'fill' | 'clear'; changes: CellEditEvent<T>[] }) => void;
     /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
     'pivot-change'?: (event: { pivot: PivotConfig<T> }) => void;
+    /** The reader picked how close the rows sit, from the toolbar. */
+    'size-change'?: (event: { size: 'small' | 'large' | undefined }) => void;
+    /** A panel of the side bar was opened or shut. */
+    'side-panel-change'?: (event: { panel: 'columns' | 'filters' | 'pivot' | 'dictionary' | null }) => void;
     /** A row of a tree was opened or shut. */
     'tree-toggle'?: (event: { originalEvent?: Event; row: T; key: string | number; expanded: boolean }) => void;
     page?: (event: { first: number; rows: number; page: number; pageCount: number }) => void;
@@ -370,11 +383,29 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * `'columns'` lists every column to show, hide or drag into another
      * order; `'filters'` holds each column's filter, open one at a time;
      * `'pivot'` builds a pivot from the columns' fields, by dragging them
-     * into rows, columns and values. `true` is the columns and the filters.
+     * into rows, columns and values; `'dictionary'` is the data dictionary,
+     * every column with what it holds and how it is worked out, found by a
+     * search. `true` is the columns and the filters, and the dictionary when
+     * a column has a description.
      */
-    sideBar?: boolean | ('columns' | 'filters' | 'pivot')[];
+    sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
     /** The side bar's panel open at first; none by default. */
-    sideBarOpen?: 'columns' | 'filters' | 'pivot' | null;
+    sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /**
+     * The button by a header whose column has a `description`, which opens
+     * it by a press, a tap or the keyboard. False leaves the description to
+     * the data dictionary. True by default.
+     */
+    columnInfo?: boolean;
+    /**
+     * Buttons over the grid, at the end of its header bar: `'dictionary'`
+     * opens the data dictionary, `'columns'` the columns panel (or the column
+     * list), `'export'` writes an Excel workbook, `'density'` picks how close
+     * the rows sit; an object is a button of the host's own. `true` is the
+     * ones that apply: the dictionary when a column has a description, the
+     * export, the density, and the columns.
+     */
+    toolbar?: boolean | DataGridToolbarItem[];
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
     columns?: DataGridColumn<T>[];
@@ -527,3 +558,18 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     zIndex?: number;
     on?: DataGridEvents<T>;
 }
+
+/** A button of the grid's toolbar: one the grid knows by name, or the host's own. */
+export type DataGridToolbarItem =
+    | 'dictionary'
+    | 'columns'
+    | 'export'
+    | 'density'
+    | {
+          key: string;
+          label: string;
+          /** An icon by name; the label is then only said, unless `showLabel`. */
+          icon?: string;
+          showLabel?: boolean;
+          onClick: (event: MouseEvent) => void;
+      };

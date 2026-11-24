@@ -56,7 +56,8 @@ const props = withDefaults(defineProps<DataGridProps>(), {
     // A boolean prop left out is false to Vue; undo is on unless turned off.
     undoRedo: true,
     clipboard: true,
-    flashCells: undefined
+    flashCells: undefined,
+    columnInfo: true
 });
 const first = defineModel<number>('first', { default: 0 });
 const rows = defineModel<number>('rows', { default: 10 });
@@ -91,7 +92,7 @@ type ColumnSlotFn = (props: Record<string, unknown>) => VNode[];
 interface ColumnDef {
     key: string;
     props: Record<string, unknown>;
-    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton' | 'editor' | 'aggregate' | 'default', ColumnSlotFn>>;
+    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton' | 'editor' | 'aggregate' | 'description' | 'default', ColumnSlotFn>>;
     /** A `<ColumnGroup>`'s own columns. */
     children?: ColumnDef[];
 }
@@ -156,6 +157,8 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         key: def.key,
         field,
         header: p.header as string | undefined,
+        description: p.description as string | undefined,
+        formula: p.formula as string | undefined,
         footer: p.footer as string | undefined,
         sortable: truthy(p.sortable),
         sortField: p.sortField as string | undefined,
@@ -214,6 +217,8 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
             ((context: CellContext) =>
                 node(`body:${context.key ?? def.key}:${context.pinned ?? ''}${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p, pinned: context.pinned }))),
         headerContent: own.header && (() => node(`header:${def.key}`, () => own.header!({ column: p }))),
+        // Drawn in two places at once — the popover and the dictionary — so each has its own node.
+        descriptionContent: own.description && ((context: { place: string }) => node(`description:${def.key}:${context.place}`, () => own.description!({ column: p }))),
         footerContent: own.footer && (() => node(`footer:${def.key}`, () => own.footer!({ column: p }))),
         skeleton: own.skeleton && ((context: { index: number }) => node(`skeleton:${def.key}:${context.index}`, () => own.skeleton!({ column: p, index: context.index }))),
         filterContent:
@@ -412,6 +417,8 @@ const inputs = (): DataGridConfig => ({
     pivot: props.pivot as DataGridConfig['pivot'],
     sideBar: props.sideBar,
     sideBarOpen: props.sideBarOpen,
+    columnInfo: props.columnInfo,
+    toolbar: props.toolbar as DataGridConfig['toolbar'],
     virtualScroll: props.virtualScroll,
     virtualColumns: props.virtualColumns,
     overscan: props.overscan,
@@ -486,6 +493,8 @@ const events: DataGridConfig['on'] = {
     'range-change': (event) => emit('range-change', event),
     'cells-change': (event) => emit('cells-change', event),
     'tree-toggle': (event) => emit('tree-toggle', event),
+    'size-change': (event) => emit('update:size', event.size),
+    'side-panel-change': (event) => emit('update:sideBarOpen', event.panel),
     'pivot-change': (event) => {
         emit('update:pivot', event.pivot as DataGridPivot);
         emit('pivot-change', event as { pivot: DataGridPivot });
@@ -553,6 +562,8 @@ watch(
         props.flashCells,
         props.pivot,
         props.sideBar,
+        props.columnInfo,
+        props.toolbar,
         props.virtualScroll,
         props.virtualColumns,
         props.overscan,
@@ -612,6 +623,12 @@ watch(
     { deep: true }
 );
 
+// The panel the page asks for, after the first: the reader's own tabs report back through `update:sideBarOpen`.
+watch(
+    () => props.sideBarOpen,
+    (panel) => table?.openSidePanel(panel ?? null)
+);
+
 watch(
     () => [config.locale, unstyled(), props.pt, props.dt, config.pt.datagrid, config.zIndex.overlay] as const,
     () => push({ locale: config.locale, unstyled: unstyled(), pt: passThroughMap(), zIndex: config.zIndex.overlay }),
@@ -656,6 +673,8 @@ defineExpose({
     toXlsx: (options?: Parameters<DataGridHandle['toXlsx']>[0]) => table?.toXlsx(options) ?? new Uint8Array(),
     /** Downloads the rows as an Excel workbook. */
     exportExcel: (options?: Parameters<DataGridHandle['exportExcel']>[0]) => table?.exportExcel(options),
+    /** Opens a panel of the side bar — the data dictionary from a button of the page's own — or, given null, shuts it. */
+    openSidePanel: (panel: Parameters<DataGridHandle['openSidePanel']>[0]) => table?.openSidePanel(panel),
     /** Opens every group, or every row of a tree that holds rows. */
     expandAll: () => table?.expandAll(),
     /** Shuts every group, or every row of a tree. */

@@ -38,8 +38,10 @@
         "clipboard": "Ctrl+V cola o texto de uma planilha nas células que podem ser editadas. Ligado por padrão; `false` desliga.",
         "flashCells": "Uma célula cujo valor muda pisca, para cima ou para baixo num número. Um número diz por quanto tempo, em milissegundos.",
         "pivot": "Vira as linhas: os valores dos campos `rows` descem pelo lado, os valores dos campos `columns` vão pelo topo, e em cada célula os `values` calculados sobre as linhas que se encontram ali (`aggregate`, uma soma por padrão). O pivô é ordenado, filtrado, paginado e exportado como as linhas do próprio grid. Uma barra lateral com um painel `'pivot'` deixa quem lê montá-lo arrastando campos; `v-model:pivot` guarda o que foi montado.",
-        "sideBar": "Uma barra ao lado do grid com painéis abertos pelas suas abas: `'columns'` lista todas as colunas para mostrar, esconder ou arrastar para outra ordem; `'filters'` guarda o filtro de cada coluna filtrável, um aberto por vez; `'pivot'` monta um pivô arrastando os campos das colunas para linhas, colunas e valores. `true` são as colunas e os filtros.",
-        "sideBarOpen": "O painel da barra lateral aberto de início."
+        "sideBar": "Uma barra ao lado do grid com painéis abertos pelas suas abas: `'columns'` lista todas as colunas para mostrar, esconder ou arrastar para outra ordem; `'filters'` guarda o filtro de cada coluna filtrável, um aberto por vez; `'pivot'` monta um pivô arrastando os campos das colunas para linhas, colunas e valores; `'dictionary'` é o dicionário de dados, cada coluna com a sua `description` e `formula`, encontradas por uma busca. `true` são as colunas e os filtros, e o dicionário quando uma coluna tem descrição.",
+        "sideBarOpen": "O painel aberto da barra lateral; `v-model:side-bar-open` acompanha as abas de quem lê e abre um a partir da página.",
+        "columnInfo": "Um botão ao lado de cada cabeçalho cuja coluna tem `description`, que a abre. Ligado por padrão.",
+        "toolbar": "Botões sobre o grid: `'dictionary'`, `'columns'`, `'export'` (uma pasta de trabalho do Excel) e `'density'` (o quanto as linhas ficam próximas, guardado por `v-model:size`), ou um objeto para um botão seu. `true` são os que se aplicam."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",
@@ -56,7 +58,9 @@
         "tree-toggle": "Uma linha de uma árvore foi aberta ou fechada.",
         "pivot-change": "Quem lê mudou o pivô na barra lateral: ligou ou desligou, ou moveu um campo.",
         "range-change": "O bloco de células marcado mudou: as suas linhas (pelo índice entre todas as linhas) e colunas, e os valores nele.",
-        "cells-change": "Muitas células mudaram de uma vez (uma colagem, um preenchimento, um bloco esvaziado), como um passo que o desfazer leva de volta."
+        "cells-change": "Muitas células mudaram de uma vez (uma colagem, um preenchimento, um bloco esvaziado), como um passo que o desfazer leva de volta.",
+        "update:size": "Quem lê escolheu, pela barra de ferramentas, o quanto as linhas ficam próximas.",
+        "update:sideBarOpen": "Um painel da barra lateral foi aberto ou fechado."
     },
     "slots": {
         "default": "Os `<Column>`s.",

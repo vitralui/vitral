@@ -578,4 +578,29 @@ describe('DataGrid collapsedGroups', () => {
         expect(Array.from(portugal.querySelectorAll('b'), (b) => b.textContent)).toEqual(['45y', '23y', '31y', '99y']);
         wrapper.unmount();
     });
+
+    it('draws a #description slot by the header and in the dictionary, and follows v-model:side-bar-open', async () => {
+        const open = ref<'columns' | 'filters' | 'pivot' | 'dictionary' | null>(null);
+        const Host = defineComponent(
+            () => () =>
+                h(DataGrid, { value: people, dataKey: 'id', sideBar: true, sideBarOpen: open.value, 'onUpdate:sideBarOpen': (panel: typeof open.value) => (open.value = panel) }, () => [
+                    h(Column, { field: 'name', header: 'Name', description: 'The full name.' }),
+                    h(Column, { field: 'age', header: 'Age', formula: 'today − birthday' }, { description: () => h('em', 'In whole years.') })
+                ])
+        );
+        const wrapper = mountVt(Host);
+        await nextTick();
+        const element = wrapper.element as HTMLElement;
+        (element.querySelector('[data-info-button="age"]') as HTMLButtonElement).click();
+        await nextTick();
+        expect(document.querySelector('.vt-datagrid-column-info em')?.textContent).toBe('In whole years.');
+        open.value = 'dictionary';
+        await nextTick();
+        expect(element.querySelector('[data-dictionary="age"] em')?.textContent).toBe('In whole years.');
+        expect(element.querySelector('[data-dictionary="name"]')?.textContent).toContain('The full name.');
+        (element.querySelector('[data-side-tab="columns"]') as HTMLButtonElement).click();
+        await nextTick();
+        expect(open.value).toBe('columns');
+        wrapper.unmount();
+    });
 });

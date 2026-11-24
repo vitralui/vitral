@@ -1,0 +1,148 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { expectNoA11yViolations } from '../../../test/a11y';
+import type { DataGridColumn } from './engine/types';
+import { createDataGrid, type DataGridHandle } from './grid';
+
+interface Sale {
+    id: number;
+    customer: string;
+    gross: number;
+    discount: number;
+}
+
+const sales: Sale[] = Array.from({ length: 23 }, (_, i) => ({ id: i + 1, customer: `Customer ${i + 1}`, gross: 100 + i, discount: i % 3 }));
+
+const columns: DataGridColumn<Sale>[] = [
+    { field: 'customer', header: 'Customer', description: 'Who bought.' },
+    { field: 'gross', header: 'Gross sale', description: 'What was sold, before discounts.', formula: 'quantity × unit price' },
+    { field: 'discount', header: 'Discount' }
+];
+
+let handle: DataGridHandle<Sale> | null = null;
+
+function mount(config: Record<string, unknown> = {}) {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const on = { 'side-panel-change': vi.fn(), 'size-change': vi.fn() };
+    handle = createDataGrid<Sale>(element, { value: sales, dataKey: 'id', columns, ariaLabel: 'Sales', on, ...config });
+    const info = (key: string) => element.querySelector(`[data-info-button="${key}"]`) as HTMLButtonElement | null;
+    const tool = (key: string) => element.querySelector(`[data-toolbar="${key}"]`) as HTMLButtonElement | null;
+    const entries = () => Array.from(element.querySelectorAll('[data-dictionary]'), (entry) => entry.getAttribute('data-dictionary'));
+    return { element, on, info, tool, entries };
+}
+
+afterEach(() => {
+    handle?.destroy();
+    handle = null;
+    document.body.innerHTML = '';
+});
+
+describe('what a column holds', () => {
+    it('draws an info button by a header with a description, which opens it with its formula', () => {
+        const { info } = mount();
+        expect(info('discount')).toBeNull();
+        const button = info('gross')!;
+        expect(button.getAttribute('aria-label')).toBe('About Gross sale');
+        expect(button.getAttribute('aria-expanded')).toBe('false');
+        button.click();
+        const popover = document.querySelector('.vt-datagrid-column-info') as HTMLElement;
+        expect(popover.getAttribute('role')).toBe('dialog');
+        expect(popover.textContent).toContain('What was sold, before discounts.');
+        expect(popover.querySelector('code')!.textContent).toBe('quantity × unit price');
+        expect(info('gross')!.getAttribute('aria-expanded')).toBe('true');
+        info('gross')!.click();
+        expect(document.querySelector('.vt-datagrid-column-info')).toBeNull();
+    });
+
+    it('leaves the description to the dictionary when told to', () => {
+        const { info } = mount({ columnInfo: false });
+        expect(info('gross')).toBeNull();
+    });
+
+    it('lists every column in the data dictionary, hidden ones too, and finds them by what they say', () => {
+        const { element, entries } = mount({ sideBar: true, sideBarOpen: 'dictionary', columnLayout: { hidden: ['discount'] } });
+        expect(element.querySelector('[data-side-tab="dictionary"]')).not.toBeNull();
+        expect(entries()).toEqual(['customer', 'gross', 'discount']);
+        expect(element.querySelector('[data-dictionary="discount"]')!.textContent).toContain('Hidden');
+        expect(element.querySelector('[data-dictionary="discount"]')!.textContent).toContain('No description yet.');
+        const search = element.querySelector('[data-side-search]') as HTMLInputElement;
+        search.value = 'desconto discounts';
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(entries()).toEqual([]);
+        search.value = 'before discounts';
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(entries()).toEqual(['gross']);
+    });
+
+    it('takes the dictionary into `sideBar: true` only when a column has a description', () => {
+        const { element } = mount({ sideBar: true, columns: [{ field: 'customer', header: 'Customer' }] });
+        expect(element.querySelector('[data-side-tab="dictionary"]')).toBeNull();
+    });
+
+    it('opens a panel for the page, and says so', () => {
+        const { element, on } = mount({ sideBar: ['columns', 'dictionary'] });
+        handle!.openSidePanel('dictionary');
+        expect(element.querySelector('.vt-datagrid-side-panel-dictionary')).not.toBeNull();
+        expect(on['side-panel-change']).toHaveBeenLastCalledWith({ panel: 'dictionary' });
+        handle!.openSidePanel('pivot');
+        expect(element.querySelector('.vt-datagrid-side-panel')).toBeNull();
+        expect(on['side-panel-change']).toHaveBeenLastCalledWith({ panel: null });
+    });
+
+    it('is a popover and a panel a screen reader can read', async () => {
+        const { element, info } = mount({ sideBar: true, sideBarOpen: 'dictionary' });
+        info('gross')!.click();
+        await expectNoA11yViolations(element);
+        await expectNoA11yViolations(document.querySelector('.vt-datagrid-column-info') as HTMLElement);
+    });
+});
+
+describe('the toolbar', () => {
+    it('draws the buttons that apply, the dictionary with its label', () => {
+        const { element, tool } = mount({ toolbar: true, sideBar: ['columns', 'dictionary'] });
+        expect(Array.from(element.querySelectorAll('[data-toolbar]'), (button) => button.getAttribute('data-toolbar'))).toEqual(['dictionary', 'export', 'density', 'columns']);
+        expect(tool('dictionary')!.textContent).toBe('Data dictionary');
+        expect(tool('export')!.getAttribute('aria-label')).toBe('Export to Excel');
+        tool('dictionary')!.click();
+        expect(element.querySelector('.vt-datagrid-side-panel-dictionary')).not.toBeNull();
+        expect(tool('dictionary')!.getAttribute('aria-pressed')).toBe('true');
+        tool('columns')!.click();
+        expect(element.querySelector('.vt-datagrid-side-panel-columns')).not.toBeNull();
+    });
+
+    it('leaves out what does not apply, and takes buttons of the host’s own', () => {
+        const press = vi.fn();
+        const { element, tool } = mount({ toolbar: ['dictionary', 'columns', { key: 'refresh', label: 'Refresh', icon: 'refresh', onClick: press }] });
+        expect(Array.from(element.querySelectorAll('[data-toolbar]'), (button) => button.getAttribute('data-toolbar'))).toEqual(['refresh']);
+        tool('refresh')!.click();
+        expect(press).toHaveBeenCalled();
+    });
+
+    it('picks how close the rows sit from a menu', () => {
+        const { element, tool, on } = mount({ toolbar: ['density'] });
+        tool('density')!.click();
+        const compact = Array.from(document.querySelectorAll('[role="menuitem"]')).find((item) => item.textContent?.includes('Compact')) as HTMLElement;
+        compact.click();
+        expect(element.classList).toContain('vt-datagrid-sm');
+        expect(on['size-change']).toHaveBeenCalledWith({ size: 'small' });
+    });
+});
+
+describe('a page typed in', () => {
+    it('goes to the page typed, kept between the first and the last', () => {
+        const { element } = mount({ paginator: true, rows: 5, rowsPerPageOptions: [5, 10], paginatorTemplate: 'RowsPerPageLabel RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageInput NextPageLink LastPageLink' });
+        const box = () => element.querySelector('[data-page-input]') as HTMLInputElement;
+        expect(element.querySelector('.vt-paginator-rows-per-page-label')!.textContent).toBe('Page size:');
+        expect(box().closest('label')!.textContent).toBe('Pageof 5');
+        box().value = '3';
+        box().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        expect(handle!.state().first).toBe(10);
+        expect(box().value).toBe('3');
+        box().value = '99';
+        box().dispatchEvent(new Event('change', { bubbles: true }));
+        expect(handle!.state().first).toBe(20);
+        box().value = 'x';
+        box().dispatchEvent(new Event('change', { bubbles: true }));
+        expect(box().value).toBe('5');
+    });
+});

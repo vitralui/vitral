@@ -74,8 +74,13 @@ export interface ViewContext<T = Row> {
     dropOn: string | null;
     /** The column whose edge is being dragged, if one is. */
     resizing: string | null;
-    /** The buttons a header draws besides its title, and the column whose panel or menu is open. */
-    menus: { filter: boolean; column: boolean; open: string | null };
+    /**
+     * The buttons a header draws besides its title, the column whose panel or
+     * menu is open, and the one whose description is open.
+     */
+    menus: { filter: boolean; column: boolean; open: string | null; info: boolean; infoOpen: string | null };
+    /** The buttons over the grid, when it has a toolbar. */
+    toolbar?: ToolbarView[];
     /** The filter panel, while one is open. */
     filterPanel?: FilterPanelView;
     /** A row being dragged, and where it would land: before or after the row at that index. */
@@ -88,7 +93,26 @@ export interface ViewContext<T = Row> {
     sideBar?: SideBarView;
 }
 
-export type SidePanel = 'columns' | 'filters' | 'pivot';
+export type SidePanel = 'columns' | 'filters' | 'pivot' | 'dictionary';
+
+/** A toolbar button as it is drawn: its label, its icon, whether the label shows, and what it opens. */
+export interface ToolbarView {
+    key: string;
+    label: string;
+    icon?: string;
+    showLabel: boolean;
+    pressed?: boolean;
+    popup?: 'menu';
+}
+
+/** A column in the data dictionary: what it holds, how it is worked out, and whether it is on show. */
+export interface DictionaryEntry {
+    key: string;
+    header: string;
+    description: Content;
+    formula?: string;
+    visible: boolean;
+}
 export type PivotZone = 'rows' | 'columns' | 'values';
 
 /** The pivot panel: whether the pivot is on, what is in each place, and the fields to take from. */
@@ -114,6 +138,7 @@ export interface SideBarView {
     dragging: string | null;
     dropOn: string | null;
     pivot?: PivotPanelView;
+    dictionary?: DictionaryEntry[];
 }
 
 /** A column's filter panel as it is drawn: conditions on its values, or a list of them to tick. */
@@ -247,6 +272,12 @@ export interface DataGridActions<T = Row> {
     pivotDragOver: (zone: PivotZone | 'fields', before: string | null, event: DragEvent) => void;
     pivotDrop: (event: DragEvent) => void;
     pivotDragEnd: () => void;
+    /** A header's info button, which opens the column's description. */
+    openInfo: (column: ResolvedColumn<T>, event: MouseEvent) => void;
+    /** A button of the toolbar. */
+    toolbar: (key: string, event: MouseEvent) => void;
+    /** The paginator's page box: the page typed, taken on Enter or when it is left. */
+    pageInput: (page: number) => void;
     /** Opens or shuts a row of a tree. */
     toggleTree: (row: T, key: string | number, event: Event) => void;
     /** A row's drag handle: dragged, or moved with Ctrl and an arrow key. */
@@ -531,11 +562,33 @@ function loadingMask<T>(context: ViewContext<T>): Child {
 function headerBar<T>(context: ViewContext<T>): Child {
     const { config, part, locale } = context;
     const own = content(config.content?.header?.());
-    if (!config.columnToggle && own === null) return null;
+    const tools = context.toolbar ?? [];
+    if (!config.columnToggle && own === null && !tools.length) return null;
     return h(
         'div',
         mergeAttrs({ key: 'header' }, part('header')),
         own,
+        tools.length
+            ? h(
+                  'div',
+                  mergeAttrs({ key: 'toolbar' }, part('toolbar'), { role: 'toolbar', 'aria-label': locale.datagrid.toolbar }),
+                  tools.map((tool) =>
+                      h(
+                          'button',
+                          mergeAttrs({ key: tool.key, type: 'button' }, part('toolbarButton', { labelled: tool.showLabel, pressed: tool.pressed }), {
+                              'aria-label': tool.showLabel ? undefined : tool.label,
+                              'aria-pressed': tool.pressed === undefined ? undefined : String(tool.pressed),
+                              'aria-haspopup': tool.popup,
+                              'data-toolbar': tool.key,
+                              title: tool.showLabel ? undefined : tool.label,
+                              onClick: (event: MouseEvent) => context.on.toolbar(tool.key, event)
+                          }),
+                          tool.icon ? iconView(tool.icon, part('toolbarIcon')) : null,
+                          tool.showLabel ? h('span', null, tool.label) : null
+                      )
+                  )
+              )
+            : null,
         !config.columnToggle
             ? null
             : h(
@@ -803,12 +856,26 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>): Chi
     const { config, part, locale, menus } = context;
     const filter = menus.filter && filtersByMenu(config, column);
     const menu = menus.column && offersMenu(config, column);
-    if (!filter && !menu) return null;
+    const info = menus.info && hasDescription(column.column);
+    if (!filter && !menu && !info) return null;
     const active = filter && hasFilter(context.filters, column);
     const open = menus.open === column.key;
     return h(
         'span',
         part('headerTools'),
+        info
+            ? h(
+                  'button',
+                  mergeAttrs({ type: 'button' }, part('headerToolButton', { kind: 'info', open: menus.infoOpen === column.key }), {
+                      'aria-label': formatMessage(locale.datagrid.columnInfo, { column: column.header }),
+                      'aria-haspopup': 'dialog',
+                      'aria-expanded': String(menus.infoOpen === column.key),
+                      'data-info-button': column.key,
+                      onClick: (event: MouseEvent) => context.on.openInfo(column, event)
+                  }),
+                  iconView('info')
+              )
+            : null,
         filter
             ? h(
                   'button',
@@ -856,6 +923,38 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>): Chi
               )
             : null
     );
+}
+
+/** Whether a column says what it holds, which its header and the data dictionary show. */
+export const hasDescription = <T>(column: DataGridColumn<T>): boolean => !!(column.description || column.formula || column.descriptionContent);
+
+/** What a column holds and how it is worked out, as its info button and the data dictionary show them. */
+function aboutColumn<T>(context: ViewContext<T>, description: Content, formula: string | undefined): Child[] {
+    const { part, locale } = context;
+    const words = locale.datagrid;
+    return [
+        h('div', mergeAttrs({ key: 'description' }, part('columnDescription')), content(description) ?? h('span', part('columnNoDescription'), words.noDescription)),
+        formula
+            ? h(
+                  'div',
+                  mergeAttrs({ key: 'formula' }, part('columnFormula')),
+                  h('span', part('columnFormulaLabel'), words.formula),
+                  h('code', part('columnFormulaText'), formula)
+              )
+            : null
+    ];
+}
+
+/** The popover a header's info button opens: the column's name, what it holds, how it is worked out. */
+export function columnInfoView<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VElement {
+    const { part, locale } = context;
+    const titleId = `${context.ids.table}-info-title`;
+    return h(
+        'div',
+        mergeAttrs({ id: `${context.ids.table}-info` }, part('columnInfo'), { role: 'dialog', 'aria-labelledby': titleId }),
+        h('h3', mergeAttrs(part('columnInfoTitle'), { id: titleId }), column.header || formatMessage(locale.datagrid.columnInfo, { column: column.key })),
+        aboutColumn(context, column.column.descriptionContent?.({ column: column.column, place: 'info' }) ?? column.column.description, column.column.formula)
+    ) as VElement;
 }
 
 const hasFilter = (filters: FilterMeta, column: ResolvedColumn): boolean => {
@@ -1009,7 +1108,9 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
     const side = context.sideBar!;
     const words = locale.datagrid;
     const panelId = (panel: SidePanel) => `${context.ids.table}-side-${panel}`;
-    const panelName = (panel: SidePanel) => (panel === 'columns' ? words.columnsPanel : panel === 'pivot' ? words.pivotPanel : words.filtersPanel);
+    const panelName = (panel: SidePanel) =>
+        panel === 'columns' ? words.columnsPanel : panel === 'pivot' ? words.pivotPanel : panel === 'dictionary' ? words.dictionaryPanel : words.filtersPanel;
+    const panelIcon = (panel: SidePanel) => (panel === 'columns' ? 'columns' : panel === 'pivot' ? 'table' : panel === 'dictionary' ? 'bookOpen' : 'filter');
     const tabs = h(
         'div',
         mergeAttrs(part('sideTabs'), { role: 'toolbar', 'aria-orientation': 'vertical', 'aria-label': words.sideBar }),
@@ -1022,7 +1123,7 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                     'data-side-tab': panel,
                     onClick: () => context.on.sideTab(panel)
                 }),
-                iconView(panel === 'columns' ? 'columns' : panel === 'pivot' ? 'table' : 'filter', part('sideTabIcon')),
+                iconView(panelIcon(panel), part('sideTabIcon')),
                 h('span', part('sideTabLabel'), panelName(panel))
             )
         )
@@ -1098,6 +1199,36 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
             )
         ];
     };
+    /** Every column, shown or hidden, with what it holds and how it is worked out; the search finds them by either. */
+    const dictionaryPanel = () => [
+        h(
+            'span',
+            mergeAttrs({ key: 'search' }, part('filterField')),
+            iconView('search'),
+            h(
+                'input',
+                mergeAttrs({ type: 'search' }, part('filterInput'), {
+                    value: side.search,
+                    placeholder: words.searchColumns,
+                    'aria-label': words.searchColumns,
+                    'data-side-search': '',
+                    onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
+                })
+            )
+        ),
+        h(
+            'dl',
+            mergeAttrs({ key: 'entries' }, part('dictionary')),
+            (side.dictionary ?? []).map((entry) =>
+                h(
+                    'div',
+                    mergeAttrs({ key: entry.key }, part('dictionaryEntry', { hidden: !entry.visible }), { 'data-dictionary': entry.key }),
+                    h('dt', part('dictionaryTerm'), h('span', null, entry.header), entry.visible ? null : h('span', part('dictionaryHidden'), words.hiddenColumn)),
+                    h('dd', part('dictionaryDetail'), aboutColumn(context, entry.description, entry.formula))
+                )
+            )
+        )
+    ];
     const filtersPanel = () =>
         side.filters.length
             ? [
@@ -1147,7 +1278,15 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                       'aria-label': panelName(side.open)
                   }),
                   h('h2', part('sidePanelTitle'), panelName(side.open)),
-                  side.open === 'columns' ? columnsPanel() : side.open === 'pivot' ? (side.pivot ? pivotPanelView(context, side.pivot) : null) : filtersPanel()
+                  side.open === 'columns'
+                      ? columnsPanel()
+                      : side.open === 'pivot'
+                        ? side.pivot
+                            ? pivotPanelView(context, side.pivot)
+                            : null
+                        : side.open === 'dictionary'
+                          ? dictionaryPanel()
+                          : filtersPanel()
               )
             : null,
         tabs
@@ -2067,6 +2206,31 @@ function paginatorView<T>(context: ViewContext<T>): Child {
                     }),
                     formatMessage(config.currentPageReportTemplate ?? locale.pageReport, pageReportParams(models.first, models.rows, rows.total))
                 );
+            case 'PageInput':
+                // The page typed and taken on Enter or when the box is left; a page past either end is the end.
+                return h(
+                    'label',
+                    mergeAttrs({ key: 'page-input' }, pagePart('pageInput')),
+                    h('span', null, locale.datagrid.pageInput),
+                    h(
+                        'input',
+                        mergeAttrs({ type: 'text', inputmode: 'numeric' }, pagePart('pageInputBox'), {
+                            value: String(count ? page + 1 : 0),
+                            size: String(Math.max(2, String(count).length)),
+                            'aria-label': locale.datagrid.pageInput,
+                            'data-page-input': '',
+                            onKeydown: (event: KeyboardEvent) => {
+                                if (event.key !== 'Enter') return;
+                                event.preventDefault();
+                                context.on.pageInput(Number((event.target as HTMLInputElement).value));
+                            },
+                            onChange: (event: Event) => context.on.pageInput(Number((event.target as HTMLInputElement).value))
+                        })
+                    ),
+                    h('span', null, formatMessage(locale.datagrid.pageOfCount, { count: count }))
+                );
+            case 'RowsPerPageLabel':
+                return (config.rowsPerPageOptions ?? []).length ? h('span', mergeAttrs({ key: 'rows-per-page-label' }, pagePart('rowsPerPageLabel'), { 'aria-hidden': 'true' }), `${locale.datagrid.pageSize}:`) : null;
             case 'RowsPerPageDropdown': {
                 const options = config.rowsPerPageOptions ?? [];
                 if (!options.length) return null;

@@ -253,6 +253,23 @@ export const datagridStyle = defineStyle({
         pivotItemLabel: 'vt-datagrid-pivot-item-label',
         pivotItemHow: 'vt-datagrid-pivot-item-how',
         pivotEmpty: 'vt-datagrid-pivot-empty',
+        /** The toolbar over the grid, and its buttons: an icon, with its label when it shows one. */
+        toolbar: 'vt-datagrid-toolbar',
+        toolbarButton: (s: { labelled?: boolean; pressed?: boolean }) => ['vt-datagrid-toolbar-button', { 'vt-datagrid-toolbar-button-labelled': s.labelled, 'vt-datagrid-toolbar-button-pressed': s.pressed }],
+        toolbarIcon: 'vt-datagrid-toolbar-icon',
+        /** A column's description, in the popover its info button opens and in the data dictionary. */
+        columnInfo: 'vt-datagrid-column-info',
+        columnInfoTitle: 'vt-datagrid-column-info-title',
+        columnDescription: 'vt-datagrid-column-description',
+        columnNoDescription: 'vt-datagrid-column-no-description',
+        columnFormula: 'vt-datagrid-column-formula',
+        columnFormulaLabel: 'vt-datagrid-column-formula-label',
+        columnFormulaText: 'vt-datagrid-column-formula-text',
+        dictionary: 'vt-datagrid-dictionary',
+        dictionaryEntry: (s: { hidden?: boolean }) => ['vt-datagrid-dictionary-entry', { 'vt-datagrid-dictionary-entry-hidden': s.hidden }],
+        dictionaryTerm: 'vt-datagrid-dictionary-term',
+        dictionaryDetail: 'vt-datagrid-dictionary-detail',
+        dictionaryHidden: 'vt-datagrid-dictionary-hidden',
         /** The bar that counts the rows. */
         statusBar: 'vt-datagrid-status-bar',
         statusItem: (s: { kind?: string }) => ['vt-datagrid-status-item', s.kind ? `vt-datagrid-status-${s.kind}` : ''],

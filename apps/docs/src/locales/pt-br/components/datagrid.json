@@ -108,6 +108,10 @@
             "title": "Um pivô",
             "description": "`pivot` vira as linhas: os valores dos seus campos `rows` descem pelo lado, os valores dos seus campos `columns` vão pelo topo em grupos dentro de grupos, e em cada célula os seus `values` calculados sobre as linhas que se encontram ali, uma soma a menos que um `aggregate` diga outra coisa. O resultado são linhas e colunas como quaisquer outras — ordene uma coluna do pivô, pagine, exporte. Com `'pivot'` em `side-bar`, quem lê o monta: arraste um campo para Linhas, Colunas ou Valores (ou marque-o, ou mande-o pelo seu menu), diga como um valor é calculado, e desligue o pivô para ver as linhas de novo; `v-model:pivot` guarda o que foi montado. Alterne entre as linhas e dois pivôs delas."
         },
+        "A report, with what each column means": {
+            "title": "Um relatório, com o que cada coluna significa",
+            "description": "Uma coluna com `description` (e uma `formula`, ou um slot `#description`) desenha um botão de informação ao lado do cabeçalho que a abre — por um clique, um toque ou o teclado. O painel `'dictionary'` da barra lateral lista todas as colunas, as ocultas também, com o que guardam e como são calculadas, encontradas por uma busca. `toolbar` coloca sobre o grid as ferramentas que se aplicam: o dicionário de dados, uma exportação para Excel, o quanto as linhas ficam próximas (`v-model:size`) e o painel de colunas. O paginador aceita `PageInput` e `RowsPerPageLabel` para ler como o de um relatório."
+        },
         "A side bar": {
             "title": "Um painel lateral",
             "description": "`side-bar` coloca painéis ao lado do grid, abertos pelas suas abas. O painel de colunas lista todas as colunas — marque uma para mostrá-la ou escondê-la, busque na lista, ou arraste uma coluna pela alça (Ctrl com uma seta no teclado) para outro lugar. O painel de filtros guarda o filtro de cada coluna, um aberto por vez, com um botão para limpar todos. `side-bar-open` diz qual painel começa aberto; uma lista como `['columns']` mantém só alguns."

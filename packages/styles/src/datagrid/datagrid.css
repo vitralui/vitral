@@ -1663,3 +1663,158 @@
         animation-duration: 1ms;
     }
 }
+
+/* ---- the toolbar over the grid -------------------------------------------
+   At the end of the header bar: icon buttons, the data dictionary's with its
+   label, as a report's tools sit over its table. */
+
+.vt-datagrid-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: auto;
+}
+
+.vt-datagrid-toolbar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.375rem;
+    font: inherit;
+    font-size: var(--vt-datagrid-chooser-button-font-size);
+    color: var(--vt-datagrid-header-cell-color);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--vt-border-radius-md);
+    cursor: pointer;
+    transition:
+        background-color var(--vt-datagrid-transition-duration),
+        color var(--vt-datagrid-transition-duration);
+}
+
+.vt-datagrid-toolbar-button-labelled {
+    padding: 0 0.75rem;
+    border-color: var(--vt-datagrid-border-color);
+}
+
+.vt-datagrid-toolbar-button:hover,
+.vt-datagrid-toolbar-button-pressed {
+    color: var(--vt-primary-color);
+    background: var(--vt-datagrid-row-hover-background);
+}
+
+.vt-datagrid-toolbar-button-pressed.vt-datagrid-toolbar-button-labelled {
+    border-color: var(--vt-primary-color);
+}
+
+.vt-datagrid-toolbar-button:focus-visible {
+    outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
+    outline-offset: var(--vt-focus-ring-offset);
+}
+
+.vt-datagrid-toolbar-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ---- what a column holds ---------------------------------------------------
+   The popover a header's info button opens, and the data dictionary's
+   entries: the same words, the formula set apart in the code face. */
+
+.vt-datagrid-column-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 20rem;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    color: var(--vt-overlay-color, var(--vt-datagrid-row-color));
+    background: var(--vt-overlay-background, var(--vt-datagrid-background));
+    border: 1px solid var(--vt-overlay-border-color, var(--vt-datagrid-border-color));
+    border-radius: var(--vt-border-radius-md);
+    box-shadow: var(--vt-overlay-shadow, 0 8px 24px rgb(0 0 0 / 0.18));
+}
+
+.vt-datagrid-column-info-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.vt-datagrid-column-description {
+    line-height: 1.45;
+}
+
+.vt-datagrid-column-no-description {
+    color: var(--vt-text-muted-color);
+    font-style: italic;
+}
+
+.vt-datagrid-column-formula {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.vt-datagrid-column-formula-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--vt-text-muted-color);
+}
+
+.vt-datagrid-column-formula-text {
+    padding: 0.375rem 0.5rem;
+    font-family: var(--vt-font-family-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--vt-datagrid-row-hover-background);
+    border-radius: var(--vt-border-radius-sm);
+}
+
+.vt-datagrid-dictionary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.vt-datagrid-dictionary-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--vt-datagrid-border-color);
+}
+
+.vt-datagrid-dictionary-entry:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.vt-datagrid-dictionary-term {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.vt-datagrid-dictionary-hidden {
+    padding: 0 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--vt-text-muted-color);
+    border: 1px solid var(--vt-datagrid-border-color);
+    border-radius: 999px;
+}
+
+.vt-datagrid-dictionary-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+}

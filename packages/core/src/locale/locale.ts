@@ -741,6 +741,20 @@ export interface Locale {
         clearAllFilters: string;
         moveColumn: string;
         noFilters: string;
+        /** The data dictionary, and a column's own description. `{column}` */
+        dictionaryPanel: string;
+        columnInfo: string;
+        formula: string;
+        noDescription: string;
+        hiddenColumn: string;
+        /** The toolbar over the grid. */
+        toolbar: string;
+        density: string;
+        densities: { small: string; normal: string; large: string };
+        /** The paginator's typed page and its page-size label. `{count}` */
+        pageInput: string;
+        pageOfCount: string;
+        pageSize: string;
         /** The side bar's pivot panel. `{field}` `{zone}` */
         pivotPanel: string;
         pivotMode: string;
@@ -1353,6 +1367,17 @@ export const en: Locale = {
         clearAllFilters: 'Clear all filters',
         moveColumn: 'Move {column}',
         noFilters: 'No column can be filtered here.',
+        dictionaryPanel: 'Data dictionary',
+        columnInfo: 'About {column}',
+        formula: 'Formula',
+        noDescription: 'No description yet.',
+        hiddenColumn: 'Hidden',
+        toolbar: 'Table tools',
+        density: 'Row density',
+        densities: { small: 'Compact', normal: 'Normal', large: 'Comfortable' },
+        pageInput: 'Page',
+        pageOfCount: 'of {count}',
+        pageSize: 'Page size',
         pivotPanel: 'Pivot',
         pivotMode: 'Pivot mode',
         pivotRows: 'Rows',
@@ -1959,6 +1984,17 @@ export const ptBR: Locale = {
         clearAllFilters: 'Limpar todos os filtros',
         moveColumn: 'Mover {column}',
         noFilters: 'Nenhuma coluna pode ser filtrada aqui.',
+        dictionaryPanel: 'Dicionário de dados',
+        columnInfo: 'Sobre {column}',
+        formula: 'Fórmula',
+        noDescription: 'Ainda sem descrição.',
+        hiddenColumn: 'Oculta',
+        toolbar: 'Ferramentas da tabela',
+        density: 'Densidade das linhas',
+        densities: { small: 'Compacta', normal: 'Normal', large: 'Confortável' },
+        pageInput: 'Página',
+        pageOfCount: 'de {count}',
+        pageSize: 'Tamanho da página',
         pivotPanel: 'Pivô',
         pivotMode: 'Modo pivô',
         pivotRows: 'Linhas',

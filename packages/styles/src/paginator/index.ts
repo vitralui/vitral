@@ -19,6 +19,10 @@ export const paginatorStyle = defineStyle({
         pages: 'vt-paginator-pages',
         page: (s: PaginatorPageState) => ['vt-paginator-button', 'vt-paginator-page', { 'vt-paginator-page-selected': s.selected }],
         current: 'vt-paginator-current',
-        rowsPerPage: 'vt-paginator-rows-per-page'
+        rowsPerPage: 'vt-paginator-rows-per-page',
+        /** "Page [n] of N": the page typed, between its words. */
+        pageInput: 'vt-paginator-page-input',
+        pageInputBox: 'vt-paginator-page-input-box',
+        rowsPerPageLabel: 'vt-paginator-rows-per-page-label'
     }
 });

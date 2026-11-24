@@ -24,7 +24,7 @@ import {
 } from '@vitral/core';
 import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
-import { columns as columnsIcon, pin, registerIcons, table as tableIcon } from '@vitral/icons';
+import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, table as tableIcon } from '@vitral/icons';
 import { baseStyle, datagridLayoutStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
 import {
     allSelectedState,
@@ -51,14 +51,14 @@ import {
 } from './engine/state';
 import { offsetsOf, windowOf, type VirtualWindow } from './engine/virtual';
 import { cellValue, createEditHistory, editorKind, editorText, isEditable, parseEdit, validateEdit, writeCell, type EditRecord } from './engine/edit';
-import type { Content, Row, RowsPerPageContext, DataGridColumn, DataGridConfig, DataGridModels, GridMenuItem, StatusContext } from './engine/types';
+import type { Content, Row, RowsPerPageContext, DataGridColumn, DataGridConfig, DataGridModels, DataGridToolbarItem, GridMenuItem, StatusContext } from './engine/types';
 import { toCSV, type DataGridCsvOptions } from './engine/export';
 import { childrenOf, groupFields, groupKeys, treeKeys } from './engine/rows';
 import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type CellRef, type RangeBox } from './engine/range';
 import { toXlsx, type DataGridXlsxOptions } from './engine/xlsx';
 import { pivotOf, PIVOT_KEY, type PivotConfig } from './engine/pivot';
 import { distinctValues, filterKind, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
-import { type PivotPanelView, type PivotZone, type SideBarView, type SidePanel } from './render/grid';
+import { columnInfoView, hasDescription, type DictionaryEntry, type PivotPanelView, type PivotZone, type SideBarView, type SidePanel, type ToolbarView } from './render/grid';
 import { chooserView, filterPanelView, filtersByMenu, frameRows, gridView, offersMenu, type FilterPanelView, type DataGridActions, type DrawnColumn, type EditingView, type ViewContext, type VirtualRows } from './render/grid';
 
 /**
@@ -116,6 +116,11 @@ export interface DataGridHandle<T = Row> {
     toCSV(options?: DataGridExportOptions): string;
     /** Hands the reader the CSV as a file to save, `table.csv` unless `filename` says otherwise. */
     exportCSV(options?: DataGridExportOptions & { filename?: string }): void;
+    /**
+     * Opens a panel of the side bar — the data dictionary from a button of
+     * the page's own, say — or, given null, shuts the one open.
+     */
+    openSidePanel(panel: SidePanel | null): void;
     /** Removes everything this table added to the element. */
     destroy(): void;
     readonly element: HTMLElement;
@@ -131,7 +136,7 @@ let counter = 0;
 
 export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridConfig<T> = {}): DataGridHandle<T> {
     // The menus and the side bar name their icons; the ones the base set lacks are made known.
-    registerIcons([pin, columnsIcon, tableIcon]);
+    registerIcons([pin, columnsIcon, tableIcon, bookOpen, download, infoIcon, rowsIcon]);
     // What the host handed in, and what the grid works from: the same, or its pivot.
     let own: DataGridConfig<T> = { ...config };
     let current: DataGridConfig<T> = pivoted(own);
@@ -734,11 +739,43 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             render();
         },
         sideTab(panel) {
-            sidePanel = sidePanel === panel ? null : panel;
-            if (draft?.inline) draft = null;
+            showPanel(sidePanel === panel ? null : panel);
+        },
+        openInfo(column, event) {
+            if (infoKey === column.key) return infoOverlay.close('request');
+            closeMenus();
+            infoKey = column.key;
+            infoAnchor = event.currentTarget as HTMLElement;
             render();
-            // The panel opened takes the keyboard: its search, or its first section.
-            if (sidePanel) (element.querySelector('[data-side-search], [data-side-filter]') as HTMLElement | null)?.focus();
+            infoOverlay.open();
+        },
+        toolbar(key, event) {
+            const item = toolbarItems().find((entry) => (typeof entry === 'string' ? entry : entry.key) === key);
+            if (!item) return;
+            if (typeof item === 'object') return item.onClick(event);
+            if (item === 'dictionary') return showPanel(sidePanel === 'dictionary' ? null : 'dictionary');
+            if (item === 'columns') return sidePanels().includes('columns') ? showPanel(sidePanel === 'columns' ? null : 'columns') : setChooser(!chooserOpen);
+            if (item === 'export') return handle.exportExcel();
+            // How close the rows sit: a menu of the three, the one in use ticked.
+            const words = locale().datagrid;
+            const now = current.size ?? 'normal';
+            closeMenus();
+            cellMenu.update({
+                ...menuSettings(),
+                ariaLabel: words.density,
+                items: menuItems(
+                    (['small', 'normal', 'large'] as const).map((size) => ({ label: words.densities[size], icon: now === size ? 'check' : undefined, onSelect: () => setSize(size === 'normal' ? undefined : size) })),
+                    (base) => base
+                )
+            });
+            cellMenu.open(event.currentTarget as HTMLElement);
+        },
+        pageInput(page) {
+            const size = models.rows;
+            const count = pageCount(rowsNow().total, size);
+            if (!Number.isFinite(page) || !count) return render();
+            actions.page((Math.min(count, Math.max(1, Math.round(page))) - 1) * size, size);
+            render();
         },
         sideSearch(text) {
             sideSearch = text;
@@ -996,6 +1033,69 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         }
     });
     const cellMenu = createMenu({ placement: 'bottom-start' });
+
+    // A header's description, in a popover by its info button: opened by a press, a tap or the keyboard.
+    let infoKey: string | null = null;
+    let infoAnchor: HTMLElement | null = null;
+    const infoOverlay = createOverlay({
+        anchor: () => (infoKey ? ((element.querySelector(`[data-info-button="${cssEscape(infoKey)}"]`) as HTMLElement | null) ?? infoAnchor) : null),
+        render: () => {
+            const column = infoKey ? columnsNow().find((entry) => entry.key === infoKey) : undefined;
+            return drawn && column ? columnInfoView(drawn, column) : null;
+        },
+        placement: 'bottom-start',
+        target: () => current.overlayTarget,
+        zIndex: current.zIndex,
+        onClose: () => {
+            infoKey = null;
+            infoAnchor = null;
+            render();
+        }
+    });
+
+    /** A side panel opened or shut, from its tab, the toolbar or the host; the panel opened takes the keyboard. */
+    function showPanel(panel: SidePanel | null) {
+        const next = panel && sidePanels().includes(panel) ? panel : null;
+        if (next === sidePanel) return;
+        sidePanel = next;
+        if (draft?.inline) draft = null;
+        render();
+        emit('side-panel-change', { panel: sidePanel });
+        if (sidePanel) (element.querySelector('[data-side-search], [data-side-filter]') as HTMLElement | null)?.focus();
+    }
+
+    /** How close the rows sit, as the reader picked it; kept until the host hands another. */
+    function setSize(size: 'small' | 'large' | undefined) {
+        own = { ...own, size };
+        current = { ...current, size };
+        render();
+        emit('size-change', { size });
+    }
+
+    /** The toolbar's buttons, as asked for: `true` is the ones that apply. */
+    function toolbarItems(): DataGridToolbarItem[] {
+        const asked = current.toolbar;
+        if (!asked) return [];
+        const items: DataGridToolbarItem[] = asked === true ? ['dictionary', 'export', 'density', 'columns'] : asked;
+        return items.filter((item) => {
+            if (item === 'dictionary') return sidePanels().includes('dictionary');
+            if (item === 'columns') return sidePanels().includes('columns') || !!current.columnToggle;
+            return true;
+        });
+    }
+
+    function toolbarView(): ToolbarView[] | undefined {
+        const items = toolbarItems();
+        if (!items.length) return undefined;
+        const words = locale().datagrid;
+        return items.map((item): ToolbarView => {
+            if (typeof item === 'object') return { key: item.key, label: item.label, icon: item.icon, showLabel: !item.icon || !!item.showLabel };
+            if (item === 'dictionary') return { key: item, label: words.dictionaryPanel, icon: 'bookOpen', showLabel: true, pressed: sidePanel === 'dictionary' };
+            if (item === 'columns') return { key: item, label: words.columnsPanel, icon: 'columns', showLabel: false, pressed: sidePanels().includes('columns') ? sidePanel === 'columns' : chooserOpen };
+            if (item === 'export') return { key: item, label: words.exportExcel, icon: 'download', showLabel: false };
+            return { key: item, label: words.density, icon: 'rows', showLabel: false, popup: 'menu' };
+        });
+    }
 
     function closeMenus() {
         filterOverlay.close('request');
@@ -2109,7 +2209,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             dropOn,
             resizing,
             cellFocus: cellNav() ? tabCell(lines) : undefined,
-            menus: { filter: true, column: !!current.columnMenu, open: menuKey },
+            menus: { filter: true, column: !!current.columnMenu, open: menuKey, info: current.columnInfo !== false, infoOpen: infoKey },
+            toolbar: toolbarView(),
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
             sideBar: sideBarOf(),
@@ -2176,7 +2277,29 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     /** The side bar's panels, as asked for. */
     const sidePanels = (): SidePanel[] =>
-        current.sideBar === true ? ['columns', 'filters'] : current.sideBar ? current.sideBar.filter((panel) => panel === 'columns' || panel === 'filters' || panel === 'pivot') : [];
+        current.sideBar === true
+            ? ['columns', 'filters', ...(declaredColumns(own).some(({ column }) => hasDescription(column)) ? (['dictionary'] as const) : [])]
+            : current.sideBar
+              ? current.sideBar.filter((panel) => panel === 'columns' || panel === 'filters' || panel === 'pivot' || panel === 'dictionary')
+              : [];
+
+    /** The data dictionary: every column handed in, shown or hidden, that the search finds by its name or what it says. */
+    function dictionaryEntries(): DictionaryEntry[] {
+        const hidden = tableLayout(current, withShared()).hidden ?? [];
+        const query = normalizeText(sideSearch.trim(), locale().code);
+        return declaredColumns(own)
+            .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander)
+            .map(({ column, key }) => ({
+                key,
+                header: column.header ?? column.field ?? key,
+                description: column.descriptionContent?.({ column, place: 'dictionary' }) ?? column.description ?? null,
+                formula: column.formula,
+                visible: !hidden.includes(key),
+                text: `${column.header ?? column.field ?? key} ${column.description ?? ''} ${column.formula ?? ''}`
+            }))
+            .filter((entry) => !query || normalizeText(entry.text, locale().code).includes(query))
+            .map(({ text: _text, ...entry }) => entry);
+    }
 
     /** The columns the columns panel lists, in the order they stand, hidden ones in their place. */
     function sideColumns() {
@@ -2214,7 +2337,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                     : [],
             dragging: sideDragging,
             dropOn: sideDropOn,
-            pivot: open === 'pivot' ? pivotPanel() : undefined
+            pivot: open === 'pivot' ? pivotPanel() : undefined,
+            dictionary: open === 'dictionary' ? dictionaryEntries() : undefined
         };
     }
 
@@ -2423,6 +2547,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             return { rows: range.box.rows.map((index) => rowsNow().offset + index), keys: [...range.box.keys], values: boxValues(range.box) };
         },
         toXlsx: (options = {}) => xlsx(options),
+        openSidePanel(panel) {
+            showPanel(panel);
+        },
         exportExcel(options = {}) {
             if (typeof document === 'undefined') return;
             const blob = new Blob([xlsx(options) as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -2475,6 +2602,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             stopPointer?.();
             columnMenu.destroy();
             cellMenu.destroy();
+            infoOverlay.destroy();
             modeSelects.forEach((select) => select?.destroy());
             howSelects.forEach(({ select }) => select.destroy());
             pageSize?.destroy();
