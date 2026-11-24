@@ -12,6 +12,7 @@ import {
     type FlatNode,
     type TreeNode
 } from '@vitral/core';
+import { aggregateOf } from '@vitral/datagrid';
 import { treetableStyle } from '@vitral/styles';
 import { camelize, computed, Fragment, mergeProps, nextTick, ref, useAttrs, useId, watch, type FunctionalComponent, type VNode } from 'vue';
 import { useComponent } from '../../base/useComponent';
@@ -28,7 +29,8 @@ import type { TreeTableEmits, TreeTableProps, TreeTableSlots } from './types';
 // goes to the parent, Home and End jump (core's treeKeyAction), Enter and
 // Space select, or, without selection, Enter toggles. Sorting keeps the
 // nesting (core's sortTree); a global filter keeps the branches that lead to
-// matches, opened. Columns are DataGrid's <Column>.
+// matches, opened. Columns are DataGrid's <Column>; one with `aggregate`
+// shows on a row with rows under it the total of the rows its branches end in.
 
 defineOptions({ name: 'VtTreeTable', inheritAttrs: false });
 
@@ -66,7 +68,7 @@ interface ColumnDef {
     expander: boolean;
     align?: string;
     props: Record<string, unknown>;
-    slots: Partial<Record<'body' | 'header', SlotFn>>;
+    slots: Partial<Record<'body' | 'header' | 'aggregate', SlotFn>>;
 }
 
 const truthy = (v: unknown) => v === '' || v === true || v === 'true';
@@ -134,6 +136,67 @@ const expanded = computed<TreeExpandedKeys>(() => {
     return { ...opened, ...(expandedKeys.value ?? {}) };
 });
 const flat = computed(() => flattenTree(pageRoots.value, expanded.value));
+
+// ---- totals ----------------------------------------------------------------------
+
+// A column with `aggregate` draws, on a row with rows under it, the value
+// worked out over the rows at the ends of its branches — those the filter
+// left — in place of the row's own. Worked out once for the tree on show.
+const totalled = computed(() => columns.value.filter((col) => col.field && col.props.aggregate));
+const totals = computed(() => {
+    const out = new Map<string, { values: Record<string, unknown>; rows: unknown[] }>();
+    if (!totalled.value.length) return out;
+    const visit = (node: TreeNode): unknown[] => {
+        if (isLeaf(node)) return [node.data];
+        const leaves = (node.children ?? []).flatMap(visit);
+        if (node.children?.length)
+            out.set(node.key, { rows: leaves, values: Object.fromEntries(totalled.value.map((col) => [col.field!, aggregateOf({ field: col.field, aggregate: col.props.aggregate as never }, leaves)])) });
+        return leaves;
+    };
+    roots.value.forEach(visit);
+    return out;
+});
+const totalOf = (node: TreeNode, col: ColumnDef) => (col.field && col.props.aggregate ? totals.value.get(node.key) : undefined);
+/**
+ * The data a cell reads: the row's own, with its totals in place of the
+ * values they add up — in every cell of the row, so a column worked out
+ * from others (a share, a difference) holds on a parent row as well.
+ */
+function cellData(node: TreeNode) {
+    const total = totals.value.get(node.key);
+    return total ? { ...(node.data as Record<string, unknown>), ...total.values } : node.data;
+}
+/** A cell's content: the `aggregate` slot for a total when there is one, else the body slot or the value. */
+function cellSlot(node: TreeNode, col: ColumnDef) {
+    const total = totalOf(node, col);
+    if (total && col.slots.aggregate) return col.slots.aggregate({ value: total.values[col.field!], rows: total.rows, node, column: col.props });
+    return col.slots.body?.({ node, data: cellData(node), field: col.field, column: col.props });
+}
+
+/** Every row with rows under it, in the tree handed in. */
+function branchKeys(list: readonly TreeNodeLike[], out: string[] = []) {
+    for (const node of list) {
+        if (node.children?.length) {
+            out.push(node.key);
+            branchKeys(node.children, out);
+        }
+    }
+    return out;
+}
+
+/** Opens every row with rows under it. */
+function expandAll() {
+    closedByReader.value = new Set();
+    expandedKeys.value = Object.fromEntries(branchKeys(props.value).map((key) => [key, true]));
+}
+
+/** Closes every row, the ones a filter opened as well. */
+function collapseAll() {
+    expandedKeys.value = {};
+    if (filtering.value) closedByReader.value = new Set(Object.keys(filtered.value?.expandedKeys ?? {}));
+}
+
+defineExpose({ expandAll, collapseAll });
 
 function findNode(list: readonly TreeNodeLike[], key: string): TreeNodeLike | undefined {
     for (const node of list) {
@@ -316,7 +379,7 @@ const rootState = computed(() => ({ striped: props.stripedRows, gridlines: props
                             @click="onRowClick(row, $event)"
                             @focus="focusedKey = row.node.key"
                         >
-                            <td v-for="col in columns" :key="col.key" v-bind="part('bodyCell', { align: col.align })">
+                            <td v-for="col in columns" :key="col.key" v-bind="part('bodyCell', { align: col.align, total: !!totalOf(row.node, col) })">
                                 <div v-if="col.key === expanderKey" v-bind="part('node')" :style="{ '--_depth': row.level - 1 }">
                                     <span data-vt-toggler aria-hidden="true" v-bind="part('toggler', { leaf: row.leaf, open: row.expanded })" @click="onTogglerClick(row, $event)">
                                         <Icon :icon="row.node.loading ? 'spinner' : 'chevronRight'" :spin="!!row.node.loading" v-bind="part('togglerIcon')" />
@@ -324,12 +387,12 @@ const rootState = computed(() => ({ striped: props.stripedRows, gridlines: props
                                     <span v-if="mode === 'checkbox'" data-vt-toggler aria-hidden="true" v-bind="part('checkbox', { checked: checkOf(row.node).checked, partial: checkOf(row.node).partial })" @click="onCheckboxClick(row, $event)">
                                         <Icon v-if="checkOf(row.node).checked || checkOf(row.node).partial" :icon="checkOf(row.node).checked ? 'check' : 'minus'" />
                                     </span>
-                                    <VNodes v-if="col.slots.body" :vnodes="col.slots.body({ node: row.node, data: row.node.data, field: col.field, column: col.props })" />
-                                    <span v-else>{{ display(getField(row.node.data, col.field)) }}</span>
+                                    <VNodes v-if="col.slots.body || (col.slots.aggregate && totalOf(row.node, col))" :vnodes="cellSlot(row.node, col)" />
+                                    <span v-else>{{ display(getField(cellData(row.node), col.field)) }}</span>
                                 </div>
                                 <template v-else>
-                                    <VNodes v-if="col.slots.body" :vnodes="col.slots.body({ node: row.node, data: row.node.data, field: col.field, column: col.props })" />
-                                    <template v-else>{{ display(getField(row.node.data, col.field)) }}</template>
+                                    <VNodes v-if="col.slots.body || (col.slots.aggregate && totalOf(row.node, col))" :vnodes="cellSlot(row.node, col)" />
+                                    <template v-else>{{ display(getField(cellData(row.node), col.field)) }}</template>
                                 </template>
                             </td>
                         </tr>

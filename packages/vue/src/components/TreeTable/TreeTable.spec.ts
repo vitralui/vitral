@@ -147,3 +147,72 @@ describe('TreeTable', () => {
         await expectNoA11yViolations();
     });
 });
+
+describe('TreeTable totals and the whole tree at once', () => {
+    function mountTotals(props: Record<string, unknown> = {}, sizeSlots: Record<string, unknown> = {}) {
+        const table = ref<{ expandAll: () => void; collapseAll: () => void } | null>(null);
+        const expanded = ref<Record<string, boolean>>({ app: true, cli: true, docs: true });
+        mountVt(
+            defineComponent(() => () =>
+                h(
+                    TreeTable,
+                    {
+                        ref: table,
+                        value: files(),
+                        'aria-label': 'Files',
+                        expandedKeys: expanded.value,
+                        'onUpdate:expandedKeys': (v: Record<string, boolean>) => (expanded.value = v),
+                        ...props
+                    },
+                    () => [h(Column, { field: 'name', header: 'Name', expander: true }), h(Column, { field: 'size', header: 'Size', aggregate: 'sum', align: 'right' }, sizeSlots)]
+                )
+            )
+        );
+        const sizes = () => Object.fromEntries(Array.from(document.querySelectorAll<HTMLTableRowElement>('tbody tr'), (r) => [r.cells[0]!.textContent?.trim(), r.cells[1]!.textContent?.trim()]));
+        return { table, expanded, sizes };
+    }
+
+    it('puts on each row with rows under it the total of the rows its branches end in', () => {
+        const { sizes } = mountTotals();
+        expect(sizes()).toEqual({ Applications: '35', Vue: '25', CLI: '10', bin: '10', Documents: '1', 'CV.pdf': '1', Music: '500' });
+        expect(document.querySelectorAll('.vt-treetable-body-cell-total')).toHaveLength(3);
+    });
+
+    it('hands every cell of a parent row its totals, so a column worked out from them holds there', () => {
+        mountVt(
+            defineComponent(() => () =>
+                h(TreeTable, { value: files(), 'aria-label': 'Files', expandedKeys: { app: true } }, () => [
+                    h(Column, { field: 'name', header: 'Name', expander: true }),
+                    h(Column, { field: 'size', header: 'Size', aggregate: 'sum' }),
+                    h(Column, { columnKey: 'kb', header: 'KB' }, { body: ({ data }: { data: { size: number } }) => `${data.size * 1024}` })
+                ])
+            )
+        );
+        const kb = Array.from(document.querySelectorAll<HTMLTableRowElement>('tbody tr'), (r) => r.cells[2]!.textContent);
+        // Applications: 25 + 10, not its own 300.
+        expect(kb.slice(0, 3)).toEqual(['35840', '25600', '10240']);
+    });
+
+    it('adds up only what a filter left, and draws a total through the body slot', async () => {
+        const { sizes } = mountTotals({ globalFilter: 'v', globalFilterFields: ['name'] }, { body: ({ data }: { data: { size: number } }) => `${data.size} KB` });
+        await nextTick();
+        expect(sizes()).toEqual({ Applications: '25 KB', Vue: '25 KB', Documents: '1 KB', 'CV.pdf': '1 KB' });
+    });
+
+    it('draws a total through the aggregate slot when there is one', () => {
+        const { sizes } = mountTotals({}, { aggregate: ({ value, rows }: { value: number; rows: unknown[] }) => `${value} in ${rows.length}` });
+        expect(sizes().Applications).toBe('35 in 2');
+        expect(sizes().Vue).toBe('25');
+    });
+
+    it('opens and closes every row at once', async () => {
+        const { table, expanded } = mountTotals();
+        table.value!.collapseAll();
+        await nextTick();
+        expect(document.querySelectorAll('tbody tr')).toHaveLength(3);
+        table.value!.expandAll();
+        await nextTick();
+        expect(expanded.value).toEqual({ app: true, cli: true, docs: true });
+        expect(document.querySelectorAll('tbody tr')).toHaveLength(7);
+    });
+});

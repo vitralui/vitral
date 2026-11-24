@@ -1,7 +1,15 @@
 {
     "description": "Linhas que se expandem em linhas, com ordenação que preserva o aninhamento e um filtro que mantém os ramos que levam às correspondências.",
     "sections": {
-        "Basic": { "title": "Básico" },
-        "Filter and pages": { "title": "Filtro e páginas" }
+        "Basic": {
+            "title": "Básico"
+        },
+        "Filter and pages": {
+            "title": "Filtro e páginas"
+        },
+        "Totals": {
+            "title": "Totais",
+            "description": "Uma `<Column>` com `aggregate` — `sum`, `avg`, `min`, `max`, `count` ou uma função — mostra em cada linha que tem linhas abaixo o total das linhas onde seus ramos terminam, no lugar do valor da própria linha, e sobre o que o filtro deixou. Cada célula dessa linha recebe os totais no seu `data`, então uma coluna calculada a partir deles, como a parcela usada aqui, vale num departamento como numa linha. `expandAll()` e `collapseAll()` abrem e fecham a árvore inteira."
+        }
     }
 }

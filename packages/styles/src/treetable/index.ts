@@ -36,7 +36,8 @@ export const treetableStyle = defineStyle({
         sortIcon: (s: { active?: boolean }) => ['vt-treetable-sort-icon', { 'vt-treetable-sort-icon-active': s.active }],
         tbody: 'vt-treetable-tbody',
         row: (s: { selectable?: boolean; selected?: boolean }) => ['vt-treetable-row', { 'vt-treetable-row-selectable': s.selectable, 'vt-treetable-row-selected': s.selected }],
-        bodyCell: (s: { align?: string }) => ['vt-treetable-body-cell', align(s)],
+        /** `total`: the cell holds the total of the rows under its row. */
+        bodyCell: (s: { align?: string; total?: boolean }) => ['vt-treetable-body-cell', align(s), { 'vt-treetable-body-cell-total': s.total }],
         node: 'vt-treetable-node',
         toggler: (s: { leaf?: boolean; open?: boolean }) => ['vt-treetable-toggler', { 'vt-treetable-toggler-leaf': s.leaf, 'vt-treetable-toggler-open': s.open }],
         togglerIcon: 'vt-treetable-toggler-icon',

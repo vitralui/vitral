@@ -122,6 +122,12 @@
     border-bottom: 1px solid var(--vt-treetable-body-cell-border-color);
 }
 
+/* A total of the rows under a row: set apart from the values it adds up. */
+.vt-treetable-body-cell-total {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
 .vt-treetable-sm .vt-treetable-body-cell {
     padding: var(--vt-treetable-body-cell-sm-padding);
 }
