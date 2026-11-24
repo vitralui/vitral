@@ -2103,7 +2103,16 @@ function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, positi
 
 /** Whether the columns write a footer row. */
 const hasFooter = <T>(context: ViewContext<T>) => context.columns.some((column) => column.column.footer !== undefined || column.column.footerContent);
-const footRows = <T>(context: ViewContext<T>) => (hasFooter(context) ? 1 : 0);
+const footRows = <T>(context: ViewContext<T>) => (hasFooter(context) ? 1 : 0) + (context.config.totalRow ? 1 : 0);
+
+/** A column's value in the totals row: the one the host gave, or its `aggregate` over every row the filters let through. */
+function totalCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): Child {
+    const given = context.config.totalRow;
+    const rows = context.rows.all;
+    const value = typeof given === 'object' ? given[column.key] : column.column.aggregate ? aggregateOf(column.column, rows) : undefined;
+    if (value === undefined) return '';
+    return content(column.column.aggregateContent?.({ value, rows, column: column.column })) ?? cellText(value, context.locale.code);
+}
 
 /** How many rows the head and the foot add to the body's, for `aria-rowcount`. */
 export const frameRows = <T>(context: Pick<ViewContext<T>, 'columns' | 'config' | 'filters' | 'pinnedTop' | 'pinnedBottom'>): { head: number; foot: number } => ({
@@ -2178,7 +2187,8 @@ function skeletonBody<T>(context: ViewContext<T>): Child {
 function footView<T>(context: ViewContext<T>): Child {
     const { part } = context;
     const footer = hasFooter(context);
-    if (!footer && !context.pinnedBottom.length) return null;
+    const totals = !!context.config.totalRow;
+    if (!footer && !totals && !context.pinnedBottom.length) return null;
     return h(
         'div',
         // Held at the bottom of the box while the rows scroll, when it holds rows pinned there.
@@ -2205,6 +2215,25 @@ function footView<T>(context: ViewContext<T>): Child {
                               }
                           ),
                           content(column.column.footerContent?.({ column: column.column })) ?? column.column.footer ?? ''
+                      )
+                  )
+              )
+            : null,
+        totals
+            ? h(
+                  'div',
+                  mergeAttrs({ key: 'totals-row', role: 'row' }, part('totalRow'), {
+                      'aria-rowindex': context.virtual ? String(context.virtual.rowCount + (footer ? 1 : 0)) : undefined
+                  }),
+                  cells(context, 'footerCell', (column) =>
+                      h(
+                          'div',
+                          mergeAttrs(
+                              { key: column.key, role: cellRole(context) },
+                              part('footerCell', { align: column.align, ...pinnedState(column) }),
+                              { style: stickyStyle(column), 'aria-colindex': colIndex(context, column), 'data-total': column.key }
+                          ),
+                          totalCell(context, column)
                       )
                   )
               )

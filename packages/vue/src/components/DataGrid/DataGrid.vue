@@ -383,6 +383,8 @@ const models = (): Partial<DataGridModels> => ({
 
 const inputs = (): DataGridConfig => ({
     groupBy: props.groupBy,
+    aggregates: props.aggregates as DataGridConfig['aggregates'],
+    totalRow: props.totalRow,
     groupLabel: props.groupLabel,
     treeData: props.treeData,
     // The `#status` slot draws the bar too, unless `status-bar` is turned off outright.
@@ -509,6 +511,8 @@ const events: DataGridConfig['on'] = {
     'cells-change': (event) => emit('cells-change', event),
     'tree-toggle': (event) => emit('tree-toggle', event),
     'size-change': (event) => emit('update:size', event.size),
+    'group-by-change': (event) => emit('update:groupBy', event.groupBy),
+    'aggregates-change': (event) => emit('update:aggregates', event.aggregates),
     'side-panel-change': (event) => emit('update:sideBarOpen', event.panel),
     'pivot-change': (event) => {
         emit('update:pivot', event.pivot as DataGridPivot);
@@ -576,6 +580,9 @@ watch(
         props.clipboard,
         props.flashCells,
         props.pivot,
+        props.groupBy,
+        props.aggregates,
+        props.totalRow,
         props.sideBar,
         props.columnInfo,
         props.toolbar,

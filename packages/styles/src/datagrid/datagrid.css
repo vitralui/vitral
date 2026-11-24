@@ -1960,3 +1960,10 @@
     outline: var(--vt-focus-ring-width) var(--vt-focus-ring-style) var(--vt-focus-ring-color);
     outline-offset: 2px;
 }
+
+/* The totals at the foot read as figures: bold, on the header's colour. */
+.vt-datagrid-total-row > * {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    background: var(--vt-datagrid-header-cell-background);
+}

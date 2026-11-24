@@ -54,6 +54,16 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * holds which of them the reader has shut. A list groups by each field in turn: groups inside groups.
      */
     groupBy?: string | string[];
+    /**
+     * How each column's values are worked out over a group and in the totals row, by column key, over the columns'
+     * own `aggregate`: what the reader picks in the columns drawer, kept by `v-model:aggregates`.
+     */
+    aggregates?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>;
+    /**
+     * A row at the foot with each column's value worked out over every row the filters let through, by its
+     * `aggregate`. An object gives the values by column key instead: what a server worked out.
+     */
+    totalRow?: boolean | Record<string, unknown>;
     /** What a group's heading says; the value itself by default. */
     groupLabel?: (context: { value: unknown; count: number; rows: any[]; field: string; level: number }) => string;
     /**
@@ -360,6 +370,10 @@ export type DataGridEmits = {
     'tree-toggle': [event: { originalEvent?: Event; row: any; key: string | number; expanded: boolean }];
     /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
     'pivot-change': [event: { pivot: DataGridPivot }];
+    /** The reader grouped the rows, or took the grouping away. */
+    'update:groupBy': [groupBy: string[]];
+    /** The reader changed how a column's values are worked out. */
+    'update:aggregates': [aggregates: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>];
     /** The reader picked how close the rows sit, from the toolbar. */
     'update:size': [size: 'small' | 'large' | undefined];
     /** A side bar's panel was opened or shut. */

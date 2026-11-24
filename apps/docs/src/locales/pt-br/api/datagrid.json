@@ -48,7 +48,9 @@
         "dictionaryModule": "Sobre o dicionário de dados: o módulo a que a tabela pertence, em versaletes.",
         "dictionarySubtitle": "Uma linha sob o título do dicionário de dados.",
         "dictionary": "O que cada coluna guarda, de uma vez, pela chave ou campo: `{ [campo]: { description, formula, kind, source, notes } }`. O que um `<Column>` diz por si vale mais que o dito aqui.",
-        "exportRows": "As linhas que um download pela barra de ferramentas grava, no lugar das que o DataGrid tem: com `lazy`, todas as linhas que os filtros deixam passar, buscadas no servidor, e não só a página na tela."
+        "exportRows": "As linhas que um download pela barra de ferramentas grava, no lugar das que o DataGrid tem: com `lazy`, todas as linhas que os filtros deixam passar, buscadas no servidor, e não só a página na tela.",
+        "aggregates": "Como os valores de cada coluna são calculados num grupo e na linha de totais, pela chave da coluna, acima do `aggregate` da própria coluna: o que quem lê escolhe na gaveta de colunas, guardado por `v-model:aggregates`.",
+        "totalRow": "Uma linha no rodapé com o valor de cada coluna calculado sobre todas as linhas que os filtros deixam passar, pelo seu `aggregate`. Um objeto dá os valores pela chave da coluna: o que um servidor calculou."
     },
     "emits": {
         "column-resize": "Uma coluna foi alargada ou estreitada.",
@@ -67,7 +69,9 @@
         "range-change": "O bloco de células marcado mudou: as suas linhas (pelo índice entre todas as linhas) e colunas, e os valores nele.",
         "cells-change": "Muitas células mudaram de uma vez (uma colagem, um preenchimento, um bloco esvaziado), como um passo que o desfazer leva de volta.",
         "update:size": "Quem lê escolheu, pela barra de ferramentas, o quanto as linhas ficam próximas.",
-        "update:sideBarOpen": "Um painel da barra lateral foi aberto ou fechado."
+        "update:sideBarOpen": "Um painel da barra lateral foi aberto ou fechado.",
+        "update:groupBy": "Quem lê agrupou as linhas, ou tirou o agrupamento.",
+        "update:aggregates": "Quem lê mudou como os valores de uma coluna são calculados."
     },
     "slots": {
         "default": "Os `<Column>`s.",

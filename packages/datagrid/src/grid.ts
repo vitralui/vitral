@@ -51,7 +51,7 @@ import {
 } from './engine/state';
 import { offsetsOf, windowOf, type VirtualWindow } from './engine/virtual';
 import { cellValue, createEditHistory, editorKind, editorText, isEditable, parseEdit, validateEdit, writeCell, type EditRecord } from './engine/edit';
-import type { Content, Row, RowsPerPageContext, DataGridColumn, DataGridConfig, DataGridModels, DataGridToolbarItem, GridMenuItem, StatusContext } from './engine/types';
+import type { Content, Row, RowsPerPageContext, DataGridColumn, DataGridAggregate, DataGridColumnAbout, DataGridConfig, DataGridModels, DataGridToolbarItem, GridMenuItem, StatusContext } from './engine/types';
 import { toCSV, type DataGridCsvOptions } from './engine/export';
 import { childrenOf, groupFields, groupKeys, treeKeys } from './engine/rows';
 import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type CellRef, type RangeBox } from './engine/range';
@@ -150,6 +150,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         current = pivoted(own);
     }
     let destroyed = false;
+    // The last value the host handed in for each thing the reader can also choose.
+    const hostGave: Record<string, unknown> = Object.fromEntries(READER_CHOICES.map((name) => [name, (config as Record<string, unknown>)[name]]));
     /** The filters the rows are computed from: at once for local data, after `filterDelay` for a server. */
     let applied: FilterMeta = cloneFilters(models.filters);
     let remote: { items: T[]; total: number } | undefined;
@@ -2416,6 +2418,25 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         pivot.rows.includes(field) ? 'rows' : (pivot.columns ?? []).includes(field) ? 'columns' : pivot.values.some((value) => value.field === field) ? 'values' : null;
 
     /** The pivot changed from the panel: worked out again, drawn, and reported. */
+    /** Groups the rows by these fields in turn, or not at all: what the columns drawer does. */
+    function setGroupBy(fields: string[]) {
+        own = { ...own, groupBy: fields.length ? fields : undefined };
+        current = pivoted(own);
+        forget();
+        models = { ...models, collapsedGroups: [] };
+        if (!clampPage()) render();
+        emit('group-by-change', { groupBy: fields });
+    }
+
+    /** How each column's values are worked out, by key: what the columns drawer does. */
+    function setAggregates(next: Record<string, DataGridAggregate>) {
+        own = { ...own, aggregates: next };
+        current = pivoted(own);
+        forget();
+        render();
+        emit('aggregates-change', { aggregates: next });
+    }
+
     function setPivot(next: PivotConfig<T>) {
         own = { ...own, pivot: next };
         current = pivoted(own);
@@ -2559,6 +2580,15 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         element,
         update(next) {
             const wasGroup = current.group;
+            // What the reader chose (a pivot, a density, a grouping, the values worked out) stands until the host
+            // hands in something new for it: a host that re-sends everything it has must not undo the reader.
+            const given = { ...next } as Record<string, unknown>;
+            for (const name of READER_CHOICES) {
+                if (!(name in given)) continue;
+                if (given[name] === hostGave[name]) delete given[name];
+                else hostGave[name] = given[name];
+            }
+            next = given as typeof next;
             own = { ...own, ...next };
             current = pivoted(own);
             // The rows may have changed in place, under the same array.
@@ -2672,6 +2702,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     return handle;
 }
 
+/** What the reader can choose from the grid's own tools, as well as the host from its props. */
+const READER_CHOICES = ['pivot', 'size', 'groupBy', 'aggregates'] as const;
+
 /** The models a grid keeps between visits, and how close its rows sit. */
 const KEPT = ['columnLayout', 'sortField', 'sortOrder', 'multiSortMeta', 'rows'] as const;
 const stateName = (key: string) => `vitral:datagrid:${key}`;
@@ -2701,25 +2734,31 @@ function writeState(key: string, models: DataGridModels, size: 'small' | 'large'
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
 const ABOUT = ['description', 'formula', 'kind', 'source', 'notes'] as const;
 // The columns as the dictionary fills them, kept while neither changes, so a column stays the same object between draws.
-const describedCache = new WeakMap<object, { dictionary: object; columns: DataGridColumn<any>[] }>();
+const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; columns: DataGridColumn<any>[] }>();
+const NO_DICTIONARY: Record<string, DataGridColumnAbout> = {};
 
 /** The columns with what the grid's `dictionary` says of each filled in where the column says nothing itself. */
 function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
-    const { dictionary, columns } = config;
-    if (!dictionary || !columns) return config;
+    const { columns, aggregates } = config;
+    const dictionary = config.dictionary ?? NO_DICTIONARY;
+    if ((dictionary === NO_DICTIONARY && !aggregates) || !columns) return config;
     const cached = describedCache.get(columns);
-    if (cached?.dictionary === dictionary) return { ...config, columns: cached.columns };
+    if (cached?.dictionary === dictionary && cached.aggregates === aggregates) return { ...config, columns: cached.columns };
     const fill = (list: DataGridColumn<T>[]): DataGridColumn<T>[] =>
         list.map((column) => {
             if (column.columns) return { ...column, columns: fill(column.columns) };
-            const about = dictionary[String(column.key ?? column.field ?? '')];
-            if (!about) return column;
+            const name_ = String(column.key ?? column.field ?? '');
+            const about = dictionary[name_];
+            // The reader's pick of how the values are worked out, over the column's own.
+            const how = aggregates && name_ in aggregates ? aggregates[name_] : undefined;
+            if (!about && how === undefined) return column;
             const out = { ...column } as Record<string, unknown>;
-            for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
+            if (about) for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
+            if (aggregates && name_ in aggregates) out.aggregate = how ?? undefined;
             return out as DataGridColumn<T>;
         });
     const filled = fill(columns);
-    describedCache.set(columns, { dictionary, columns: filled });
+    describedCache.set(columns, { dictionary, aggregates, columns: filled });
     return { ...config, columns: filled };
 }
 

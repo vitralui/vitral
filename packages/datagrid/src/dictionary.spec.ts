@@ -280,3 +280,36 @@ describe('the toolbar’s download and pivot', () => {
         expect(tool('pivot')!.getAttribute('aria-pressed')).toBe('false');
     });
 });
+
+describe('what the reader chose', () => {
+    it('stands when the host hands in its props again, and gives way when the host changes them', () => {
+        const { element, tool } = mount({ toolbar: ['density'] });
+        tool('density')!.click();
+        (Array.from(document.querySelectorAll('[role="menuitem"]')).find((item) => item.textContent?.includes('Compact')) as HTMLElement).click();
+        expect(element.classList).toContain('vt-datagrid-sm');
+        handle!.update({ size: undefined, stripedRows: true });
+        expect(element.classList).toContain('vt-datagrid-sm');
+        handle!.update({ size: 'large' });
+        expect(element.classList).toContain('vt-datagrid-lg');
+    });
+});
+
+describe('the totals row', () => {
+    const total = (element: HTMLElement, key: string) => element.querySelector(`[data-total="${key}"]`)?.textContent;
+
+    it('works out each column over every row the filters let through, by its aggregate or the one picked', () => {
+        const summed = columns.map((column) => (column.field === 'gross' ? { ...column, aggregate: 'sum' as const } : column));
+        const { element } = mount({ columns: summed, totalRow: true, paginator: true, rows: 5 });
+        // Every row, not the page: 100 + 101 + … + 122.
+        expect(total(element, 'gross')).toBe('2553');
+        expect(total(element, 'customer')).toBe('');
+        handle!.update({ aggregates: { gross: 'max', discount: 'count' } });
+        expect(total(element, 'gross')).toBe('122');
+        expect(total(element, 'discount')).toBe('23');
+    });
+
+    it('draws the values a server gave', () => {
+        const { element } = mount({ totalRow: { gross: 'R$ 9.999' } });
+        expect(total(element, 'gross')).toBe('R$ 9.999');
+    });
+});

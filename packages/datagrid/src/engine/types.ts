@@ -280,6 +280,10 @@ export interface DataGridEvents<T = Row> {
     'cells-change'?: (event: { originalEvent?: Event; source: 'paste' | 'fill' | 'clear'; changes: CellEditEvent<T>[] }) => void;
     /** The reader changed the pivot in the side bar: turned it on or off, or moved a field. */
     'pivot-change'?: (event: { pivot: PivotConfig<T> }) => void;
+    /** The reader grouped the rows, or took the grouping away, from the columns drawer. */
+    'group-by-change'?: (event: { groupBy: string[] }) => void;
+    /** The reader changed how a column's values are worked out, from the columns drawer. */
+    'aggregates-change'?: (event: { aggregates: Record<string, DataGridAggregate> }) => void;
     /** The reader picked how close the rows sit, from the toolbar. */
     'size-change'?: (event: { size: 'small' | 'large' | undefined }) => void;
     /** A panel of the side bar was opened or shut. */
@@ -361,6 +365,18 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * groups by each field in turn: groups inside groups.
      */
     groupBy?: string | string[];
+    /**
+     * How each column's values are worked out over a group and in the totals
+     * row, by column key, over the columns' own `aggregate`: what the reader
+     * picks in the columns drawer.
+     */
+    aggregates?: Record<string, DataGridAggregate>;
+    /**
+     * A row at the foot with each column's value worked out over every row
+     * the filters let through, by its `aggregate`. An object gives the values
+     * by column key instead: what a server worked out over rows it did not send.
+     */
+    totalRow?: boolean | Record<string, unknown>;
     /** What a group's heading says; the value itself by default. */
     groupLabel?: (context: { value: unknown; count: number; rows: T[]; field: string; level: number }) => string;
     /**
@@ -640,3 +656,6 @@ export interface DataGridColumnAbout {
     source?: string;
     notes?: string | string[];
 }
+
+/** The ways a column's values are worked out over many rows, by name. */
+export type DataGridAggregate = 'sum' | 'avg' | 'min' | 'max' | 'count';

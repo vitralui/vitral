@@ -94,6 +94,8 @@ export const datagridStyle = defineStyle({
         ],
         header: 'vt-datagrid-header',
         footer: 'vt-datagrid-footer',
+        /** The row at the foot with each column's value worked out over every row. */
+        totalRow: 'vt-datagrid-total-row',
         tableContainer: (s: DataGridState) => ['vt-datagrid-table-container', { 'vt-datagrid-flex-scroll': s.flexScroll }],
         /** `sized`: laid out by the columns' widths (after a resize), each cell kept to its column. */
         table: (s: { sized?: boolean }) => ['vt-datagrid-table', { 'vt-datagrid-table-sized': s.sized }],
