@@ -88,8 +88,16 @@ export interface DataGridColumn<T = Row> {
      * `'set'`, a list of its values to tick.
      */
     filter?: boolean | 'text' | 'number' | 'date' | 'set';
-    /** The values a `'set'` filter lists, in place of the ones in the rows: what a server would have. */
-    filterOptions?: unknown[];
+    /**
+     * The values a `'set'` filter lists, in place of the ones in the rows:
+     * what a server would have. Given as `{ label, value }`, the panel shows
+     * the label and the filter keeps the value.
+     */
+    filterOptions?: unknown[] | { label: string; value: unknown }[];
+    /** How a `'set'` filter names a value, when the value is a code the reader should not see (`'quote'` as "Orçamento"). */
+    filterLabel?: (value: unknown) => string;
+    /** Draws a `'set'` filter's value, in place of its label: a tag in the colour the cells use, say. */
+    filterOptionContent?: (context: { value: unknown; label: string; column: DataGridColumn<T> }) => Content;
     /** The ways a condition may compare, by match mode, in place of the ones its kind offers. */
     filterMatchModes?: string[];
     /** Offer this column's menu, when the grid has `columnMenu`. True by default. */
@@ -99,7 +107,14 @@ export interface DataGridColumn<T = Row> {
     /** A column of buttons that open each row's detail, drawn by `content.rowExpansion`. */
     expander?: boolean;
     align?: 'left' | 'center' | 'right';
+    /** Leaves the column out altogether: no cell, no place in the columns panel or the data dictionary. */
     hidden?: boolean;
+    /**
+     * False starts the column hidden, as the reader would hide it: listed in
+     * the columns panel and the data dictionary, to be shown from there. The
+     * reader's layout decides from then on. True by default.
+     */
+    visible?: boolean;
     /** This column can be resized; every column can when the table says so. */
     resizable?: boolean;
     minWidth?: number;
@@ -391,6 +406,14 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
     /** The side bar's panel open at first; none by default. */
     sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /**
+     * Keeps what the reader arranged between visits, under this name in the
+     * browser's storage: the columns' order, widths, pins and the ones hidden,
+     * the sort, the page size and how close the rows sit. What was kept wins
+     * over the starting values handed in; "Reset columns" in a column's menu
+     * puts the columns back.
+     */
+    stateKey?: string;
     /**
      * The button by a header whose column has a `description`, which opens
      * it by a press, a tap or the keyboard. False leaves the description to

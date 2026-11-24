@@ -57,7 +57,7 @@ import { childrenOf, groupFields, groupKeys, treeKeys } from './engine/rows';
 import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type CellRef, type RangeBox } from './engine/range';
 import { toXlsx, type DataGridXlsxOptions } from './engine/xlsx';
 import { pivotOf, PIVOT_KEY, type PivotConfig } from './engine/pivot';
-import { distinctValues, filterKind, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
+import { distinctValues, filterKind, optionLabel, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
 import { columnInfoView, hasDescription, type DictionaryEntry, type PivotPanelView, type PivotZone, type SideBarView, type SidePanel, type ToolbarView } from './render/grid';
 import { chooserView, filterPanelView, filtersByMenu, frameRows, gridView, offersMenu, type FilterPanelView, type DataGridActions, type DrawnColumn, type EditingView, type ViewContext, type VirtualRows } from './render/grid';
 
@@ -140,7 +140,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     // What the host handed in, and what the grid works from: the same, or its pivot.
     let own: DataGridConfig<T> = { ...config };
     let current: DataGridConfig<T> = pivoted(own);
-    let models: DataGridModels = { ...defaultModels(), ...pickModels(config) };
+    // What the reader left last time, under the grid's `stateKey`, over the starting values handed in.
+    const kept = readState(config.stateKey);
+    let models: DataGridModels = { ...defaultModels(), ...pickModels(config), ...kept?.models };
+    if (kept?.size !== undefined) {
+        own = { ...own, size: kept.size ?? undefined };
+        current = pivoted(own);
+    }
+    let destroyed = false;
     /** The filters the rows are computed from: at once for local data, after `filterDelay` for a server. */
     let applied: FilterMeta = cloneFilters(models.filters);
     let remote: { items: T[]; total: number } | undefined;
@@ -265,8 +272,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** Every change to a model is published, so a host can bind them. */
     function change(next: Partial<DataGridModels>) {
         models = { ...models, ...next };
+        keepState();
         current.on?.change?.({ ...models });
         render();
+    }
+
+    /** What the reader arranged, kept under the grid's `stateKey` for the next visit. */
+    function keepState() {
+        if (current.stateKey) writeState(current.stateKey, models, current.size);
     }
 
     // ---- the rows -----------------------------------------------------------------
@@ -1068,6 +1081,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function setSize(size: 'small' | 'large' | undefined) {
         own = { ...own, size };
         current = { ...current, size };
+        keepState();
         render();
         emit('size-change', { size });
     }
@@ -1125,7 +1139,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             texts: [filterBoxText(panel.constraints[0].value, locale().code), filterBoxText(panel.constraints[1].value, locale().code)],
             search: '',
             options,
-            labels: options.map((value) => valueLabel(value)),
+            labels: options.map((value) => optionLabel(column.column, value) ?? valueLabel(value)),
             checked: new Set(options.flatMap((value, at) => (!ticked || ticked.some((item) => same(item, value)) ? [at] : []))),
             shown: []
         };
@@ -1218,7 +1232,11 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             operator: state.operator,
             texts: state.texts,
             modes: state.kind === 'set' ? [null, null] : [modeControl(0, state, column.header), modeControl(1, state, column.header)],
-            values: state.shown.map((at) => ({ label: state.labels[at]!, checked: state.checked.has(at) })),
+            values: state.shown.map((at) => ({
+                label: state.labels[at]!,
+                checked: state.checked.has(at),
+                content: column.column.filterOptionContent?.({ value: state.options[at], label: state.labels[at]!, column: column.column }) ?? undefined
+            })),
             more: found.length - state.shown.length,
             search: state.search,
             all: ticked === 0 ? 'none' : ticked === found.length ? 'all' : 'some'
@@ -2603,13 +2621,46 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             columnMenu.destroy();
             cellMenu.destroy();
             infoOverlay.destroy();
+            destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
             howSelects.forEach(({ select }) => select.destroy());
             pageSize?.destroy();
             root.clear();
         }
     };
+    // A host that binds the models hears what was restored, so its bindings follow.
+    if (kept) queueMicrotask(() => {
+        if (destroyed) return;
+        current.on?.change?.({ ...models });
+        if (kept.size !== undefined) emit('size-change', { size: kept.size ?? undefined });
+    });
     return handle;
+}
+
+/** The models a grid keeps between visits, and how close its rows sit. */
+const KEPT = ['columnLayout', 'sortField', 'sortOrder', 'multiSortMeta', 'rows'] as const;
+const stateName = (key: string) => `vitral:datagrid:${key}`;
+
+function readState(key: string | undefined): { models: Partial<DataGridModels>; size?: 'small' | 'large' | null } | null {
+    if (!key || typeof localStorage === 'undefined') return null;
+    try {
+        const stored = JSON.parse(localStorage.getItem(stateName(key)) ?? 'null') as Record<string, unknown> | null;
+        if (!stored || typeof stored !== 'object') return null;
+        const models = Object.fromEntries(KEPT.filter((name) => stored[name] !== undefined).map((name) => [name, stored[name]])) as Partial<DataGridModels>;
+        return { models, size: 'size' in stored ? ((stored.size as 'small' | 'large' | null) ?? null) : undefined };
+    } catch {
+        // Storage refused (a private window) or a value no longer read: start from the values handed in.
+        return null;
+    }
+}
+
+function writeState(key: string, models: DataGridModels, size: 'small' | 'large' | undefined) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.setItem(stateName(key), JSON.stringify({ ...Object.fromEntries(KEPT.map((name) => [name, models[name]])), size: size ?? null }));
+    } catch {
+        // Full or refused: the arrangement holds for this visit only.
+    }
 }
 
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */

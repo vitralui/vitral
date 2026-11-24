@@ -100,7 +100,9 @@ export function tableLayout<T>(config: DataGridConfig<T>, models: DataGridModels
     const given = models.columnLayout ?? {};
     const widths = { ...Object.fromEntries(declared.filter(({ column }) => column.width !== undefined).map(({ column, key }) => [key, column.width!])), ...given.widths };
     const pinned = { ...Object.fromEntries(declared.filter(({ column }) => column.pinned).map(({ column, key }) => [key, column.pinned!])), ...given.pinned };
-    return { order: given.order, hidden: given.hidden ?? [], widths, pinned };
+    // Until the reader says otherwise, the columns that start hidden are.
+    const hidden = given.hidden ?? declared.filter(({ column }) => column.visible === false).map(({ key }) => key);
+    return { order: given.order, hidden, widths, pinned };
 }
 
 /**

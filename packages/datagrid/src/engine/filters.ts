@@ -19,6 +19,8 @@ const MODES: Record<Exclude<FilterKind, 'set'>, string[]> = {
 /** The kind a column filters as: what it says, or the kind of the first value it holds. */
 export function filterKind<T>(column: DataGridColumn<T>, rows: readonly T[], field: string): FilterKind {
     if (typeof column.filter === 'string') return column.filter;
+    // A list of values to choose from is a list filter: nothing else would use it.
+    if (column.filterOptions) return 'set';
     const sample = rows.map((row) => getField(row, field)).find((value) => value !== null && value !== undefined && value !== '');
     const kind = editorKind(sample);
     return kind === 'number' || kind === 'date' ? kind : 'text';
@@ -64,12 +66,22 @@ export function filterValue(text: string, kind: FilterKind, locale: Locale): unk
     return text;
 }
 
+/** An option given with the words it is shown by. */
+export const labelled = (option: unknown): option is { label: string; value: unknown } =>
+    !!option && typeof option === 'object' && !(option instanceof Date) && 'value' in option && typeof (option as { label?: unknown }).label === 'string';
+
+/** The words a list filter gives a value: its option's label, the column's own `filterLabel`, or none, which leaves it to the grid. */
+export function optionLabel<T>(column: DataGridColumn<T>, value: unknown): string | undefined {
+    const option = column.filterOptions?.find((entry) => labelled(entry) && entry.value === value) as { label: string } | undefined;
+    return option?.label ?? column.filterLabel?.(value);
+}
+
 /**
  * The values a list filter offers: the column's own list, or every value in
  * the rows, once each, in order, with blanks as one `null` at the end.
  */
 export function distinctValues<T>(column: DataGridColumn<T>, rows: readonly T[], field: string, locale?: string): unknown[] {
-    if (column.filterOptions) return [...column.filterOptions];
+    if (column.filterOptions) return column.filterOptions.map((option) => (labelled(option) ? option.value : option));
     const seen = new Map<string, unknown>();
     let blank = false;
     for (const row of rows) {

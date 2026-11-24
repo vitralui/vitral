@@ -52,6 +52,7 @@ const cellMenu = ({ row, items }: { row: Order; items: DataGridMenuItem[] }): Da
         <Column field="city" header="City" sortable filter="set" />
         <Column field="status" header="Status" filter="set">
             <template #body="{ data }"><Tag :value="data.status" :severity="severity[data.status as Order['status']]" /></template>
+            <template #filteroption="{ value, label }"><Tag :value="label" :severity="severity[value as Order['status']]" /></template>
         </Column>
         <Column field="total" header="Total" sortable filter align="right">
             <template #body="{ data }">{{ money.format(data.total) }}</template>

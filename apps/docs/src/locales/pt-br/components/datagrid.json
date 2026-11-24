@@ -86,7 +86,7 @@
         },
         "Filters and menus": {
             "title": "Filtros e menus",
-            "description": "Com `filter-display=&quot;menu&quot;`, uma coluna com `filter` desenha um botão no cabeçalho que abre o seu painel de filtro. O tipo acompanha os valores: texto, números e datas ganham duas condições unidas por E ou Ou, comparadas do jeito que você escolher; `filter=&quot;set&quot;` lista os valores da coluna para marcar, com uma busca para listas longas. `column-menu` acrescenta um menu a cada cabeçalho — ordenar, fixar, ocultar, restaurar — e `context-menu` um no clique direito sobre uma célula, aqui com um comando da própria página antes de Copy, Copy row e Export."
+            "description": "Com `filter-display=&quot;menu&quot;`, uma coluna com `filter` desenha um botão no cabeçalho que abre o seu painel de filtro. O tipo acompanha os valores: texto, números e datas ganham duas condições unidas por E ou Ou, comparadas do jeito que você escolher; `filter=&quot;set&quot;` lista os valores da coluna para marcar, com uma busca para listas longas — dados como `{ label, value }` ou nomeados por `filter-label` quando os valores são códigos, e desenhados pelo slot `#filteroption`, aqui como as mesmas tags das células. `column-menu` acrescenta um menu a cada cabeçalho — ordenar, fixar, ocultar, restaurar — e `context-menu` um no clique direito sobre uma célula, aqui com um comando da própria página antes de Copy, Copy row e Export."
         },
         "Groups inside groups": {
             "title": "Grupos dentro de grupos",
@@ -110,7 +110,7 @@
         },
         "A report, with what each column means": {
             "title": "Um relatório, com o que cada coluna significa",
-            "description": "Uma coluna com `description` (e uma `formula`, ou um slot `#description`) desenha um botão de informação ao lado do cabeçalho que a abre — por um clique, um toque ou o teclado. O painel `'dictionary'` da barra lateral lista todas as colunas, as ocultas também, com o que guardam e como são calculadas, encontradas por uma busca. `toolbar` coloca sobre o grid as ferramentas que se aplicam: o dicionário de dados, uma exportação para Excel, o quanto as linhas ficam próximas (`v-model:size`) e o painel de colunas. O paginador aceita `PageInput` e `RowsPerPageLabel` para ler como o de um relatório."
+            "description": "Uma coluna com `description` (e uma `formula`, ou um slot `#description`) desenha um botão de informação ao lado do cabeçalho que a abre — por um clique, um toque ou o teclado. O painel `'dictionary'` da barra lateral lista todas as colunas, as ocultas também, com o que guardam e como são calculadas, encontradas por uma busca. `toolbar` coloca sobre o grid as ferramentas que se aplicam: o dicionário de dados, uma exportação para Excel, o quanto as linhas ficam próximas (`v-model:size`) e o painel de colunas. O paginador aceita `PageInput` e `RowsPerPageLabel` para ler como o de um relatório. Uma coluna com `:visible=\"false\"` começa oculta, pronta para ser mostrada pelo painel, e `state-key` guarda o que quem lê arrumou — colunas, ordenação, tamanho da página, densidade — para a próxima visita."
         },
         "A side bar": {
             "title": "Um painel lateral",

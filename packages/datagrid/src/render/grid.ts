@@ -153,7 +153,7 @@ export interface FilterPanelView {
     /** The control choosing how each condition compares. */
     modes: [Content, Content];
     /** The values to tick, as many as are drawn, and how many more the search would find. */
-    values: { label: string; checked: boolean }[];
+    values: { label: string; checked: boolean; content?: Content }[];
     more: number;
     search: string;
     all: 'all' | 'some' | 'none';
@@ -1064,9 +1064,11 @@ export function filterPanelView<T>(context: ViewContext<T>, inline = false): VEl
                         h('input', {
                             type: 'checkbox',
                             checked: entry.checked,
-                            onChange: (event: Event) => context.on.filterTick(index, (event.target as HTMLInputElement).checked)
+                            onChange: (event: Event) => context.on.filterTick(index, (event.target as HTMLInputElement).checked),
+                            // Named by its label even when the host draws something else beside the box.
+                            'aria-label': entry.content === undefined || entry.content === null ? undefined : entry.label
                         }),
-                        h('span', null, entry.label)
+                        h('span', null, content(entry.content ?? null) ?? entry.label)
                     )
                 )
             )

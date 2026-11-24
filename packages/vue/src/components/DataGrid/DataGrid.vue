@@ -92,7 +92,7 @@ type ColumnSlotFn = (props: Record<string, unknown>) => VNode[];
 interface ColumnDef {
     key: string;
     props: Record<string, unknown>;
-    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton' | 'editor' | 'aggregate' | 'description' | 'default', ColumnSlotFn>>;
+    slots: Partial<Record<'body' | 'header' | 'footer' | 'filter' | 'skeleton' | 'editor' | 'aggregate' | 'description' | 'filteroption' | 'default', ColumnSlotFn>>;
     /** A `<ColumnGroup>`'s own columns. */
     children?: ColumnDef[];
 }
@@ -167,12 +167,14 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         filterMatchMode: p.filterMatchMode as string | undefined,
         // `filter` alone on a column is an empty string: a filter whose kind is read from the values.
         filter: p.filter === '' ? true : (p.filter as DataGridColumn['filter']),
-        filterOptions: p.filterOptions as unknown[] | undefined,
+        filterOptions: p.filterOptions as DataGridColumn['filterOptions'],
+        filterLabel: p.filterLabel as DataGridColumn['filterLabel'],
         filterMatchModes: p.filterMatchModes as string[] | undefined,
         menu: p.menu === undefined ? undefined : truthy(p.menu),
         selectionMode: p.selectionMode as 'single' | 'multiple' | undefined,
         align: p.align as 'left' | 'center' | 'right' | undefined,
         hidden: truthy(p.hidden),
+        visible: maybe(p.visible),
         resizable: maybe(p.resizable),
         minWidth: size(p.minWidth),
         width: size(p.width),
@@ -217,6 +219,9 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
             ((context: CellContext) =>
                 node(`body:${context.key ?? def.key}:${context.pinned ?? ''}${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p, pinned: context.pinned }))),
         headerContent: own.header && (() => node(`header:${def.key}`, () => own.header!({ column: p }))),
+        filterOptionContent:
+            own.filteroption &&
+            ((context: { value: unknown; label: string }) => node(`filteroption:${def.key}:${String(context.value)}`, () => own.filteroption!({ value: context.value, label: context.label, column: p }))),
         // Drawn in two places at once — the popover and the dictionary — so each has its own node.
         descriptionContent: own.description && ((context: { place: string }) => node(`description:${def.key}:${context.place}`, () => own.description!({ column: p }))),
         footerContent: own.footer && (() => node(`footer:${def.key}`, () => own.footer!({ column: p }))),
@@ -419,6 +424,7 @@ const inputs = (): DataGridConfig => ({
     sideBarOpen: props.sideBarOpen,
     columnInfo: props.columnInfo,
     toolbar: props.toolbar as DataGridConfig['toolbar'],
+    stateKey: props.stateKey,
     virtualScroll: props.virtualScroll,
     virtualColumns: props.virtualColumns,
     overscan: props.overscan,

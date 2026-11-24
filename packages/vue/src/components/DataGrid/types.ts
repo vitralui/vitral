@@ -155,6 +155,12 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     sideBar?: boolean | ('columns' | 'filters' | 'pivot' | 'dictionary')[];
     /** The side bar's panel open; `v-model:side-bar-open` follows the reader's tabs and opens one from the page. */
     sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
+    /**
+     * Keeps what the reader arranged between visits, under this name in the browser's storage: the columns' order,
+     * widths, pins and hidden ones, the sort, the page size and the row density. What was kept wins over the starting
+     * values, and the `v-model`s bound to them hear it; "Reset columns" in a column's menu puts the columns back.
+     */
+    stateKey?: string;
     /** A button by each header whose column has a `description`, which opens it. On by default. */
     columnInfo?: boolean;
     /**
@@ -427,13 +433,24 @@ export interface ColumnProps {
      * `'set'`, a list of its values to tick.
      */
     filter?: boolean | 'text' | 'number' | 'date' | 'set';
-    /** The values a `'set'` filter lists, in place of the ones in the rows: what a server would have. */
-    filterOptions?: unknown[];
+    /**
+     * The values a `'set'` filter lists, in place of the ones in the rows: what a server would have. Given as
+     * `{ label, value }`, the panel shows the label and the filter keeps the value.
+     */
+    filterOptions?: unknown[] | { label: string; value: unknown }[];
+    /** How a `'set'` filter names a value, when the value is a code the reader should not see. */
+    filterLabel?: (value: unknown) => string;
     /** The ways a condition may compare, by match mode, in place of the ones its kind offers. */
     filterMatchModes?: string[];
     /** Offer this column's menu, when the DataGrid has `column-menu`. True by default. */
     menu?: boolean;
+    /** Leaves the column out altogether: no cell, no place in the columns panel or the data dictionary. */
     hidden?: boolean;
+    /**
+     * `false` starts the column hidden, as the reader would hide it: listed in the columns panel and the data
+     * dictionary, to be shown from there. True by default.
+     */
+    visible?: boolean;
     /**
      * In a DataGrid, a column of buttons that open each row's detail (the
      * `expansion` slot). In a TreeTable, the column that holds the expand
@@ -504,6 +521,8 @@ export interface ColumnSlots {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: (props: { data: any; field?: string; index: number; column: Record<string, unknown>; pinned?: 'top' | 'bottom' }) => unknown;
     header?: (props: { column: Record<string, unknown> }) => unknown;
+    /** A `'set'` filter's value, drawn in place of its label: a tag in the colour its cells use, say. */
+    filteroption?: (props: { value: unknown; label: string; column: Record<string, unknown> }) => unknown;
     /** The column's description, drawn in place of `description`, by its header and in the data dictionary. */
     description?: (props: { column: Record<string, unknown> }) => unknown;
     footer?: (props: { column: Record<string, unknown> }) => unknown;

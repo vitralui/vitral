@@ -65,6 +65,7 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         :value="sales"
         data-key="id"
         aria-label="Sales report"
+        state-key="docs-sales-report"
         :side-bar="['columns', 'dictionary']"
         toolbar
         show-gridlines
@@ -98,7 +99,7 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         <Column field="discount" header="Discount" align="right" sortable description="Taken off the line, by a coupon or by the seller.">
             <template #body="{ data }">{{ money.format(data.discount) }}</template>
         </Column>
-        <Column field="freight" header="Freight" align="right" sortable hidden description="What the customer paid for delivery.">
+        <Column field="freight" header="Freight" align="right" sortable :visible="false" description="What the customer paid for delivery.">
             <template #body="{ data }">{{ money.format(data.freight) }}</template>
         </Column>
         <Column header="Net sale" align="right" :export-value="net" formula="gross sale − discount + freight">
