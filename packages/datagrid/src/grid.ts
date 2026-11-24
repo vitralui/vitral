@@ -2247,7 +2247,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 size: current.size,
                 scrollable,
                 loading: context.busy,
-                fixedRows: !!current.rowHeight
+                fixedRows: !!current.rowHeight,
+                toolsOnHover: current.headerTools === 'hover'
             })
         );
         drawn = {

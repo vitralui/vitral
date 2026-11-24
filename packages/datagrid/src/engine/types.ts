@@ -407,6 +407,18 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /** The side bar's panel open at first; none by default. */
     sideBarOpen?: 'columns' | 'filters' | 'pivot' | 'dictionary' | null;
     /**
+     * Whether a header's menu button is always there (`'always'`, the
+     * default: a touch screen has no pointer to bring it out) or only while
+     * the header is pointed at or focused (`'hover'`).
+     */
+    headerTools?: 'always' | 'hover';
+    /**
+     * The least height of the box the rows scroll in — a CSS length — so a
+     * grid with few rows or none keeps its shape, the empty message in the
+     * middle of it.
+     */
+    minHeight?: string;
+    /**
      * Keeps what the reader arranged between visits, under this name in the
      * browser's storage: the columns' order, widths, pins and the ones hidden,
      * the sort, the page size and how close the rows sit. What was kept wins

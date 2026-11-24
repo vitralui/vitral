@@ -146,3 +146,39 @@ describe('a page typed in', () => {
         expect(box().value).toBe('5');
     });
 });
+
+describe('a header laid out as a report’s', () => {
+    const sortable = columns.map((column) => ({ ...column, sortable: true, filter: true }));
+
+    it('puts the info button right after the title, and the sort arrow in its place while sorted', () => {
+        const { element, info } = mount({ columns: sortable, filterDisplay: 'menu', columnMenu: true });
+        const header = () => element.querySelector('[data-column="gross"]')!;
+        const order = () =>
+            Array.from(header().querySelectorAll('.vt-datagrid-sort-icon, [data-info-button], [data-filter-button], [data-menu-button]'), (node) =>
+                node.matches('.vt-datagrid-sort-icon') ? 'arrow' : node.hasAttribute('data-info-button') ? 'info' : node.hasAttribute('data-filter-button') ? 'filter' : 'menu'
+            );
+        expect(order()).toEqual(['info', 'filter', 'menu']);
+        (header().querySelector('.vt-datagrid-sort-button') as HTMLButtonElement).click();
+        expect(order()).toEqual(['arrow', 'filter', 'menu']);
+        expect(info('gross')).toBeNull();
+        // A column with nothing to say keeps its arrow, shown when pointed at.
+        expect(element.querySelector('[data-column="discount"] .vt-datagrid-sort-icon')).not.toBeNull();
+    });
+
+    it('sorts from the room left in the header, not from its buttons', () => {
+        const { element } = mount({ columns: sortable, filterDisplay: 'menu' });
+        const content = element.querySelector('[data-column="customer"] .vt-datagrid-header-content') as HTMLElement;
+        content.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(handle!.state().sortField).toBe('customer');
+        (element.querySelector('[data-filter-button="customer"]') as HTMLButtonElement).click();
+        expect(handle!.state().sortOrder).toBe(1);
+    });
+
+    it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {
+        const { element } = mount({ columnMenu: true, minHeight: '20rem', value: [] });
+        expect(element.classList).not.toContain('vt-datagrid-tools-on-hover');
+        expect((element.querySelector('.vt-datagrid-table-container') as HTMLElement).style.minHeight).toBe('20rem');
+        handle!.update({ headerTools: 'hover' });
+        expect(element.classList).toContain('vt-datagrid-tools-on-hover');
+    });
+});

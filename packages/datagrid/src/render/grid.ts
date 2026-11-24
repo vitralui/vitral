@@ -325,7 +325,10 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
     const tableArea = h(
             'div',
             mergeAttrs({ key: 'container' }, part('tableContainer', rootState), {
-                style: config.scrollable && config.scrollHeight && config.scrollHeight !== 'flex' ? { 'max-height': config.scrollHeight } : undefined,
+                style: {
+                    ...(config.scrollable && config.scrollHeight && config.scrollHeight !== 'flex' ? { 'max-height': config.scrollHeight } : {}),
+                    ...(config.minHeight ? { 'min-height': config.minHeight } : {})
+                },
                 onScroll: context.on.scrolled,
                 ref: context.on.scroller
             }),
@@ -741,9 +744,26 @@ function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VEle
     const canResize = !!config.resizableColumns && column.column.resizable !== false && !column.selectionMode;
     const canReorder = !!config.reorderableColumns && !column.selectionMode;
     const title = () => h('span', part('headerTitle'), content(column.column.headerContent?.({ column: column.column })) ?? column.header);
-    const tools = headerTools(context, column);
-    // With buttons beside it, the title and the buttons share one line.
-    const withTools = (main: Child) => (tools ? h('span', part('headerContent'), main, tools) : main);
+    // Right after the title, one thing: the arrow while the column is sorted, else its info button when it has one.
+    const sorted = sortIndex >= 0;
+    const info = context.menus.info && hasDescription(column.column);
+    const tools = headerTools(context, column, info && !sorted);
+    // With buttons beside it, the title and the buttons share one line; a press on the room left over sorts, as the title does.
+    const withTools = (main: Child) =>
+        tools
+            ? h(
+                  'span',
+                  mergeAttrs(part('headerContent'), {
+                      onClick: column.column.sortable
+                          ? (event: MouseEvent) => {
+                                if (event.target === event.currentTarget) (event.currentTarget as HTMLElement).querySelector<HTMLButtonElement>('button')?.click();
+                            }
+                          : undefined
+                  }),
+                  main,
+                  tools
+              )
+            : main;
     return h(
         'div',
         mergeAttrs(
@@ -802,7 +822,7 @@ function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VEle
                                 onClick: (event: MouseEvent) => context.on.sort(column, event)
                             }),
                             title(),
-                            h('span', mergeAttrs(part('sortIcon', { active: sortIndex >= 0 })), iconView(sortIcon)),
+                            sorted || !info ? h('span', mergeAttrs(part('sortIcon', { active: sorted })), iconView(sortIcon)) : null,
                             config.sortMode === 'multiple' && context.sorts.length > 1 && sortIndex >= 0
                                 ? h(
                                       'span',
@@ -852,11 +872,10 @@ export const offersMenu = <T>(config: ViewContext<T>['config'], column: Resolved
     !!config.columnMenu && column.column.menu !== false && !column.selectionMode && !column.column.expander && !column.column.rowEditor;
 
 /** A header's buttons besides its title: the filter panel's, lit while the column is filtered, and the menu's. */
-function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>): Child {
+function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info: boolean): Child {
     const { config, part, locale, menus } = context;
     const filter = menus.filter && filtersByMenu(config, column);
     const menu = menus.column && offersMenu(config, column);
-    const info = menus.info && hasDescription(column.column);
     if (!filter && !menu && !info) return null;
     const active = filter && hasFilter(context.filters, column);
     const open = menus.open === column.key;

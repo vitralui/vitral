@@ -372,6 +372,9 @@
 }
 
 .vt-datagrid-empty-cell {
+    /* An empty grid keeps a shape, the message in the middle of it, rather than shrinking to one line. */
+    min-height: var(--vt-datagrid-empty-min-height, 10rem);
+    align-content: center;
     padding: var(--vt-datagrid-body-cell-padding);
     color: var(--vt-text-muted-color);
     text-align: center;
@@ -986,14 +989,14 @@
     height: 0.875rem;
 }
 
-/* Out of the way until the header is pointed at, unless it says something: a filter on, a menu open. */
+/* With `headerTools: 'hover'`, the menu's button is out of the way until the header is pointed at, unless it is open. */
 @media (hover: hover) {
-    .vt-datagrid-header-tool-menu:not(.vt-datagrid-header-tool-open) {
+    .vt-datagrid-tools-on-hover .vt-datagrid-header-tool-menu:not(.vt-datagrid-header-tool-open) {
         opacity: 0;
     }
 
-    .vt-datagrid-header-cell:hover .vt-datagrid-header-tool-menu,
-    .vt-datagrid-header-tool-menu:focus-visible {
+    .vt-datagrid-tools-on-hover .vt-datagrid-header-cell:hover .vt-datagrid-header-tool-menu,
+    .vt-datagrid-tools-on-hover .vt-datagrid-header-tool-menu:focus-visible {
         opacity: 1;
     }
 }
@@ -1122,17 +1125,36 @@
     outline-offset: 2px;
 }
 
-/* A header's title and its buttons, on one line: the title takes the room, the buttons keep theirs. */
+/*
+ * A header's title and its buttons, on one line, the buttons right after the
+ * title — the info button (or the sort's arrow), the filter, the menu — as a
+ * report's headers read. The room left over is still the sort's: a press on
+ * it sorts, as a press on the title does.
+ */
 .vt-datagrid-header-content {
     display: flex;
     align-items: center;
+    gap: 0.125rem;
     min-width: 0;
 }
 
 .vt-datagrid-header-content > .vt-datagrid-sort-button,
 .vt-datagrid-header-content > .vt-datagrid-header-title {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+    width: auto;
     min-width: 0;
+}
+
+.vt-datagrid-header-cell-sortable .vt-datagrid-header-content {
+    cursor: pointer;
+}
+
+.vt-datagrid-align-center .vt-datagrid-header-content {
+    justify-content: center;
+}
+
+.vt-datagrid-align-right .vt-datagrid-header-content {
+    justify-content: flex-end;
 }
 
 .vt-datagrid-align-center .vt-datagrid-header-content > .vt-datagrid-header-title {
