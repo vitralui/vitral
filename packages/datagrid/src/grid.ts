@@ -2993,16 +2993,17 @@ function writeState(key: string, models: DataGridModels, size: 'small' | 'large'
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
 const ABOUT = ['description', 'formula', 'kind', 'source', 'notes'] as const;
 // The columns as the dictionary fills them, kept while neither changes, so a column stays the same object between draws.
-const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; columns: DataGridColumn<any>[] }>();
+const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; defaults?: object; columns: DataGridColumn<any>[] }>();
 const NO_DICTIONARY: Record<string, DataGridColumnAbout> = {};
 
 /** The columns with what the grid's `dictionary` says of each filled in where the column says nothing itself. */
 function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
-    const { columns, aggregates } = config;
+    const { columns, aggregates, columnDefaults } = config;
     const dictionary = config.dictionary ?? NO_DICTIONARY;
-    if ((dictionary === NO_DICTIONARY && !aggregates) || !columns) return config;
+    if ((dictionary === NO_DICTIONARY && !aggregates && !columnDefaults) || !columns) return config;
     const cached = describedCache.get(columns);
-    if (cached?.dictionary === dictionary && cached.aggregates === aggregates) return { ...config, columns: cached.columns };
+    if (cached?.dictionary === dictionary && cached.aggregates === aggregates && cached.defaults === columnDefaults) return { ...config, columns: cached.columns };
+    const defaults = Object.entries(columnDefaults ?? {}) as [keyof DataGridColumn<T>, unknown][];
     const fill = (list: DataGridColumn<T>[]): DataGridColumn<T>[] =>
         list.map((column) => {
             if (column.columns) return { ...column, columns: fill(column.columns) };
@@ -3011,14 +3012,16 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
             // The reader's pick of how the values are worked out, over the column's own.
             const picked = !!aggregates && name_ in aggregates;
             const how = picked ? aggregates![name_] : undefined;
-            if (!about && !picked) return column;
+            const plain = defaults.length > 0 && !column.selectionMode && !column.expander && !column.rowEditor && !column.rowDrag;
+            if (!about && !picked && !plain) return column;
             const out = { ...column } as Record<string, unknown>;
             if (about) for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
+            if (plain) for (const [name, value] of defaults) if (out[name] === undefined) out[name] = value;
             if (picked) out.aggregate = how ?? undefined;
             return out as DataGridColumn<T>;
         });
     const filled = fill(columns);
-    describedCache.set(columns, { dictionary, aggregates, columns: filled });
+    describedCache.set(columns, { dictionary, aggregates, defaults: columnDefaults, columns: filled });
     return { ...config, columns: filled };
 }
 

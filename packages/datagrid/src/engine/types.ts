@@ -471,6 +471,12 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * each column: what a column says itself wins over what is said here.
      */
     dictionary?: Record<string, DataGridColumnAbout>;
+    /**
+     * What every column has unless it says otherwise: `{ filter: true, sortable: true }` gives each column a
+     * filter of its values' kind and a sort at once. The columns that select, expand, edit or drag rows are
+     * left as they are.
+     */
+    columnDefaults?: Partial<DataGridColumn<T>>;
     /** Over the data dictionary: the module the table belongs to, in small capitals, and a line under its title. */
     dictionaryModule?: string;
     dictionarySubtitle?: string;

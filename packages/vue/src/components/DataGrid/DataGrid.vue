@@ -163,7 +163,8 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         source: p.source as string | undefined,
         notes: p.notes as DataGridColumn['notes'],
         footer: p.footer as string | undefined,
-        sortable: truthy(p.sortable),
+        // Left unsaid rather than false, so the grid's columnDefaults can give it.
+        sortable: maybe(p.sortable),
         sortField: p.sortField as string | undefined,
         filterField: p.filterField as string | undefined,
         filterPlaceholder: p.filterPlaceholder as string | undefined,
@@ -436,6 +437,7 @@ const inputs = (): DataGridConfig => ({
     headerTools: props.headerTools,
     minHeight: props.minHeight,
     dictionary: props.dictionary as DataGridConfig['dictionary'],
+    columnDefaults: props.columnDefaults as DataGridConfig['columnDefaults'],
     dictionaryModule: props.dictionaryModule,
     dictionarySubtitle: props.dictionarySubtitle,
     virtualScroll: props.virtualScroll,

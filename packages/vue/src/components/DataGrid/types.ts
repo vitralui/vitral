@@ -1,4 +1,4 @@
-import type { DataGridSparkline } from '@vitral/datagrid';
+import type { DataGridColumn, DataGridSparkline } from '@vitral/datagrid';
 import type { BaseProps, Size, ScrollbarProps } from '../../base/types';
 
 // The data-layer shapes from @vitral/core, restated for the SFC compiler.
@@ -177,6 +177,13 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * What a `<Column>` says itself wins over what is said here.
      */
     dictionary?: Record<string, { description?: string; formula?: string; kind?: 'dimension' | 'metric'; source?: string; notes?: string | string[] }>;
+    /**
+     * What every `<Column>` has unless it says otherwise, by its prop names: `{ filter: true, sortable: true }`
+     * gives each column a filter of its values' kind and a sort without saying so on each. The columns that
+     * select, expand, edit or drag rows are left as they are.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    columnDefaults?: Partial<DataGridColumn<any>>;
     /**
      * The toolbar's columns button opens a drawer at the page's edge instead of the panel: the columns shown and their
      * order, the rows' grouping (or the pivot) and how each number column is worked out, changed together and only on
