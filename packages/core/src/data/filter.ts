@@ -30,11 +30,24 @@ export type FilterFn = (value: unknown, filter: unknown, locale?: string) => boo
  * that tripped over diacritics would be unusable in Portuguese, Spanish or French.
  */
 export function normalizeText(value: unknown, locale?: string): string {
-    return String(value)
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
-        .toLocaleLowerCase(locale);
+    const text = String(value);
+    const key = locale ?? '';
+    let cache = normalized.get(key);
+    if (!cache) normalized.set(key, (cache = new Map()));
+    let out = cache.get(text);
+    if (out === undefined) {
+        // Plain ASCII has no accents to take off.
+        out = (ASCII.test(text) ? text : text.normalize('NFD').replace(/\p{Diacritic}/gu, '')).toLocaleLowerCase(locale);
+        // A filter runs over the same texts at every key pressed: they are kept, up to a bound.
+        if (cache.size >= NORMALIZED_LIMIT) cache.clear();
+        cache.set(text, out);
+    }
+    return out;
 }
+
+const ASCII = /^[\x00-\x7f]*$/;
+const NORMALIZED_LIMIT = 250_000;
+const normalized = new Map<string, Map<string, string>>();
 
 /** An empty filter matches everything: a cleared search box must not hide the table. */
 export function isBlankFilter(filter: unknown): boolean {

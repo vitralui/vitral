@@ -16,6 +16,7 @@ import {
     ptBR,
     queryData,
     setChecked,
+    normalizeText,
     sortData,
     stepIndex,
     stepValue,
@@ -57,10 +58,51 @@ describe('filtering, sorting and querying', () => {
         expect(FilterService.matches(5, [1, 10], 'between')).toBe(true);
     });
 
+    it('keeps each locale’s folding of a text apart, plain ASCII or not', () => {
+        expect(normalizeText('ILIK', 'en')).toBe('ilik');
+        expect(normalizeText('ILIK', 'tr')).toBe('ılık');
+        expect(normalizeText('ILIK', 'en')).toBe('ilik');
+        expect(normalizeText('São Paulo', 'pt-BR')).toBe('sao paulo');
+        expect(normalizeText(42)).toBe('42');
+    });
+
     it('sorts naturally, stably, and keeps empty values last either way', () => {
         expect(sortData(people, [{ field: 'name', order: 1 }]).map((p) => p.name)).toEqual(['ana', 'Bruno', 'Item 9', 'Item 10', 'João']);
         expect(sortData(people, [{ field: 'age', order: -1 }]).map((p) => p.age)).toEqual([40, 31, 22, 18, null]);
         expect(sortData(people, [{ field: 'age', order: 1 }]).map((p) => p.age)).toEqual([18, 22, 31, 40, null]);
+    });
+
+    it('reads each field once a row, however many comparisons the sort makes', () => {
+        const rows = Array.from({ length: 500 }, (_, i) => ({ n: (i * 7919) % 500 }));
+        let reads = 0;
+        const counted = new Proxy(rows[0]!, { get: (target, key) => (key === 'n' && reads++, Reflect.get(target, key)) });
+        sortData([counted, ...rows.slice(1)], [{ field: 'n', order: 1 }]);
+        expect(reads).toBe(1);
+    });
+
+    it('sorts the second key under ties of the first, in either direction', () => {
+        const rows = [
+            { city: 'Porto', total: 2 },
+            { city: 'lisbon', total: 9 },
+            { city: 'Porto', total: 1 },
+            { city: 'Lisbon', total: 3 }
+        ];
+        const sorted = sortData(rows, [
+            { field: 'city', order: 1 },
+            { field: 'total', order: -1 }
+        ]);
+        expect(sorted.map((row) => `${row.city} ${row.total}`)).toEqual(['lisbon 9', 'Lisbon 3', 'Porto 2', 'Porto 1']);
+    });
+
+    it('sorts a column of few values as it sorts any: case and accents aside, numbers read as numbers, blanks last, stable', () => {
+        const cities = ['Évora', 'item 10', 'Porto', '', 'evora', 'Item 9', null, 'porto', 'Item 9', 'Évora'];
+        const rows = Array.from({ length: 40 }, (_, i) => ({ i, city: cities[i % cities.length] }));
+        const sorted = sortData(rows, [{ field: 'city', order: 1 }]);
+        expect([...new Set(sorted.map((row) => String(row.city).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')))]).toEqual(['evora', 'item 9', 'item 10', 'porto', '', 'null']);
+        // Equal under the collator, rows keep the order they came in.
+        const evora = sorted.filter((row) => row.city && /vora/i.test(row.city)).map((row) => row.i);
+        expect(evora).toEqual([...evora].sort((a, b) => a - b));
+        expect(sortData(rows, [{ field: 'city', order: -1 }]).slice(-8).every((row) => !row.city)).toBe(true);
     });
 
     it('filters, then sorts, then pages, and counts before paging', () => {

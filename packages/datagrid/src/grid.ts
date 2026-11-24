@@ -187,7 +187,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     let viewHeight = 0;
     let viewWidth = 0;
     /** The height each line was drawn at, by its key, once it has been drawn: rows keep their own heights. */
-    const heights = new Map<string | number, number>();
+    const heights = new Map<unknown, number>();
     let heightsVersion = 0;
     /** The height a line not drawn yet is taken to have: the first ones drawn, on average. */
     let estimate = 0;
@@ -1805,9 +1805,13 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         });
     }
 
-    /** The key a line's height is remembered by: its row's, or its group's. */
-    const lineKey = (line: ViewContext<T>['lines'][number], offset: number): string | number =>
-        line.kind === 'group' ? `group:${line.group.key}` : rowKey(current, line.row, line.index, offset);
+    /**
+     * The key a line's height is remembered by: its row's `dataKey` value as it
+     * is, or its group's. A number, not its text: looked up for every line of a
+     * large grid, a number is found at once where a new string must be hashed.
+     */
+    const lineKey = (line: ViewContext<T>['lines'][number], offset: number): unknown =>
+        line.kind === 'group' ? `group:${line.group.key}` : expansionKey(current, line.row, line.index, offset);
 
     let linesMemo: { inputs: unknown[]; lines: ViewContext<T>['lines'] } | null = null;
     function linesNow(rows: ResolvedRows<T>): ViewContext<T>['lines'] {
@@ -1822,20 +1826,29 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
      * a line that is open is two — worked out again only when the lines or
      * what is known of their heights change.
      */
-    let placesMemo: { inputs: unknown[]; keys: (string | number)[]; offsets: Float64Array; rowsBefore: Int32Array } | null = null;
+    let placesMemo: { inputs: unknown[]; keys: unknown[]; offsets: Float64Array; rowsBefore: Int32Array } | null = null;
     function places(lines: ViewContext<T>['lines'], offset: number) {
         const inputs = [lines, heightsVersion, estimate, current.rowHeight, models.expandedRows, current.content?.rowExpansion];
         if (placesMemo && placesMemo.inputs.every((value, index) => value === inputs[index])) return placesMemo;
-        const keys = lines.map((line) => lineKey(line, offset));
+        // Plain loops: run over every line of a large grid on each sort or filter.
+        const count = lines.length;
+        const keys = new Array<unknown>(count);
+        for (let index = 0; index < count; index++) keys[index] = lineKey(lines[index]!, offset);
         const fallback = current.rowHeight ?? (estimate || 40);
-        const offsets = offsetsOf(lines.length, (index) => heights.get(keys[index]!) ?? fallback);
-        const expandable = !!current.content?.rowExpansion;
-        const open = new Set((models.expandedRows ?? []).map(String));
-        const rowsBefore = new Int32Array(lines.length + 1);
-        lines.forEach((line, index) => {
-            const detail = expandable && line.kind === 'row' && open.has(String(expansionKey(current, line.row, line.index, offset)));
+        const offsets = new Float64Array(count + 1);
+        if (heights.size) {
+            for (let index = 0; index < count; index++) {
+                const height = heights.get(keys[index]!);
+                offsets[index + 1] = offsets[index]! + (height === undefined ? fallback : height);
+            }
+        } else for (let index = 0; index < count; index++) offsets[index + 1] = (index + 1) * fallback;
+        const rowsBefore = new Int32Array(count + 1);
+        const open = current.content?.rowExpansion && models.expandedRows?.length ? new Set(models.expandedRows.map(String)) : null;
+        for (let index = 0; index < count; index++) {
+            const line = lines[index]!;
+            const detail = open !== null && line.kind === 'row' && open.has(String(expansionKey(current, line.row, line.index, offset)));
             rowsBefore[index + 1] = rowsBefore[index]! + (detail ? 2 : 1);
-        });
+        }
         placesMemo = { inputs, keys, offsets, rowsBefore };
         return placesMemo;
     }
