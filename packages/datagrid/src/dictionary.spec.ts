@@ -102,7 +102,7 @@ describe('the toolbar', () => {
         const { element, tool } = mount({ toolbar: true, sideBar: ['columns', 'dictionary'] });
         expect(Array.from(element.querySelectorAll('[data-toolbar]'), (button) => button.getAttribute('data-toolbar'))).toEqual(['dictionary', 'export', 'density', 'columns']);
         expect(tool('dictionary')!.textContent).toBe('Data dictionary');
-        expect(tool('export')!.getAttribute('aria-label')).toBe('Export to Excel');
+        expect(tool('export')!.getAttribute('aria-label')).toBe('Download');
         tool('dictionary')!.click();
         expect(element.querySelector('.vt-datagrid-side-panel-dictionary')).not.toBeNull();
         expect(tool('dictionary')!.getAttribute('aria-pressed')).toBe('true');
@@ -242,5 +242,41 @@ describe('a dictionary handed in at once', () => {
         expect(customer.textContent).toContain('Said by the column.');
         expect(customer.querySelector('.vt-datagrid-column-kind')!.textContent).toBe('Dimension');
         expect(element.querySelector('[data-dictionary="gross"] .vt-datagrid-column-source')!.textContent).toBe('Source: orders.total');
+    });
+});
+
+describe('the toolbar’s download and pivot', () => {
+    it('downloads Excel or CSV from a menu, the rows the host hands over when it does', async () => {
+        const all = Array.from({ length: 40 }, (_, i) => ({ id: i + 1, customer: `Server ${i + 1}`, gross: i, discount: 0 }));
+        const exportRows = vi.fn(async () => all);
+        const { tool } = mount({ toolbar: ['export'], exportRows });
+        const csv = vi.spyOn(handle!, 'exportCSV').mockImplementation(() => undefined);
+        const excel = vi.spyOn(handle!, 'exportExcel').mockImplementation(() => undefined);
+        tool('export')!.click();
+        const items = () => Array.from(document.querySelectorAll('[role="menuitem"]')) as HTMLElement[];
+        expect(items().map((item) => item.textContent?.trim())).toEqual(['Excel (.xlsx)', 'CSV (.csv)']);
+        items()[1]!.click();
+        await vi.waitFor(() => expect(csv).toHaveBeenCalledWith({ rows: all }));
+        tool('export')!.click();
+        items()[0]!.click();
+        await vi.waitFor(() => expect(excel).toHaveBeenCalledWith({ rows: all }));
+        expect(exportRows).toHaveBeenCalledTimes(2);
+    });
+
+    it('writes the rows handed to it in place of the grid’s', () => {
+        mount();
+        const text = handle!.toCSV({ rows: [{ id: 9, customer: 'Only', gross: 1, discount: 0 }] });
+        expect(text.split('\n')).toHaveLength(2);
+        expect(text).toContain('Only');
+    });
+
+    it('turns the pivot on and off, opening its panel when there is nothing in it', () => {
+        const { element, tool } = mount({ toolbar: true, sideBar: ['columns', 'pivot'] });
+        expect(tool('pivot')!.getAttribute('aria-pressed')).toBe('false');
+        tool('pivot')!.click();
+        expect(tool('pivot')!.getAttribute('aria-pressed')).toBe('true');
+        expect(element.querySelector('.vt-datagrid-side-panel-pivot')).not.toBeNull();
+        tool('pivot')!.click();
+        expect(tool('pivot')!.getAttribute('aria-pressed')).toBe('false');
     });
 });

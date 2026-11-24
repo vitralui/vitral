@@ -747,6 +747,10 @@ export interface Locale {
         formula: string;
         noDescription: string;
         hiddenColumn: string;
+        /** The toolbar's download menu. */
+        download: string;
+        excelFile: string;
+        csvFile: string;
         /** A column's kind, where it comes from, its rules, and the module over the dictionary. `{source}` `{module}` */
         dimension: string;
         metric: string;
@@ -1378,6 +1382,9 @@ export const en: Locale = {
         formula: 'Formula',
         noDescription: 'No description yet.',
         hiddenColumn: 'Hidden',
+        download: 'Download',
+        excelFile: 'Excel (.xlsx)',
+        csvFile: 'CSV (.csv)',
         dimension: 'Dimension',
         metric: 'Metric',
         source: 'Source: {source}',
@@ -2000,6 +2007,9 @@ export const ptBR: Locale = {
         formula: 'Fórmula',
         noDescription: 'Ainda sem descrição.',
         hiddenColumn: 'Oculta',
+        download: 'Baixar',
+        excelFile: 'Excel (.xlsx)',
+        csvFile: 'CSV (.csv)',
         dimension: 'Dimensão',
         metric: 'Métrica',
         source: 'Fonte: {source}',

@@ -449,12 +449,20 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /**
      * Buttons over the grid, at the end of its header bar: `'dictionary'`
      * opens the data dictionary, `'columns'` the columns panel (or the column
-     * list), `'export'` writes an Excel workbook, `'density'` picks how close
+     * list), `'export'` a menu that downloads the rows as an Excel workbook or
+     * CSV, `'pivot'` turns the pivot on and off, `'density'` picks how close
      * the rows sit; an object is a button of the host's own. `true` is the
      * ones that apply: the dictionary when a column has a description, the
-     * export, the density, and the columns.
+     * export, the pivot when the side bar has its panel, the density, and the
+     * columns.
      */
     toolbar?: boolean | DataGridToolbarItem[];
+    /**
+     * The rows a download from the toolbar writes, in place of the ones the
+     * grid holds: with `lazy`, every row the filters let through, fetched
+     * from the server, rather than the page on show.
+     */
+    exportRows?: () => T[] | Promise<T[]>;
     /** The rows; with `lazy`, only the current page. */
     value?: T[];
     columns?: DataGridColumn<T>[];
@@ -613,6 +621,7 @@ export type DataGridToolbarItem =
     | 'dictionary'
     | 'columns'
     | 'export'
+    | 'pivot'
     | 'density'
     | {
           key: string;

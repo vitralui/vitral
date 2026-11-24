@@ -166,6 +166,11 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * What a `<Column>` says itself wins over what is said here.
      */
     dictionary?: Record<string, { description?: string; formula?: string; kind?: 'dimension' | 'metric'; source?: string; notes?: string | string[] }>;
+    /**
+     * The rows a download from the toolbar writes, in place of the ones the DataGrid holds: with `lazy`, every row the
+     * filters let through, fetched from the server, rather than the page on show.
+     */
+    exportRows?: () => unknown[] | Promise<unknown[]>;
     /** Over the data dictionary: the module the table belongs to, in small capitals. */
     dictionaryModule?: string;
     /** A line under the data dictionary's title. */
@@ -177,8 +182,9 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /** A button by each header whose column has a `description`, which opens it. On by default. */
     columnInfo?: boolean;
     /**
-     * Buttons over the grid: `'dictionary'`, `'columns'`, `'export'` (an Excel workbook) and `'density'` (how close
-     * the rows sit, kept by `v-model:size`), or an object for a button of your own. `true` is the ones that apply.
+     * Buttons over the grid: `'dictionary'`, `'columns'`, `'export'` (a menu that downloads the rows as Excel or CSV),
+     * `'pivot'` (turns the pivot on and off) and `'density'` (how close the rows sit, kept by `v-model:size`), or an
+     * object for a button of your own. `true` is the ones that apply.
      */
     toolbar?: boolean | DataGridToolbarItem[];
 

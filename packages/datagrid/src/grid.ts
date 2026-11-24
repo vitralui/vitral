@@ -99,9 +99,9 @@ export interface DataGridHandle<T = Row> {
     /** The block marked, its rows by index among every row, and the values in it. */
     getRange(): { rows: number[]; keys: string[]; values: unknown[][] } | null;
     /** The rows as the bytes of an Excel workbook, with numbers, dates and booleans kept as such. */
-    toXlsx(options?: DataGridXlsxOptions & { scope?: DataGridExportOptions['scope'] }): Uint8Array;
+    toXlsx(options?: DataGridXlsxOptions & Pick<DataGridExportOptions, 'scope' | 'rows'>): Uint8Array;
     /** Downloads the rows as an Excel workbook. */
-    exportExcel(options?: DataGridXlsxOptions & { scope?: DataGridExportOptions['scope']; filename?: string }): void;
+    exportExcel(options?: DataGridXlsxOptions & Pick<DataGridExportOptions, 'scope' | 'rows'> & { filename?: string }): void;
     /** Opens every group, or every row of a tree that holds rows; and shuts them all. */
     expandAll(): void;
     collapseAll(): void;
@@ -128,6 +128,8 @@ export interface DataGridHandle<T = Row> {
 
 export interface DataGridExportOptions extends DataGridCsvOptions {
     scope?: 'all' | 'page' | 'selection';
+    /** The rows to write, in place of the ones `scope` picks: every row a server holds, say. */
+    rows?: readonly unknown[];
     /** Start the file with a byte-order mark, which is what makes Excel read UTF-8. Defaults to true for `exportCSV`. */
     bom?: boolean;
 }
@@ -768,9 +770,38 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if (typeof item === 'object') return item.onClick(event);
             if (item === 'dictionary') return showPanel(sidePanel === 'dictionary' ? null : 'dictionary');
             if (item === 'columns') return sidePanels().includes('columns') ? showPanel(sidePanel === 'columns' ? null : 'columns') : setChooser(!chooserOpen);
-            if (item === 'export') return handle.exportExcel();
-            // How close the rows sit: a menu of the three, the one in use ticked.
             const words = locale().datagrid;
+            if (item === 'pivot') {
+                const on = !(own.pivot && own.pivot.enabled !== false);
+                setPivot({ ...pivotNow(), enabled: on });
+                // A pivot with nothing in it yet is built in its panel.
+                const { rows, columns, values } = pivotNow();
+                if (on && !rows?.length && !columns?.length && !values?.length) showPanel('pivot');
+                return;
+            }
+            if (item === 'export') {
+                // The rows the host hands over for a download (every row a server holds), or the ones the grid has.
+                const write = async (excel: boolean) => {
+                    const rows = current.exportRows ? await current.exportRows() : undefined;
+                    if (excel) handle.exportExcel({ rows });
+                    else handle.exportCSV({ rows });
+                };
+                closeMenus();
+                cellMenu.update({
+                    ...menuSettings(),
+                    ariaLabel: words.download,
+                    items: menuItems(
+                        [
+                            { label: words.excelFile, icon: 'download', onSelect: () => void write(true) },
+                            { label: words.csvFile, icon: 'download', onSelect: () => void write(false) }
+                        ],
+                        (base) => base
+                    )
+                });
+                cellMenu.open(event.currentTarget as HTMLElement);
+                return;
+            }
+            // How close the rows sit: a menu of the three, the one in use ticked.
             const now = current.size ?? 'normal';
             closeMenus();
             cellMenu.update({
@@ -1090,9 +1121,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function toolbarItems(): DataGridToolbarItem[] {
         const asked = current.toolbar;
         if (!asked) return [];
-        const items: DataGridToolbarItem[] = asked === true ? ['dictionary', 'export', 'density', 'columns'] : asked;
+        const items: DataGridToolbarItem[] = asked === true ? ['dictionary', 'export', 'pivot', 'density', 'columns'] : asked;
         return items.filter((item) => {
             if (item === 'dictionary') return sidePanels().includes('dictionary');
+            if (item === 'pivot') return sidePanels().includes('pivot');
             if (item === 'columns') return sidePanels().includes('columns') || !!current.columnToggle;
             return true;
         });
@@ -1106,7 +1138,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if (typeof item === 'object') return { key: item.key, label: item.label, icon: item.icon, showLabel: !item.icon || !!item.showLabel };
             if (item === 'dictionary') return { key: item, label: words.dictionaryPanel, icon: 'bookOpen', showLabel: true, pressed: sidePanel === 'dictionary' };
             if (item === 'columns') return { key: item, label: words.columnsPanel, icon: 'columns', showLabel: false, pressed: sidePanels().includes('columns') ? sidePanel === 'columns' : chooserOpen };
-            if (item === 'export') return { key: item, label: words.exportExcel, icon: 'download', showLabel: false };
+            if (item === 'export') return { key: item, label: words.download, icon: 'download', showLabel: false, popup: 'menu' };
+            if (item === 'pivot') return { key: item, label: words.pivotMode, icon: 'table', showLabel: false, pressed: !!own.pivot && own.pivot.enabled !== false };
             return { key: item, label: words.density, icon: 'rows', showLabel: false, popup: 'menu' };
         });
     }
@@ -2505,16 +2538,16 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const rows = rowsNow();
         const scope = options.scope ?? 'all';
         const selection = models.selection;
-        const chosen = scope === 'page' ? rows.page : scope === 'selection' ? ((Array.isArray(selection) ? selection : selection ? [selection] : []) as T[]) : rows.all;
+        const chosen = (options.rows as T[] | undefined) ?? (scope === 'page' ? rows.page : scope === 'selection' ? ((Array.isArray(selection) ? selection : selection ? [selection] : []) as T[]) : rows.all);
         const text = toCSV(chosen, columns, options);
         return options.bom ? `\ufeff${text}` : text;
     }
 
-    function xlsx(options: DataGridXlsxOptions & { scope?: DataGridExportOptions['scope'] }): Uint8Array {
+    function xlsx(options: DataGridXlsxOptions & Pick<DataGridExportOptions, 'scope' | 'rows'>): Uint8Array {
         const rows = rowsNow();
         const scope = options.scope ?? 'all';
         const selection = models.selection;
-        const chosen = scope === 'page' ? rows.page : scope === 'selection' ? ((Array.isArray(selection) ? selection : selection ? [selection] : []) as T[]) : rows.all;
+        const chosen = (options.rows as T[] | undefined) ?? scope === 'page' ? rows.page : scope === 'selection' ? ((Array.isArray(selection) ? selection : selection ? [selection] : []) as T[]) : rows.all;
         return toXlsx(chosen, tableColumns(current, withShared()), options);
     }
 
