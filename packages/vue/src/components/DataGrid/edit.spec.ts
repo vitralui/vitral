@@ -26,7 +26,7 @@ describe('DataGrid: editing', () => {
         );
         await nextTick();
         const root = wrapper.element as HTMLElement;
-        root.querySelector('td[data-col="price"]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        root.querySelector(':is([role="cell"],[role="gridcell"])[data-col="price"]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         const box = root.querySelector('[data-editor]') as HTMLInputElement;
         box.value = '150';
         box.dispatchEvent(new Event('input', { bubbles: true }));
@@ -36,7 +36,7 @@ describe('DataGrid: editing', () => {
         expect(root.querySelector('output')!.textContent).toBe('190');
         expect(completed).toHaveLength(1);
         // Undo is on without being asked for.
-        root.querySelector('td[data-col="price"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+        root.querySelector(':is([role="cell"],[role="gridcell"])[data-col="price"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
         await nextTick();
         expect(items.value[0]!.price).toBe(100);
         wrapper.unmount();
@@ -61,14 +61,14 @@ describe('DataGrid: editing', () => {
         );
         await nextTick();
         const root = wrapper.element as HTMLElement;
-        root.querySelector('td[data-col="size"]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        root.querySelector(':is([role="cell"],[role="gridcell"])[data-col="size"]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         await nextTick();
-        const buttons = Array.from(root.querySelectorAll('td[data-editing] button')) as HTMLButtonElement[];
+        const buttons = Array.from(root.querySelectorAll(':is([role="cell"],[role="gridcell"])[data-editing] button')) as HTMLButtonElement[];
         expect(buttons.map((b) => b.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'false']);
         buttons[2]!.click();
         await nextTick();
         expect(items.value[0]!.size).toBe('L');
-        expect(root.querySelector('td[data-col="size"]')!.textContent).toBe('L');
+        expect(root.querySelector(':is([role="cell"],[role="gridcell"])[data-col="size"]')!.textContent).toBe('L');
         wrapper.unmount();
     });
 });

@@ -32,7 +32,7 @@ function mount(config: Record<string, unknown> = {}) {
         ariaLabel: 'Bills',
         ...config
     });
-    const text = (selector: string) => Array.from(element.querySelectorAll(selector)).map((row) => Array.from((row as HTMLTableRowElement).cells).map((cell) => cell.textContent));
+    const text = (selector: string) => Array.from(element.querySelectorAll(selector)).map((row) => Array.from((row as HTMLElement).children).map((cell) => cell.textContent));
     return { element, text };
 }
 
@@ -45,17 +45,17 @@ afterEach(() => {
 describe('rows pinned to the top and the bottom', () => {
     it('holds rows at the top, under the header, and at the bottom, out of the body', () => {
         const { element, text } = mount({ pinnedTopRows: [{ id: 0, item: 'Budget', amount: 1500 }], pinnedBottomRows: [{ id: -1, item: 'Total', amount: 1330 }] });
-        expect(text('thead .vt-datagrid-pinned-row')).toEqual([['Budget', '= 1500']]);
-        expect(text('tfoot .vt-datagrid-pinned-row')).toEqual([['Total', '= 1330']]);
-        expect(element.querySelectorAll('tbody tr')).toHaveLength(3);
-        expect(element.querySelector('tfoot')!.className).toContain('vt-datagrid-tfoot-sticky');
+        expect(text('[data-section="head"] .vt-datagrid-pinned-row')).toEqual([['Budget', '= 1500']]);
+        expect(text('[data-section="foot"] .vt-datagrid-pinned-row')).toEqual([['Total', '= 1330']]);
+        expect(element.querySelectorAll('[data-section="body"] [role="row"]')).toHaveLength(3);
+        expect(element.querySelector('[data-section="foot"]')!.className).toContain('vt-datagrid-tfoot-sticky');
     });
 
     it('works its rows out from the rows the filters let through, when it is a function', () => {
         const { text } = mount({ pinnedBottomRows: ({ rows }: { rows: Line[] }) => [{ id: -1, item: 'Total', amount: sum(rows) }] });
-        expect(text('tfoot .vt-datagrid-pinned-row')).toEqual([['Total', '= 1330']]);
+        expect(text('[data-section="foot"] .vt-datagrid-pinned-row')).toEqual([['Total', '= 1330']]);
         handle!.update({ filters: { item: { value: 'w', matchMode: 'contains' } } });
-        expect(text('tfoot .vt-datagrid-pinned-row')).toEqual([['Total', '= 130']]);
+        expect(text('[data-section="foot"] .vt-datagrid-pinned-row')).toEqual([['Total', '= 130']]);
     });
 
     it('stays out of the sort, the selection and the export', () => {
@@ -65,9 +65,9 @@ describe('rows pinned to the top and the bottom', () => {
             columns: [{ selectionMode: 'multiple' }, { field: 'item', header: 'Item' }, { field: 'amount', header: 'Amount' }],
             pinnedBottomRows: [{ id: -1, item: 'Total', amount: 1330 }]
         });
-        const pinned = element.querySelector('tfoot .vt-datagrid-pinned-row')!;
+        const pinned = element.querySelector('[data-section="foot"] .vt-datagrid-pinned-row')!;
         expect(pinned.querySelector('input')).toBeNull();
-        expect(element.querySelector('tbody tr td:nth-child(2)')!.textContent).toBe('Water');
+        expect(element.querySelector('[data-section="body"] [role="row"] :is([role="cell"],[role="gridcell"]):nth-child(2)')!.textContent).toBe('Water');
         expect(handle!.toCSV()).not.toContain('Total');
     });
 
@@ -79,24 +79,24 @@ describe('rows pinned to the top and the bottom', () => {
             ],
             pinnedBottomRows: [{ id: -1, item: 'Total', amount: 1330 }]
         });
-        const rows = Array.from(element.querySelectorAll('tfoot tr'));
+        const rows = Array.from(element.querySelectorAll('[data-section="foot"] [role="row"]'));
         expect(rows[0]!.className).toContain('vt-datagrid-pinned-row');
         expect(rows[1]!.textContent).toContain('Three bills');
     });
 
     it('counts in a virtual grid as rows of the table', () => {
         const { element } = mount({ virtualScroll: true, pinnedTopRows: [lines[0]], pinnedBottomRows: [lines[1], lines[2]] });
-        expect(element.querySelector('table')!.getAttribute('aria-rowcount')).toBe(String(1 + 1 + 3 + 2));
-        expect(element.querySelector('thead .vt-datagrid-pinned-row')!.getAttribute('aria-rowindex')).toBe('2');
-        expect(element.querySelector('tbody tr[data-index]')!.getAttribute('aria-rowindex')).toBe('3');
-        expect(Array.from(element.querySelectorAll('tfoot tr')).map((row) => row.getAttribute('aria-rowindex'))).toEqual(['6', '7']);
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('aria-rowcount')).toBe(String(1 + 1 + 3 + 2));
+        expect(element.querySelector('[data-section="head"] .vt-datagrid-pinned-row')!.getAttribute('aria-rowindex')).toBe('2');
+        expect(element.querySelector('[data-section="body"] [role="row"][data-index]')!.getAttribute('aria-rowindex')).toBe('3');
+        expect(Array.from(element.querySelectorAll('[data-section="foot"] [role="row"]')).map((row) => row.getAttribute('aria-rowindex'))).toEqual(['6', '7']);
     });
 
     it('keeps every row one height, on one line, when it is told one', () => {
         const { element } = mount({ rowHeight: 32, pinnedBottomRows: [lines[0]] });
         expect(element.className).toContain('vt-datagrid-fixed-rows');
-        expect((element.querySelector('tbody tr') as HTMLElement).style.height).toBe('32px');
-        expect((element.querySelector('tfoot tr') as HTMLElement).style.height).toBe('32px');
+        expect((element.querySelector('[data-section="body"] [role="row"]') as HTMLElement).style.height).toBe('32px');
+        expect((element.querySelector('[data-section="foot"] [role="row"]') as HTMLElement).style.height).toBe('32px');
     });
 
     it('is a table a screen reader can read', async () => {

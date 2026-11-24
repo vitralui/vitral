@@ -43,10 +43,11 @@ describe('rows with a detail', () => {
         expect(first!.getAttribute('aria-expanded')).toBe('false');
         expect(first!.getAttribute('aria-label')).toBe('Expand');
         first!.click();
-        const detail = element.querySelector<HTMLTableRowElement>('.vt-datagrid-expansion-row')!;
+        const detail = element.querySelector<HTMLElement>('.vt-datagrid-expansion-row')!;
         expect(detail.textContent).toBe('Items: Desk, Lamp');
         expect(detail.previousElementSibling!.textContent).toContain('Ana');
-        expect(detail.cells[0]!.getAttribute('colspan')).toBe('2');
+        expect(detail.children[0]!.getAttribute('aria-colspan')).toBe('2');
+        expect((detail.children[0] as HTMLElement).style.gridColumn).toBe('1 / -1');
         const opened = buttons()[0]!;
         expect(opened.getAttribute('aria-expanded')).toBe('true');
         expect(opened.getAttribute('aria-controls')).toBe(detail.id);

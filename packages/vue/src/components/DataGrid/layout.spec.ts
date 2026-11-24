@@ -23,11 +23,11 @@ describe('DataGrid: groups of columns, pinned rows and the rows drawn', () => {
             h(ColumnGroup, { header: 'Units' }, { default: () => [h(Column, { field: 'q1', header: 'Q1' }), h(Column, { field: 'q2', header: 'Q2' })], header: () => 'Units sold' })
         ]);
         await nextTick();
-        const group = root.querySelector('thead th[data-group]') as HTMLTableCellElement;
+        const group = root.querySelector('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-group]') as HTMLElement;
         expect(group.textContent).toBe('Units sold');
-        expect(group.colSpan).toBe(2);
-        expect(Array.from(root.querySelectorAll('thead th[data-column]')).map((th) => th.getAttribute('data-column'))).toEqual(['product', 'q1', 'q2']);
-        expect(Array.from(root.querySelectorAll('tbody tr:first-child td')).map((td) => td.textContent)).toEqual(['Desk', '4', '6']);
+        expect(group.getAttribute('aria-colspan')).toBe('2');
+        expect(Array.from(root.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]')).map((th) => th.getAttribute('data-column'))).toEqual(['product', 'q1', 'q2']);
+        expect(Array.from(root.querySelectorAll('[data-section="body"] [role="row"]:first-child :is([role="cell"],[role="gridcell"])')).map((td) => td.textContent)).toEqual(['Desk', '4', '6']);
         wrapper.unmount();
     });
 
@@ -41,8 +41,8 @@ describe('DataGrid: groups of columns, pinned rows and the rows drawn', () => {
             h(Column, { field: 'q1', header: 'Q1' }, { body: ({ data, pinned }: { data: { q1: number }; pinned?: string }) => (pinned ? `Σ ${data.q1}` : String(data.q1)) })
         ]);
         await nextTick();
-        expect(Array.from(root.querySelectorAll('tfoot .vt-datagrid-pinned-row td')).map((td) => td.textContent)).toEqual(['Total', 'Σ 14']);
-        expect(Array.from(root.querySelectorAll('tbody td:nth-child(2)')).map((td) => td.textContent)).toEqual(['4', '10']);
+        expect(Array.from(root.querySelectorAll('[data-section="foot"] .vt-datagrid-pinned-row :is([role="cell"],[role="gridcell"])')).map((td) => td.textContent)).toEqual(['Total', 'Σ 14']);
+        expect(Array.from(root.querySelectorAll('[data-section="body"] :is([role="cell"],[role="gridcell"]):nth-child(2)')).map((td) => td.textContent)).toEqual(['4', '10']);
         wrapper.unmount();
     });
 
@@ -54,10 +54,10 @@ describe('DataGrid: groups of columns, pinned rows and the rows drawn', () => {
         );
         await nextTick();
         const root = wrapper.element as HTMLElement;
-        expect(root.querySelectorAll('tbody tr[data-index]').length).toBeLessThan(40);
-        expect(root.querySelector('table')!.getAttribute('aria-rowcount')).toBe('2001');
+        expect(root.querySelectorAll('[data-section="body"] [role="row"][data-index]').length).toBeLessThan(40);
+        expect(root.querySelector('[data-grid-table]')!.getAttribute('aria-rowcount')).toBe('2001');
         grid.value!.scrollToIndex(1500);
-        expect(root.querySelector('tr[data-index="1500"]')).not.toBeNull();
+        expect(root.querySelector('[role="row"][data-index="1500"]')).not.toBeNull();
         wrapper.unmount();
     });
 
@@ -76,7 +76,7 @@ describe('DataGrid: groups of columns, pinned rows and the rows drawn', () => {
         await nextTick();
         await nextTick();
         const root = wrapper.element as HTMLElement;
-        expect(Array.from(root.querySelectorAll('tbody td')).map((td) => td.textContent)).toEqual(['Lamp']);
+        expect(Array.from(root.querySelectorAll('[data-section="body"] :is([role="cell"],[role="gridcell"])')).map((td) => td.textContent)).toEqual(['Lamp']);
         wrapper.unmount();
     });
 });

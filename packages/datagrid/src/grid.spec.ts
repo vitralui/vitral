@@ -33,11 +33,11 @@ function mount(config: Record<string, unknown> = {}) {
     handle = createDataGrid<Person>(element, { value: people, dataKey: 'id', columns, ariaLabel: 'People', ...config });
     return {
         element,
-        table: () => element.querySelector('table')!,
-        headers: () => Array.from(element.querySelectorAll<HTMLTableCellElement>('thead tr:first-child th')),
-        headings: () => Array.from(element.querySelectorAll('thead tr:first-child th')).map((th) => th.textContent?.trim() ?? ''),
-        rows: () => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr')),
-        column: (i: number) => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr')).map((row) => row.cells[i]?.textContent?.trim())
+        table: () => element.querySelector('[data-grid-table]')!,
+        headers: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="head"] > :first-child > *')),
+        headings: () => Array.from(element.querySelectorAll('[data-section="head"] > :first-child > [role="columnheader"]')).map((th) => th.textContent?.trim() ?? ''),
+        rows: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] > [role="row"]')),
+        column: (i: number) => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] > [role="row"]')).map((row) => row.children[i]?.textContent?.trim())
     };
 }
 
@@ -48,12 +48,13 @@ afterEach(() => {
 });
 
 describe('a table with no framework in it', () => {
-    it('draws a real table, named, with scoped headers and every row', () => {
+    it('draws a table a reader reads as one, named, with column headers and every row', () => {
         const { table, headings, rows, column } = mount();
-        expect(table().tagName).toBe('TABLE');
+        expect(table().getAttribute('role')).toBe('table');
         expect(table().getAttribute('aria-label')).toBe('People');
         expect(headings()).toEqual(['Name', 'City', 'Age']);
-        expect(Array.from(table().querySelectorAll('th')).every((th) => th.getAttribute('scope') === 'col')).toBe(true);
+        expect(Array.from(table().querySelectorAll('[data-section]'), (group) => group.getAttribute('role'))).toEqual(['rowgroup', 'rowgroup']);
+        expect(Array.from(rows()[0]!.children, (cell) => cell.getAttribute('role'))).toEqual(['cell', 'cell', 'cell']);
         expect(rows()).toHaveLength(5);
         expect(column(0)).toEqual(['Ana Souza', 'Bruno Lima', 'Carla Mendes', 'Diego Ferreira', 'Élise Martin']);
     });
@@ -106,7 +107,7 @@ describe('a table with no framework in it', () => {
         // The same object, changed inside: what a search box bound to it does.
         filters.city.value = 'o';
         handle!.update({ filters });
-        expect(rows().map((row) => row.cells[1]!.textContent)).toEqual(['São Paulo', 'Lisboa']);
+        expect(rows().map((row) => row.children[1]!.textContent)).toEqual(['São Paulo', 'Lisboa']);
         expect(filtered).toHaveBeenCalledTimes(1);
         expect(handle!.state().first).toBe(0);
         // Handed back unchanged, they are not applied again.
@@ -122,13 +123,13 @@ describe('a table with no framework in it', () => {
             columns: [{ selectionMode: 'multiple' as const }, ...columns],
             on: { 'row-select': selected }
         });
-        const boxes = element.querySelectorAll<HTMLInputElement>('tbody input[type="checkbox"]');
+        const boxes = element.querySelectorAll<HTMLInputElement>('[data-section="body"] input[type="checkbox"]');
         expect(boxes).toHaveLength(5);
         boxes[1]!.click();
         expect(handle!.state().selection).toEqual([people[1]]);
         expect(selected).toHaveBeenCalledTimes(1);
         // The header's box says "some", then covers them all.
-        const all = element.querySelector<HTMLInputElement>('thead input[type="checkbox"]')!;
+        const all = element.querySelector<HTMLInputElement>('[data-section="head"] input[type="checkbox"]')!;
         expect(all.indeterminate).toBe(true);
         all.click();
         expect((handle!.state().selection as Person[]).length).toBe(5);
@@ -336,12 +337,12 @@ describe('what the host draws itself', () => {
         const mask = element.querySelector('.vt-datagrid-loading-mask')!;
         expect(mask.getAttribute('role')).toBe('status');
         expect(mask.textContent).toContain('Loading');
-        expect(element.querySelector('table')!.getAttribute('aria-busy')).toBe('true');
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('aria-busy')).toBe('true');
     });
 });
 
 describe('loading as skeleton rows', () => {
-    const skeletonRows = (element: HTMLElement) => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr.vt-datagrid-row-skeleton'));
+    const skeletonRows = (element: HTMLElement) => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] [role="row"].vt-datagrid-row-skeleton'));
 
     it('keeps the mask by default', () => {
         const { element, column } = mount({ loading: true });
@@ -358,10 +359,10 @@ describe('loading as skeleton rows', () => {
             expect(row.classList).toContain('vt-datagrid-row');
             expect(row.classList).toContain('vt-datagrid-row-skeleton');
             expect(row.getAttribute('aria-hidden')).toBe('true');
-            expect(Array.from(row.cells).every((cell) => cell.classList.contains('vt-datagrid-body-cell'))).toBe(true);
+            expect(Array.from(row.children).every((cell) => cell.classList.contains('vt-datagrid-body-cell'))).toBe(true);
             expect(row.textContent).toBe('');
         }
-        const age = rows()[0]!.cells[2]!;
+        const age = rows()[0]!.children[2] as HTMLElement;
         expect(age.classList).toContain('vt-datagrid-align-right');
         expect(age.classList).toContain('vt-datagrid-pinned-right');
         expect(age.classList).toContain('mine');
@@ -387,7 +388,7 @@ describe('loading as skeleton rows', () => {
 
     it("draws a selection control's box where the control will be", () => {
         const { rows } = mount({ loading: true, loadingMode: 'skeleton', selectionMode: 'multiple', columns: [{ selectionMode: 'multiple' }, ...columns] });
-        const cell = rows()[0]!.cells[0]!;
+        const cell = rows()[0]!.children[0]!;
         expect(cell.classList).toContain('vt-datagrid-selection-cell');
         expect(cell.querySelector('.vt-datagrid-checkbox > .vt-datagrid-skeleton-box')).not.toBeNull();
         expect(cell.querySelector('input')).toBeNull();
@@ -409,9 +410,9 @@ describe('loading as skeleton rows', () => {
                 ...columns.slice(1)
             ]
         });
-        expect(rows().map((row) => row.cells[0]!.textContent)).toEqual(people.map((_, index) => `row ${index}`));
+        expect(rows().map((row) => row.children[0]!.textContent)).toEqual(people.map((_, index) => `row ${index}`));
         expect(seen).toEqual([0, 1, 2, 3, 4]);
-        expect(rows()[0]!.cells[1]!.querySelector('.vt-datagrid-skeleton')).not.toBeNull();
+        expect(rows()[0]!.children[1]!.querySelector('.vt-datagrid-skeleton')).not.toBeNull();
     });
 
     it('counts the rows on the page, a page when there are none, and five when not paged', () => {
@@ -479,25 +480,23 @@ describe('its columns', () => {
         document.dispatchEvent(new PointerEvent('pointerup', { clientX: 540 }));
         expect(document.documentElement.classList.contains('vt-column-resizing')).toBe(false);
         expect(edge().classList.contains('vt-datagrid-resizing')).toBe(false);
-        // Every column sized: the table is laid out by the widths, as wide as they add up to.
-        const table = headers()[0]!.closest('table')!;
-        expect(table.style.tableLayout).toBe('fixed');
-        expect(table.style.width).toBe('640px');
+        // Every column sized: the table is laid out by the widths, the room left to an empty track.
+        const table = headers()[0]!.closest<HTMLElement>('[data-grid-table]')!;
+        expect(table.style.gridTemplateColumns).toBe('240px 200px 200px minmax(0, 1fr)');
         vi.restoreAllMocks();
     });
 
     it('laid out by their widths, never narrower than the grid: an empty column takes the room left, on every row', () => {
         const { table, rows, headers } = mount({ resizableColumns: true, stripedRows: true, columnLayout: { widths: { name: 120, city: 120, age: 80 } } });
         expect(table().classList.contains('vt-datagrid-table-sized')).toBe(true);
-        expect(table().style.width).toBe('320px');
-        expect(table().style.minWidth).toBe('100%');
+        expect((table() as HTMLElement).style.gridTemplateColumns).toBe('120px 120px 80px minmax(0, 1fr)');
         // The filler ends the header and every row, dressed as their cells and hidden from assistive technology.
         const last = headers().at(-1)!;
         expect(last.classList.contains('vt-datagrid-filler-cell')).toBe(true);
         expect(last.classList.contains('vt-datagrid-header-cell')).toBe(true);
         expect(last.getAttribute('aria-hidden')).toBe('true');
         for (const row of rows()) {
-            const cell = row.cells[row.cells.length - 1]!;
+            const cell = row.children[row.children.length - 1]!;
             expect(cell.classList.contains('vt-datagrid-filler-cell') && cell.classList.contains('vt-datagrid-body-cell')).toBe(true);
         }
         // No line down the table while a column is dragged: the handle in the header is enough.
@@ -509,7 +508,7 @@ describe('its columns', () => {
         const { headers, rows } = mount({ columns: pinnedEnd, resizableColumns: true, columnLayout: { widths: { name: 120, city: 120, age: 80 } } });
         const order = headers().map((cell) => (cell.classList.contains('vt-datagrid-filler-cell') ? 'filler' : cell.textContent?.trim()));
         expect(order).toEqual(['Name', 'City', 'filler', 'Age']);
-        const cells = Array.from(rows()[0]!.cells);
+        const cells = Array.from(rows()[0]!.children);
         expect(cells[2]!.classList.contains('vt-datagrid-filler-cell')).toBe(true);
     });
 
@@ -583,7 +582,7 @@ describe('its columns', () => {
     it('gathers rows under a heading, and shuts one when its toggle is pressed', () => {
         const { element } = mount({ value: staff, groupBy: 'city', paginator: false });
         const headings = () => Array.from(element.querySelectorAll<HTMLElement>('.vt-datagrid-group-toggle'));
-        const names = () => Array.from(element.querySelectorAll('tbody tr:not(.vt-datagrid-group-row) td:first-child')).map((td) => td.textContent);
+        const names = () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"]:not(.vt-datagrid-group-row) :is([role="cell"],[role="gridcell"]):first-child')).map((td) => td.textContent);
 
         expect(headings().length).toBeGreaterThan(1);
         // A heading carries its own count.
@@ -608,7 +607,7 @@ describe('its columns', () => {
 
     it('keeps each row the index it had, so selection still means the same row', () => {
         const { element } = mount({ value: staff, groupBy: 'city', paginator: false, selectionMode: 'multiple' });
-        const rows = () => Array.from(element.querySelectorAll<HTMLElement>('tbody tr:not(.vt-datagrid-group-row)'));
+        const rows = () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] [role="row"]:not(.vt-datagrid-group-row)'));
         // A heading is not a row of data: it takes no tab stop and no selection.
         expect(element.querySelectorAll('.vt-datagrid-group-row [type="checkbox"]')).toHaveLength(0);
         expect(rows().length).toBeGreaterThan(0);

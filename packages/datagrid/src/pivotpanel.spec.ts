@@ -30,8 +30,8 @@ function mount(config: Record<string, unknown> = {}) {
     document.body.appendChild(element);
     const on = { 'pivot-change': vi.fn() };
     handle = createDataGrid<Sale>(element, { value: sales, dataKey: 'id', columns, ariaLabel: 'Sales', sideBar: ['columns', 'pivot'], sideBarOpen: 'pivot', on, ...config });
-    const headers = () => Array.from(element.querySelectorAll('thead tr:last-child th'), (th) => th.textContent?.trim());
-    const cells = () => Array.from(element.querySelectorAll('tbody tr[data-index]'), (tr) => Array.from(tr.querySelectorAll('td'), (td) => td.textContent));
+    const headers = () => Array.from(element.querySelectorAll('[data-section="head"] [role="row"]:last-child :is([role="columnheader"],[role="rowheader"])'), (th) => th.textContent?.trim());
+    const cells = () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"][data-index]'), (tr) => Array.from(tr.querySelectorAll(':is([role="cell"],[role="gridcell"])'), (td) => td.textContent));
     const zone = (name: string) => Array.from(element.querySelectorAll(`[data-pivot-zone="${name}"] [data-pivot-item]`), (li) => li.getAttribute('data-pivot-item'));
     const tick = (field: string) => (element.querySelector(`[data-pivot-field="${field}"] input`) as HTMLInputElement).click();
     const mode = () => element.querySelector('[data-pivot-mode]') as HTMLInputElement;

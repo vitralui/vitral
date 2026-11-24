@@ -25,7 +25,7 @@ import {
 import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
 import { columns as columnsIcon, pin, registerIcons, table as tableIcon } from '@vitral/icons';
-import { baseStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
+import { baseStyle, datagridLayoutStyle, datagridStyle, paginatorStyle, scrollpanelStyle } from '@vitral/styles';
 import {
     allSelectedState,
     declaredColumns,
@@ -240,6 +240,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     const tableBars = scrollbarSlot(barOptions);
     const chooserBars = scrollbarSlot(barOptions);
 
+    // The boxes' layout is how the grid works, not how it looks: an unstyled grid has it too.
+    loadStyle(datagridLayoutStyle.name, datagridLayoutStyle.css, styleOptions());
     if (!config.unstyled) {
         // The shared rules too: the table's own icons, fields and screen-reader
         // text are the ones every Vitral control uses.
@@ -430,7 +432,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 activeRow = Math.max(0, Math.min(last, to));
                 // In a virtual grid the row may not be drawn yet: bring it into view first.
                 scrollToIndex(activeRow);
-                (element.querySelector(`tbody tr[data-index="${activeRow}"]`) as HTMLElement | null)?.focus({ preventScroll: !!current.virtualScroll });
+                (element.querySelector(`[data-section="body"] > [role="row"][data-index="${activeRow}"]`) as HTMLElement | null)?.focus({ preventScroll: !!current.virtualScroll });
             };
             switch (event.key) {
                 case 'ArrowDown':
@@ -648,7 +650,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         gridContextmenu(event) {
             const target = event.target as Element;
             if (target.closest('[data-editing]')) return;
-            const row = target.closest('tr[data-index]') as HTMLElement | null;
+            const row = target.closest('[role="row"][data-index]') as HTMLElement | null;
             if (!row || !element.contains(row)) return;
             const at = cellOf(target) ?? { index: Number(row.dataset.index), key: columnsNow()[0]?.key ?? '' };
             const cell = cellNode(at.index, at.key);
@@ -820,14 +822,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if (event.dataTransfer) {
                 event.dataTransfer.effectAllowed = 'move';
                 // The whole row goes with the pointer, not just its handle.
-                const tr = (event.target as Element).closest('tr');
+                const tr = (event.target as Element).closest('[role="row"]');
                 if (tr) event.dataTransfer.setDragImage?.(tr, 16, 16);
             }
             render();
         },
         rowDragOver(event) {
             if (!rowDrag) return;
-            const tr = (event.target as Element).closest?.('tbody tr[data-index]') as HTMLElement | null;
+            const tr = (event.target as Element).closest?.('[data-section="body"] > [role="row"][data-index]') as HTMLElement | null;
             if (!tr) return;
             event.preventDefault();
             if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
@@ -1187,14 +1189,14 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const column = columnByKey(at.key);
         if (row === undefined || !column) return;
         const words = locale().datagrid;
-        const tr = cell.closest('tr')!;
+        const tr = cell.closest('[role="row"]')!;
         const text = (td: Element) => (td as HTMLElement).innerText?.trim() ?? td.textContent?.trim() ?? '';
         const items: GridMenuItem[] = [
             // Over a marked block, Copy takes the block, as Ctrl+C does.
             range && boxSize(range.box) > 1 && range.box.rows.includes(at.index) && range.box.keys.includes(at.key)
                 ? { label: words.copy, icon: 'copy', onSelect: () => copyText(toClipboard(boxValues(range!.box).map((line) => line.map((value) => editorText(value, locale().code))))) }
                 : { label: words.copy, icon: 'copy', onSelect: () => copyText(text(cell)) },
-            { label: words.copyRow, icon: 'copy', onSelect: () => copyText(Array.from(tr.querySelectorAll('td[data-col]'), text).join('\t')) },
+            { label: words.copyRow, icon: 'copy', onSelect: () => copyText(Array.from(tr.querySelectorAll('[data-col]'), text).join('\t')) },
             { separator: true },
             { label: words.exportCsv, icon: 'download', onSelect: () => handle.exportCSV() },
             { label: words.exportExcel, icon: 'download', onSelect: () => handle.exportExcel() }
@@ -1389,7 +1391,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const rows = rowsNow();
         const columns = columnsNow();
         const now = Date.now();
-        for (const tr of element.querySelectorAll<HTMLElement>('tbody tr[data-index]')) {
+        for (const tr of element.querySelectorAll<HTMLElement>('[data-section="body"] > [role="row"][data-index]')) {
             const index = Number(tr.dataset.index);
             const row = rows.page[index];
             if (row === undefined) continue;
@@ -1403,7 +1405,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 seen.set(key, value instanceof Date ? value.getTime() : value);
                 const after = seen.get(key);
                 if (!had || Object.is(before, after)) continue;
-                const td = tr.querySelector<HTMLElement>(`td[data-col="${cssEscape(column.key)}"]`);
+                const td = tr.querySelector<HTMLElement>(`[data-col="${cssEscape(column.key)}"]`);
                 if (!td) continue;
                 const way = typeof before === 'number' && typeof after === 'number' ? (after > before ? 'up' : 'down') : 'change';
                 // The attribute again, after a reflow, starts the animation over.
@@ -1499,7 +1501,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     }
 
     /** A column's own header, wherever the groups put it. */
-    const headerOf = (key: string) => element.querySelector(`thead th[data-column="${cssEscape(key)}"]`) as HTMLElement | null;
+    const headerOf = (key: string) => element.querySelector(`[data-section="head"] [data-column="${cssEscape(key)}"]`) as HTMLElement | null;
 
     const columnsNow = () => tableColumns(current, withShared());
 
@@ -1548,8 +1550,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     /** The cell an event happened in, by the row's index and the column's key. */
     function cellOf(target: EventTarget | null): { index: number; key: string } | null {
-        const cell = (target as Element | null)?.closest?.('td[data-col]') as HTMLElement | null;
-        const row = cell?.closest('tr[data-index]') as HTMLElement | null;
+        const cell = (target as Element | null)?.closest?.('[data-col]') as HTMLElement | null;
+        const row = cell?.closest('[role="row"][data-index]') as HTMLElement | null;
         if (!cell || !row || !element.contains(cell)) return null;
         return { index: Number(row.dataset.index), key: cell.dataset.col! };
     }
@@ -1557,7 +1559,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** The rows the keyboard walks, in the order drawn: a shut group's rows are not among them. */
     const walkable = () => linesNow(rowsNow()).flatMap((line) => (line.kind === 'row' ? [line.index] : []));
 
-    const cellNode = (index: number, key: string) => element.querySelector(`tbody tr[data-index="${index}"] td[data-col="${cssEscape(key)}"]`) as HTMLElement | null;
+    const cellNode = (index: number, key: string) => element.querySelector(`[data-section="body"] > [role="row"][data-index="${index}"] [data-col="${cssEscape(key)}"]`) as HTMLElement | null;
 
     /** Puts the keyboard on a cell: scrolled into view (and drawn, in a virtual grid), then focused. */
     function moveTo(index: number, key: string) {
@@ -1691,7 +1693,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function refocus(wasRow: boolean) {
         if (!cellAt) return;
         if (cellNav()) return moveTo(cellAt.index, cellAt.key);
-        if (wasRow) (element.querySelector(`tbody tr[data-index="${cellAt.index}"] [data-row-editor="edit"]`) as HTMLElement | null)?.focus();
+        if (wasRow) (element.querySelector(`[data-section="body"] > [role="row"][data-index="${cellAt.index}"] [data-row-editor="edit"]`) as HTMLElement | null)?.focus();
     }
 
     /** Tab out of an editor: on to the next cell that can be edited, in reading order, and open it. */
@@ -2001,7 +2003,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             return;
         }
         const sums = new Map<number, number>();
-        container.querySelectorAll<HTMLElement>('tbody tr[data-line]').forEach((tr) => {
+        container.querySelectorAll<HTMLElement>('[data-section="body"] > [role="row"][data-line]').forEach((tr) => {
             const line = Number(tr.dataset.line);
             sums.set(line, (sums.get(line) ?? 0) + tr.getBoundingClientRect().height);
         });
@@ -2026,7 +2028,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function scrollToIndex(index: number) {
         if (!current.virtualScroll || !container) {
             render();
-            const row = element.querySelector(`tbody tr[data-index="${index}"]`) as HTMLElement | null;
+            const row = element.querySelector(`[data-section="body"] > [role="row"][data-index="${index}"]`) as HTMLElement | null;
             row?.scrollIntoView?.({ block: 'nearest' });
             return;
         }
@@ -2037,8 +2039,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const { offsets } = places(lines, rows.offset);
         const view = viewHeight || fallbackHeight();
         // What the sticky head and foot cover is not in view.
-        const head = (element.querySelector('thead') as HTMLElement | null)?.offsetHeight ?? 0;
-        const foot = (element.querySelector('tfoot') as HTMLElement | null)?.offsetHeight ?? 0;
+        const head = (element.querySelector('[data-section="head"]') as HTMLElement | null)?.offsetHeight ?? 0;
+        const foot = (element.querySelector('[data-section="foot"]') as HTMLElement | null)?.offsetHeight ?? 0;
         const top = offsets[line]!;
         const bottom = offsets[line + 1]!;
         if (top < scrollTop) scrollTop = top;
@@ -2153,7 +2155,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         flashChanges();
         if (movedRow) {
             const at = rowsNow().page.indexOf(movedRow);
-            const handleEl = at >= 0 ? (element.querySelector(`tbody tr[data-index="${at}"] [data-row-drag]`) as HTMLElement | null) : null;
+            const handleEl = at >= 0 ? (element.querySelector(`[data-section="body"] > [role="row"][data-index="${at}"] [data-row-drag]`) as HTMLElement | null) : null;
             if (handleEl) {
                 movedRow = null;
                 handleEl.focus();

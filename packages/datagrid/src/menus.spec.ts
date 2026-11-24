@@ -35,7 +35,7 @@ function mount(config: Record<string, unknown> = {}) {
     document.body.appendChild(element);
     const on = { filter: vi.fn(), sort: vi.fn(), 'column-pin': vi.fn(), 'column-toggle': vi.fn() };
     handle = createDataGrid<Order>(element, { value: orders, dataKey: 'id', columns, ariaLabel: 'Orders', filterDisplay: 'menu', on, ...config });
-    const names = () => Array.from(element.querySelectorAll('tbody tr[data-index] td:first-child'), (td) => td.textContent);
+    const names = () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"][data-index] :is([role="cell"],[role="gridcell"]):first-child'), (td) => td.textContent);
     const panel = () => document.querySelector('.vt-datagrid-filter-panel') as HTMLElement | null;
     const openFilter = (key: string) => (element.querySelector(`[data-filter-button="${key}"]`) as HTMLButtonElement).click();
     const type = (input: Element, text: string) => {
@@ -183,8 +183,8 @@ describe('filtering from a header', () => {
         const { element } = mount({ filterDisplay: 'both' });
         expect(element.querySelector('[data-filter-button]')).not.toBeNull();
         // A list of values is ticked in its panel, not typed in the row.
-        expect(element.querySelector('.vt-datagrid-filter-row td:nth-child(2) input')).toBeNull();
-        expect(element.querySelector('.vt-datagrid-filter-row td:nth-child(1) input')).not.toBeNull();
+        expect(element.querySelector('.vt-datagrid-filter-row :is([role="cell"],[role="gridcell"]):nth-child(2) input')).toBeNull();
+        expect(element.querySelector('.vt-datagrid-filter-row :is([role="cell"],[role="gridcell"]):nth-child(1) input')).not.toBeNull();
     });
 
     it('is a panel a screen reader can use', async () => {
@@ -214,10 +214,10 @@ describe('a column’s menu', () => {
         expect(on['column-pin']).toHaveBeenCalledWith(expect.objectContaining({ key: 'total', side: 'left' }));
         button().click();
         pick('Hide column');
-        expect(element.querySelector('th[data-column="total"]')).toBeNull();
+        expect(element.querySelector(':is([role="columnheader"],[role="rowheader"])[data-column="total"]')).toBeNull();
         (element.querySelector('[data-menu-button="customer"]') as HTMLButtonElement).click();
         pick('Reset columns');
-        expect(element.querySelector('th[data-column="total"]')).not.toBeNull();
+        expect(element.querySelector(':is([role="columnheader"],[role="rowheader"])[data-column="total"]')).not.toBeNull();
     });
 
     it('takes a function that changes what it offers', () => {
@@ -241,7 +241,7 @@ describe('a cell’s menu', () => {
         const writeText = vi.fn(() => Promise.resolve());
         Object.assign(navigator, { clipboard: { writeText } });
         const { element } = mount({ contextMenu: true });
-        const cell = element.querySelector('tr[data-index="1"] td[data-col="customer"]')!;
+        const cell = element.querySelector('[role="row"][data-index="1"] :is([role="cell"],[role="gridcell"])[data-col="customer"]')!;
         const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
         cell.dispatchEvent(event);
         expect(event.defaultPrevented).toBe(true);
@@ -254,7 +254,7 @@ describe('a cell’s menu', () => {
     it('leaves the browser’s own menu alone unless asked for', () => {
         const { element } = mount();
         const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
-        element.querySelector('td[data-col="customer"]')!.dispatchEvent(event);
+        element.querySelector(':is([role="cell"],[role="gridcell"])[data-col="customer"]')!.dispatchEvent(event);
         expect(event.defaultPrevented).toBe(false);
     });
 
@@ -266,7 +266,7 @@ describe('a cell’s menu', () => {
                 return [{ label: 'Call' }];
             }
         });
-        element.querySelector('tr[data-index="2"] td[data-col="total"]')!.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+        element.querySelector('[role="row"][data-index="2"] :is([role="cell"],[role="gridcell"])[data-col="total"]')!.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
         expect(seen).toEqual([300]);
         expect(Array.from(document.querySelectorAll('[role="menuitem"]'), (item) => item.textContent)).toEqual(['Call']);
     });

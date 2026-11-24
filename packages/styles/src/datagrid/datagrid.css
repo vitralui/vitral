@@ -36,16 +36,11 @@
 }
 
 .vt-datagrid-table {
-    width: 100%;
-    /* Separate borders, so a sticky header keeps its bottom rule while rows scroll under it. */
-    border-collapse: separate;
-    border-spacing: 0;
     font: inherit;
     color: inherit;
 }
 
 .vt-datagrid-caption {
-    caption-side: top;
     padding: var(--vt-datagrid-header-padding);
     font-weight: 600;
     text-align: start;
@@ -237,16 +232,16 @@
     border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
 }
 
-.vt-datagrid-tbody > tr:last-child > td {
+.vt-datagrid-tbody > :last-child > * {
     border-bottom: 0;
 }
 
 /* The selection pill at the row's leading edge; transparent in presets that do not draw one. */
-.vt-datagrid-row-selected > td:first-child {
+.vt-datagrid-row-selected > :first-child {
     position: relative;
 }
 
-.vt-datagrid-row-selected > td:first-child::before {
+.vt-datagrid-row-selected > :first-child::before {
     content: '';
     position: absolute;
     inset-inline-start: 0;
@@ -268,7 +263,7 @@
 }
 
 .vt-datagrid-selection-cell {
-    width: 2.5rem;
+    min-width: 2.5rem;
     text-align: center;
 }
 
@@ -277,7 +272,7 @@
    the table like any other, so the table keeps its shape and a screen reader
    keeps its bearings; the whole cell is the button that opens and shuts it. */
 
-.vt-datagrid-group-row > th {
+.vt-datagrid-group-row > .vt-datagrid-group-cell {
     padding: 0;
     background: var(--vt-datagrid-group-background);
     border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
@@ -407,11 +402,11 @@
     border-inline-end: 1px solid var(--vt-datagrid-body-cell-border-color);
 }
 
-.vt-datagrid-gridlines tr > :last-child {
+.vt-datagrid-gridlines [role='row'] > :last-child {
     border-inline-end: 0;
 }
 
-.vt-datagrid-gridlines .vt-datagrid-tbody > tr:last-child > td {
+.vt-datagrid-gridlines .vt-datagrid-tbody > :last-child > * {
     border-bottom: 0;
 }
 
@@ -814,6 +809,11 @@
 
 .vt-datagrid-column-group-cell:last-child {
     border-inline-end: 0;
+}
+
+/* Over a column in fewer groups, the head's ground runs on down to the column's own header, as one block. */
+.vt-datagrid-blank-header-cell {
+    border-bottom-color: transparent;
 }
 
 /* Under a group, the columns' own headers sit in the row below it: the head is one block. */
@@ -1271,11 +1271,11 @@
 }
 
 /* Where the dragged row would land: a line along the row's edge. */
-.vt-datagrid-row-drop-before > td {
+.vt-datagrid-row-drop-before > * {
     box-shadow: inset 0 2px 0 var(--vt-primary-color);
 }
 
-.vt-datagrid-row-drop-after > td {
+.vt-datagrid-row-drop-after > * {
     box-shadow: inset 0 -2px 0 var(--vt-primary-color);
 }
 

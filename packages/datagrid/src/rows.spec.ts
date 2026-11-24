@@ -102,20 +102,20 @@ describe('groups inside groups', () => {
                 { field: 'amount', header: 'Amount', aggregate: 'sum', align: 'right' }
             ]
         });
-        expect(texts('.vt-datagrid-group-row td[data-aggregate="amount"]')).toEqual(['400', '150', '250', '430', '430']);
+        expect(texts('.vt-datagrid-group-row [data-aggregate="amount"]')).toEqual(['400', '150', '250', '430', '430']);
         const nested = element.querySelectorAll('.vt-datagrid-group-row')[1] as HTMLElement;
-        expect(nested.querySelector('th')!.getAttribute('style')).toContain('--vt-datagrid-group-level: 1');
+        expect(nested.querySelector(':is([role="columnheader"],[role="rowheader"])')!.getAttribute('style')).toContain('--vt-datagrid-group-level: 1');
         (nested.querySelector('button') as HTMLButtonElement).click();
-        expect(texts('tbody tr[data-index] td:first-child')).toEqual(['Bruno', 'Carla', 'Elisa']);
+        expect(texts('[data-section="body"] > [role="row"][data-index] > :first-child')).toEqual(['Bruno', 'Carla', 'Elisa']);
     });
 
     it('opens and shuts every group at once', () => {
         const { texts } = mount<Sale>({ value: sales, groupBy: ['region', 'country'], columns: [{ field: 'rep', header: 'Rep' }] });
         handle!.collapseAll();
-        expect(texts('tbody tr[data-index]')).toEqual([]);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toEqual([]);
         expect(texts('.vt-datagrid-group-row')).toHaveLength(2);
         handle!.expandAll();
-        expect(texts('tbody tr[data-index]')).toHaveLength(5);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toHaveLength(5);
     });
 
     it('is a table a screen reader can read', async () => {
@@ -156,14 +156,14 @@ describe('a tree', () => {
             ],
             on: { 'tree-toggle': toggles }
         });
-        expect(element.querySelector('table')!.getAttribute('role')).toBe('treegrid');
-        const src = element.querySelector('tr[data-index="0"]')!;
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('role')).toBe('treegrid');
+        const src = element.querySelector('[role="row"][data-index="0"]')!;
         expect(src.getAttribute('aria-level')).toBe('1');
         expect(src.getAttribute('aria-expanded')).toBe('false');
         (element.querySelector('[data-tree-toggle="src"]') as HTMLButtonElement).click();
         expect(toggles).toHaveBeenCalledWith(expect.objectContaining({ key: 'src', expanded: true }));
-        expect(texts('tbody tr[data-index] td:first-child')).toEqual(['src', 'app.ts', 'lib', 'README.md', 'docs']);
-        const app = element.querySelector('tr[data-index="1"]')!;
+        expect(texts('[data-section="body"] > [role="row"][data-index] > :first-child')).toEqual(['src', 'app.ts', 'lib', 'README.md', 'docs']);
+        const app = element.querySelector('[role="row"][data-index="1"]')!;
         expect(app.getAttribute('aria-level')).toBe('2');
         expect(app.hasAttribute('aria-expanded')).toBe(false);
         expect((app.querySelector('.vt-datagrid-tree-cell') as HTMLElement).style.getPropertyValue('--vt-datagrid-tree-depth')).toBe('1');
@@ -176,16 +176,16 @@ describe('a tree', () => {
             selectionMode: 'single',
             columns: [{ field: 'name', header: 'Name' }]
         });
-        const row = () => element.querySelector('tr[data-index="0"]') as HTMLElement;
+        const row = () => element.querySelector('[role="row"][data-index="0"]') as HTMLElement;
         row().focus();
         row().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-        expect(texts('tbody tr[data-index]')).toHaveLength(5);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toHaveLength(5);
         row().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-        expect(texts('tbody tr[data-index]')).toHaveLength(3);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toHaveLength(3);
         handle!.expandAll();
-        expect(texts('tbody tr[data-index]')).toHaveLength(7);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toHaveLength(7);
         handle!.collapseAll();
-        expect(texts('tbody tr[data-index]')).toHaveLength(3);
+        expect(texts('[data-section="body"] > [role="row"][data-index]')).toHaveLength(3);
     });
 
     it('is a tree a screen reader can read', async () => {
@@ -200,7 +200,7 @@ describe('rows moved by their handle', () => {
     it('moves a row with Ctrl and an arrow, handing the rows back in their new order', () => {
         const reorder = vi.fn();
         const { element } = mount<Sale>({ value: sales, columns, on: { 'row-reorder': reorder } });
-        const grip = element.querySelector('tr[data-index="1"] [data-row-drag]') as HTMLElement;
+        const grip = element.querySelector('[role="row"][data-index="1"] [data-row-drag]') as HTMLElement;
         expect(grip.getAttribute('aria-label')).toBe('Move row');
         grip.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', ctrlKey: true, bubbles: true, cancelable: true }));
         const event = reorder.mock.calls[0]![0];
@@ -209,7 +209,7 @@ describe('rows moved by their handle', () => {
         expect(element.querySelector('[aria-live]')!.textContent).toBe('Moved to row 1 of 5');
         // The host keeps the new order; the handle keeps the keyboard.
         handle!.update({ value: event.value } as never);
-        expect(document.activeElement).toBe(element.querySelector('tr[data-index="0"] [data-row-drag]'));
+        expect(document.activeElement).toBe(element.querySelector('[role="row"][data-index="0"] [data-row-drag]'));
     });
 
     it('moves a row dragged over another, before or after it', () => {
@@ -221,11 +221,11 @@ describe('rows moved by their handle', () => {
             target.dispatchEvent(event);
             return event;
         };
-        drag('dragstart', element.querySelector('tr[data-index="0"] [data-row-drag]')!);
-        expect(element.querySelector('tr[data-index="0"]')!.className).toContain('vt-datagrid-row-dragging');
-        const target = element.querySelector('tr[data-index="3"] td')!;
+        drag('dragstart', element.querySelector('[role="row"][data-index="0"] [data-row-drag]')!);
+        expect(element.querySelector('[role="row"][data-index="0"]')!.className).toContain('vt-datagrid-row-dragging');
+        const target = element.querySelector('[role="row"][data-index="3"] :is([role="cell"],[role="gridcell"])')!;
         expect(drag('dragover', target, 100).defaultPrevented).toBe(true);
-        expect(element.querySelector('tr[data-index="3"]')!.className).toContain('vt-datagrid-row-drop-after');
+        expect(element.querySelector('[role="row"][data-index="3"]')!.className).toContain('vt-datagrid-row-drop-after');
         drag('drop', target, 100);
         expect(reorder.mock.calls[0]![0].value.map((row: Sale) => row.rep)).toEqual(['Bruno', 'Carla', 'Diego', 'Ana', 'Elisa']);
     });

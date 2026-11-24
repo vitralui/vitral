@@ -33,9 +33,9 @@ function mount(config: Record<string, unknown> = {}) {
     const rows = fresh();
     const on = { 'range-change': vi.fn(), 'cells-change': vi.fn() };
     handle = createDataGrid<Stock>(element, { value: rows, dataKey: 'id', columns, ariaLabel: 'Stocks', cellSelection: true, on, ...config });
-    const cell = (index: number, key: string) => element.querySelector(`tr[data-index="${index}"] td[data-col="${key}"]`) as HTMLElement;
+    const cell = (index: number, key: string) => element.querySelector(`[role="row"][data-index="${index}"] :is([role="cell"],[role="gridcell"])[data-col="${key}"]`) as HTMLElement;
     const key = (target: Element, name: string, init: KeyboardEventInit = {}) => target.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...init }));
-    const marked = () => Array.from(element.querySelectorAll('td.vt-datagrid-cell-in-range'), (td) => `${td.closest('tr')!.getAttribute('data-index')}:${td.getAttribute('data-col')}`);
+    const marked = () => Array.from(element.querySelectorAll(':is([role="cell"],[role="gridcell"]).vt-datagrid-cell-in-range'), (td) => `${td.closest('[role="row"]')!.getAttribute('data-index')}:${td.getAttribute('data-col')}`);
     const clip = (type: 'copy' | 'paste', target: Element, text = '') => {
         const store = new Map<string, string>([['text/plain', text]]);
         const event = new Event(type, { bubbles: true, cancelable: true }) as ClipboardEvent;
@@ -211,7 +211,7 @@ describe('the fill handle', () => {
 describe('cells that flash', () => {
     it('marks a cell whose value went up or down, once it was seen before', () => {
         const { element, rows } = mount({ flashCells: 500 });
-        const price = () => element.querySelector('tr[data-index="0"] td[data-col="price"]') as HTMLElement;
+        const price = () => element.querySelector('[role="row"][data-index="0"] :is([role="cell"],[role="gridcell"])[data-col="price"]') as HTMLElement;
         expect(price().hasAttribute('data-flash')).toBe(false);
         rows[0]!.price = 11;
         handle!.refresh();
@@ -221,7 +221,7 @@ describe('cells that flash', () => {
         rows[0]!.price = 9;
         handle!.refresh();
         expect(price().getAttribute('data-flash')).toBe('down');
-        expect(element.querySelector('tr[data-index="0"] td[data-col="symbol"]')!.getAttribute('data-flash')).toBe('change');
+        expect(element.querySelector('[role="row"][data-index="0"] :is([role="cell"],[role="gridcell"])[data-col="symbol"]')!.getAttribute('data-flash')).toBe('change');
     });
 
     it('does nothing unless asked for', () => {

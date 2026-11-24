@@ -65,10 +65,10 @@ function mountTable(props: Record<string, unknown> = {}, columns: () => VNode[] 
                 h(DataGrid, { 'aria-label': 'People', value: people, dataKey: 'id', ...props, ...bound(), ...listeners }, { default: columns })
         )
     );
-    const table = () => document.querySelector<HTMLTableElement>('table')!;
-    const bodyRows = () => Array.from(table().tBodies[0]!.rows);
-    const column = (i: number) => bodyRows().map((r) => r.cells[i]!.textContent?.trim());
-    const header = (name: string) => Array.from(table().tHead!.rows[0]!.cells).find((th) => th.textContent?.includes(name))!;
+    const table = () => document.querySelector<HTMLElement>('[data-grid-table]')!;
+    const bodyRows = () => Array.from(table().querySelectorAll<HTMLElement>('[data-section="body"] > [role="row"]'));
+    const column = (i: number) => bodyRows().map((r) => r.children[i]!.textContent?.trim());
+    const header = (name: string) => Array.from(table().querySelectorAll('[data-section="head"] > :first-child > *')).find((th) => th.textContent?.includes(name))!;
     const sortButton = (name: string) => header(name).querySelector('button')!;
     return { wrapper, models, listeners, table, bodyRows, column, header, sortButton };
 }
@@ -76,18 +76,18 @@ function mountTable(props: Record<string, unknown> = {}, columns: () => VNode[] 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('DataGrid', () => {
-    it('is a table named by its label, with scoped column headers, rendering every row', () => {
+    it('is a table named by its label, with column headers, rendering every row', () => {
         const { table, column } = mountTable();
         expect(table().getAttribute('aria-label')).toBe('People');
-        const ths = Array.from(table().querySelectorAll('th'));
+        const ths = Array.from(table().querySelectorAll(':is([role="columnheader"],[role="rowheader"])'));
         expect(ths.map((th) => th.textContent?.trim())).toEqual(['Name', 'City', 'Country', 'Age']);
-        expect(ths.every((th) => th.getAttribute('scope') === 'col')).toBe(true);
+        expect(ths.every((th) => th.getAttribute('role') === 'columnheader')).toBe(true);
         expect(column(1)).toEqual(people.map((p) => p.city));
     });
 
     it('takes a caption as its name, hidden unless asked to show', () => {
         const { table } = mountTable({ caption: 'Team members', 'aria-label': undefined });
-        const caption = table().querySelector('caption')!;
+        const caption = table().querySelector('[data-grid-table] > [id$="-caption"]')!;
         expect(caption.textContent).toBe('Team members');
         expect(caption.className).toBe('vt-sr-only');
     });
@@ -133,7 +133,7 @@ describe('DataGrid', () => {
     it('filters from a row of named inputs, accent-blind, and reports an empty result', async () => {
         const filters = { city: { value: null, matchMode: 'startsWith' }, name: { value: null, matchMode: 'contains' } };
         const { table, column, listeners, models } = mountTable({ filters, filterDisplay: 'row' });
-        const inputs = Array.from(table().querySelectorAll<HTMLInputElement>('thead input'));
+        const inputs = Array.from(table().querySelectorAll<HTMLInputElement>('[data-section="head"] input'));
         expect(inputs.map((i) => i.getAttribute('aria-label'))).toEqual(['Filter Name', 'Filter City']);
         inputs[1]!.value = 'sao';
         inputs[1]!.dispatchEvent(new Event('input'));
@@ -198,7 +198,7 @@ describe('DataGrid', () => {
     it('selects a row on click in single mode, and moves between rows with the arrows', async () => {
         const { bodyRows, models, listeners } = mountTable({ selectionMode: 'single' });
         expect(bodyRows().map((r) => r.tabIndex).slice(0, 3)).toEqual([0, -1, -1]);
-        bodyRows()[1]!.cells[0]!.click();
+        (bodyRows()[1]!.children[0] as HTMLElement).click();
         await nextTick();
         expect(models.selection.value).toEqual(people[1]);
         expect(bodyRows()[1]!.getAttribute('aria-selected')).toBe('true');
@@ -217,9 +217,9 @@ describe('DataGrid', () => {
 
     it('has a checkbox column with a select-all that turns mixed when some rows are chosen', async () => {
         const columns = () => [h(Column, { selectionMode: 'multiple' }), ...defaultColumns()];
-        const { table, models } = mountTable({ selection: [] }, columns);
-        const selectAll = table().querySelector<HTMLInputElement>('thead input[type="checkbox"]')!;
-        const rowBoxes = () => Array.from(table().querySelectorAll<HTMLInputElement>('tbody input[type="checkbox"]'));
+        const { table, models, bodyRows } = mountTable({ selection: [] }, columns);
+        const selectAll = table().querySelector<HTMLInputElement>('[data-section="head"] input[type="checkbox"]')!;
+        const rowBoxes = () => Array.from(table().querySelectorAll<HTMLInputElement>('[data-section="body"] input[type="checkbox"]'));
         expect(selectAll.getAttribute('aria-label')).toBe('Select all');
         expect(rowBoxes()[0]!.getAttribute('aria-label')).toBe('Select row');
 
@@ -228,7 +228,7 @@ describe('DataGrid', () => {
         expect(models.selection.value).toEqual([people[0]]);
         expect(selectAll.indeterminate).toBe(true);
         expect(selectAll.checked).toBe(false);
-        expect(table().tBodies[0]!.rows[0]!.getAttribute('aria-selected')).toBe('true');
+        expect(bodyRows()[0]!.getAttribute('aria-selected')).toBe('true');
 
         selectAll.click();
         await nextTick();
@@ -273,9 +273,9 @@ describe('DataGrid', () => {
             h(Column, { field: 'name' }, { header: () => h('em', 'Person'), body: ({ data }: { data: Person }) => h('strong', data.name.toUpperCase()), footer: () => '12 people' })
         ];
         const { table, column } = mountTable({}, columns);
-        expect(table().querySelector('thead em')?.textContent).toBe('Person');
+        expect(table().querySelector('[data-section="head"] em')?.textContent).toBe('Person');
         expect(column(0)[0]).toBe('ANA SOUZA');
-        expect(table().tFoot?.textContent?.trim()).toBe('12 people');
+        expect(table().querySelector('[data-section="foot"]')?.textContent?.trim()).toBe('12 people');
     });
 
     it('covers itself while loading and marks the table busy', () => {
@@ -293,8 +293,8 @@ describe('DataGrid', () => {
         expect(document.querySelector('.vt-datagrid-loading-mask')).toBeNull();
         expect(bodyRows()).toHaveLength(4);
         expect(bodyRows().every((row) => row.getAttribute('aria-hidden') === 'true' && row.classList.contains('vt-datagrid-row-skeleton'))).toBe(true);
-        expect(bodyRows().map((row) => row.cells[0]!.querySelector('.mine')?.textContent)).toEqual(['placeholder 0', 'placeholder 1', 'placeholder 2', 'placeholder 3']);
-        const age = bodyRows()[0]!.cells[1]!;
+        expect(bodyRows().map((row) => row.children[0]!.querySelector('.mine')?.textContent)).toEqual(['placeholder 0', 'placeholder 1', 'placeholder 2', 'placeholder 3']);
+        const age = bodyRows()[0]!.children[1]!;
         expect(age.classList).toContain('vt-datagrid-body-cell');
         expect(age.classList).toContain('vt-datagrid-align-right');
         expect(age.querySelector('.vt-datagrid-skeleton')).not.toBeNull();
@@ -311,11 +311,11 @@ describe('DataGrid', () => {
                     h(DataGrid, { 'aria-label': 'People', value: loading.value ? [] : people, loading: loading.value, loadingMode: 'skeleton', skeletonRows: 3 }, { default: defaultColumns })
             )
         );
-        expect(document.querySelectorAll('tbody tr.vt-datagrid-row-skeleton')).toHaveLength(3);
+        expect(document.querySelectorAll('[data-section="body"] [role="row"].vt-datagrid-row-skeleton')).toHaveLength(3);
         loading.value = false;
         await nextTick();
-        expect(document.querySelectorAll('tbody tr.vt-datagrid-row-skeleton')).toHaveLength(0);
-        expect(document.querySelectorAll('tbody tr')).toHaveLength(people.length);
+        expect(document.querySelectorAll('[data-section="body"] [role="row"].vt-datagrid-row-skeleton')).toHaveLength(0);
+        expect(document.querySelectorAll('[data-section="body"] [role="row"]')).toHaveLength(people.length);
     });
 
     it('says when there is nothing to show', () => {
@@ -371,7 +371,7 @@ describe('DataGrid columns', () => {
                     )
             )
         );
-        const headers = () => Array.from(document.querySelectorAll<HTMLTableCellElement>('thead tr:first-child th'));
+        const headers = () => Array.from(document.querySelectorAll<HTMLElement>('[data-section="head"] [role="row"]:first-child :is([role="columnheader"],[role="rowheader"])'));
         const headings = () => headers().map((th) => th.textContent?.trim().split('\n')[0] ?? '');
         const resizer = (name: string) => headers().find((th) => th.textContent?.includes(name))!.querySelector<HTMLElement>('[role="separator"]')!;
         return { layout, events, headers, headings, resizer };
@@ -464,34 +464,37 @@ describe('DataGrid groups', () => {
                 h(DataGrid, { 'aria-label': 'Below', value: people.slice(3, 6), dataKey: 'id', group: 'people' }, { default: columnsB })
             ])
         );
-        const tables = () => Array.from(document.querySelectorAll<HTMLTableElement>('table'));
-        const headersOf = (i: number) => Array.from(tables()[i]!.tHead!.rows[0]!.cells);
+        const tables = () => Array.from(document.querySelectorAll<HTMLElement>('[data-grid-table]'));
+        const headersOf = (i: number) => Array.from(tables()[i]!.querySelectorAll('[data-section="head"] > :first-child > *'));
         const containers = () => Array.from(document.querySelectorAll<HTMLElement>('.vt-datagrid-table-container'));
         return { tables, headersOf, containers };
     }
 
     it('keeps one column layout across the group', async () => {
-        const { headersOf } = mountPair();
+        const { headersOf, tables } = mountPair();
         await nextTick();
         const handle = headersOf(0)[1]!.querySelector<HTMLElement>('[role="separator"]')!;
         await press(handle, 'ArrowRight');
         await nextTick();
         // The table that was not touched takes the same widths.
-        const widths = (i: number) => headersOf(i).map((th) => th.style.width);
+        // A width is the column's track in its grid.
+        const widths = (i: number) => (tables()[i]!.style.gridTemplateColumns.match(/minmax\([^)]*\)|\S+/g) ?? []).slice(0, 4);
         expect(widths(1)).toEqual(widths(0));
         // The column that was resized, and the one that gave up the room, both
         // have one; in a browser every column would, since they measure.
-        expect(widths(0)[1]).toBeTruthy();
+        expect(widths(0)[1]).toMatch(/px$/);
         expect(widths(1)[1]).toBe(widths(0)[1]);
     });
 
     it('gives a table only what applies to the columns it has', async () => {
-        const { headersOf } = mountPair(() => [h(Column, { field: 'name', header: 'Name' }), h(Column, { field: 'age', header: 'Age' })]);
+        const { headersOf, tables } = mountPair(() => [h(Column, { field: 'name', header: 'Name' }), h(Column, { field: 'age', header: 'Age' })]);
         await nextTick();
         await press(headersOf(0)[0]!.querySelector<HTMLElement>('[role="separator"]')!, 'ArrowRight');
         await nextTick();
         expect(headersOf(1).map((th) => th.textContent?.trim())).toEqual(['Name', 'Age']);
-        expect(headersOf(1)[0]!.style.width).toBe(headersOf(0)[0]!.style.width);
+        const first = (i: number) => tables()[i]!.style.gridTemplateColumns.split(' ')[0];
+        expect(first(1)).toMatch(/px$/);
+        expect(first(1)).toBe(first(0));
     });
 
     it('scrolls the others sideways to where it was scrolled', async () => {
@@ -545,7 +548,7 @@ describe('DataGrid collapsedGroups', () => {
         const wrapper = mountVt(Host);
         await nextTick();
         const element = wrapper.element as HTMLElement;
-        const headers = () => Array.from(element.querySelectorAll('thead tr:last-child th'), (th) => th.textContent?.trim());
+        const headers = () => Array.from(element.querySelectorAll('[data-section="head"] [role="row"]:last-child :is([role="columnheader"],[role="rowheader"])'), (th) => th.textContent?.trim());
         (element.querySelector('[data-pivot-field="country"] input') as HTMLInputElement).click();
         await nextTick();
         expect(pivot.value.rows).toEqual(['country']);
@@ -556,6 +559,23 @@ describe('DataGrid collapsedGroups', () => {
         (element.querySelector('[data-pivot-mode]') as HTMLInputElement).click();
         await nextTick();
         expect(headers()).toEqual(['Name', 'City', 'Country', 'Age']);
+        wrapper.unmount();
+    });
+
+    it('draws a pivot value through its column’s #body slot under every heading', async () => {
+        const Host = defineComponent(
+            () => () =>
+                h(DataGrid, { value: people, dataKey: 'id', pivot: { rows: ['country'], columns: ['status'], values: [{ field: 'age' }] } }, () => [
+                    h(Column, { field: 'country', header: 'Country' }),
+                    h(Column, { field: 'status', header: 'Status' }),
+                    h(Column, { field: 'age', header: 'Age' }, { body: ({ data }: { data: Person }) => h('b', `${data.age}y`) })
+                ])
+        );
+        const wrapper = mountVt(Host);
+        await nextTick();
+        const portugal = Array.from((wrapper.element as HTMLElement).querySelectorAll('[data-section="body"] > [role="row"]')).find((row) => row.children[0]!.textContent === 'Portugal')!;
+        // Carla 45 active, Diego 31 offline, João 23 away; the total is theirs added up.
+        expect(Array.from(portugal.querySelectorAll('b'), (b) => b.textContent)).toEqual(['45y', '23y', '31y', '99y']);
         wrapper.unmount();
     });
 });

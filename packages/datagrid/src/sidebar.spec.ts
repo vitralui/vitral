@@ -29,8 +29,8 @@ function mount(config: Record<string, unknown> = {}) {
     document.body.appendChild(element);
     const on = { filter: vi.fn(), 'column-toggle': vi.fn(), 'column-reorder': vi.fn() };
     handle = createDataGrid<Order>(element, { value: orders, dataKey: 'id', columns, ariaLabel: 'Orders', sideBar: true, on, ...config });
-    const headers = () => Array.from(element.querySelectorAll('thead th[data-column]'), (th) => th.textContent?.trim());
-    const names = () => Array.from(element.querySelectorAll('tbody tr[data-index] td:first-child'), (td) => td.textContent);
+    const headers = () => Array.from(element.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]'), (th) => th.textContent?.trim());
+    const names = () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"][data-index] :is([role="cell"],[role="gridcell"]):first-child'), (td) => td.textContent);
     const tab = (panel: string) => element.querySelector(`[data-side-tab="${panel}"]`) as HTMLButtonElement;
     const listed = () => Array.from(element.querySelectorAll('[data-side-column]'), (li) => li.textContent);
     const type = (input: Element, text: string) => {

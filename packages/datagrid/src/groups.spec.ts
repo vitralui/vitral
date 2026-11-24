@@ -43,13 +43,13 @@ function mount(config: Record<string, unknown> = {}) {
     const element = document.createElement('div');
     document.body.appendChild(element);
     handle = createDataGrid<Sale>(element, { value: sales, dataKey: 'id', columns: grouped, ariaLabel: 'Sales', ...config });
-    const headRows = () => Array.from(element.querySelectorAll<HTMLTableRowElement>('thead tr'));
+    const headRows = () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="head"] [role="row"]'));
     return {
         element,
         headRows,
-        groupCells: () => Array.from(element.querySelectorAll<HTMLTableCellElement>('thead th[data-group]')).map((th) => [th.textContent, th.colSpan]),
-        leaves: () => Array.from(element.querySelectorAll<HTMLTableCellElement>('thead th[data-column]')).map((th) => th.dataset.column),
-        firstRow: () => Array.from(element.querySelectorAll('tbody tr:first-child td')).map((td) => td.textContent)
+        groupCells: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-group]')).map((th) => [th.textContent, Number(th.getAttribute('aria-colspan') ?? 1)]),
+        leaves: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]')).map((th) => th.dataset.column),
+        firstRow: () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"]:first-child :is([role="cell"],[role="gridcell"])')).map((td) => td.textContent)
     };
 }
 
@@ -67,12 +67,15 @@ describe('columns in groups', () => {
             ['First quarter', 2],
             ['Second quarter', 2]
         ]);
-        const group = element.querySelector('thead th[data-group]')!;
-        expect(group.getAttribute('scope')).toBe('colgroup');
-        // A column in no group reaches up through the row of groups.
-        const product = element.querySelector('th[data-column="product"]') as HTMLTableCellElement;
-        expect(product.rowSpan).toBe(2);
-        expect(product.parentElement).toBe(headRows()[0]);
+        const group = element.querySelector('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-group]')!;
+        expect(group.getAttribute('role')).toBe('columnheader');
+        expect((group as HTMLElement).style.gridColumn).toBe('span 2');
+        // A column in no group has its header in the last row, the room over it the head's ground, which a reader is not told of.
+        const product = element.querySelector('[role="columnheader"][data-column="product"]') as HTMLElement;
+        expect(product.parentElement).toBe(headRows()[1]);
+        const over = headRows()[0]!.children[0] as HTMLElement;
+        expect(over.classList).toContain('vt-datagrid-blank-header-cell');
+        expect(over.getAttribute('aria-hidden')).toBe('true');
         expect(leaves()).toEqual(['product', 'q1units', 'q1revenue', 'q2units', 'q2revenue']);
     });
 
@@ -112,7 +115,7 @@ describe('columns in groups', () => {
             ['First quarter', 1],
             ['Second quarter', 2]
         ]);
-        const stuck = element.querySelector('thead th[data-group]') as HTMLElement;
+        const stuck = element.querySelector('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-group]') as HTMLElement;
         expect(stuck.style.position).toBe('sticky');
         expect(stuck.className).toContain('vt-datagrid-pinned-left');
     });
@@ -130,8 +133,9 @@ describe('columns in groups', () => {
 
     it('puts the filler under no heading, reaching through every row', () => {
         const { element } = mount({ resizableColumns: true, columnLayout: { widths: { product: 100, q1units: 80, q1revenue: 80, q2units: 80, q2revenue: 80 } } });
-        const filler = element.querySelector('thead .vt-datagrid-filler-cell') as HTMLTableCellElement;
-        expect(filler.rowSpan).toBe(2);
+        const fillers = Array.from(element.querySelectorAll('[data-section="head"] > [role="row"]'), (row) => row.lastElementChild!);
+        expect(fillers).toHaveLength(2);
+        expect(fillers.every((cell) => cell.classList.contains('vt-datagrid-filler-cell') && !cell.hasAttribute('data-group'))).toBe(true);
     });
 
     it('is a table a screen reader can read', async () => {

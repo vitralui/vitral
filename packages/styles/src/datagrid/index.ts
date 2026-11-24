@@ -108,6 +108,8 @@ export const datagridStyle = defineStyle({
         columnGroupRow: 'vt-datagrid-column-group-row',
         /** A group's heading, across the run of its columns. */
         columnGroupCell: (s: DataGridCellState) => ['vt-datagrid-header-cell', 'vt-datagrid-column-group-cell', align(s), pinned(s)],
+        /** The room over a column in fewer groups than the deepest, in a row of groups' headings. */
+        blankHeaderCell: 'vt-datagrid-blank-header-cell',
         /** `resizing`: its edge is being dragged — the line stays lit, in the header only. */
         resizer: (s: { resizing?: boolean }) => ['vt-datagrid-resizer', { 'vt-datagrid-resizing': s.resizing }],
         chooserButton: 'vt-datagrid-chooser-button',
@@ -273,3 +275,17 @@ export const datagridStyle = defineStyle({
         selectionHeaderText: 'vt-sr-only'
     }
 });
+
+/**
+ * How the grid's boxes are laid out, apart from how they look: one grid of
+ * column tracks, its row groups and rows subgrids of it, so every row's cells
+ * line up with the headers as a table's do. Loaded even by an unstyled grid,
+ * as a browser lays a `<table>` out with no stylesheet at all.
+ */
+export const datagridLayoutStyle = {
+    name: 'datagrid-layout',
+    css: `[data-grid-table]{display:grid;align-content:start;min-width:100%;width:fit-content}
+[data-grid-table]>*{grid-column:1/-1;min-width:0}
+[data-grid-table]>[data-section],[data-grid-table]>[data-section]>*{display:grid;grid-template-columns:subgrid;grid-column:1/-1}
+[data-grid-table]>[data-section]>*>*{align-content:center}`
+};

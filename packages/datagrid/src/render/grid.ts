@@ -10,10 +10,15 @@ import { cellValue, editorKind, isEditable, type EditorKind } from '../engine/ed
 import type { Content, PageContext, Row, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
 
 /**
- * The table as plain objects: a real `<table>`, one `<th scope="col">` a
- * column, a sortable header holding a button that carries the sort, native
- * controls for selection and filtering, and a paginator of buttons. What is
- * drawn is decided here; what happens when it is pressed is the handle's.
+ * The table as plain objects. It is drawn in boxes rather than a `<table>`,
+ * as a spreadsheet draws its cells: one CSS grid holds every column's track,
+ * and each row is a subgrid of it, so a column is as wide in every row as it
+ * is in its header, a pinned column sticks to its edge, and a row is the
+ * height it is told. The roles a `<table>` would carry are written out —
+ * `table`, `grid` or `treegrid`, row groups, rows, column headers and cells —
+ * so a screen reader reads the same table. A sortable header holds a button
+ * that carries the sort, and the paginator is buttons. What is drawn is
+ * decided here; what happens when it is pressed is the handle's.
  */
 
 /** Everything the view needs that is not the configuration itself. */
@@ -161,7 +166,7 @@ export interface VirtualRows {
     rowIndex: (line: number) => number;
     /** How many rows the table has, header, pinned and detail rows included. */
     rowCount: number;
-    /** How many `<tr>` come before the first line drawn, which keeps the stripes where they were. */
+    /** How many rows come before the first line drawn, which keeps the stripes where they were. */
     rowsBefore: number;
 }
 
@@ -294,7 +299,7 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                 ref: context.on.scroller
             }),
             h(
-                'table',
+                'div',
                 // The naming attributes are only written when there is one to
                 // write: a host may have put its own on this part, and an
                 // absent name must not wipe it out.
@@ -305,8 +310,9 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                     part('table', { sized: sized(context) }),
                     {
                         id: context.ids.table,
+                        'data-grid-table': '',
                         // Moving through cells and editing them makes it an interactive grid.
-                        role: context.lines.some((line) => line.kind === 'row' && line.tree) ? 'treegrid' : context.cellFocus ? 'grid' : undefined,
+                        role: tableRole(context),
                         onKeydown: context.on.gridKeydown,
                         onClick: context.on.gridClick,
                         onDblclick: context.on.gridDblclick,
@@ -316,14 +322,14 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                         onPaste: context.cellFocus ? context.on.gridPaste : undefined,
                         onDragover: context.rowDrag ? context.on.rowDragOver : undefined,
                         onDrop: context.rowDrag ? context.on.rowDrop : undefined,
-                        style: withSizing(sizedTable(context), config.tableStyle),
+                        style: withSizing({ 'grid-template-columns': tracks(context) }, config.tableStyle),
                         'aria-busy': context.busy ? 'true' : undefined,
                         // With rows or columns left out of view, the table says how many it has.
                         'aria-rowcount': context.virtual ? String(context.virtual.rowCount) : undefined,
                         'aria-colcount': config.virtualColumns ? String(context.columns.length) : undefined
                     }
                 ),
-                config.caption ? h('caption', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
+                config.caption ? h('div', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
                 headView(context),
                 bodyView(context),
                 footView(context)
@@ -350,19 +356,48 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
 }
 
 /**
- * Once every column has a width — the first drag gives them all their
- * measured one — the table is laid out by those widths alone: fixed layout,
- * as wide as they add up to. Left to the automatic layout, the browser shares
- * any spare room out among the columns, and a column dragged to 240px drew at
- * whatever was left, the edge drifting away from the pointer.
+ * The grid's column tracks, one a drawn column. A column with a width is
+ * that wide; one without shares the room the way a table's columns do, never
+ * narrower than its `minWidth`; a column of controls — a box, a toggle, a
+ * handle, the row editor's buttons — is as wide as they are and no wider.
+ * Once every column has a width, the empty filler track after them takes the
+ * room they leave, so no column is stretched past the width it was given
+ * (its edge would leave the pointer) and every row — its stripe, its rule —
+ * still runs to the grid's edge, as in a spreadsheet.
  */
-function sizedTable<T>(context: ViewContext<T>): Record<string, string> {
-    if (!sized(context)) return {};
-    const total = context.columns.reduce((sum, column) => sum + (column.width ?? 0), 0);
-    // Never narrower than the grid: what the columns leave goes to the filler
-    // column at the end, so the rows' stripes and rules still reach the edge.
-    return { width: `${total}px`, 'min-width': '100%', 'table-layout': 'fixed' };
+function tracks<T>(context: ViewContext<T>): string {
+    const list = context.drawn.map((entry) => (isSpacer(entry) ? `${entry.width}px` : track(entry)));
+    if (sized(context)) {
+        const at = fillerAt(context);
+        list.splice(at < 0 ? list.length : at, 0, 'minmax(0, 1fr)');
+    }
+    return list.length ? list.join(' ') : '1fr';
 }
+
+function track<T>(column: ResolvedColumn<T>): string {
+    // Never less than nothing: a value the browser refused would leave every track as it was.
+    if (column.width) return `${Math.max(0, column.width)}px`;
+    const own = column.column;
+    if (column.selectionMode || own.expander || own.rowEditor || own.rowDrag) return 'max-content';
+    return own.minWidth ? `minmax(${own.minWidth}px, auto)` : 'auto';
+}
+
+/** What the grid is to assistive technology: a tree, a grid the keyboard moves through and edits, or a table to read. */
+const roles = new WeakMap<object, 'table' | 'grid' | 'treegrid'>();
+function tableRole<T>(context: ViewContext<T>): 'table' | 'grid' | 'treegrid' {
+    let role = roles.get(context);
+    if (!role) {
+        role = context.lines.some((line) => line.kind === 'row' && line.tree) ? 'treegrid' : context.cellFocus ? 'grid' : 'table';
+        roles.set(context, role);
+    }
+    return role;
+}
+
+/** A cell's role: a grid's cells are `gridcell`, a table's `cell`. */
+const cellRole = <T>(context: ViewContext<T>) => (tableRole(context) === 'table' ? 'cell' : 'gridcell');
+
+/** A cell across the whole row: every track, and said to span every column. */
+const spanAll = <T>(context: ViewContext<T>) => ({ style: { 'grid-column': '1 / -1' }, 'aria-colspan': span(context) });
 
 /**
  * Whether the columns are laid out by their widths alone (see `sizedTable`):
@@ -375,26 +410,21 @@ function sized<T>(context: ViewContext<T>): boolean {
 }
 
 /**
- * The empty column after the last, while the widths lay the table out: it
- * takes the room the columns do not, so no column is stretched past the width
- * it was given (its edge would leave the pointer) and every row — its stripe,
- * its rule — still runs to the grid's edge, as in a spreadsheet. Nothing to
- * read in it, so it is hidden from assistive technology.
+ * The empty cell in the filler track, while the widths lay the table out.
+ * Nothing to read in it, so it is hidden from assistive technology.
  */
 type CellLook = 'headerCell' | 'filterCell' | 'bodyCell' | 'footerCell';
 
-function filler<T>(context: ViewContext<T>, tag: 'th' | 'td', look: CellLook, rowspan?: number): VElement[] {
+function filler<T>(context: ViewContext<T>, look: CellLook): VElement[] {
     if (!sized(context)) return [];
     // Dressed as the row's other cells (ground, rules, stripes), emptied of padding.
     return [
         h(
-            tag,
+            'div',
             mergeAttrs(
                 {
                     key: '__filler',
-                    role: 'presentation',
-                    'aria-hidden': 'true',
-                    rowspan: rowspan && rowspan > 1 ? String(rowspan) : undefined
+                    'aria-hidden': 'true'
                 },
                 context.part(look, {}),
                 context.part('fillerCell')
@@ -410,36 +440,22 @@ const fillerAt = <T>(context: ViewContext<T>) => context.drawn.findIndex((entry)
  * A row's cells with the filler among them: before the columns pinned to the
  * end, which stay at the grid's edge (row actions, say), or else last.
  */
-function withFiller<T>(context: ViewContext<T>, cells: Child[], tag: 'th' | 'td', look: CellLook, rowspan?: number, at = fillerAt(context)): Child[] {
-    const extra = filler(context, tag, look, rowspan);
+function withFiller<T>(context: ViewContext<T>, cells: Child[], look: CellLook, at = fillerAt(context)): Child[] {
+    const extra = filler(context, look);
     if (!extra.length) return cells;
     return at < 0 ? [...cells, ...extra] : [...cells.slice(0, at), ...extra, ...cells.slice(at)];
 }
 
 /** The empty cell that keeps the room of the columns left out of view. */
-function spacerCell<T>(context: ViewContext<T>, spacer: ColumnSpacer, tag: 'th' | 'td', look: CellLook, rowspan?: number): VElement {
-    return h(
-        tag,
-        mergeAttrs(
-            {
-                key: spacer.key,
-                role: 'presentation',
-                'aria-hidden': 'true',
-                rowspan: rowspan && rowspan > 1 ? String(rowspan) : undefined
-            },
-            context.part(look, {}),
-            context.part('fillerCell'),
-            { style: { width: `${spacer.width}px` } }
-        )
-    );
+function spacerCell<T>(context: ViewContext<T>, spacer: ColumnSpacer, look: CellLook): VElement {
+    return h('div', mergeAttrs({ key: spacer.key, 'aria-hidden': 'true' }, context.part(look, {}), context.part('fillerCell')));
 }
 
 /** One row's cells, column by column, with the spacers and the filler where they go. */
-function cells<T>(context: ViewContext<T>, tag: 'th' | 'td', look: CellLook, draw: (column: ResolvedColumn<T>) => Child): Child[] {
+function cells<T>(context: ViewContext<T>, look: CellLook, draw: (column: ResolvedColumn<T>) => Child): Child[] {
     return withFiller(
         context,
-        context.drawn.map((entry) => (isSpacer(entry) ? spacerCell(context, entry, tag, look) : draw(entry))),
-        tag,
+        context.drawn.map((entry) => (isSpacer(entry) ? spacerCell(context, entry, look) : draw(entry))),
         look
     );
 }
@@ -447,8 +463,8 @@ function cells<T>(context: ViewContext<T>, tag: 'th' | 'td', look: CellLook, dra
 /** Where a cell stands among all the columns, said only when some are left out of view. */
 const colIndex = <T>(context: ViewContext<T>, column: ResolvedColumn<T>) => (context.config.virtualColumns ? String(column.position) : undefined);
 
-/** How many columns a cell spanning the row covers: the filler is one too. */
-const span = <T>(context: ViewContext<T>) => String(Math.max(1, context.drawn.length) + (sized(context) ? 1 : 0));
+/** How many columns a cell spanning the row covers, for a reader: the drawn ones, which a spacer stands in for. */
+const span = <T>(context: ViewContext<T>) => String(Math.max(1, context.config.virtualColumns ? context.columns.length : context.drawn.length));
 
 /** The sizing under the host's own table style, which wins — as text or as an object. */
 function withSizing(sizing: Record<string, string>, own: string | Record<string, string> | undefined): string | Record<string, string> | undefined {
@@ -583,32 +599,32 @@ function headView<T>(context: ViewContext<T>): Child {
     const depth = groupDepth(columns);
 
     return h(
-        'thead',
+        'div',
         // On the head rather than a row: with groups, the columns' own headers are in several rows.
-        mergeAttrs({ key: 'thead' }, part('thead'), {
+        mergeAttrs({ key: 'thead', role: 'rowgroup', 'data-section': 'head' }, part('thead'), {
             onDragover: context.on.dragOver,
             onDrop: context.on.drop
         }),
         depth
             ? groupedHeaderRows(context, depth)
             : h(
-                  'tr',
-                  mergeAttrs({ key: 'header-row' }, part('headerRow'), {
+                  'div',
+                  mergeAttrs({ key: 'header-row', role: 'row' }, part('headerRow'), {
                       'aria-rowindex': headerRowIndex(context, 0)
                   }),
-                  cells(context, 'th', 'headerCell', (column) => headerCell(context, column))
+                  cells(context, 'headerCell', (column) => headerCell(context, column))
               ),
         filterRow
             ? h(
-                  'tr',
-                  mergeAttrs({ key: 'filter-row' }, part('filterRow'), {
+                  'div',
+                  mergeAttrs({ key: 'filter-row', role: 'row' }, part('filterRow'), {
                       'aria-rowindex': headerRowIndex(context, depth + 1)
                   }),
-                  cells(context, 'td', 'filterCell', (column) =>
+                  cells(context, 'filterCell', (column) =>
                       h(
-                          'td',
+                          'div',
                           mergeAttrs(
-                              { key: column.key },
+                              { key: column.key, role: cellRole(context) },
                               part('filterCell', {
                                   align: column.align,
                                   ...pinnedState(column)
@@ -659,7 +675,7 @@ function headRowCount<T>(context: ViewContext<T>): number {
 const headerRowIndex = <T>(context: ViewContext<T>, row: number) => (context.virtual ? String(row + 1) : undefined);
 
 /** One column's own header: its title, its sort, its select-all, its resize handle. */
-function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>, rowspan?: number): VElement {
+function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VElement {
     const { config, part, locale } = context;
     const sortIndex = context.sorts.findIndex((sort) => sort.field === column.sortField);
     const sortMeta = context.sorts[sortIndex];
@@ -676,12 +692,11 @@ function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>, rowsp
     // With buttons beside it, the title and the buttons share one line.
     const withTools = (main: Child) => (tools ? h('span', part('headerContent'), main, tools) : main);
     return h(
-        'th',
+        'div',
         mergeAttrs(
             {
                 key: column.key,
-                scope: 'col',
-                rowspan: rowspan && rowspan > 1 ? String(rowspan) : undefined
+                role: 'columnheader'
             },
             part('headerCell', {
                 sortable: column.column.sortable,
@@ -697,7 +712,6 @@ function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>, rowsp
                 'aria-colindex': colIndex(context, column),
                 draggable: canReorder ? 'true' : undefined,
                 style: {
-                    ...(column.width ? { width: `${column.width}px`, 'min-width': `${column.width}px` } : {}),
                     ...stickyStyle(column),
                     ...column.column.headerStyle
                 },
@@ -1273,16 +1287,21 @@ function pivotPanelView<T>(context: ViewContext<T>, view: PivotPanelView): Child
     ];
 }
 
-/** A cell of a heading row: a group over a run of columns, a column's own header, or a spacer. */
-type HeadEntry<T> = { kind: 'group'; group: ColumnGroupRef<T>; columns: ResolvedColumn<T>[] } | { kind: 'leaf'; column: ResolvedColumn<T> } | { kind: 'spacer'; spacer: ColumnSpacer };
+/** A cell of a heading row: a group over a run of columns, a column's own header, the room over one in fewer groups, or a spacer. */
+type HeadEntry<T> =
+    | { kind: 'group'; group: ColumnGroupRef<T>; columns: ResolvedColumn<T>[] }
+    | { kind: 'leaf'; column: ResolvedColumn<T> }
+    | { kind: 'blank'; column: ResolvedColumn<T> }
+    | { kind: 'spacer'; spacer: ColumnSpacer };
 
 /**
  * The head of a grid whose columns sit in groups: a row per level of groups,
  * then the columns' own. A group's heading spans the run of its columns drawn
  * side by side — split where a column of another group stands between them, or
  * where the pinned block ends, since one part of it stays and the other
- * scrolls. A column in fewer groups than the deepest has its header reach up
- * through the rows it has no group in, and so does a spacer, and the filler.
+ * scrolls. Every column's own header is in the last row; over a column in
+ * fewer groups than the deepest, the rows it has no group in hold an empty
+ * cell of the head's ground, which a reader is not told of.
  */
 function groupedHeaderRows<T>(context: ViewContext<T>, depth: number): VElement[] {
     const { part } = context;
@@ -1293,10 +1312,8 @@ function groupedHeaderRows<T>(context: ViewContext<T>, depth: number): VElement[
         const from: number[] = [];
         context.drawn.forEach((entry, at) => {
             if (isSpacer(entry)) {
-                if (level === 0) {
-                    entries.push({ kind: 'spacer', spacer: entry });
-                    from.push(at);
-                }
+                entries.push({ kind: 'spacer', spacer: entry });
+                from.push(at);
                 return;
             }
             const groups = entry.groups.length;
@@ -1314,29 +1331,41 @@ function groupedHeaderRows<T>(context: ViewContext<T>, depth: number): VElement[
                     entries.push({ kind: 'group', group, columns: [entry] });
                     from.push(at);
                 }
-            } else if (level === groups) {
-                entries.push({ kind: 'leaf', column: entry });
+            } else {
+                entries.push({ kind: level === depth ? 'leaf' : 'blank', column: entry });
                 from.push(at);
             }
         });
         const cellsOf = entries.map((entry) =>
             entry.kind === 'spacer'
-                ? spacerCell(context, entry.spacer, 'th', 'headerCell', depth + 1)
+                ? spacerCell(context, entry.spacer, 'headerCell')
                 : entry.kind === 'leaf'
-                  ? headerCell(context, entry.column, depth + 1 - level)
-                  : groupCell(context, entry.group, entry.columns)
+                  ? headerCell(context, entry.column)
+                  : entry.kind === 'blank'
+                    ? blankHeadCell(context, entry.column)
+                    : groupCell(context, entry.group, entry.columns)
         );
         const end = fillerAt(context);
         const at = end < 0 ? -1 : from.findIndex((column) => column >= end);
         rows.push(
             h(
-                'tr',
-                mergeAttrs({ key: `header-row-${level}` }, part(level === depth ? 'headerRow' : 'columnGroupRow'), { 'aria-rowindex': headerRowIndex(context, level) }),
-                level === 0 ? withFiller(context, cellsOf, 'th', 'headerCell', depth + 1, at) : cellsOf
+                'div',
+                mergeAttrs({ key: `header-row-${level}`, role: 'row' }, part(level === depth ? 'headerRow' : 'columnGroupRow'), { 'aria-rowindex': headerRowIndex(context, level) }),
+                withFiller(context, cellsOf, 'headerCell', at)
             )
         );
     }
     return rows;
+}
+
+/** The room over a column in fewer groups than the deepest: the head's ground, pinned where the column is. */
+function blankHeadCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VElement {
+    return h(
+        'div',
+        mergeAttrs({ key: `blank:${column.key}`, 'aria-hidden': 'true' }, context.part('headerCell', pinnedState(column)), context.part('blankHeaderCell'), {
+            style: stickyStyle(column)
+        })
+    );
 }
 
 /** A group's heading, over the run of its columns it was given. */
@@ -1348,12 +1377,12 @@ function groupCell<T>(context: ViewContext<T>, group: ColumnGroupRef<T>, columns
     const anchor = side === 'right' ? last : first;
     const edge = columns.some((column) => column.sticky?.last);
     return h(
-        'th',
+        'div',
         mergeAttrs(
             {
                 key: `${group.key}:${first.key}`,
-                scope: 'colgroup',
-                colspan: columns.length > 1 ? String(columns.length) : undefined
+                role: 'columnheader',
+                'aria-colspan': columns.length > 1 ? String(columns.length) : undefined
             },
             // Centred over its columns unless it says otherwise.
             context.part('columnGroupCell', {
@@ -1364,7 +1393,7 @@ function groupCell<T>(context: ViewContext<T>, group: ColumnGroupRef<T>, columns
             {
                 'data-group': group.key,
                 'aria-colindex': colIndex(context, first),
-                style: { ...stickyStyle(anchor), ...group.column.headerStyle },
+                style: { ...(columns.length > 1 ? { 'grid-column': `span ${columns.length}` } : {}), ...stickyStyle(anchor), ...group.column.headerStyle },
                 class: group.column.headerClass
             }
         ),
@@ -1387,20 +1416,20 @@ function bodyView<T>(context: ViewContext<T>): Child {
     if (skeletonShown(context)) return skeletonBody(context);
     if (!rows.page.length) {
         return h(
-            'tbody',
-            mergeAttrs({ key: 'tbody' }, part('tbody')),
+            'div',
+            mergeAttrs({ key: 'tbody', role: 'rowgroup', 'data-section': 'body' }, part('tbody')),
             h(
-                'tr',
-                part('emptyRow'),
-                h('td', mergeAttrs(part('emptyCell'), { colspan: span(context) }), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
+                'div',
+                mergeAttrs({ role: 'row' }, part('emptyRow')),
+                h('div', mergeAttrs({ role: cellRole(context) }, part('emptyCell'), spanAll(context)), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
             )
         );
     }
     const start = virtual?.window.start ?? 0;
     const shown = virtual ? context.lines.slice(start, virtual.window.end) : context.lines;
     return h(
-        'tbody',
-        mergeAttrs({ key: 'tbody' }, part('tbody')),
+        'div',
+        mergeAttrs({ key: 'tbody', role: 'rowgroup', 'data-section': 'body' }, part('tbody')),
         virtual ? spacerRows(context, 'before', virtual.window.before, virtual.rowsBefore) : null,
         shown.map((line, at) => lineView(context, line, start + at)),
         virtual ? spacerRows(context, 'after', virtual.window.after, 1) : null
@@ -1417,13 +1446,11 @@ function spacerRows<T>(context: ViewContext<T>, side: 'before' | 'after', height
     if (!(height > 0)) return [];
     const row = (key: string, px: number) =>
         h(
-            'tr',
+            'div',
             mergeAttrs({ key }, context.part('spacerRow'), {
-                role: 'presentation',
                 'aria-hidden': 'true',
                 style: { height: `${px}px` }
-            }),
-            h('td', mergeAttrs(context.part('spacerCell'), { colspan: span(context) }))
+            })
         );
     const out = [row(`__${side}`, height)];
     if (side === 'before' && rowsHidden % 2 === 0) out.push(row(`__${side}-parity`, 0));
@@ -1449,21 +1476,21 @@ function groupRowWithValues<T>(context: ViewContext<T>, line: Extract<GridLine<T
         h('span', part('groupCount'), String(line.group.rows.length))
     );
     return h(
-        'tr',
-        mergeAttrs({ key: `group-${line.group.key}` }, part('groupRow', { values: true }), {
+        'div',
+        mergeAttrs({ key: `group-${line.group.key}`, role: 'row' }, part('groupRow', { values: true }), {
             'data-line': String(at),
             'aria-rowindex': virtual ? String(virtual.rowIndex(at)) : undefined
         }),
-        cells(context, 'td', 'bodyCell', (column) => {
+        cells(context, 'bodyCell', (column) => {
             const value = column.column.aggregate ? aggregateOf(column.column, line.group.rows) : undefined;
             const shown = column.column.aggregate
                 ? (content(column.column.aggregateContent?.({ value, rows: line.group.rows, column: column.column })) ?? cellText(value, context.locale.code))
                 : null;
             const lead = column === first;
             return h(
-                lead ? 'th' : 'td',
+                'div',
                 mergeAttrs({ key: column.key }, part('groupCell', { level: line.level, lead, align: column.align, ...pinnedState(column) }), {
-                    scope: lead ? 'row' : undefined,
+                    role: lead ? 'rowheader' : cellRole(context),
                     style: { ...stickyStyle(column), ...(line.level ? { '--vt-datagrid-group-level': String(line.level) } : {}) },
                     'aria-colindex': colIndex(context, column),
                     'data-aggregate': column.column.aggregate ? column.key : undefined
@@ -1489,17 +1516,17 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
         const title = groupTitle(config, line.group, line.field, line.level);
         if (columns.some((column) => column.column.aggregate)) return groupRowWithValues(context, line, at, title);
         return h(
-            'tr',
-            mergeAttrs({ key: `group-${line.group.key}` }, part('groupRow'), {
+            'div',
+            mergeAttrs({ key: `group-${line.group.key}`, role: 'row' }, part('groupRow'), {
                 'data-line': String(at),
                 'aria-rowindex': rowIndex
             }),
             h(
-                'th',
+                'div',
                 mergeAttrs(part('groupCell', { level: line.level }), {
-                    colspan: span(context),
-                    scope: 'colgroup',
-                    style: line.level ? { '--vt-datagrid-group-level': String(line.level) } : undefined
+                    role: 'rowheader',
+                    'aria-colspan': span(context),
+                    style: { 'grid-column': '1 / -1', ...(line.level ? { '--vt-datagrid-group-level': String(line.level) } : {}) }
                 }),
                 h(
                     'button',
@@ -1526,8 +1553,8 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
     const drag = context.rowDrag;
     const dropHere = drag && drag.over === index && drag.index !== index;
     const main = h(
-        'tr',
-        mergeAttrs({ key }, part('row', { selectable, selected, expanded, dragging: drag?.index === index, dropBefore: dropHere && !drag.after, dropAfter: dropHere && drag.after }), {
+        'div',
+        mergeAttrs({ key, role: 'row' }, part('row', { selectable, selected, expanded, dragging: drag?.index === index, dropBefore: dropHere && !drag.after, dropAfter: dropHere && drag.after }), {
             'aria-level': tree ? String(tree.depth + 1) : undefined,
             'aria-expanded': tree?.hasChildren ? String(tree.expanded) : undefined,
             'aria-setsize': tree ? String(tree.siblings) : undefined,
@@ -1542,13 +1569,13 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
             onClick: (event: MouseEvent) => context.on.rowClick(row, index, event),
             onKeydown: (event: KeyboardEvent) => context.on.rowKeydown(event, index)
         }),
-        cells(context, 'td', 'bodyCell', (column) => {
+        cells(context, 'bodyCell', (column) => {
             const open = !!context.editing && context.editing.index === index && context.editing.keys.includes(column.key);
             const focus = context.cellFocus;
             return h(
-                'td',
+                'div',
                 mergeAttrs(
-                    { key: column.key },
+                    { key: column.key, role: cellRole(context) },
                     part('bodyCell', {
                         align: column.align,
                         ...pinnedState(column),
@@ -1621,12 +1648,12 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
     return [
         main,
         h(
-            'tr',
-            mergeAttrs({ key: `${key}-detail`, id: detailId }, part('expansionRow'), {
+            'div',
+            mergeAttrs({ key: `${key}-detail`, id: detailId, role: 'row' }, part('expansionRow'), {
                 'data-line': String(at),
                 'aria-rowindex': virtual ? String(virtual.rowIndex(at) + 1) : undefined
             }),
-            h('td', mergeAttrs(part('expansionCell'), { colspan: span(context) }), content(config.content!.rowExpansion!({ row, index: rows.offset + index })))
+            h('div', mergeAttrs({ role: cellRole(context) }, part('expansionCell'), spanAll(context)), content(config.content!.rowExpansion!({ row, index: rows.offset + index })))
         )
     ];
 }
@@ -1748,7 +1775,8 @@ function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row:
                 field: column.field,
                 value,
                 column: column.column,
-                pinned
+                pinned,
+                key: column.key
             })
         ) ?? cellText(value, context.locale.code)
     );
@@ -1840,16 +1868,16 @@ function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, positi
     const { part } = context;
     const before = position === 'top' ? headRowCount(context) - context.pinnedTop.length : 0;
     return h(
-        'tr',
-        mergeAttrs({ key: `pinned-${position}-${index}` }, part('row', {}), part('pinnedRow', { position }), {
+        'div',
+        mergeAttrs({ key: `pinned-${position}-${index}`, role: 'row' }, part('row', {}), part('pinnedRow', { position }), {
             class: context.config.rowClass?.(row),
             style: fixedHeight(context),
             'aria-rowindex': context.virtual ? String(position === 'top' ? before + index + 1 : context.virtual.rowCount - context.pinnedBottom.length - footRows(context) + index + 1) : undefined
         }),
-        cells(context, 'td', 'bodyCell', (column) =>
+        cells(context, 'bodyCell', (column) =>
             h(
-                'td',
-                mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), {
+                'div',
+                mergeAttrs({ key: column.key, role: cellRole(context) }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), {
                     style: { ...stickyStyle(column), ...column.column.bodyStyle },
                     class: column.column.bodyClass,
                     'aria-colindex': colIndex(context, column)
@@ -1894,15 +1922,15 @@ const barWidth = (row: number, column: number) => `${40 + ((row * 7 + column * 3
 function skeletonBody<T>(context: ViewContext<T>): Child {
     const { part } = context;
     return h(
-        'tbody',
-        mergeAttrs({ key: 'tbody' }, part('tbody')),
+        'div',
+        mergeAttrs({ key: 'tbody', role: 'rowgroup', 'data-section': 'body' }, part('tbody')),
         Array.from({ length: skeletonCount(context) }, (_, index) =>
             h(
-                'tr',
-                mergeAttrs({ key: `skeleton-${index}` }, part('row', { skeleton: true }), { 'aria-hidden': 'true', style: fixedHeight(context) }),
-                cells(context, 'td', 'bodyCell', (column) =>
+                'div',
+                mergeAttrs({ key: `skeleton-${index}`, role: 'row' }, part('row', { skeleton: true }), { 'aria-hidden': 'true', style: fixedHeight(context) }),
+                cells(context, 'bodyCell', (column) =>
                     h(
-                        'td',
+                        'div',
                         mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), column.selectionMode ? part('selectionCell') : {}, {
                             style: { ...stickyStyle(column), ...column.column.bodyStyle },
                             class: column.column.bodyClass
@@ -1939,21 +1967,21 @@ function footView<T>(context: ViewContext<T>): Child {
     const footer = hasFooter(context);
     if (!footer && !context.pinnedBottom.length) return null;
     return h(
-        'tfoot',
+        'div',
         // Held at the bottom of the box while the rows scroll, when it holds rows pinned there.
-        mergeAttrs({ key: 'tfoot' }, part('tfoot', { sticky: context.pinnedBottom.length > 0 })),
+        mergeAttrs({ key: 'tfoot', role: 'rowgroup', 'data-section': 'foot' }, part('tfoot', { sticky: context.pinnedBottom.length > 0 })),
         context.pinnedBottom.map((row, index) => pinnedRowView(context, row, index, 'bottom')),
         footer
             ? h(
-                  'tr',
-                  mergeAttrs({ key: 'footer-row' }, part('footerRow'), {
+                  'div',
+                  mergeAttrs({ key: 'footer-row', role: 'row' }, part('footerRow'), {
                       'aria-rowindex': context.virtual ? String(context.virtual.rowCount) : undefined
                   }),
-                  cells(context, 'td', 'footerCell', (column) =>
+                  cells(context, 'footerCell', (column) =>
                       h(
-                          'td',
+                          'div',
                           mergeAttrs(
-                              { key: column.key },
+                              { key: column.key, role: cellRole(context) },
                               part('footerCell', {
                                   align: column.align,
                                   ...pinnedState(column)

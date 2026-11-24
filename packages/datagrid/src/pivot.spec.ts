@@ -71,13 +71,13 @@ describe('a pivot', () => {
             columns: [{ field: 'rep', header: 'Rep' }],
             pivot: { rows: ['rep'], columns: ['year'], values: [{ field: 'amount', header: 'Amount' }, { field: 'units', header: 'Units' }] }
         }) as unknown as DataGridHandle<never>;
-        expect(Array.from(element.querySelectorAll('thead th[data-group]'), (th) => th.textContent)).toEqual(['2025', '2026', 'Total']);
-        const first = () => Array.from(element.querySelectorAll('tbody tr:first-child td'), (td) => td.textContent);
+        expect(Array.from(element.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-group]'), (th) => th.textContent)).toEqual(['2025', '2026', 'Total']);
+        const first = () => Array.from(element.querySelectorAll('[data-section="body"] [role="row"]:first-child :is([role="cell"],[role="gridcell"])'), (td) => td.textContent);
         expect(first()).toEqual(['Ana', '250', '3', '', '', '250', '3']);
-        const totalAmount = element.querySelectorAll('thead th[data-column]')[5] as HTMLElement;
+        const totalAmount = element.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]')[5] as HTMLElement;
         expect(totalAmount.textContent).toBe('Amount');
         (totalAmount.querySelector('button') as HTMLButtonElement).click();
-        expect(Array.from(element.querySelectorAll('tbody tr td:first-child'), (td) => td.textContent)).toEqual(['Bruno', 'Ana', 'Carla']);
+        expect(Array.from(element.querySelectorAll('[data-section="body"] [role="row"] :is([role="cell"],[role="gridcell"]):first-child'), (td) => td.textContent)).toEqual(['Bruno', 'Ana', 'Carla']);
     });
 
     it('is a table a screen reader can read', async () => {

@@ -20,6 +20,12 @@ export interface CellContext<T = Row> {
     column: DataGridColumn<T>;
     /** Set on a row pinned to the top or the bottom of the grid, which a cell may draw differently (a total, say). */
     pinned?: 'top' | 'bottom';
+    /**
+     * The key of the column the cell is drawn in. Usually `column`'s own; a
+     * pivot draws each value with the column it came from, once under every
+     * heading across the top, and this tells those cells apart.
+     */
+    key?: string;
 }
 
 /**

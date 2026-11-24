@@ -212,7 +212,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         body:
             own.body &&
             ((context: CellContext) =>
-                node(`body:${def.key}:${context.pinned ?? ''}${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p, pinned: context.pinned }))),
+                node(`body:${context.key ?? def.key}:${context.pinned ?? ''}${context.index}`, () => own.body!({ data: context.row, field, index: context.index, column: p, pinned: context.pinned }))),
         headerContent: own.header && (() => node(`header:${def.key}`, () => own.header!({ column: p }))),
         footerContent: own.footer && (() => node(`footer:${def.key}`, () => own.footer!({ column: p }))),
         skeleton: own.skeleton && ((context: { index: number }) => node(`skeleton:${def.key}:${context.index}`, () => own.skeleton!({ column: p, index: context.index }))),

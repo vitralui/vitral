@@ -30,9 +30,9 @@ function mount(config: Record<string, unknown> = {}) {
     return {
         element,
         box,
-        table: () => element.querySelector('table')!,
-        rows: () => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr[data-index]')),
-        indexes: () => Array.from(element.querySelectorAll<HTMLTableRowElement>('tbody tr[data-index]')).map((row) => Number(row.dataset.index)),
+        table: () => element.querySelector('[data-grid-table]')!,
+        rows: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] [role="row"][data-index]')),
+        indexes: () => Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] [role="row"][data-index]')).map((row) => Number(row.dataset.index)),
         /** jsdom lays nothing out: the box is scrolled by saying where it is. */
         scrollTo: async (top: number, left = 0) => {
             Object.defineProperty(box(), 'scrollTop', { configurable: true, value: top });
@@ -89,7 +89,7 @@ describe('a virtual grid', () => {
         expect(table().getAttribute('aria-rowcount')).toBe('1001');
         expect(rows()[0]!.getAttribute('aria-rowindex')).toBe('2');
         expect(rows()[3]!.getAttribute('aria-rowindex')).toBe('5');
-        expect(table().querySelector('thead tr')!.getAttribute('aria-rowindex')).toBe('1');
+        expect(table().querySelector('[data-section="head"] [role="row"]')!.getAttribute('aria-rowindex')).toBe('1');
     });
 
     it('draws the rows the box is scrolled to', async () => {
@@ -106,8 +106,8 @@ describe('a virtual grid', () => {
         const { scrollTo, element } = mount({ stripedRows: true });
         for (const top of [20000, 20040, 20080]) {
             await scrollTo(top);
-            const body = element.querySelector('tbody')!;
-            const row = body.querySelector('tr[data-index]') as HTMLTableRowElement;
+            const body = element.querySelector('[data-section="body"]')!;
+            const row = body.querySelector('[role="row"][data-index]') as HTMLElement;
             const child = Array.from(body.children).indexOf(row) + 1;
             expect(child % 2).toBe((Number(row.dataset.index) + 1) % 2);
         }
@@ -119,7 +119,7 @@ describe('a virtual grid', () => {
         expect(rows()[0]!.textContent).toContain('Item 1000');
         handle!.update({ filters: { name: { value: '0999', matchMode: 'contains' } } });
         expect(rows()).toHaveLength(1);
-        expect(element.querySelector('table')!.getAttribute('aria-rowcount')).toBe('2');
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('aria-rowcount')).toBe('2');
     });
 
     it('scrolls a row that is not drawn into view, and draws it', () => {
@@ -132,13 +132,13 @@ describe('a virtual grid', () => {
     it('takes the arrow keys past the rows drawn', () => {
         const { element, indexes } = mount({ selectionMode: 'single' });
         const last = Math.max(...indexes());
-        const row = element.querySelector(`tr[data-index="${last}"]`) as HTMLElement;
+        const row = element.querySelector(`[role="row"][data-index="${last}"]`) as HTMLElement;
         row.focus();
         row.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
         expect(indexes()).toContain(last + 1);
-        expect(document.activeElement).toBe(element.querySelector(`tr[data-index="${last + 1}"]`));
+        expect(document.activeElement).toBe(element.querySelector(`[role="row"][data-index="${last + 1}"]`));
         (document.activeElement as HTMLElement).dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
-        expect(document.activeElement).toBe(element.querySelector('tr[data-index="999"]'));
+        expect(document.activeElement).toBe(element.querySelector('[role="row"][data-index="999"]'));
     });
 
     it('draws as few placeholder rows as it would draw rows', () => {
@@ -170,15 +170,15 @@ describe('a grid that draws its columns as they come into view', () => {
 
     it('draws the columns in view and a spacer for the rest, saying how many there are', async () => {
         const { element, table, scrollTo } = mount({ virtualScroll: false, value: items.slice(0, 3), columns: many, virtualColumns: true });
-        const headers = () => Array.from(element.querySelectorAll('thead th[data-column]')).map((th) => th.getAttribute('data-column'));
+        const headers = () => Array.from(element.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]')).map((th) => th.getAttribute('data-column'));
         expect(headers().length).toBeLessThan(20);
         expect(headers()[0]).toBe('c0');
         expect(table().getAttribute('aria-colcount')).toBe('40');
-        expect(element.querySelector('tbody td')!.getAttribute('aria-colindex')).toBe('1');
+        expect(element.querySelector('[data-section="body"] :is([role="cell"],[role="gridcell"])')!.getAttribute('aria-colindex')).toBe('1');
         await scrollTo(0, 2000);
         expect(headers()).toContain('c20');
         expect(headers()).not.toContain('c0');
-        const first = element.querySelector('tbody tr')!.querySelector('td[aria-colindex]')!;
+        const first = element.querySelector('[data-section="body"] [role="row"]')!.querySelector(':is([role="cell"],[role="gridcell"])[aria-colindex]')!;
         expect(Number(first.getAttribute('aria-colindex'))).toBeGreaterThan(15);
     });
 
@@ -190,14 +190,13 @@ describe('a grid that draws its columns as they come into view', () => {
             virtualColumns: true
         });
         await scrollTo(0, 3000);
-        const headers = Array.from(element.querySelectorAll('thead th[data-column]')).map((th) => th.getAttribute('data-column'));
+        const headers = Array.from(element.querySelectorAll('[data-section="head"] :is([role="columnheader"],[role="rowheader"])[data-column]')).map((th) => th.getAttribute('data-column'));
         expect(headers[0]).toBe('pin');
         expect(headers).not.toContain('c1');
     });
 
     it('gives a column without a width its minimum, or 150px', () => {
         const { element } = mount({ virtualScroll: false, value: items.slice(0, 3), columns: [{ field: 'id', header: 'Id' }, { field: 'name', header: 'Name', minWidth: 90 }], virtualColumns: true });
-        const widths = Array.from(element.querySelectorAll<HTMLElement>('thead th[data-column]')).map((th) => th.style.width);
-        expect(widths).toEqual(['150px', '90px']);
+        expect(element.querySelector<HTMLElement>('[data-grid-table]')!.style.gridTemplateColumns).toBe('150px 90px minmax(0, 1fr)');
     });
 });

@@ -34,7 +34,7 @@ function mount(config: Record<string, unknown> = {}) {
     const rows = fresh();
     const on = { 'cell-edit-complete': vi.fn(), 'cell-edit-cancel': vi.fn(), 'cell-edit-start': vi.fn(), 'row-edit-save': vi.fn(), 'cell-edit-undo': vi.fn() };
     handle = createDataGrid<Item>(element, { value: rows, dataKey: 'id', columns, ariaLabel: 'Items', on, ...config });
-    const cell = (index: number, key: string) => element.querySelector(`tr[data-index="${index}"] td[data-col="${key}"]`) as HTMLElement;
+    const cell = (index: number, key: string) => element.querySelector(`[role="row"][data-index="${index}"] :is([role="cell"],[role="gridcell"])[data-col="${key}"]`) as HTMLElement;
     const editor = () => element.querySelector('[data-editor]') as HTMLInputElement | null;
     const key = (target: Element, name: string, init: KeyboardEventInit = {}) => target.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...init }));
     const type = (text: string) => {
@@ -89,9 +89,9 @@ describe('reading an edit back', () => {
 describe('editing a cell', () => {
     it('makes the table an interactive grid whose cells take the keyboard, one in the tab order', () => {
         const { element, cell } = mount();
-        expect(element.querySelector('table')!.getAttribute('role')).toBe('grid');
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('role')).toBe('grid');
         expect(cell(0, 'name').getAttribute('tabindex')).toBe('0');
-        expect(element.querySelectorAll('td[tabindex="0"]')).toHaveLength(1);
+        expect(element.querySelectorAll(':is([role="cell"],[role="gridcell"])[tabindex="0"]')).toHaveLength(1);
     });
 
     it('moves through cells with the arrows, Home and End', () => {
@@ -185,15 +185,15 @@ describe('editing a cell', () => {
         cell(0, 'due').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         key(editor()!, 'Tab');
         // Active is a checkbox, so it is the next box; then past the row's end to the next row.
-        expect(element().querySelector('td[data-editing]')!.getAttribute('data-col')).toBe('active');
+        expect(element().querySelector(':is([role="cell"],[role="gridcell"])[data-editing]')!.getAttribute('data-col')).toBe('active');
         key(document.activeElement!, 'Tab');
-        expect(element().querySelector('td[data-editing]')!.closest('tr')!.getAttribute('data-index')).toBe('1');
+        expect(element().querySelector(':is([role="cell"],[role="gridcell"])[data-editing]')!.closest('[role="row"]')!.getAttribute('data-index')).toBe('1');
         type('Desk lamp');
         key(editor()!, 'Tab', { shiftKey: true });
         expect(rows[1]!.name).toBe('Desk lamp');
-        expect(element().querySelector('td[data-editing]')!.getAttribute('data-col')).toBe('active');
+        expect(element().querySelector(':is([role="cell"],[role="gridcell"])[data-editing]')!.getAttribute('data-col')).toBe('active');
         function element() {
-            return cell(0, 'name').closest('table')!;
+            return cell(0, 'name').closest('[data-grid-table]')!;
         }
     });
 
@@ -218,7 +218,7 @@ describe('editing a cell', () => {
         cell(0, 'name').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         type('Zebra stool');
         key(editor()!, 'Enter');
-        expect(element.querySelector('tr[data-index="2"] td')!.textContent).toBe('Zebra stool');
+        expect(element.querySelector('[role="row"][data-index="2"] :is([role="cell"],[role="gridcell"])')!.textContent).toBe('Zebra stool');
         expect(document.activeElement).toBe(cell(2, 'name'));
     });
 
@@ -272,13 +272,13 @@ describe('editing a cell', () => {
             ]
         });
         cell(0, 'name').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
-        (element.querySelector('td[data-editing] button') as HTMLButtonElement).click();
+        (element.querySelector(':is([role="cell"],[role="gridcell"])[data-editing] button') as HTMLButtonElement).click();
         expect(rows[0]!.name).toBe('Sofa');
     });
 
     it('stays a table read by rows when told to, and edits on a double click', () => {
         const { element, cell, editor } = mount({ navigation: 'row' });
-        expect(element.querySelector('table')!.hasAttribute('role')).toBe(false);
+        expect(element.querySelector('[data-grid-table]')!.getAttribute('role')).toBe('table');
         expect(cell(0, 'name').hasAttribute('tabindex')).toBe(false);
         cell(0, 'name').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         expect(editor()).not.toBeNull();
@@ -296,12 +296,12 @@ describe('editing a row', () => {
         const { cell, element, key, rows, on } = mount({ editMode: 'row' });
         cell(0, 'price').focus();
         key(cell(0, 'price'), 'Enter');
-        expect(element.querySelectorAll('td[data-editing]')).toHaveLength(4);
-        expect(document.activeElement).toBe(element.querySelector('td[data-col="price"] [data-editor]'));
-        const name = element.querySelector('td[data-col="name"] [data-editor]') as HTMLInputElement;
+        expect(element.querySelectorAll(':is([role="cell"],[role="gridcell"])[data-editing]')).toHaveLength(4);
+        expect(document.activeElement).toBe(element.querySelector(':is([role="cell"],[role="gridcell"])[data-col="price"] [data-editor]'));
+        const name = element.querySelector(':is([role="cell"],[role="gridcell"])[data-col="name"] [data-editor]') as HTMLInputElement;
         name.value = 'Desk XL';
         name.dispatchEvent(new Event('input', { bubbles: true }));
-        const price = element.querySelector('td[data-col="price"] [data-editor]') as HTMLInputElement;
+        const price = element.querySelector(':is([role="cell"],[role="gridcell"])[data-col="price"] [data-editor]') as HTMLInputElement;
         price.value = '130';
         price.dispatchEvent(new Event('input', { bubbles: true }));
         key(price, 'Enter');
@@ -314,16 +314,16 @@ describe('editing a row', () => {
 
     it('draws Edit, then Save and Cancel, in a row editor column', () => {
         const { element, rows } = mount({ navigation: 'row', columns: [...columns, { key: 'edit', rowEditor: true }] });
-        (element.querySelector('tr[data-index="1"] [data-row-editor="edit"]') as HTMLButtonElement).click();
-        expect(element.querySelectorAll('tr[data-index="1"] td[data-editing]')).toHaveLength(4);
-        const name = element.querySelector('td[data-col="name"] [data-editor]') as HTMLInputElement;
+        (element.querySelector('[role="row"][data-index="1"] [data-row-editor="edit"]') as HTMLButtonElement).click();
+        expect(element.querySelectorAll('[role="row"][data-index="1"] :is([role="cell"],[role="gridcell"])[data-editing]')).toHaveLength(4);
+        const name = element.querySelector(':is([role="cell"],[role="gridcell"])[data-col="name"] [data-editor]') as HTMLInputElement;
         name.value = 'Floor lamp';
         name.dispatchEvent(new Event('input', { bubbles: true }));
         (element.querySelector('[data-row-editor="cancel"]') as HTMLButtonElement).click();
         expect(rows[1]!.name).toBe('Lamp');
-        (element.querySelector('tr[data-index="1"] [data-row-editor="edit"]') as HTMLButtonElement).click();
+        (element.querySelector('[role="row"][data-index="1"] [data-row-editor="edit"]') as HTMLButtonElement).click();
         (element.querySelector('[data-row-editor="save"]') as HTMLButtonElement).click();
-        expect(element.querySelector('td[data-editing]')).toBeNull();
-        expect(document.activeElement).toBe(element.querySelector('tr[data-index="1"] [data-row-editor="edit"]'));
+        expect(element.querySelector(':is([role="cell"],[role="gridcell"])[data-editing]')).toBeNull();
+        expect(document.activeElement).toBe(element.querySelector('[role="row"][data-index="1"] [data-row-editor="edit"]'));
     });
 });
