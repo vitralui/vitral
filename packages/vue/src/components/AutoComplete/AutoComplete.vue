@@ -106,7 +106,7 @@ const editable = computed(() => !props.disabled && !props.readonly);
 const focusedId = computed(() => (open.value && focusedIndex.value >= 0 && items.value[focusedIndex.value] ? optionId(focusedIndex.value) : undefined));
 const statusText = computed(() => {
     if (!open.value) return '';
-    return items.value.length ? formatMessage(locale.value.searchMessage, { count: items.value.length }) : (props.emptySearchMessage ?? locale.value.emptySearchMessage);
+    return items.value.length ? formatMessage(locale.value.searchMessage, { count: items.value.length }, locale.value.code) : (props.emptySearchMessage ?? locale.value.emptySearchMessage);
 });
 const listLabelledBy = computed(() => (controlAttrs.value['aria-labelledby'] as string | undefined) ?? labelFromFor.value);
 const listLabel = computed(() => (controlAttrs.value['aria-label'] as string | undefined) ?? (controlAttrs.value.placeholder as string | undefined) ?? locale.value.search);

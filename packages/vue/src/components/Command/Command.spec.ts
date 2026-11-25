@@ -97,7 +97,7 @@ describe('Command', () => {
         expect(active()).toBe('Search emoji');
         expect((document.querySelectorAll('[role="presentation"]')[1] as HTMLElement).style.display).toBe('none');
         expect((document.querySelector('.vt-command-separator') as HTMLElement).style.display).toBe('none');
-        expect(document.querySelector('[role="status"]')!.textContent).toBe('1 results are available');
+        expect(document.querySelector('[role="status"]')!.textContent).toBe('1 result is available');
         await type('configuracoes');
         expect(options().map((o) => o.textContent?.trim())).toEqual(['Configurações']);
         await type('zzz');

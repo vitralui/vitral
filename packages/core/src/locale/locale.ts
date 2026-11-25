@@ -820,8 +820,78 @@ export interface Locale {
     };
 }
 
-export function formatMessage(template: string, params: Record<string, string | number>): string {
-    return template.replace(/\{(\w+)\}/g, (whole, key: string) => (key in params ? String(params[key]) : whole));
+/**
+ * A message with its `{name}`s filled in. A word that changes with a number
+ * is written as a choice, the way ICU writes it:
+ *
+ *     '{count, plural, =0 {No cards} one {# card} other {# cards}}'
+ *
+ * `=N` matches the number exactly, then the language's own category (`one`,
+ * `few`, `many`, `other`, by `Intl.PluralRules` for `lang`), then `other`;
+ * `#` is the value as it was given, so a number already formatted (`1,234`)
+ * stays formatted. A template with no choice in it is filled as before.
+ */
+export function formatMessage(template: string, params: Record<string, string | number>, lang = 'en'): string {
+    return fill(template, params, lang);
+}
+
+const pluralRules = new Map<string, Intl.PluralRules>();
+
+function fill(template: string, params: Record<string, string | number>, lang: string): string {
+    let out = '';
+    let at = 0;
+    while (at < template.length) {
+        const open = template.indexOf('{', at);
+        if (open < 0) break;
+        const close = matching(template, open);
+        if (close < 0) break;
+        out += template.slice(at, open);
+        out += piece(template.slice(open + 1, close), template.slice(open, close + 1), params, lang);
+        at = close + 1;
+    }
+    return out + template.slice(at);
+}
+
+/** Where the brace opened at `open` closes, counting the ones inside it. */
+function matching(text: string, open: number): number {
+    let depth = 0;
+    for (let i = open; i < text.length; i++) {
+        if (text[i] === '{') depth++;
+        else if (text[i] === '}' && --depth === 0) return i;
+    }
+    return -1;
+}
+
+function piece(inner: string, whole: string, params: Record<string, string | number>, lang: string): string {
+    const plain = inner.match(/^\s*(\w+)\s*$/);
+    if (plain) return plain[1]! in params ? String(params[plain[1]!]) : whole;
+    const choice = inner.match(/^\s*(\w+)\s*,\s*plural\s*,([\s\S]*)$/);
+    if (!choice || !(choice[1]! in params)) return whole;
+    const given = params[choice[1]!]!;
+    // A count arrives formatted at times ("1,234", "1.234"): its digits are the number.
+    const value = typeof given === 'number' ? given : Number(String(given).replace(/[^\d-]/g, ''));
+    const options = new Map<string, string>();
+    const body = choice[2]!;
+    let at = 0;
+    while (at < body.length) {
+        const open = body.indexOf('{', at);
+        if (open < 0) break;
+        const close = matching(body, open);
+        if (close < 0) break;
+        options.set(body.slice(at, open).trim(), body.slice(open + 1, close));
+        at = close + 1;
+    }
+    let rules = pluralRules.get(lang);
+    if (!rules) {
+        try {
+            rules = new Intl.PluralRules(lang);
+        } catch {
+            rules = new Intl.PluralRules('en');
+        }
+        pluralRules.set(lang, rules);
+    }
+    const chosen = options.get(`=${value}`) ?? options.get(rules.select(value)) ?? options.get('other') ?? '';
+    return fill(chosen.replace(/#/g, String(given)), params, lang);
 }
 
 export const en: Locale = {
@@ -844,8 +914,8 @@ export const en: Locale = {
     emptyMessage: 'No available options',
     emptySearchMessage: 'No results found',
     emptySelectionMessage: 'No selected item',
-    selectionMessage: '{count} items selected',
-    searchMessage: '{count} results are available',
+    selectionMessage: '{count, plural, one {# item selected} other {# items selected}}',
+    searchMessage: '{count, plural, =0 {No results are available} one {# result is available} other {# results are available}}',
     pageReport: '{first}–{last} of {total}',
     rowsPerPage: 'Rows per page',
     pageInput: 'Page',
@@ -878,7 +948,7 @@ export const en: Locale = {
         allDay: 'All day',
         noEvents: 'Nothing scheduled in this period',
         more: '+{count} more',
-        moreLabel: '{count} more events on {date}',
+        moreLabel: '{count, plural, one {# more event} other {# more events}} on {date}',
         untitled: '(No title)',
         resources: 'Resources',
         views: 'View',
@@ -1252,7 +1322,7 @@ export const en: Locale = {
         chooseYear: 'Choose year',
         chooseDate: 'Choose date',
         chooseTime: 'Choose time',
-        toastRepeated: '{count} times',
+        toastRepeated: '{count, plural, one {once} other {# times}}',
         pagination: 'Pagination',
         filterColumn: 'Filter {column}',
         moreOptions: 'More options',
@@ -1320,7 +1390,7 @@ export const en: Locale = {
         taskboardInstructions: 'Press Space to pick the card up, the arrow keys to move it, Space again to drop it or Escape to cancel. Page Up and Page Down move it between lanes.',
         taskboardColumnInstructions: 'Press Space to pick the column up, the left and right arrow keys to move it, Space again to drop it or Escape to cancel.',
         taskboardCell: '{column}, {lane}',
-        taskboardCount: '{count} cards',
+        taskboardCount: '{count, plural, =0 {No cards} one {# card} other {# cards}}',
         taskboardCountLimit: '{count} of {limit} cards',
         taskboardToggle: '{name} cards',
         taskboardMoveColumn: 'Move column {column}',
@@ -1383,7 +1453,7 @@ export const en: Locale = {
         searchValues: 'Search values',
         selectAll: 'Select all',
         blank: '(Blank)',
-        moreValues: '{count} more: search to find them',
+        moreValues: '{count, plural, one {# more: search to find it} other {# more: search to find them}}',
         columnMenu: 'Options for {column}',
         sortAscending: 'Sort ascending',
         sortDescending: 'Sort descending',
@@ -1405,8 +1475,8 @@ export const en: Locale = {
         copyRow: 'Copy row',
         exportCsv: 'Export to CSV',
         exportExcel: 'Export to Excel',
-        cellsChanged: '{count} cells changed',
-        cellsChangedRefused: '{count} cells changed, {refused} refused',
+        cellsChanged: '{count, plural, one {# cell changed} other {# cells changed}}',
+        cellsChangedRefused: '{count, plural, one {# cell changed} other {# cells changed}}, {refused} refused',
         moveRow: 'Move row',
         dragHandle: 'Drag handle',
         moved: 'Moved to row {position} of {count}',
@@ -1465,8 +1535,8 @@ export const en: Locale = {
         pivotFieldOptions: 'Options for {field}',
         pivotHow: 'How {field} is worked out',
         aggregates: { sum: 'Sum', avg: 'Average', min: 'Min', max: 'Max', count: 'Count', first: 'First', last: 'Last', custom: 'Custom' },
-        statusRows: '{count} rows',
-        statusFiltered: '{count} of {total} rows',
+        statusRows: '{count, plural, one {# row} other {# rows}}',
+        statusFiltered: '{count} of {total, plural, one {# row} other {# rows}}',
         statusSelected: '{count} selected',
         statusCount: 'Count: {count}',
         statusSum: 'Sum: {value}',
@@ -1496,8 +1566,8 @@ export const ptBR: Locale = {
     emptyMessage: 'Nenhuma opção disponível',
     emptySearchMessage: 'Nenhum resultado encontrado',
     emptySelectionMessage: 'Nenhum item selecionado',
-    selectionMessage: '{count} itens selecionados',
-    searchMessage: '{count} resultados disponíveis',
+    selectionMessage: '{count, plural, =0 {Nenhum item selecionado} one {# item selecionado} other {# itens selecionados}}',
+    searchMessage: '{count, plural, =0 {Nenhum resultado disponível} one {# resultado disponível} other {# resultados disponíveis}}',
     pageReport: '{first}–{last} de {total}',
     rowsPerPage: 'Linhas por página',
     pageInput: 'Página',
@@ -1530,7 +1600,7 @@ export const ptBR: Locale = {
         allDay: 'Dia inteiro',
         noEvents: 'Nada agendado neste período',
         more: '+{count} mais',
-        moreLabel: 'Mais {count} eventos em {date}',
+        moreLabel: '{count, plural, one {Mais # evento} other {Mais # eventos}} em {date}',
         untitled: '(Sem título)',
         resources: 'Recursos',
         views: 'Visualização',
@@ -1904,7 +1974,7 @@ export const ptBR: Locale = {
         chooseYear: 'Escolher ano',
         chooseDate: 'Escolher data',
         chooseTime: 'Escolher horário',
-        toastRepeated: '{count} vezes',
+        toastRepeated: '{count, plural, =1 {uma vez} other {# vezes}}',
         pagination: 'Paginação',
         filterColumn: 'Filtrar {column}',
         moreOptions: 'Mais opções',
@@ -1972,7 +2042,7 @@ export const ptBR: Locale = {
         taskboardInstructions: 'Pressione Espaço para pegar o cartão, as setas para movê-lo, Espaço de novo para soltá-lo ou Esc para cancelar. Page Up e Page Down movem entre as raias.',
         taskboardColumnInstructions: 'Pressione Espaço para pegar a coluna, as setas para a esquerda e a direita para movê-la, Espaço de novo para soltá-la ou Esc para cancelar.',
         taskboardCell: '{column}, {lane}',
-        taskboardCount: '{count} cartões',
+        taskboardCount: '{count, plural, =0 {Nenhum cartão} one {# cartão} other {# cartões}}',
         taskboardCountLimit: '{count} de {limit} cartões',
         taskboardToggle: 'Cartões de {name}',
         taskboardMoveColumn: 'Mover a coluna {column}',
@@ -2035,7 +2105,7 @@ export const ptBR: Locale = {
         searchValues: 'Buscar valores',
         selectAll: 'Selecionar tudo',
         blank: '(Vazio)',
-        moreValues: 'Mais {count}: busque para encontrá-los',
+        moreValues: '{count, plural, =1 {Mais 1: busque para encontrá-lo} other {Mais #: busque para encontrá-los}}',
         columnMenu: 'Opções de {column}',
         sortAscending: 'Ordem crescente',
         sortDescending: 'Ordem decrescente',
@@ -2057,8 +2127,8 @@ export const ptBR: Locale = {
         copyRow: 'Copiar linha',
         exportCsv: 'Exportar para CSV',
         exportExcel: 'Exportar para Excel',
-        cellsChanged: '{count} células alteradas',
-        cellsChangedRefused: '{count} células alteradas, {refused} recusadas',
+        cellsChanged: '{count, plural, =0 {Nenhuma célula alterada} one {# célula alterada} other {# células alteradas}}',
+        cellsChangedRefused: '{count, plural, =0 {Nenhuma célula alterada} one {# célula alterada} other {# células alteradas}}, {refused, plural, one {# recusada} other {# recusadas}}',
         moveRow: 'Mover linha',
         dragHandle: 'Alça de arraste',
         moved: 'Movida para a linha {position} de {count}',
@@ -2117,8 +2187,8 @@ export const ptBR: Locale = {
         pivotFieldOptions: 'Opções de {field}',
         pivotHow: 'Como {field} é calculado',
         aggregates: { sum: 'Soma', avg: 'Média', min: 'Mínimo', max: 'Máximo', count: 'Contagem', first: 'Primeiro', last: 'Último', custom: 'Personalizado' },
-        statusRows: '{count} linhas',
-        statusFiltered: '{count} de {total} linhas',
+        statusRows: '{count, plural, =0 {Nenhuma linha} one {# linha} other {# linhas}}',
+        statusFiltered: '{count} de {total, plural, one {# linha} other {# linhas}}',
         statusSelected: '{count} selecionadas',
         statusCount: 'Contagem: {count}',
         statusSum: 'Soma: {value}',

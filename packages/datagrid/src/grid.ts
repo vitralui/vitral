@@ -1805,7 +1805,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         if (current.undoRedo !== false) history.push(records);
         const changes = records.map((record) => ({ originalEvent: event, row: record.row, index: rowsNow().offset + page.indexOf(record.row), key: record.key, field: record.column.field, value: record.value, newValue: record.newValue }));
         const words = locale().datagrid;
-        announcement = formatMessage(refused ? words.cellsChangedRefused : words.cellsChanged, { count: records.length, refused });
+        announcement = formatMessage(refused ? words.cellsChangedRefused : words.cellsChanged, { count: records.length, refused }, locale().code);
         forget();
         emit('cells-change', { originalEvent: event, source, changes });
         render();

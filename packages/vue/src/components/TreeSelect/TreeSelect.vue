@@ -68,7 +68,7 @@ const hasValue = computed(() => selectedNodes.value.length > 0);
 const overLimit = computed(() => props.maxSelectedLabels !== undefined && selectedNodes.value.length > props.maxSelectedLabels);
 const commaText = computed(() => {
     if (!hasValue.value) return props.placeholder || ' ';
-    if (overLimit.value) return formatMessage(props.selectedItemsLabel ?? locale.value.selectionMessage, { count: selectedNodes.value.length });
+    if (overLimit.value) return formatMessage(props.selectedItemsLabel ?? locale.value.selectionMessage, { count: selectedNodes.value.length }, locale.value.code);
     return selectedNodes.value.map((node) => node.label ?? node.key).join(', ');
 });
 const showChips = computed(() => props.display === 'chip' && hasValue.value && !overLimit.value);

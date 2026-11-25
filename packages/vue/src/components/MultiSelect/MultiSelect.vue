@@ -115,7 +115,7 @@ const hasValue = computed(() => selected.value.length > 0);
 const overLimit = computed(() => props.maxSelectedLabels !== undefined && selected.value.length > props.maxSelectedLabels);
 const commaText = computed(() => {
     if (!hasValue.value) return props.placeholder || ' ';
-    if (overLimit.value) return formatMessage(props.selectedItemsLabel ?? locale.value.selectionMessage, { count: selected.value.length });
+    if (overLimit.value) return formatMessage(props.selectedItemsLabel ?? locale.value.selectionMessage, { count: selected.value.length }, locale.value.code);
     return selectedOptions.value.map(labelOf).join(', ');
 });
 const showChips = computed(() => props.display === 'chip' && hasValue.value && !overLimit.value);

@@ -146,7 +146,7 @@ export function timeGridView(context: ViewContext): Child {
                                                 'button',
                                                 mergeAttrs({ key: `more-${other.getTime()}`, type: 'button' }, part('moreButton'), {
                                                     style: spanStyle({ first: column, last: column, row: allDayLimits[column]! }, days.length),
-                                                    'aria-label': formatMessage(locale.schedule.moreLabel, { count: allDayHidden[column]!, date: context.format(other, locale.schedule.dayTitle) }),
+                                                    'aria-label': formatMessage(locale.schedule.moreLabel, { count: allDayHidden[column]!, date: context.format(other, locale.schedule.dayTitle) }, locale.code),
                                                     'aria-haspopup': 'dialog',
                                                     onClick: (event: MouseEvent) => context.on.showMore(event, other)
                                                 }),
@@ -199,7 +199,7 @@ export function timeGridView(context: ViewContext): Child {
                                                     'button',
                                                     mergeAttrs({ key: `more-${placement.top}`, type: 'button' }, part('moreButton', { timed: true }), {
                                                         style: timedStyle(placement),
-                                                        'aria-label': formatMessage(locale.schedule.moreLabel, { count: placement.hiddenCount, date: context.format(day, locale.schedule.dayTitle) }),
+                                                        'aria-label': formatMessage(locale.schedule.moreLabel, { count: placement.hiddenCount, date: context.format(day, locale.schedule.dayTitle) }, locale.code),
                                                         'aria-haspopup': 'dialog',
                                                         onClick: (event: MouseEvent) => context.on.showMore(event, day)
                                                     }),

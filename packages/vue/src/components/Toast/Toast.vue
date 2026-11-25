@@ -291,7 +291,7 @@ defineExpose({ add, update, remove, clear });
                                         {{ entry.message.summary }}
                                         <span v-if="entry.count > 1" v-bind="part('count')">
                                             <span aria-hidden="true">×{{ entry.count }}</span>
-                                            <span class="vt-sr-only">{{ formatMessage(locale.aria.toastRepeated, { count: entry.count }) }}</span>
+                                            <span class="vt-sr-only">{{ formatMessage(locale.aria.toastRepeated, { count: entry.count }, locale.code) }}</span>
                                         </span>
                                     </div>
                                     <div v-if="entry.message.detail" v-bind="part('detail')">{{ entry.message.detail }}</div>

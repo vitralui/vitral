@@ -179,7 +179,7 @@ provide(CommandKey, {
     label: () => props.label ?? locale.value.aria.commandPalette
 });
 
-const status = computed(() => (normalizedSearch.value ? formatMessage(locale.value.searchMessage, { count: count.value }) : ''));
+const status = computed(() => (normalizedSearch.value ? formatMessage(locale.value.searchMessage, { count: count.value }, locale.value.code) : ''));
 </script>
 
 <template>

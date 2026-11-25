@@ -94,7 +94,7 @@ export function monthView(context: ViewContext): Child {
                                       'button',
                                       mergeAttrs({ key: 'more', type: 'button' }, part('moreButton'), {
                                           style: moreStyle(week.limits[column]!, column),
-                                          'aria-label': formatMessage(locale.schedule.moreLabel, { count: week.hidden[column]!, date: context.format(day, locale.schedule.dayTitle) }),
+                                          'aria-label': formatMessage(locale.schedule.moreLabel, { count: week.hidden[column]!, date: context.format(day, locale.schedule.dayTitle) }, locale.code),
                                           'aria-haspopup': 'dialog',
                                           onClick: (event: MouseEvent) => context.on.showMore(event, day)
                                       }),

@@ -590,7 +590,7 @@ function statusBar<T>(context: ViewContext<T>): Child {
     const own = typeof config.statusBar === 'function' ? content(config.statusBar(status)) : null;
     const items: [string, string][] = [];
     if (own === null) {
-        items.push(['rows', formatMessage(status.filtered === status.total ? words.statusRows : words.statusFiltered, { count: number(status.filtered), total: number(status.total) })]);
+        items.push(['rows', formatMessage(status.filtered === status.total ? words.statusRows : words.statusFiltered, { count: number(status.filtered), total: number(status.total) }, context.locale.code)]);
         if (status.selected) items.push(['selected', formatMessage(words.statusSelected, { count: number(status.selected) })]);
         const range = status.range;
         if (range && range.count > 1) {
@@ -1198,7 +1198,7 @@ export function filterPanelView<T>(context: ViewContext<T>, inline = false): VEl
                 )
             )
         ),
-        view.more > 0 ? h('p', mergeAttrs({ key: 'more' }, part('filterMore')), formatMessage(words.moreValues, { count: view.more })) : null
+        view.more > 0 ? h('p', mergeAttrs({ key: 'more' }, part('filterMore')), formatMessage(words.moreValues, { count: view.more }, context.locale.code)) : null
     ];
     return h(
         'div',
