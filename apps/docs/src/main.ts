@@ -1,4 +1,4 @@
-import { areaChart, columns, languages, listChecks, messageSquare, monitor, route as routeIcon, server, smartphone, table, tablet } from '@vitral/icons';
+import { areaChart, columns, hash, languages, listChecks, messageSquare, monitor, route as routeIcon, server, smartphone, table, tablet } from '@vitral/icons';
 import { Vitral } from '@vitral/vue';
 import { createApp } from 'vue';
 import App from './App.vue';
@@ -21,8 +21,9 @@ function mount() {
             // rather than mounting the default and being changed a frame later.
             theme: { preset: initialPreset(), colorScheme: pinned ?? 'system', storageKey: pinned ? false : 'vitral-docs-scheme' },
             // The icons the site wants that are not in the base set: two for the
-            // landing page, five for the addons menu, four for each example's bar.
-            icons: [listChecks, server, areaChart, columns, table, messageSquare, routeIcon, smartphone, tablet, monitor, languages]
+            // landing page, five for the addons menu, four for each example's bar,
+            // one for an example found by the search.
+            icons: [listChecks, server, areaChart, columns, table, messageSquare, routeIcon, smartphone, tablet, monitor, languages, hash]
         })
         .mount('#app');
 }

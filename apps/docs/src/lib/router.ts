@@ -159,9 +159,45 @@ function jumpTo(id: string, tries = 10): void {
     const target = document.getElementById(id);
     if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        holdInPlace(target);
         return;
     }
     if (tries > 0) requestAnimationFrame(() => jumpTo(id, tries - 1));
+}
+
+/*
+ * A page that has just arrived keeps growing above the section it was opened
+ * at: its examples draw, measure themselves and settle a moment later, and the
+ * section is pushed down past where the scroll stopped. For a little while,
+ * the section is put back at the top whenever the page above it changes
+ * height, until the reader scrolls on their own.
+ */
+let letGo: (() => void) | undefined;
+function holdInPlace(target: HTMLElement): void {
+    letGo?.();
+    const top = () => target.getBoundingClientRect().top;
+    const wanted = () => parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    const observer = new ResizeObserver(() => {
+        // Left alone while the smooth scroll is still on its way.
+        if (Math.abs(top() - wanted()) > 2 && !moving) target.scrollIntoView({ block: 'start' });
+    });
+    let moving = true;
+    let last = window.scrollY;
+    const settle = window.setInterval(() => {
+        moving = window.scrollY !== last;
+        last = window.scrollY;
+    }, 100);
+    const stop = () => {
+        observer.disconnect();
+        window.clearInterval(settle);
+        window.clearTimeout(timer);
+        for (const name of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) window.removeEventListener(name, stop);
+        letGo = undefined;
+    };
+    const timer = window.setTimeout(stop, 3000);
+    for (const name of ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const) window.addEventListener(name, stop, { passive: true });
+    observer.observe(document.body);
+    letGo = stop;
 }
 
 export function navigate(path: string, hash = '', which: Lang = lang.value): void {

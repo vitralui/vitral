@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Icon } from '@vitral/vue';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { categoryName } from '../demo';
 import { track } from '../lib/analytics';
-import { entries, entryText } from '../lib/catalog';
+import { entries, entryText, sectionText } from '../lib/catalog';
 import { componentChange, type Change } from '../lib/changes';
 import { guides, guideText, sectionName } from '../lib/guides';
-import { t } from '../lib/i18n';
+import { lang, t } from '../lib/i18n';
 import { navigate } from '../lib/router';
+import { slugify } from '../lib/section';
 import { templates, templateText } from '../templates';
 import ChangeBadge from './ChangeBadge.vue';
 
@@ -26,6 +27,8 @@ interface Hit {
     label: string;
     hint: string;
     path: string;
+    /** An example on the page, to land on rather than its top. */
+    hash?: string;
     /** A component the last few releases added or changed. */
     change?: Change;
 }
@@ -40,17 +43,56 @@ const all = computed<Hit[]>(() => [
     ...entries.map((entry) => ({ label: entryText(entry).title, hint: categoryName(entry.meta.category), path: `/components/${entry.id}`, change: componentChange(entry.file) }))
 ]);
 
-const iconOf = (path: string) => (path === '/icons' ? 'star' : path.startsWith('/docs') ? 'file' : path.startsWith('/templates') ? 'sidebar' : 'grip');
+/**
+ * Every example on every component's page, found only by a search: "pinned
+ * columns" goes to the example that shows them, which a reader looking for
+ * how to do something wants more than the component's name.
+ */
+const translated = shallowRef<Record<string, Record<string, Record<string, string>>>>({});
+import('virtual:vitral-section-titles').then((module) => (translated.value = module.titles)).catch(() => {});
+
+const examples = computed<Hit[]>(() =>
+    entries.flatMap((entry) =>
+        entry.sections.map((title) => ({
+            // The page's own words when it is open, else the titles fetched for the search, else the English.
+            label: translated.value[lang.value]?.[entry.id]?.[title] ?? sectionText(entry, title).title,
+            hint: entryText(entry).title,
+            path: `/components/${entry.id}`,
+            hash: `#${slugify(title)}`
+        }))
+    )
+);
+
+// Without case or accents: "selecao" finds "seleção".
+const plain = (text: string) => text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+
+const iconOf = (hit: Hit) =>
+    hit.hash ? 'hash' : hit.path === '/icons' ? 'star' : hit.path.startsWith('/docs') ? 'file' : hit.path.startsWith('/templates') ? 'sidebar' : 'grip';
 
 const query = ref('');
 const active = ref(0);
 const root = ref<HTMLElement | null>(null);
 const input = ref<HTMLInputElement | null>(null);
 
+/*
+ * Every word has to be found in a hit's name or what it belongs to. Pages come
+ * before examples, and among each, a name that starts with what was typed
+ * before one that only has it somewhere.
+ */
 const hits = computed(() => {
-    const needle = query.value.trim().toLowerCase();
-    if (!needle) return all.value.slice(0, 8);
-    return all.value.filter((hit) => hit.label.toLowerCase().includes(needle) || hit.hint.toLowerCase().includes(needle)).slice(0, 12);
+    const words = plain(query.value).split(/\s+/).filter(Boolean);
+    if (!words.length) return all.value.slice(0, 8);
+    const rank = (hit: Hit, base: number) => {
+        const label = plain(hit.label);
+        const text = `${label} ${plain(hit.hint)}`;
+        if (!words.every((word) => text.includes(word))) return -1;
+        return base + (label.startsWith(words[0]!) ? 0 : words.every((word) => label.includes(word)) ? 1 : 2);
+    };
+    return [...all.value.map((hit) => [hit, rank(hit, 0)] as const), ...examples.value.map((hit) => [hit, rank(hit, 3)] as const)]
+        .filter(([, score]) => score >= 0)
+        .sort((a, b) => a[1] - b[1])
+        .slice(0, 12)
+        .map(([hit]) => hit);
 });
 
 watch(query, () => (active.value = 0));
@@ -63,8 +105,8 @@ function close() {
 
 function go(hit?: Hit) {
     if (!hit) return;
-    track('search', { search_term: query.value.trim(), destination: hit.path });
-    navigate(hit.path);
+    track('search', { search_term: query.value.trim(), destination: hit.path + (hit.hash ?? '') });
+    navigate(hit.path, hit.hash);
     close();
 }
 
@@ -100,7 +142,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerdown)
                 v-model="query"
                 type="search"
                 class="searchbar-input"
-                :placeholder="t('Search components, guides and templates…')"
+                :placeholder="t('Search components, examples, guides and templates…')"
                 :aria-label="t('Search the documentation')"
                 aria-controls="site-search-list"
                 :aria-activedescendant="hits[active] ? `site-search-${active}` : undefined"
@@ -114,7 +156,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerdown)
 
         <div class="searchbar-results">
             <ul v-if="hits.length" id="site-search-list" class="search-list" role="listbox">
-                <li v-for="(hit, index) in hits" :key="hit.path" role="presentation">
+                <li v-for="(hit, index) in hits" :key="hit.path + (hit.hash ?? '')" role="presentation">
                     <button
                         :id="`site-search-${index}`"
                         class="search-item"
@@ -126,7 +168,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onPointerdown)
                         @click="go(hit)"
                         @mousemove="active = index"
                     >
-                        <Icon :icon="iconOf(hit.path)" />
+                        <Icon :icon="iconOf(hit)" />
                         {{ hit.label }}
                         <ChangeBadge :change="hit.change" />
                         <small>{{ hit.hint }}</small>

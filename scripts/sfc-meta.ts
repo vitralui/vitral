@@ -14,13 +14,20 @@
 //
 //     import.meta.glob('../demos/*.vue', { query: '?sources', import: 'default' })
 //     // → () => Promise<{ page: string; examples: Record<'Button/Severities', string> }>
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createRequire } from 'node:module';
 import type { Plugin } from 'vite';
 
 const require = createRequire(import.meta.url);
 const ts = require('typescript') as typeof import('typescript');
+
+// `virtual:vitral-section-titles`: the translated title of every example on
+// every component's page, by language, page and English title, and nothing
+// else. The site's search finds examples by their name in the reader's
+// language, and the whole of each page's words is fetched only when the page is.
+const TITLES = 'virtual:vitral-section-titles';
+const LOCALES = join(dirname(new URL(import.meta.url).pathname), '../apps/docs/src/locales');
 
 const PREFIX = '\0vitral-meta:';
 const SOURCES = '\0vitral-sources:';
@@ -37,12 +44,27 @@ export function sfcMeta(): Plugin {
         name: 'vitral-sfc-meta',
         enforce: 'pre',
         async resolveId(source, importer) {
+            if (source === TITLES) return `\0${TITLES}`;
             const kind = source.match(/\.vue\?(meta|sources)$/)?.[1];
             if (!kind) return null;
             const resolved = await this.resolve(source.slice(0, -`?${kind}`.length), importer, { skipSelf: true });
             return resolved ? `${kind === 'meta' ? PREFIX : SOURCES}${resolved.id.split('?')[0]}` : null;
         },
         load(id) {
+            if (id === `\0${TITLES}`) {
+                const titles: Record<string, Record<string, Record<string, string>>> = {};
+                for (const lang of readdirSync(LOCALES)) {
+                    const folder = join(LOCALES, lang, 'components');
+                    titles[lang] = {};
+                    for (const name of readdirSync(folder).filter((file) => file.endsWith('.json'))) {
+                        this.addWatchFile(join(folder, name));
+                        const sections = (JSON.parse(readFileSync(join(folder, name), 'utf8')) as { sections?: Record<string, { title?: string }> }).sections ?? {};
+                        const page = Object.fromEntries(Object.entries(sections).flatMap(([english, text]) => (text.title ? [[english, text.title]] : [])));
+                        if (Object.keys(page).length) titles[lang]![name.slice(0, -'.json'.length)] = page;
+                    }
+                }
+                return `export const titles = ${JSON.stringify(titles)};\n`;
+            }
             if (id.startsWith(SOURCES)) {
                 const file = id.slice(SOURCES.length);
                 this.addWatchFile(file);

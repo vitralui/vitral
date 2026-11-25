@@ -234,7 +234,13 @@ describe('the site', () => {
         expect(wrapper.find('.top-actions').isVisible()).toBe(true);
         const input = wrapper.find('.searchbar-input');
         await input.setValue('datepicker');
-        expect(wrapper.findAll('.search-item').map((item) => item.text())).toEqual([expect.stringContaining('DatePicker')]);
+        // The page first, then the examples on it.
+        const hits = wrapper.findAll('.search-item').map((item) => item.text());
+        expect(hits[0]).toContain('DatePicker');
+        expect(hits.slice(1).every((hit) => hit.endsWith('DatePicker'))).toBe(true);
+        // An example is found by its own name, and named with the page it is on.
+        await input.setValue('pinned to the top');
+        expect(wrapper.findAll('.search-item').map((item) => item.text())).toContainEqual(expect.stringMatching(/pinned to the top.*DataGrid/i));
         await input.trigger('keydown', { key: 'Escape' });
         await flushPromises();
         expect(wrapper.find('.topbar').classes()).not.toContain('is-searching');

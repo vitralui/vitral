@@ -14,3 +14,9 @@ declare module 'virtual:vitral-releases' {
     /** Every release, newest first, with what it added and changed. */
     export const releases: Release[];
 }
+
+// Served by `scripts/sfc-meta.ts`.
+declare module 'virtual:vitral-section-titles' {
+    /** The title of each example in each language: language, page id (`datagrid`), English title. */
+    export const titles: Record<string, Record<string, Record<string, string>>>;
+}
