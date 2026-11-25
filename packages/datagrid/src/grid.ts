@@ -1698,8 +1698,11 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             (cell) => {
                 const r = rows.indexOf(cell.index);
                 const c = keys.indexOf(cell.key);
-                // Down or across, whichever way the pointer went further past the block.
-                const next = r - bottom >= c - right ? (r > bottom ? { rows: rows.slice(bottom + 1, r + 1), keys: from.keys } : null) : c > right ? { rows: from.rows, keys: keys.slice(right + 1, c + 1) } : null;
+                // The block grown to take in the cell under the pointer: down, across, or both at once.
+                const next =
+                    r > bottom || c > right
+                        ? { rows: r > bottom ? [...from.rows, ...rows.slice(bottom + 1, r + 1)] : from.rows, keys: c > right ? [...from.keys, ...keys.slice(right + 1, c + 1)] : from.keys }
+                        : null;
                 if (JSON.stringify(next) === JSON.stringify(fillTo)) return;
                 fillTo = next;
                 render();
@@ -1708,21 +1711,24 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 const target = fillTo;
                 fillTo = null;
                 if (!target) return render();
-                const values = boxValues(from);
+                // Each column carried down its new rows, then every row — the new ones too — across its new columns.
+                const lines = boxValues(from);
+                const extraRows = target.rows.slice(from.rows.length);
+                const extraKeys = target.keys.slice(from.keys.length);
                 const cells: { index: number; key: string; value: unknown }[] = [];
-                if (target.keys === from.keys) {
-                    from.keys.forEach((key, c) => {
-                        const run = fillSeries(values.map((line) => line[c]), target.rows.length);
-                        target.rows.forEach((index, r) => cells.push({ index, key, value: run[r] }));
+                from.keys.forEach((key, c) => {
+                    const run = fillSeries(lines.slice(0, from.rows.length).map((line) => line[c]), extraRows.length);
+                    extraRows.forEach((index, r) => {
+                        cells.push({ index, key, value: run[r] });
+                        (lines[from.rows.length + r] ??= [])[c] = run[r];
                     });
-                } else {
-                    from.rows.forEach((index, r) => {
-                        const run = fillSeries(values[r]!, target.keys.length);
-                        target.keys.forEach((key, c) => cells.push({ index, key, value: run[c] }));
-                    });
-                }
+                });
+                target.rows.forEach((index, r) => {
+                    const run = fillSeries(lines[r]!, extraKeys.length);
+                    extraKeys.forEach((key, c) => cells.push({ index, key, value: run[c] }));
+                });
                 writeCells(cells, 'fill', event);
-                setRange(range!.anchor, target.keys === from.keys ? { index: target.rows.at(-1)!, key: from.keys.at(-1)! } : { index: from.rows.at(-1)!, key: target.keys.at(-1)! });
+                setRange(range!.anchor, { index: target.rows.at(-1)!, key: target.keys.at(-1)! });
             }
         );
     }

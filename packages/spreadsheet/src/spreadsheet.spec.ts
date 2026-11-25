@@ -319,6 +319,22 @@ describe('a spreadsheet with no framework in it', () => {
         expect(handle.selection().range).toEqual({ from: { row: 2, col: 3 }, to: { row: 4, col: 3 } });
     });
 
+    it('fills down and across at once when the handle is dragged on a slant', () => {
+        const { handle, cell, handleDot } = mount();
+        handle.select('D3');
+        const at = (address: string) => {
+            const node = cell(address)!;
+            return { clientX: Number.parseFloat(node.style.left) + 4, clientY: Number.parseFloat((node.parentElement as HTMLElement).style.top) + 4 };
+        };
+        handleDot()!.dispatchEvent(pointer('pointerdown', at('D3')));
+        document.dispatchEvent(pointer('pointermove', at('E5')));
+        document.dispatchEvent(pointer('pointerup', at('E5')));
+        expect(handle.sheet.input({ row: 4, col: 3 })).toBe('=B5*C5');
+        expect(handle.sheet.input({ row: 2, col: 4 })).toBe('=C3*D3');
+        expect(handle.sheet.input({ row: 4, col: 4 })).toBe('=C5*D5');
+        expect(handle.selection().range).toEqual({ from: { row: 2, col: 3 }, to: { row: 4, col: 4 } });
+    });
+
     it('resizes a column by the strip on its edge', () => {
         const resized = vi.fn();
         const { element, columns, cell } = mount({ on: { 'column-resize': resized } });

@@ -364,13 +364,12 @@ export function createSpreadsheet(element: HTMLElement, config: SpreadsheetOptio
                 setSelection(selectTo(selection, at, bounds()), { reveal: false });
                 return;
             }
-            // The fill is along one axis: whichever way the pointer has gone furthest.
-            const range = selectionRange(selection);
-            const down = Math.abs(at.row - range.to.row) >= Math.abs(at.col - range.to.col);
-            fill = normalizeRange({
-                from: range.from,
-                to: down ? { row: at.row, col: range.to.col } : { row: range.to.row, col: at.col }
-            });
+            // The fill grows the block to take in the cell under the pointer: down, across, or both at once.
+            const range = normalizeRange(selectionRange(selection));
+            fill = {
+                from: { row: Math.min(range.from.row, at.row), col: Math.min(range.from.col, at.col) },
+                to: { row: Math.max(range.to.row, at.row), col: Math.max(range.to.col, at.col) }
+            };
             schedule();
         },
         onEnd: (start) => {

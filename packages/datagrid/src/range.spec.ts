@@ -206,6 +206,25 @@ describe('the fill handle', () => {
         expect(rows.map((row) => row.price)).toEqual([1, 3, 5, 7]);
         expect(on['cells-change']).toHaveBeenCalledWith(expect.objectContaining({ source: 'fill' }));
     });
+
+    it('carries the block down and across at once when dragged on a slant', () => {
+        const { cell, press, element, rows } = mount({ fillHandle: true });
+        press(cell(0, 'price'));
+        press(cell(1, 'price'), { shiftKey: true });
+        press(cell(1, 'price').querySelector('[data-fill-handle]')!);
+        cell(3, 'volume').dispatchEvent(new MouseEvent('pointermove', { bubbles: true }));
+        // The outline goes round the grown block; the six cells past the old one are the ones written.
+        expect(element.querySelectorAll('.vt-datagrid-cell-fill-target')).toHaveLength(6);
+        document.dispatchEvent(new MouseEvent('pointerup'));
+        // Price carried down its run, then each row across from it.
+        expect(rows.map((row) => [row.price, row.volume])).toEqual([
+            [10, 10],
+            [20, 20],
+            [30, 30],
+            [40, 40]
+        ]);
+        expect(element.querySelector('[data-fill-handle]')!.closest('[data-col]')!.getAttribute('data-col')).toBe('volume');
+    });
 });
 
 describe('cells that flash', () => {

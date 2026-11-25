@@ -65,7 +65,7 @@ const positive = (value: unknown) => (typeof value === 'number' && value < 0 ? '
             <template #header>
                 <div class="demo-table-bar">
                     <strong>First half budget</strong>
-                    <span class="demo-muted">Drag over cells, then drag the corner square down or across</span>
+                    <span class="demo-muted">Drag over cells, then drag the corner square down, across or both</span>
                     <Button size="small" severity="secondary" variant="outlined" icon="download" label="Excel" class="demo-end" @click="grid?.exportExcel({ filename: 'budget.xlsx', sheetName: 'Budget' })" />
                 </div>
             </template>

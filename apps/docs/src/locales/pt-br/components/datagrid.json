@@ -150,7 +150,7 @@
         },
         "Like a spreadsheet": {
             "title": "Como uma planilha",
-            "description": "`cell-selection` permite marcar um bloco de células: arraste por cima, ou segure Shift com as setas, Ctrl+A para todas. Ctrl+C copia o bloco como uma planilha copia e Ctrl+V cola um bloco — cada valor lido do tipo que a célula guarda e conferido pela sua coluna — enquanto Delete o esvazia, tudo como um passo só para o Ctrl+Z. `fill-handle` põe um quadrado no canto do bloco: arraste-o para baixo ou para o lado e números em sequência continuam a sequência. A barra de status soma o bloco, `range-change` o entrega ao gráfico abaixo, e `exportExcel()` grava uma pasta de trabalho de verdade, com números ainda números."
+            "description": "`cell-selection` permite marcar um bloco de células: arraste por cima, ou segure Shift com as setas, Ctrl+A para todas. Ctrl+C copia o bloco como uma planilha copia e Ctrl+V cola um bloco — cada valor lido do tipo que a célula guarda e conferido pela sua coluna — enquanto Delete o esvazia, tudo como um passo só para o Ctrl+Z. `fill-handle` põe um quadrado no canto do bloco: arraste-o para baixo, para o lado ou nos dois sentidos de uma vez, na diagonal, e números em sequência continuam a sequência. A barra de status soma o bloco, `range-change` o entrega ao gráfico abaixo, e `exportExcel()` grava uma pasta de trabalho de verdade, com números ainda números."
         },
         "A pivot": {
             "title": "Um pivô",

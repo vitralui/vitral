@@ -91,7 +91,7 @@ export interface ViewContext<T = Row> {
     rowDrag?: { index: number; over: number | null; after: boolean };
     /** The counts the status bar shows, when it shows. */
     status?: StatusContext<T>;
-    /** The block of cells marked, the cells a fill would write, and whether the fill handle is drawn. */
+    /** The block of cells marked, the block a fill would grow it to (the cells it writes are the ones past it), and whether the fill handle is drawn. */
     range?: { box: RangeBox; fill: RangeBox | null; handle: boolean };
     /** The side bar, when the grid has one: its tabs, the panel open, and what the panels list. */
     sideBar?: SideBarView;
@@ -2178,10 +2178,10 @@ function rangeState<T>(context: ViewContext<T>, index: number, key: string) {
     if (!range) return {};
     const { box, fill } = range;
     const inRange = box.rows.includes(index) && box.keys.includes(key);
-    const filling = !!fill && fill.rows.includes(index) && fill.keys.includes(key);
-    // A fill grows the block's outline over the cells it would write.
-    const rows = fill && fill.keys === box.keys ? [...box.rows, ...fill.rows] : box.rows;
-    const keys = fill && fill.rows === box.rows ? [...box.keys, ...fill.keys] : box.keys;
+    // A fill is the block grown over the cells it would write, and its outline goes round them all.
+    const filling = !!fill && !inRange && fill.rows.includes(index) && fill.keys.includes(key);
+    const rows = fill?.rows ?? box.rows;
+    const keys = fill?.keys ?? box.keys;
     const inside = rows.includes(index) && keys.includes(key);
     return {
         inRange,
