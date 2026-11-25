@@ -2679,7 +2679,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const hidden = tableLayout(current, withShared()).hidden ?? [];
         const query = normalizeText(sideSearch.trim(), locale().code);
         return declaredColumns(described(own))
-            .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander && !column.rowNumber)
+            .filter(({ column }) => column.dictionary !== false && !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander && !column.rowNumber)
             .map(({ column, key }) => ({
                 ...columnAbout(column, 'dictionary'),
                 key,

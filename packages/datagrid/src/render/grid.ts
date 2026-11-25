@@ -1969,7 +1969,7 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                         'aria-colspan': across ? String(across) : undefined,
                         'data-col': column.key,
                         // Stacked, a cell reads its column's header as its label.
-                        'data-label': context.stacked ? column.header : undefined,
+                        'data-label': context.stacked ? (column.column.stackLabel === false ? '' : (column.column.stackLabel ?? column.header)) : undefined,
                         ...runAttrs(column.key, run),
                         'data-editing': open ? '' : undefined,
                         'aria-selected': context.config.cellSelection ? String(!!context.range && context.range.box.rows.includes(index) && context.range.box.keys.includes(column.key)) : undefined,

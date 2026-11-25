@@ -203,6 +203,10 @@ export interface DataGridColumn<T = Row> {
     headerToolsAt?: HeaderPlace;
     /** Where this header's info button sits, over the grid's `headerInfoAt`. */
     headerInfoAt?: HeaderPlace;
+    /** `false` leaves the column out of the data dictionary: a column of controls, say, that holds no data. */
+    dictionary?: boolean;
+    /** What labels the column's cells when the rows are cards (`responsiveLayout: 'stack'`): its header by default, other words, or none (`false`). */
+    stackLabel?: string | false;
     /** The cells' style: one for all of them, or one by cell. */
     bodyStyle?: Record<string, string> | ((context: CellContext<T>) => Record<string, string> | null | undefined);
     /** Draws the cell. Without it, the field's value is shown as text. */

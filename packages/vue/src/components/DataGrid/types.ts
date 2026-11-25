@@ -615,6 +615,10 @@ export interface ColumnProps {
     headerToolsAt?: 'edge' | 'title';
     /** Where this header's info button sits, over the grid's `headerInfoAt`. */
     headerInfoAt?: 'edge' | 'title';
+    /** `false` leaves the column out of the data dictionary: a column of controls, say, that holds no data. */
+    dictionary?: boolean;
+    /** What labels the column's cells when the rows are cards (`responsiveLayout: 'stack'`): its header by default, other words, or none (`false`). */
+    stackLabel?: string | false;
     /** The cells' class, as Vue takes one, or a function of the cell (`{ value, row }`) giving it by cell. */
     bodyClass?: unknown;
     /** The cells' style, as Vue takes one, or a function of the cell giving it by cell. */

@@ -110,6 +110,16 @@ describe('the toolbar', () => {
         expect(element.querySelector('.vt-datagrid-side-panel-columns')).not.toBeNull();
     });
 
+    it('leaves a column out of the dictionary when told to', () => {
+        const { tool, entries } = mount({
+            toolbar: ['dictionary'],
+            dictionaryDrawer: true,
+            columns: [...columns, { key: 'actions', header: 'Actions', dictionary: false, body: () => '…' }]
+        });
+        tool('dictionary')!.click();
+        expect(entries()).toEqual(['customer', 'gross', 'discount']);
+    });
+
     it('opens the dictionary in a drawer when asked, with no side bar at all', () => {
         const { element, tool } = mount({ toolbar: ['dictionary'], dictionaryDrawer: true, dictionaryModule: 'Sales', dictionarySubtitle: 'What each column holds.' });
         expect(element.querySelector('[data-side-tab]')).toBeNull();
@@ -269,6 +279,9 @@ describe('a header laid out as a report’s', () => {
         expect(element.classList).not.toContain('vt-datagrid-stacked');
         expect(element.querySelector('[data-label]')).toBeNull();
         width = 400;
+        handle!.update({ columns: [{ ...columns[0], stackLabel: false }, { ...columns[1], stackLabel: 'Sale' }, columns[2]] });
+        const label = (key: string) => element.querySelector(`[data-section="body"] [role="row"][data-index="0"] [data-col="${key}"]`)!.getAttribute('data-label');
+        expect([label('customer'), label('gross'), label('discount')]).toEqual(['', 'Sale', 'Discount']);
         handle!.update({ responsiveLayout: undefined });
         expect(element.classList).not.toContain('vt-datagrid-stacked');
     });
