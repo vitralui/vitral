@@ -213,3 +213,31 @@ describe('a grid that draws its columns as they come into view', () => {
         expect(element.querySelector<HTMLElement>('[data-grid-table]')!.style.gridTemplateColumns).toBe('150px 90px minmax(0, 1fr)');
     });
 });
+
+describe('columns that hold still while the rows scroll', () => {
+    it('keeps a column of no width at least as wide as its rows have been drawn', async () => {
+        // jsdom lays nothing out: a cell's content measures seven pixels a character.
+        const original = document.createRange;
+        document.createRange = () => {
+            let node: Node | null = null;
+            return { selectNodeContents: (n: Node) => (node = n), getBoundingClientRect: () => ({ width: (node?.textContent?.length ?? 0) * 7 }) } as unknown as Range;
+        };
+        try {
+            const { box, element, scrollTo } = mount({ rowHeight: 30, scrollHeight: '300px' });
+            Object.defineProperty(box(), 'clientHeight', { configurable: true, value: 300 });
+            const floor = () => (element.querySelector<HTMLElement>('[data-sizer] > *')?.style.minWidth ?? '');
+            await scrollTo(0);
+            const top = floor();
+            await scrollTo(29_000);
+            // Four digits are wider than one: the Id column grows to hold them.
+            expect(parseFloat(floor())).toBeGreaterThan(parseFloat(top || '0'));
+            const widest = floor();
+            await scrollTo(0);
+            // And stays so with the short ids back in view.
+            expect(floor()).toBe(widest);
+            expect(element.querySelector('[data-sizer]')!.getAttribute('aria-hidden')).toBe('true');
+        } finally {
+            document.createRange = original;
+        }
+    });
+});

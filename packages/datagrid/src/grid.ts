@@ -199,6 +199,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** Whether the data dictionary's drawer is open, and the trap that keeps focus in it. */
     /** The side panel open last, which a press on the strip opens again. */
     let lastSidePanel: SidePanel | null = null;
+    /** Whether columns are scrolled under the pinned ones at the start and at the end (`markUnder`), which is when their edge casts a shadow. */
+    let under = { start: false, end: false };
+    /** The widest each column of no width has been drawn while the rows are virtual (`fitFloors`). */
+    let floors: Record<string, number> = {};
     /** The empty rows' height and stripe, as last read (`fitFill`). */
     let fill = { height: 0, odd: false };
     /** Whether the rows are drawn as cards: `responsiveLayout: 'stack'` and the grid narrower than its breakpoint. */
@@ -304,7 +308,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function stuck(box: HTMLElement): ScrollbarInset {
         const held = (node: Element | null) => (node && getComputedStyle(node).position === 'sticky' ? (node as HTMLElement).offsetHeight : 0);
         const room: ScrollbarInset = { top: held(box.querySelector(':scope [data-section="head"]')), bottom: held(box.querySelector(':scope [data-section="foot"]')) };
-        const row = box.querySelector('[data-section="head"] [role="row"]:last-child');
+        const row = Array.from(box.querySelectorAll('[data-section="head"] > [role="row"]')).at(-1);
         if (row) {
             const edge = box.getBoundingClientRect();
             const rtl = getComputedStyle(box).direction === 'rtl';
@@ -327,7 +331,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     // The drawn scrollbars wear the ScrollPanel's classes, so one theme dresses every bar.
     const barOptions = () => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() });
-    const tableBars = scrollbarSlot(() => ({ ...barOptions(), inset: stuck }));
+    const tableBars = scrollbarSlot(() => ({ ...barOptions(), inset: stuck, gutter: current.scrollbarGutter !== false }));
     const chooserBars = scrollbarSlot(barOptions);
 
     // The boxes' layout is how the grid works, not how it looks: an unstyled grid has it too.
@@ -1214,6 +1218,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             scrollTop = box.scrollTop;
             scrollLeft = box.scrollLeft;
             if (current.virtualScroll || current.virtualColumns) scheduleScroll();
+            else markUnder();
             if (!current.group || echo) return;
             tableBus.publish(current.group, { kind: 'scroll', source: id, left: box.scrollLeft });
         }
@@ -2474,6 +2479,55 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
      * on from it — the first empty one shaded when the rows above are an odd
      * count. Read after a draw; a change draws again, once.
      */
+    /**
+     * With virtual rows only those in view are drawn, so a column sized by
+     * its content would widen and narrow as rows scroll in and out, and the
+     * columns would shuffle. Each such column keeps the widest its content
+     * has been — measured on the content, not the track, which stretches to
+     * fill the grid — and never draws narrower.
+     */
+    function fitFloors() {
+        if (!current.virtualScroll || typeof document.createRange !== 'function') return;
+        const range = document.createRange();
+        // Where nothing is laid out (a test's DOM), nothing to measure.
+        if (typeof range.getBoundingClientRect !== 'function') return;
+        let grew = false;
+        for (const column of columnsNow()) {
+            const own = column.column;
+            if (column.width || own.flex || column.selectionMode || own.expander || own.rowEditor || own.rowDrag || own.rowNumber) continue;
+            const cells = element.querySelectorAll<HTMLElement>(`[data-section="body"] > [role="row"] > [data-col="${cssEscape(column.key)}"]`);
+            if (!cells.length) continue;
+            const style = getComputedStyle(cells[0]!);
+            const edges = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'].reduce((sum, side) => sum + (parseFloat(style[side as 'paddingLeft']) || 0), 0);
+            let widest = 0;
+            for (const cell of Array.from(cells)) {
+                range.selectNodeContents(cell);
+                widest = Math.max(widest, range.getBoundingClientRect().width);
+            }
+            const floor = widest ? Math.ceil(widest + edges) : 0;
+            if (floor > (floors[column.key] ?? 0)) {
+                floors = { ...floors, [column.key]: floor };
+                grew = true;
+            }
+        }
+        if (grew) render();
+    }
+
+    /**
+     * A pinned block's edge casts its shadow only while columns are scrolled
+     * under it; at rest it is a rule like any other, and the two never
+     * stack into a line thicker than the rest.
+     */
+    function markUnder() {
+        const box = container ?? (element.querySelector('.vt-datagrid-table-container') as HTMLElement | null);
+        if (!box) return;
+        const from = Math.abs(box.scrollLeft);
+        const next = { start: from > 0.5, end: from + box.clientWidth < box.scrollWidth - 0.5 };
+        if (next.start === under.start && next.end === under.end) return;
+        under = next;
+        render();
+    }
+
     function fitFill() {
         if (!current.fillRows) return;
         const body = element.querySelector('[data-section="body"]');
@@ -2597,6 +2651,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             drawer: drawerViewOf(),
             stacked,
             fillRows: current.fillRows && !stacked && rowsNow().page.length ? fill : undefined,
+            floors: current.virtualScroll && !stacked ? floors : undefined,
             dictionaryDrawer: dictionaryOpen ? { entries: dictionaryEntries(), module: current.dictionaryModule, subtitle: current.dictionarySubtitle, search: sideSearch } : undefined,
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
@@ -2618,7 +2673,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 loading: context.busy,
                 fixedRows: !!current.rowHeight,
                 toolsOnHover: current.headerTools === 'hover',
-                stacked
+                stacked,
+                underStart: under.start,
+                underEnd: under.end
             })
         );
         drawn = {
@@ -2644,6 +2701,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         measure();
         layRuns();
         fitFill();
+        fitFloors();
+        markUnder();
         flashChanges();
         if (movedRow) {
             const at = rowsNow().page.indexOf(movedRow);

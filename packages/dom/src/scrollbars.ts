@@ -51,6 +51,16 @@ export interface ScrollbarsOptions {
      * so nothing stuck is drawn over its thumb.
      */
     inset?: () => ScrollbarInset;
+    /**
+     * Keep the bars off the content, as a native bar does, rather than over
+     * it: while a bar shows, the room it takes (with its gaps) is written on
+     * the box as `--vt-scrollbar-gutter-y` (at the inline end) and
+     * `--vt-scrollbar-gutter-x` (at the bottom), for the box's CSS to leave
+     * beside it as a margin, and the bar is drawn in that margin — outside
+     * what scrolls, so nothing ever passes under it. Only for a box that is
+     * not positioned, whose bars are drawn beside it. Off by default.
+     */
+    gutter?: boolean;
 }
 
 /** Room kept clear at the box's edges: `start` and `end` follow the reading direction. */
@@ -160,6 +170,8 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
     let held: ScrollbarDirection | null = null;
     let scrollTimer: ReturnType<typeof setTimeout> | undefined;
     let pending = 0;
+    /** The room the bars take now, as written on the box (`reserve`). */
+    let gutters = { x: 0, y: 0 };
     let top = 0;
     let left = 0;
     let rtl = false;
@@ -220,10 +232,11 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         const nextLeft = left + (box.left + el.clientLeft - self.left);
         if (Number.isFinite(nextTop) && Math.abs(nextTop - top) > 0.1) top = nextTop;
         if (Number.isFinite(nextLeft) && Math.abs(nextLeft - left) > 0.1) left = nextLeft;
+        // The bars' lanes, kept beside the box (`gutter`): the layer reaches over them.
         layer.style.top = `${top}px`;
-        layer.style.left = `${left}px`;
-        layer.style.width = `${el.clientWidth}px`;
-        layer.style.height = `${el.clientHeight}px`;
+        layer.style.left = `${rtl ? left - gutters.y : left}px`;
+        layer.style.width = `${el.clientWidth + gutters.y}px`;
+        layer.style.height = `${el.clientHeight + gutters.x}px`;
     }
 
     /** Inside the box: over its visible area, wherever it has scrolled to. */
@@ -281,6 +294,28 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
             dressAll();
             thumbs();
         }
+        // The room a bar takes changes the box's layout: measure again once it has settled.
+        if (reserve()) schedule();
+    }
+
+    /** The room each shown bar takes, written on the box for its CSS to keep clear (`gutter`); whether it changed. */
+    function reserve(): boolean {
+        const take = (axis: 'x' | 'y') => {
+            const { bar, state } = bars[axis];
+            // A box that holds its bars has no outside to keep them in.
+            if (!options.gutter || inside || !state.visible || typeof getComputedStyle !== 'function') return 0;
+            // The gap kept between the bar and the box's edge, on both of its sides.
+            const gap = parseFloat(getComputedStyle(bar).getPropertyValue(axis === 'y' ? 'top' : 'left')) || 0;
+            return Math.ceil((axis === 'y' ? bar.offsetWidth : bar.offsetHeight) + gap * 2);
+        };
+        const next = { x: take('x'), y: take('y') };
+        if (next.x === gutters.x && next.y === gutters.y) return false;
+        gutters = next;
+        for (const axis of ['x', 'y'] as const) {
+            if (next[axis]) el.style.setProperty(`--vt-scrollbar-gutter-${axis}`, `${next[axis]}px`);
+            else el.style.removeProperty(`--vt-scrollbar-gutter-${axis}`);
+        }
+        return true;
     }
 
     function schedule() {
@@ -540,6 +575,8 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
             resize?.disconnect();
             mutations?.disconnect();
             el.removeAttribute(SCROLLBARS_ATTRIBUTE);
+            el.style.removeProperty('--vt-scrollbar-gutter-x');
+            el.style.removeProperty('--vt-scrollbar-gutter-y');
             el.removeEventListener('scroll', onScroll);
             el.removeEventListener('pointerenter', onEnter);
             el.removeEventListener('pointerleave', onLeave);
@@ -576,6 +613,8 @@ export interface ScrollbarSlotOptions {
     arrows?: boolean;
     /** What of each box stays put while the rest scrolls, kept clear of the bars. */
     inset?: (el: HTMLElement) => ScrollbarInset;
+    /** Keep the bars off the content, the room they take written on each box (`ScrollbarsOptions.gutter`). */
+    gutter?: boolean;
 }
 
 function slotPart(next: ScrollbarSlotOptions): ScrollbarsOptions['part'] {
@@ -594,12 +633,14 @@ export function scrollbarSet(options: () => ScrollbarSlotOptions) {
     const live = new Map<HTMLElement, Scrollbars>();
     let mode: ScrollbarMode | undefined;
     let arrows: boolean | undefined;
+    let gutter: boolean | undefined;
 
     function destroy() {
         for (const bars of live.values()) bars.destroy();
         live.clear();
         mode = undefined;
         arrows = undefined;
+        gutter = undefined;
     }
 
     return {
@@ -620,14 +661,16 @@ export function scrollbarSet(options: () => ScrollbarSlotOptions) {
                 const bars = live.get(el);
                 const wantsArrows = !!next.arrows;
                 const inset = next.inset ? () => next.inset!(el) : undefined;
-                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part, arrows: wantsArrows, inset }));
-                else if (chosen !== mode || wantsArrows !== arrows) bars.update({ visibility: chosen, part, arrows: wantsArrows, inset });
+                const wantsGutter = !!next.gutter;
+                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part, arrows: wantsArrows, inset, gutter: wantsGutter }));
+                else if (chosen !== mode || wantsArrows !== arrows || wantsGutter !== gutter) bars.update({ visibility: chosen, part, arrows: wantsArrows, inset, gutter: wantsGutter });
                 // A draw may scroll the box right after (to a selected row, to
                 // working hours) and not every browser says so at once.
                 else bars.later();
             }
             mode = chosen;
             arrows = !!next.arrows;
+            gutter = !!next.gutter;
         },
         refresh() {
             for (const bars of live.values()) bars.refresh();

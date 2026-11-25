@@ -17,6 +17,7 @@
         "columnToggle": "Um botão que abre a lista de colunas, cada uma com um checkbox.",
         "group": "Um nome que duas tabelas compartilham: elas rolam na horizontal juntas e mantêm um só layout de colunas.",
         "scrollHeight": "Uma altura CSS, ou `'flex'` para preencher um pai flex. O cabeçalho fica visível.",
+        "scrollbarGutter": "As barras desenhadas da tabela ficam numa faixa própria ao lado e abaixo das linhas, como uma barra nativa, fora do que rola: nenhuma célula fica por baixo de uma barra. Com false, elas ficam por cima da borda das linhas. O padrão é true.",
         "caption": "Dá nome à tabela. Oculto a menos que `showCaption`; sem ele, nomeie a tabela com `aria-label`.",
         "scrollbar": "As barras das caixas que este componente rola por dentro: `'hover'`, `'always'` ou `'native'`. Por padrão é a opção `scrollbar` da aplicação, que é `'hover'`.",
         "virtualScroll": "Desenha só as linhas à vista, e algumas de cada lado, no lugar de todas: cem mil linhas custam o que custam trinta. O grid rola em `scrollHeight` (400px quando não tem); uma linha é medida quando desenhada, então as linhas mantêm suas próprias alturas. A tabela continua dizendo quantas linhas tem e onde está cada uma desenhada.",

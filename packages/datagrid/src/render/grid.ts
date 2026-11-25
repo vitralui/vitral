@@ -89,6 +89,13 @@ export interface ViewContext<T = Row> {
     stacked?: boolean;
     /** Empty rows down to the box's foot: as high as a row, and whether the rows above are an odd count. */
     fillRows?: { height: number; odd: boolean };
+    /**
+     * The widest each column of no width of its own has been drawn, by key,
+     * while the rows are virtual, held by a row of no height under the
+     * headers (`sizerView`): its track never goes narrower, so the columns
+     * hold still as other rows scroll in.
+     */
+    floors?: Record<string, number>;
     /** The data dictionary's drawer, while it is open. */
     dictionaryDrawer?: DictionaryView;
     /** The filter panel, while one is open. */
@@ -774,7 +781,8 @@ function headView<T>(context: ViewContext<T>): Child {
                   )
               )
             : null,
-        context.pinnedTop.map((row, index) => pinnedRowView(context, row, index, 'top'))
+        context.pinnedTop.map((row, index) => pinnedRowView(context, row, index, 'top')),
+        sizerView(context)
     );
 }
 
@@ -1772,6 +1780,23 @@ function stackLabelOf<T>(column: ResolvedColumn<T>): string {
  * and their pinning, painted as rows of the body's height and stripes. Nothing
  * to read, so hidden from assistive technology.
  */
+/**
+ * A row of no height under the headers that holds each column of no width
+ * of its own at least as wide as its rows have been drawn (`floors`): with
+ * virtual rows only those in view are drawn, and the columns would otherwise
+ * widen and narrow as others scroll in. A track takes the widest of what is
+ * in it, so the headers' own text still counts.
+ */
+function sizerView<T>(context: ViewContext<T>): Child {
+    const floors = context.floors;
+    if (!floors || !Object.keys(floors).length) return null;
+    const flat = { height: '0', padding: '0', border: '0', overflow: 'hidden' };
+    const cells = context.drawn.map((entry) =>
+        h('div', { key: entry.key, style: { ...flat, ...(isSpacer(entry) || !floors[entry.key] ? {} : { 'min-width': `${floors[entry.key]}px` }) } })
+    );
+    return h('div', { key: 'sizer', 'aria-hidden': 'true', 'data-sizer': '', style: { height: '0', overflow: 'hidden' } }, withFiller(context, cells, 'bodyCell'));
+}
+
 function fillView<T>(context: ViewContext<T>): Child {
     const fill = context.fillRows;
     if (!fill) return null;

@@ -758,6 +758,12 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     scrollbar?: ScrollbarMode;
     /** Arrows at the ends of the drawn bars, as a native bar has. Off by default. */
     scrollbarArrows?: boolean;
+    /**
+     * The table's drawn bars keep a lane of their own beside the rows and
+     * under them, as a native bar does, so no cell is ever under a bar.
+     * False lays them over the rows' edge. Defaults to true.
+     */
+    scrollbarGutter?: boolean;
     classes?: Partial<Record<string, ClassEntry>>;
     pt?: PassThrough;
     /** Prefix of the ids the table gives its elements; generated when unset. */

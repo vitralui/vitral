@@ -16,6 +16,10 @@ export interface DataGridState {
     fixedRows?: boolean;
     /** A header's menu button shows only while the header is pointed at. */
     toolsOnHover?: boolean;
+    /** Columns are scrolled under the pinned ones at the start, whose edge then casts its shadow. */
+    underStart?: boolean;
+    /** Columns are scrolled under the pinned ones at the end. */
+    underEnd?: boolean;
 }
 
 export interface DataGridCellState {
@@ -96,7 +100,9 @@ export const datagridStyle = defineStyle({
                 'vt-datagrid-loading': s.loading,
                 'vt-datagrid-fixed-rows': s.fixedRows,
                 'vt-datagrid-tools-on-hover': s.toolsOnHover,
-                'vt-datagrid-stacked': s.stacked
+                'vt-datagrid-stacked': s.stacked,
+                'vt-datagrid-under-start': s.underStart,
+                'vt-datagrid-under-end': s.underEnd
             }
         ],
         header: 'vt-datagrid-header',

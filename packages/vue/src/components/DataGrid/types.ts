@@ -292,6 +292,8 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     scrollable?: boolean;
     /** A CSS height, or `'flex'` to fill a flex parent. The header stays in view. */
     scrollHeight?: string;
+    /** The table's drawn bars keep a lane of their own beside and under the rows, so no cell is under a bar; false lays them over the rows' edge. Defaults to true. */
+    scrollbarGutter?: boolean;
     emptyMessage?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rowClass?: (data: any) => unknown;

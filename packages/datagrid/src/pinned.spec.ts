@@ -104,3 +104,22 @@ describe('rows pinned to the top and the bottom', () => {
         await expectNoA11yViolations(element);
     });
 });
+
+describe('the edge of the pinned columns', () => {
+    it('casts its shadow only while columns are scrolled under it', () => {
+        const { element } = mount({ scrollable: true, columns: [{ field: 'item', header: 'Item', pinned: 'left' }, { field: 'amount', header: 'Amount', pinned: 'right' }] });
+        const box = element.querySelector('.vt-datagrid-table-container') as HTMLElement;
+        Object.defineProperties(box, { clientWidth: { configurable: true, value: 200 }, scrollWidth: { configurable: true, value: 500 } });
+        const under = () => ['start', 'end'].filter((side) => element.classList.contains(`vt-datagrid-under-${side}`));
+        const scrollTo = (left: number) => {
+            Object.defineProperty(box, 'scrollLeft', { configurable: true, value: left });
+            box.dispatchEvent(new Event('scroll'));
+        };
+        scrollTo(0);
+        expect(under()).toEqual(['end']);
+        scrollTo(100);
+        expect(under()).toEqual(['start', 'end']);
+        scrollTo(300);
+        expect(under()).toEqual(['start']);
+    });
+});

@@ -47,4 +47,20 @@ describe('drawn scrollbars', () => {
         expect(box.scrollTop).toBe(54);
         bars.destroy();
     });
+
+    it('write the room a shown bar takes on the box when asked to keep off the content, and take it back', () => {
+        const { box, bars, track } = mountBox({ gutter: true });
+        const bar = track.parentElement!;
+        Object.defineProperty(bar, 'offsetWidth', { configurable: true, get: () => 8 });
+        bar.style.top = '2px';
+        bars.refresh();
+        // The bar and a gap on each side; no horizontal bar, so nothing at the bottom.
+        expect(box.style.getPropertyValue('--vt-scrollbar-gutter-y')).toBe('12px');
+        expect(box.style.getPropertyValue('--vt-scrollbar-gutter-x')).toBe('');
+        bars.update({ gutter: false });
+        expect(box.style.getPropertyValue('--vt-scrollbar-gutter-y')).toBe('');
+        bars.update({ gutter: true });
+        bars.destroy();
+        expect(box.style.getPropertyValue('--vt-scrollbar-gutter-y')).toBe('');
+    });
 });

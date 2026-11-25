@@ -28,6 +28,9 @@
 .vt-datagrid-table-container {
     min-width: 0;
     overflow: auto;
+    /* The lanes the drawn bars keep beside the box (`scrollbarGutter`), outside what scrolls: no cell is ever under a bar. */
+    margin-inline-end: var(--vt-scrollbar-gutter-y, 0px);
+    margin-bottom: var(--vt-scrollbar-gutter-x, 0px);
 }
 
 .vt-datagrid-flex-scroll {
@@ -755,21 +758,23 @@
         var(--vt-datagrid-background);
 }
 
-/* The edge of the pinned block, shadowed so it reads as standing over the rest.
-   The shadow follows the writing direction, as the offsets do. */
-.vt-datagrid-pinned-edge.vt-datagrid-pinned-left {
+/* The edge of the pinned block, shadowed so it reads as standing over the
+   rest — only while columns are scrolled under it, so at rest its rule is as
+   thin as every other. The left block is the start one, the right the end
+   one; the shadow follows the writing direction, as the offsets do. */
+.vt-datagrid-under-start .vt-datagrid-pinned-edge.vt-datagrid-pinned-left {
     box-shadow: var(--vt-datagrid-pinned-shadow-left);
 }
 
-.vt-datagrid-pinned-edge.vt-datagrid-pinned-right {
+.vt-datagrid-under-end .vt-datagrid-pinned-edge.vt-datagrid-pinned-right {
     box-shadow: var(--vt-datagrid-pinned-shadow-right);
 }
 
-.vt-datagrid-pinned-edge.vt-datagrid-pinned-left:dir(rtl) {
+.vt-datagrid-under-start .vt-datagrid-pinned-edge.vt-datagrid-pinned-left:dir(rtl) {
     box-shadow: var(--vt-datagrid-pinned-shadow-right);
 }
 
-.vt-datagrid-pinned-edge.vt-datagrid-pinned-right:dir(rtl) {
+.vt-datagrid-under-end .vt-datagrid-pinned-edge.vt-datagrid-pinned-right:dir(rtl) {
     box-shadow: var(--vt-datagrid-pinned-shadow-left);
 }
 
@@ -889,6 +894,14 @@
 
 .vt-datagrid-column-group-cell {
     border-inline: 1px solid var(--vt-datagrid-header-cell-border-color);
+}
+
+/* One rule between two cells, never two side by side: the cell before a
+   group already draws its end with grid lines, and so does the group before
+   another. */
+.vt-datagrid-gridlines .vt-datagrid-column-group-cell,
+.vt-datagrid-column-group-cell + .vt-datagrid-column-group-cell {
+    border-inline-start: 0;
 }
 
 .vt-datagrid-column-group-cell:first-child {
