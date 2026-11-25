@@ -224,7 +224,8 @@ onBeforeUnmount(() => {
                         <a v-for="addon in addonLinks" :key="addon.id" :href="href(addon.to)" class="mega-item" :class="{ 'is-active': addon.active }">
                             <span class="mega-icon"><Icon :icon="addon.icon" /></span>
                             <span>
-                                <b>{{ addon.title }} <code>{{ addon.name }}</code> <ChangeBadge :change="addon.change" /></b>
+                                <!-- The badge by the name; the package goes to the next line when the three don't fit. -->
+                                <b>{{ addon.title }} <ChangeBadge :change="addon.change" /> <code>{{ addon.name }}</code></b>
                                 <em>{{ addon.note }}</em>
                             </span>
                         </a>
