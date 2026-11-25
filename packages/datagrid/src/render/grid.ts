@@ -2018,7 +2018,8 @@ function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row:
     if (!run) return shown;
     // The top of a run draws the value once over every row of it; the rows below still say it, to a screen reader.
     if (run.place !== 'start') return h('span', { class: 'vt-sr-only' }, shown);
-    return h('div', mergeAttrs(context.part('rowRun'), { 'data-row-run-content': '', style: { '--vt-datagrid-row-run-rows': String(run.size) } }), shown);
+    // The value keeps to the part of a tall run in view as the grid scrolls.
+    return h('div', mergeAttrs(context.part('rowRun'), { 'data-row-run-content': '', style: { '--vt-datagrid-row-run-rows': String(run.size) } }), h('div', context.part('rowRunValue'), shown));
 }
 
 /** Which columns a row's cells cover beside their own, and which cells that leaves out. */

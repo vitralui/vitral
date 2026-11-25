@@ -264,9 +264,17 @@
     height: var(--vt-datagrid-row-run-height, calc((100% + 1px) * var(--vt-datagrid-row-run-rows, 1)));
     padding: inherit;
     text-align: inherit;
-    overflow: hidden;
+    /* Clipped without becoming a box that scrolls, which would hold the value's stickiness to itself. */
+    overflow: clip;
     background: var(--vt-datagrid-background);
     border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
+}
+
+/* In the middle of the run, but never past the edge of what is in view: below the stuck header, above the stuck foot. */
+.vt-datagrid-row-run-value {
+    position: sticky;
+    top: var(--vt-datagrid-row-run-top, 0px);
+    bottom: var(--vt-datagrid-row-run-bottom, 0px);
 }
 
 .vt-datagrid-pinned-row-cell > .vt-datagrid-row-run {

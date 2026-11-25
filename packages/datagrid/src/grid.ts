@@ -2398,6 +2398,13 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
      * the rows to be as tall as the first.
      */
     function layRuns() {
+        // A tall run's value keeps clear of the header and the foot that stay put while the rows scroll.
+        const runs = element.querySelectorAll('[data-section="body"] [data-row-run-content]');
+        if (runs.length) {
+            const stuck = (section: Element | null) => (section && getComputedStyle(section).position === 'sticky' ? section.getBoundingClientRect().height : 0);
+            element.style.setProperty('--vt-datagrid-row-run-top', `${stuck(element.querySelector('[data-section="head"]'))}px`);
+            element.style.setProperty('--vt-datagrid-row-run-bottom', `${stuck(element.querySelector('[data-section="foot"]'))}px`);
+        }
         for (const cell of Array.from(element.querySelectorAll<HTMLElement>('[data-section] [data-row-run="start"]'))) {
             const run = cell.querySelector<HTMLElement>('[data-row-run-content]');
             // A run's rows stand one after another: nothing that ends a run is drawn between them.

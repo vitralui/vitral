@@ -200,6 +200,8 @@ export const datagridStyle = defineStyle({
         pinnedRowCell: 'vt-datagrid-pinned-row-cell',
         /** A run of one value down a column (`spanRows`), drawn once over every row of it from the top one. */
         rowRun: 'vt-datagrid-row-run',
+        /** The run's value, kept to the part of the run in view as the grid scrolls. */
+        rowRunValue: 'vt-datagrid-row-run-value',
         bodyCell: (s: DataGridBodyCellState) => [
             'vt-datagrid-body-cell',
             align(s),
