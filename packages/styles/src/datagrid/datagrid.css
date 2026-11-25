@@ -495,6 +495,15 @@
     border-top: 1px solid var(--vt-datagrid-border-color);
 }
 
+/* Coming after the alignments, the start above would win over them: a total sits under its column's values. */
+.vt-datagrid-footer-cell.vt-datagrid-align-center {
+    text-align: center;
+}
+
+.vt-datagrid-footer-cell.vt-datagrid-align-right {
+    text-align: end;
+}
+
 .vt-datagrid-paginator {
     border-top: 1px solid var(--vt-datagrid-border-color);
     border-radius: 0;
