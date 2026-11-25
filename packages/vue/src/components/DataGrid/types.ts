@@ -187,6 +187,8 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /** A filter of the host's own, over the reader's: the rows it refuses are left out before the search, the sort and the totals. A new function filters again. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     externalFilter?: (row: any) => boolean;
+    /** A column at the start with each row's number, counting from 1 across the pages. */
+    rowNumbers?: boolean;
     /**
      * The toolbar's columns button opens a drawer at the page's edge instead of the panel: the columns shown and their
      * order, the rows' grouping (or the pivot) and how each number column is worked out, changed together and only on
@@ -554,6 +556,17 @@ export interface ColumnProps {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sparkline?: DataGridSparkline<any>;
+    /** How many columns a cell covers, by cell (`{ row, value, index }`): the cells it covers are left out. 1 by default. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    colSpan?: (context: any) => number;
+    /**
+     * Cells of one value running down rows drawn as one: the value once, at the top, and no rule between them.
+     * True merges equal values; a function of the cell above and the one below says whether they go together.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    spanRows?: boolean | ((above: { row: any; value: unknown }, below: { row: any; value: unknown }) => boolean);
+    /** The row's number on the whole, from 1: the column `rowNumbers` puts first, written as your own. */
+    rowNumber?: boolean;
     /** The value worked out from the row, `(row) => row.price * row.quantity`: shown, sorted, filtered, totalled and exported. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     valueGetter?: (row: any) => unknown;

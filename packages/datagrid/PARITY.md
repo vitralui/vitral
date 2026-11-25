@@ -15,7 +15,7 @@ Each line that is done has a spec that shows it; a line still open is the next w
 | Autosize a column / all columns | column menu | done |
 | Moving by drag, by menu | `reorderableColumns`, column menu | done |
 | Pinning left and right | `pinned`, column menu | done |
-| Column spanning (`colSpan`) | | open |
+| Column spanning (`colSpan`) | `colSpan` by cell | done |
 | Auto-generated columns from the data | | open |
 | Calculated columns (a formula the reader writes) | | open |
 | Header tooltips, header text wrap, auto header height | `description` (info button) | part |
@@ -29,12 +29,12 @@ Each line that is done has a spec that shows it; a line still open is the next w
 |---|---|---|
 | Row ids, pinned rows | `dataKey`, `pinnedTopRows`/`pinnedBottomRows` | done |
 | Row height fixed, by content | `rowHeight`, auto | done |
-| Row spanning (`rowSpan`) | | open |
+| Row spanning (`rowSpan`) | `spanRows`: equal values, or a rule | done |
 | Row class rules | `rowClass` | done |
 | Full-width rows | group headings only | part |
 | Row dragging, managed | `rowDrag` | done |
 | Row dragging to another grid, to a drop zone | | open |
-| Row numbers column | | open |
+| Row numbers column | `rowNumbers`, `rowNumber` | done |
 | Pagination, page size selector | `paginator`, `rowsPerPageOptions`, `PageInput` | done |
 | Row animation (rows slide to their new place) | | open |
 

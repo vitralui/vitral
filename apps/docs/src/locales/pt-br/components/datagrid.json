@@ -76,6 +76,10 @@
             "title": "Sparklines",
             "description": "`sparkline` numa coluna desenha seus números como um gráfico da altura da célula: uma linha com o menor, o maior e o último ponto marcados, uma área com todas as linhas na mesma escala (`domain: &quot;column&quot;`), colunas com os resgates abaixo do zero, e uma barra para um número só, colorida pelo valor. O ponteiro parado num ponto lê o valor, e um leitor de tela ouve o primeiro, o último, o menor e o maior. Os preços mudam conforme os fundos fecham."
         },
+        "Merged cells": {
+            "title": "Células mescladas",
+            "description": "`row-numbers` põe o número de cada linha primeiro, contando através das páginas. `span-rows` numa coluna desenha uma sequência do mesmo valor como uma célula só, escrita uma vez no topo; uma função diz quais células vão juntas no lugar disso. `col-span` estica uma célula sobre as colunas ao lado, por linha: aqui um intervalo não tem sala, então seu nome toma o lugar da sala. O teclado passa por uma célula esticada como por uma só."
+        },
         "Layout: stock, by category": {
             "title": "Layout: estoque, por categoria",
             "description": "Linhas reunidas por categoria, o estoque disponível desenhado como uma barra contra a capacidade, e os totais do que a busca deixa passar fixos sob as linhas."

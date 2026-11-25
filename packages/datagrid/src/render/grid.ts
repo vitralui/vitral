@@ -444,7 +444,7 @@ function track<T>(column: ResolvedColumn<T>): string {
     // Never less than nothing: a value the browser refused would leave every track as it was.
     if (column.width) return `${Math.max(0, column.width)}px`;
     const own = column.column;
-    if (column.selectionMode || own.expander || own.rowEditor || own.rowDrag) return 'max-content';
+    if (column.selectionMode || own.expander || own.rowEditor || own.rowDrag || own.rowNumber) return 'max-content';
     // A flex column takes its share of the room the others leave, as fr tracks share it.
     if (own.flex) return `minmax(${own.minWidth ?? 0}px, ${own.flex}fr)`;
     return own.minWidth ? `minmax(${own.minWidth}px, auto)` : 'auto';
@@ -1739,7 +1739,7 @@ function groupRowWithValues<T>(context: ViewContext<T>, line: Extract<GridLine<T
 }
 
 /** The column a tree's toggle and indentation go in: the first that holds values. */
-const treeColumnOf = <T,>(columns: ResolvedColumn<T>[]) => columns.find((column) => !column.selectionMode && !column.column.expander && !column.column.rowEditor && !column.column.rowDrag)?.key;
+const treeColumnOf = <T,>(columns: ResolvedColumn<T>[]) => columns.find((column) => !column.selectionMode && !column.column.expander && !column.column.rowEditor && !column.column.rowDrag && !column.column.rowNumber)?.key;
 
 /** One line of the body: a group's heading, or a row and, when it is open, its detail. */
 function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][number], at: number): Child {
@@ -1789,6 +1789,7 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
     const treeColumn = tree ? treeColumnOf(columns) : undefined;
     const drag = context.rowDrag;
     const dropHere = drag && drag.over === index && drag.index !== index;
+    const spans = colSpans(context, row, index);
     const main = h(
         'div',
         mergeAttrs({ key, role: 'row' }, part('row', { selectable, selected, expanded, dragging: drag?.index === index, dropBefore: dropHere && !drag.after, dropAfter: dropHere && drag.after }), {
@@ -1807,8 +1808,11 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
             onKeydown: (event: KeyboardEvent) => context.on.rowKeydown(event, index)
         }),
         cells(context, 'bodyCell', (column) => {
+            if (spans.covered.has(column.key)) return null;
             const open = !!context.editing && context.editing.index === index && context.editing.keys.includes(column.key);
             const focus = context.cellFocus;
+            const across = spans.width.get(column.key);
+            const run = rowRuns(context).get(column.key)?.get(index);
             return h(
                 'div',
                 mergeAttrs(
@@ -1823,9 +1827,11 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                     column.selectionMode ? part('selectionCell') : {},
                     cellLook(context, column, row, index),
                     {
-                        style: stickyStyle(column),
+                        style: { ...stickyStyle(column), ...(across ? { gridColumn: `span ${across}` } : {}) },
                         'aria-colindex': colIndex(context, column),
+                        'aria-colspan': across ? String(across) : undefined,
                         'data-col': column.key,
+                        'data-row-run': run,
                         'data-editing': open ? '' : undefined,
                         'aria-selected': context.config.cellSelection ? String(!!context.range && context.range.box.rows.includes(index) && context.range.box.keys.includes(column.key)) : undefined,
                         tabindex: focus ? (focus.index === index && focus.key === column.key ? '0' : '-1') : undefined
@@ -2003,9 +2009,75 @@ function rowEditorView<T>(context: ViewContext<T>, index: number): Child {
 
 /** What a cell shows: what its column draws, or its value as text. */
 function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): Child {
+    // `index` counts from the first page's first row; the runs are kept by the place on this page.
+    if (column.column.rowNumber) return pinned ? '' : String(index + 1);
+    // Below the top of a run of one value, the cell is drawn empty: the top one says it for all of them.
+    if (!pinned && rowRuns(context).get(column.key)?.get(index - context.rows.offset)?.match(/middle|end/)) return '';
     const cell = cellContextOf(column, row, index, pinned);
     return content(column.column.body?.(cell)) ?? (column.column.sparkline ? sparklineCell(context, column, row, cell.value) : valueText(context, column.column, cell.value, row));
 }
+
+/** Which columns a row's cells cover beside their own, and which cells that leaves out. */
+function colSpans<T>(context: ViewContext<T>, row: T, index: number): { width: Map<string, number>; covered: Set<string> } {
+    const width = new Map<string, number>();
+    const covered = new Set<string>();
+    const drawn = context.drawn;
+    for (let at = 0; at < drawn.length; at++) {
+        const entry = drawn[at]!;
+        if (isSpacer(entry) || covered.has(entry.key) || !entry.column.colSpan) continue;
+        let n = Math.floor(entry.column.colSpan(cellContextOf(entry, row, context.rows.offset + index)) || 1);
+        // A span stops at a spacer: the columns past it are not drawn.
+        for (let next = at + 1; next < at + n; next++) {
+            const other = drawn[next];
+            if (!other || isSpacer(other)) {
+                n = next - at;
+                break;
+            }
+            covered.add(other.key);
+        }
+        if (n > 1) width.set(entry.key, n);
+    }
+    return { width, covered };
+}
+
+// Runs of one value down a column, worked out once a drawing: a row's place in its run by column.
+const runsMemo = new WeakMap<object, Map<string, Map<number, 'start' | 'middle' | 'end'>>>();
+
+function rowRuns<T>(context: ViewContext<T>): Map<string, Map<number, 'start' | 'middle' | 'end'>> {
+    let out = runsMemo.get(context);
+    if (out) return out;
+    out = new Map();
+    for (const entry of context.drawn) {
+        if (isSpacer(entry) || !entry.column.spanRows) continue;
+        const rule = entry.column.spanRows;
+        const same = typeof rule === 'function' ? rule : (a: { value: unknown }, b: { value: unknown }) => sameValue(a.value, b.value);
+        const places = new Map<number, 'start' | 'middle' | 'end'>();
+        let run: number[] = [];
+        let last: { row: T; value: unknown } | null = null;
+        const close = () => {
+            if (run.length > 1) run.forEach((index, at) => places.set(index, at === 0 ? 'start' : at === run.length - 1 ? 'end' : 'middle'));
+            run = [];
+        };
+        // A heading between rows ends a run, as does a different value.
+        for (const line of context.lines) {
+            if (line.kind !== 'row') {
+                close();
+                last = null;
+                continue;
+            }
+            const here = { row: line.row, value: valueOf(line.row, entry) };
+            if (last && !same(last, here)) close();
+            run.push(line.index);
+            last = here;
+        }
+        close();
+        if (places.size) out.set(entry.key, places);
+    }
+    runsMemo.set(context, out);
+    return out;
+}
+
+const sameValue = (a: unknown, b: unknown) => a === b || (a instanceof Date && b instanceof Date && a.getTime() === b.getTime());
 
 /** What a cell's own functions are given. */
 const cellContextOf = <T,>(column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): CellContext<T> => ({

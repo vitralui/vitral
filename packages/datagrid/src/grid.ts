@@ -1915,6 +1915,17 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     const cellNode = (index: number, key: string) => element.querySelector(`[data-section="body"] > [role="row"][data-index="${index}"] [data-col="${cssEscape(key)}"]`) as HTMLElement | null;
 
+    /** The cell the keyboard lands on for a column: the one covering it, when a cell before it spans over it. */
+    function coveringKey(index: number | undefined, keys: string[], at: number): string | undefined {
+        const row = index === undefined ? null : element.querySelector(`[data-section="body"] > [role="row"][data-index="${index}"]`);
+        if (!row?.querySelector('[aria-colspan]') || cellNode(index!, keys[at]!)) return keys[at];
+        for (let back = at - 1; back >= 0; back--) {
+            const cell = cellNode(index!, keys[back]!);
+            if (cell) return back + Number(cell.getAttribute('aria-colspan') ?? 1) > at ? keys[back] : keys[at];
+        }
+        return keys[at];
+    }
+
     /** Puts the keyboard on a cell: scrolled into view (and drawn, in a virtual grid), then focused. */
     function moveTo(index: number, key: string) {
         cellAt = { index, key };
@@ -2138,10 +2149,12 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const r = rows.indexOf(at.index);
         const c = keys.indexOf(at.key);
         const rtl = getComputedStyle(element).direction === 'rtl';
+        // A cell covering the columns beside it is left by the one past them.
+        const across = Number(cellNode(at.index, at.key)?.getAttribute('aria-colspan') ?? 1);
         const go = (row: number, column: number) => {
             event.preventDefault();
             const index = rows[Math.max(0, Math.min(rows.length - 1, row))];
-            const key = keys[Math.max(0, Math.min(keys.length - 1, column))];
+            const key = coveringKey(index, keys, Math.max(0, Math.min(keys.length - 1, column)));
             if (index === undefined || key === undefined) return;
             // Shift carries the block with the keyboard; a move without it lets the block go.
             if (event.shiftKey && current.cellSelection) setRange(range?.anchor ?? at, { index, key });
@@ -2171,9 +2184,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             case 'ArrowUp':
                 return go(mod ? 0 : r - 1, c);
             case 'ArrowRight':
-                return go(r, mod ? (rtl ? 0 : keys.length - 1) : c + (rtl ? -1 : 1));
+                return go(r, mod ? (rtl ? 0 : keys.length - 1) : c + (rtl ? -1 : across));
             case 'ArrowLeft':
-                return go(r, mod ? (rtl ? keys.length - 1 : 0) : c + (rtl ? 1 : -1));
+                return go(r, mod ? (rtl ? keys.length - 1 : 0) : c + (rtl ? across : -1));
             case 'Home':
                 return go(mod ? 0 : r, 0);
             case 'End':
@@ -2544,7 +2557,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const hidden = tableLayout(current, withShared()).hidden ?? [];
         const query = normalizeText(sideSearch.trim(), locale().code);
         return declaredColumns(described(own))
-            .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander)
+            .filter(({ column }) => !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander && !column.rowNumber)
             .map(({ column, key }) => ({
                 ...columnAbout(column, 'dictionary'),
                 key,
@@ -2607,7 +2620,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** The fields a pivot can be built from: the columns handed in that read a field. */
     const pivotFields = () =>
         declaredColumns(described(own))
-            .filter(({ column }) => typeof column.field === 'string' && !column.selectionMode && !column.rowDrag && !column.rowEditor)
+            .filter(({ column }) => typeof column.field === 'string' && !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.rowNumber)
             .map(({ column }) => ({ field: column.field as string, header: column.header ?? (column.field as string) }));
 
     /** Whether a field holds numbers, which go to the values when ticked and are summed. */
@@ -2628,7 +2641,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** The columns the drawer lists: every one handed in that the reader may hide, in the order they stand. */
     function drawerColumns() {
         const layout = tableLayout(described(own), withShared());
-        const declared = declaredColumns(described(own)).filter(({ column }) => column.toggleable !== false && !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander);
+        const declared = declaredColumns(described(own)).filter(({ column }) => column.toggleable !== false && !column.selectionMode && !column.rowDrag && !column.rowEditor && !column.expander && !column.rowNumber);
         const order = layout.order ?? [];
         const place = (key: string) => (order.includes(key) ? order.indexOf(key) : order.length + declared.findIndex((entry) => entry.key === key));
         return { layout, declared: [...declared].sort((a, b) => place(a.key) - place(b.key)) };
@@ -3062,16 +3075,20 @@ function writeState(key: string, models: DataGridModels, size: 'small' | 'large'
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
 const ABOUT = ['description', 'formula', 'kind', 'source', 'notes'] as const;
 // The columns as the dictionary fills them, kept while neither changes, so a column stays the same object between draws.
-const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; defaults?: object; columns: DataGridColumn<any>[] }>();
+const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; defaults?: object; numbers: boolean; columns: DataGridColumn<any>[] }>();
+// The column `rowNumbers` puts first: the same object every draw, so its key and width hold.
+const ROW_NUMBER_COLUMN: DataGridColumn = { key: 'row-number', header: '#', rowNumber: true, align: 'right', toggleable: false, exportable: false };
 const NO_DICTIONARY: Record<string, DataGridColumnAbout> = {};
 
 /** The columns with what the grid's `dictionary` says of each filled in where the column says nothing itself. */
 function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
     const { columns, aggregates, columnDefaults } = config;
     const dictionary = config.dictionary ?? NO_DICTIONARY;
-    if ((dictionary === NO_DICTIONARY && !aggregates && !columnDefaults) || !columns) return config;
+    // The rows' numbers stand first, unless a column of the host's own already shows them.
+    const numbers = !!config.rowNumbers && !!columns && !columns.some((column) => column.rowNumber);
+    if ((dictionary === NO_DICTIONARY && !aggregates && !columnDefaults && !numbers) || !columns) return config;
     const cached = describedCache.get(columns);
-    if (cached?.dictionary === dictionary && cached.aggregates === aggregates && cached.defaults === columnDefaults) return { ...config, columns: cached.columns };
+    if (cached?.dictionary === dictionary && cached.aggregates === aggregates && cached.defaults === columnDefaults && cached.numbers === numbers) return { ...config, columns: cached.columns };
     const defaults = Object.entries(columnDefaults ?? {}) as [keyof DataGridColumn<T>, unknown][];
     const fill = (list: DataGridColumn<T>[]): DataGridColumn<T>[] =>
         list.map((column) => {
@@ -3081,7 +3098,7 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
             // The reader's pick of how the values are worked out, over the column's own.
             const picked = !!aggregates && name_ in aggregates;
             const how = picked ? aggregates![name_] : undefined;
-            const plain = defaults.length > 0 && !column.selectionMode && !column.expander && !column.rowEditor && !column.rowDrag;
+            const plain = defaults.length > 0 && !column.selectionMode && !column.expander && !column.rowEditor && !column.rowDrag && !column.rowNumber;
             if (!about && !picked && !plain) return column;
             const out = { ...column } as Record<string, unknown>;
             if (about) for (const name of ABOUT) if (out[name] === undefined && about[name] !== undefined) out[name] = about[name];
@@ -3089,8 +3106,8 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
             if (picked) out.aggregate = how ?? undefined;
             return out as DataGridColumn<T>;
         });
-    const filled = fill(columns);
-    describedCache.set(columns, { dictionary, aggregates, defaults: columnDefaults, columns: filled });
+    const filled = numbers ? [ROW_NUMBER_COLUMN as DataGridColumn<T>, ...fill(columns)] : fill(columns);
+    describedCache.set(columns, { dictionary, aggregates, defaults: columnDefaults, numbers, columns: filled });
     return { ...config, columns: filled };
 }
 

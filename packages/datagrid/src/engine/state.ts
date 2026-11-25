@@ -74,12 +74,14 @@ export const defaultModels = (): DataGridModels => ({
  */
 export function declaredColumns<T>(config: DataGridConfig<T>): { column: DataGridColumn<T>; key: string; groups: ColumnGroupRef<T>[] }[] {
     const out: { column: DataGridColumn<T>; key: string; groups: ColumnGroupRef<T>[] }[] = [];
+    // The rows' numbers take no place in the count, so turning them on leaves a stored layout fitting.
+    let place = 0;
     const walk = (list: DataGridColumn<T>[], groups: ColumnGroupRef<T>[], path: string) =>
         list
             .filter((column) => !column.hidden)
             .forEach((column, index) => {
                 if (column.columns) walk(column.columns, [...groups, { key: String(column.key ?? `group-${path}${index}`), column }], `${path}${index}-`);
-                else out.push({ column, key: keyOf(column, out.length), groups });
+                else out.push({ column, key: column.rowNumber ? String(column.key ?? 'row-number') : keyOf(column, place++), groups });
             });
     walk(config.columns ?? [], [], '');
     return out;

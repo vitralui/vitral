@@ -236,6 +236,12 @@
     border-bottom: 0;
 }
 
+/* A run of one value down a column reads as one cell: no rule between its rows. */
+.vt-datagrid-body-cell[data-row-run='start'],
+.vt-datagrid-body-cell[data-row-run='middle'] {
+    border-bottom-color: transparent;
+}
+
 /* The selection pill at the row's leading edge; transparent in presets that do not draw one. */
 .vt-datagrid-row-selected > :first-child {
     position: relative;

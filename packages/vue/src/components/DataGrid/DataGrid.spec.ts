@@ -619,3 +619,19 @@ describe('DataGrid collapsedGroups', () => {
         wrapper.unmount();
     });
 });
+
+describe('DataGrid merged cells', () => {
+    it('numbers the rows, merges a run of one value and stretches a cell across, from the props', () => {
+        const { column, bodyRows, wrapper } = mountTable({ rowNumbers: true }, () => [
+            h(Column, { field: 'country', header: 'Country', spanRows: true }),
+            h(Column, { field: 'name', header: 'Name', colSpan: ({ row }: { row: Person }) => (row.status === 'offline' ? 2 : 1) }),
+            h(Column, { field: 'status', header: 'Status' })
+        ]);
+        expect(column(0).slice(0, 3)).toEqual(['1', '2', '3']);
+        expect(column(1).slice(0, 3)).toEqual(['Brazil', '', 'Portugal']);
+        const offline = bodyRows()[3]!;
+        expect(offline.querySelector('[data-col="name"]')!.getAttribute('aria-colspan')).toBe('2');
+        expect(offline.querySelector('[data-col="status"]')).toBeNull();
+        wrapper.unmount();
+    });
+});

@@ -175,6 +175,15 @@ export interface DataGridColumn<T = Row> {
     /** This column can be resized; every column can when the table says so. */
     resizable?: boolean;
     minWidth?: number;
+    /** How many columns a cell covers, by cell: the cells it covers are left out. 1 by default. */
+    colSpan?: (context: CellContext<T>) => number;
+    /**
+     * Cells of one value running down rows drawn as one: the value once, at the top, and no rule between them.
+     * True merges equal values; a function says whether two cells, one above the other, go together.
+     */
+    spanRows?: boolean | ((above: { row: T; value: unknown }, below: { row: T; value: unknown }) => boolean);
+    /** The row's number on the whole, from 1: what `rowNumbers` puts at the start. */
+    rowNumber?: boolean;
     /** A share of the room the other columns leave: two columns of `flex: 1` split it, `flex: 2` takes twice. A width the reader drags wins. */
     flex?: number;
     width?: number;
@@ -499,6 +508,8 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * anything else — the search, the sort, the totals. Give a new function to filter again.
      */
     externalFilter?: (row: T) => boolean;
+    /** A column at the start with each row's number, counting from 1 across the pages. */
+    rowNumbers?: boolean;
     /**
      * What every column has unless it says otherwise: `{ filter: true, sortable: true }` gives each column a
      * filter of its values' kind and a sort at once. The columns that select, expand, edit or drag rows are
