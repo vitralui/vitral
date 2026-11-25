@@ -2,6 +2,8 @@ import { defineStyle } from '../defineStyle';
 import css from './datagrid.css?raw';
 
 export interface DataGridState {
+    /** The room under the rows goes on as empty rows. */
+    fillRows?: boolean;
     striped?: boolean;
     gridlines?: boolean;
     size?: 'small' | 'large';
@@ -133,7 +135,7 @@ export const datagridStyle = defineStyle({
         drawerButton: (s: { variant?: 'outlined' | 'text' }) => ['vt-button', s.variant && `vt-button-${s.variant}`, s.variant && 'vt-button-secondary'],
         /** The row at the foot with each column's value worked out over every row. */
         totalRow: 'vt-datagrid-total-row',
-        tableContainer: (s: DataGridState) => ['vt-datagrid-table-container', { 'vt-datagrid-flex-scroll': s.flexScroll }],
+        tableContainer: (s: DataGridState) => ['vt-datagrid-table-container', { 'vt-datagrid-flex-scroll': s.flexScroll, 'vt-datagrid-table-container-fill': s.fillRows }],
         /** `sized`: laid out by the columns' widths (after a resize), each cell kept to its column. */
         table: (s: { sized?: boolean }) => ['vt-datagrid-table', { 'vt-datagrid-table-sized': s.sized }],
         caption: 'vt-datagrid-caption',
@@ -184,6 +186,10 @@ export const datagridStyle = defineStyle({
         filterField: 'vt-field vt-field-sm vt-field-fluid vt-datagrid-filter-field',
         filterInput: 'vt-datagrid-filter-input',
         tbody: 'vt-datagrid-tbody',
+        /** The empty rows under the last one, down to the box's foot; `odd`: the rows above are an odd count, so the first empty one is striped. */
+        fillRows: (s: { odd?: boolean }) => ['vt-datagrid-fill-rows', { 'vt-datagrid-fill-rows-odd': s.odd }],
+        fillRow: 'vt-datagrid-fill-row',
+        fillCell: 'vt-datagrid-fill-cell',
         row: (s: DataGridRowState) => [
             'vt-datagrid-row',
             {
@@ -280,7 +286,8 @@ export const datagridStyle = defineStyle({
         /** The handle a row is dragged by. */
         rowDragHandle: 'vt-datagrid-row-drag-handle',
         /** The table and the side bar beside it. */
-        bodyArea: 'vt-datagrid-body-area',
+        /** The table and the side bar side by side; `flexScroll`: it takes the grid's height, as the table would. */
+        bodyArea: (s: { flexScroll?: boolean }) => ['vt-datagrid-body-area', { 'vt-datagrid-body-area-flex': s.flexScroll }],
         /** The side bar: its tabs down the edge, the panel open, and what the panels hold. */
         sideBar: (s: { open?: boolean }) => ['vt-datagrid-side-bar', { 'vt-datagrid-side-bar-open': s.open }],
         sideTabs: 'vt-datagrid-side-tabs',

@@ -127,6 +127,18 @@ describe('the side bar', () => {
         expect(element.querySelector('.vt-datagrid-side-filter-active')).toBeNull();
     });
 
+    it('opens and shuts from a press anywhere on its strip, reopening the panel last open', () => {
+        const { element, tab } = mount({ sideBar: ['columns', 'filters'] });
+        const strip = element.querySelector('.vt-datagrid-side-tabs') as HTMLElement;
+        strip.click();
+        expect(tab('columns').getAttribute('aria-pressed')).toBe('true');
+        tab('filters').click();
+        strip.click();
+        expect(element.querySelector('.vt-datagrid-side-panel')).toBeNull();
+        strip.click();
+        expect(tab('filters').getAttribute('aria-pressed')).toBe('true');
+    });
+
     it('shuts the panel when its tab is pressed again', () => {
         const { element, tab } = mount({ sideBarOpen: 'columns' });
         expect(element.querySelector('.vt-datagrid-side-panel-columns')).not.toBeNull();

@@ -200,6 +200,11 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      */
     columnsDrawer?: boolean;
     /**
+     * The toolbar's dictionary button opens the data dictionary in a drawer at the page's edge, as a report shows it,
+     * instead of the side bar's panel — whether or not `sideBar` lists `'dictionary'`.
+     */
+    dictionaryDrawer?: boolean;
+    /**
      * The rows a download from the toolbar writes, in place of the ones the DataGrid holds: with `lazy`, every row the
      * filters let through, fetched from the server, rather than the page on show.
      */
@@ -216,6 +221,11 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     headerInfoAt?: 'edge' | 'title';
     /** The least height of the box the rows scroll in, a CSS length, so a grid with few rows or none keeps its shape. */
     minHeight?: string;
+    /**
+     * The room the rows leave in a box taller than them (`minHeight`, or a `scrollHeight` of `'flex'`) goes on as
+     * empty rows down to its foot: as high as the rows, striped with them and ruled on the columns' own tracks.
+     */
+    fillRows?: boolean;
     /** A button by each header whose column has a `description`, which opens it. On by default. */
     columnInfo?: boolean;
     /**

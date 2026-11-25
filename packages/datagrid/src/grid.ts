@@ -196,6 +196,13 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         dropOn: string | null;
     } | null = null;
     let drawerTrap: FocusTrap | null = null;
+    /** Whether the data dictionary's drawer is open, and the trap that keeps focus in it. */
+    /** The side panel open last, which a press on the strip opens again. */
+    let lastSidePanel: SidePanel | null = null;
+    /** The empty rows' height and stripe, as last read (`fitFill`). */
+    let fill = { height: 0, odd: false };
+    let dictionaryOpen = false;
+    let dictionaryTrap: FocusTrap | null = null;
     let sideDragging: string | null = null;
     let sideDropOn: string | null = null;
     // The pivot panel: a field being dragged, where it would land, and the selects that say how each value is worked out.
@@ -314,7 +321,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         loadStyle(baseStyle.name, baseStyle.css, styleOptions());
         loadStyle(datagridStyle.name, datagridStyle.css, styleOptions());
         if (config.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
-        if (config.columnsDrawer) drawerStyles();
+        if (config.columnsDrawer || config.dictionaryDrawer) drawerStyles();
     }
 
     // ---- what the host hears ------------------------------------------------------
@@ -812,6 +819,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         sideTab(panel) {
             showPanel(sidePanel === panel ? null : panel);
         },
+        sideStrip() {
+            const panels = sidePanels();
+            showPanel(sidePanel ? null : lastSidePanel && panels.includes(lastSidePanel) ? lastSidePanel : (panels[0] ?? null));
+        },
         openInfo(column, event) {
             if (infoKey === column.key) return infoOverlay.close('request');
             closeMenus();
@@ -824,7 +835,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             const item = toolbarItems().find((entry) => (typeof entry === 'string' ? entry : entry.key) === key);
             if (!item) return;
             if (typeof item === 'object') return item.onClick(event);
-            if (item === 'dictionary') return showPanel(sidePanel === 'dictionary' ? null : 'dictionary');
+            if (item === 'dictionary') return current.dictionaryDrawer ? showDictionary(!dictionaryOpen) : showPanel(sidePanel === 'dictionary' ? null : 'dictionary');
             if (item === 'columns') {
                 if (current.columnsDrawer) return openDrawer('visible');
                 return sidePanels().includes('columns') ? showPanel(sidePanel === 'columns' ? null : 'columns') : setChooser(!chooserOpen);
@@ -975,6 +986,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         },
         drawerApply: applyDrawer,
         drawerCancel: () => closeDrawer(),
+        dictionaryDrawer: (open) => showDictionary(open),
         pageInput(page) {
             const size = models.rows;
             const count = pageCount(rowsNow().total, size);
@@ -1266,6 +1278,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const next = panel && sidePanels().includes(panel) ? panel : null;
         if (next === sidePanel) return;
         sidePanel = next;
+        if (next) lastSidePanel = next;
         if (draft?.inline) draft = null;
         render();
         emit('side-panel-change', { panel: sidePanel });
@@ -1287,7 +1300,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         if (!asked) return [];
         const items: DataGridToolbarItem[] = asked === true ? ['dictionary', 'export', 'pivot', 'density', 'columns'] : asked;
         return items.filter((item) => {
-            if (item === 'dictionary') return sidePanels().includes('dictionary');
+            if (item === 'dictionary') return !!current.dictionaryDrawer || sidePanels().includes('dictionary');
             if (item === 'pivot') return sidePanels().includes('pivot');
             if (item === 'columns') return sidePanels().includes('columns') || !!current.columnToggle || !!current.columnsDrawer;
             return true;
@@ -1300,7 +1313,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const words = locale().datagrid;
         return items.map((item): ToolbarView => {
             if (typeof item === 'object') return { key: item.key, label: item.label, icon: item.icon, showLabel: !item.icon || !!item.showLabel };
-            if (item === 'dictionary') return { key: item, label: words.dictionaryPanel, icon: 'bookOpen', showLabel: true, pressed: sidePanel === 'dictionary' };
+            if (item === 'dictionary') return { key: item, label: words.dictionaryPanel, icon: 'bookOpen', showLabel: true, pressed: current.dictionaryDrawer ? dictionaryOpen : sidePanel === 'dictionary' };
             if (item === 'columns')
                 return {
                     key: item,
@@ -2439,6 +2452,22 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
      * first cell to the foot of its last, which rows of their own heights need. Until it is measured, CSS takes
      * the rows to be as tall as the first.
      */
+    /**
+     * The empty rows under the last: as high as a row of the body, and striped
+     * on from it — the first empty one shaded when the rows above are an odd
+     * count. Read after a draw; a change draws again, once.
+     */
+    function fitFill() {
+        if (!current.fillRows) return;
+        const body = element.querySelector('[data-section="body"]');
+        if (!body) return;
+        const first = body.querySelector<HTMLElement>(':scope > [role="row"][data-index]');
+        const next = { height: current.rowHeight ?? Math.round(first?.getBoundingClientRect().height ?? 0), odd: body.children.length % 2 === 1 };
+        if (next.height === fill.height && next.odd === fill.odd) return;
+        fill = next;
+        render();
+    }
+
     function layRuns() {
         // A tall run's value keeps clear of the header and the foot that stay put while the rows scroll.
         const runs = element.querySelectorAll('[data-section="body"] [data-row-run-content]');
@@ -2547,6 +2576,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             menus: { filter: true, column: !!current.columnMenu, open: menuKey, info: current.columnInfo !== false, infoOpen: infoKey },
             toolbar: toolbarView(),
             drawer: drawerViewOf(),
+            fillRows: current.fillRows && rowsNow().page.length ? fill : undefined,
+            dictionaryDrawer: dictionaryOpen ? { entries: dictionaryEntries(), module: current.dictionaryModule, subtitle: current.dictionarySubtitle, search: sideSearch } : undefined,
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
             sideBar: sideBarOf(),
@@ -2591,6 +2622,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         chooserBars.sync();
         measure();
         layRuns();
+        fitFill();
         flashChanges();
         if (movedRow) {
             const at = rowsNow().page.indexOf(movedRow);
@@ -2748,6 +2780,29 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             drawerTrap = createFocusTrap(dialog, { initialFocus: `[data-drawer-tab="${tab}"]` });
             drawerTrap.activate();
         }
+    }
+
+    /** Opens or shuts the data dictionary's drawer; focus goes into it, and back to the toolbar's button after. */
+    function showDictionary(open: boolean) {
+        if (open === dictionaryOpen) return;
+        if (open) {
+            if (!current.unstyled) drawerStyles();
+            closeMenus();
+            sideSearch = '';
+        }
+        dictionaryOpen = open;
+        render();
+        if (open) {
+            const dialog = element.querySelector('[data-dictionary-drawer]') as HTMLElement | null;
+            if (dialog) {
+                dictionaryTrap = createFocusTrap(dialog, { initialFocus: '[data-side-search]' });
+                dictionaryTrap.activate();
+            }
+            return;
+        }
+        dictionaryTrap?.deactivate();
+        dictionaryTrap = null;
+        if (!document.activeElement || document.activeElement === document.body) (element.querySelector('[data-toolbar="dictionary"]') as HTMLElement | null)?.focus();
     }
 
     function closeDrawer() {
@@ -3005,7 +3060,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             if ('filters' in changedModels && filtersKey(models.filters) !== filtersKey(applied)) applyFilters(models.filters);
             if (current.group !== wasGroup) joinGroup();
             if (!current.unstyled && current.paginator) loadStyle(paginatorStyle.name, paginatorStyle.css, styleOptions());
-            if (!current.unstyled && current.columnsDrawer) drawerStyles();
+            if (!current.unstyled && (current.columnsDrawer || current.dictionaryDrawer)) drawerStyles();
             if ('value' in next || 'dataSource' in next || 'lazy' in next) {
                 if (current.dataSource) requestSource();
             }
@@ -3097,6 +3152,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             cellMenu.destroy();
             infoOverlay.destroy();
             drawerTrap?.deactivate();
+            dictionaryTrap?.deactivate();
             destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
             howSelects.forEach(({ select }) => select.destroy());

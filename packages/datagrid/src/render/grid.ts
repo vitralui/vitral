@@ -85,6 +85,10 @@ export interface ViewContext<T = Row> {
     toolbar?: ToolbarView[];
     /** The columns drawer, while it is open. */
     drawer?: ColumnsDrawerView;
+    /** Empty rows down to the box's foot: as high as a row, and whether the rows above are an odd count. */
+    fillRows?: { height: number; odd: boolean };
+    /** The data dictionary's drawer, while it is open. */
+    dictionaryDrawer?: DictionaryView;
     /** The filter panel, while one is open. */
     filterPanel?: FilterPanelView;
     /** A row being dragged, and where it would land: before or after the row at that index. */
@@ -269,6 +273,8 @@ export interface DataGridActions<T = Row> {
     gridPaste: (event: ClipboardEvent) => void;
     /** The side bar: its tabs, the columns panel's search, boxes, select-all and dragging, the filters panel's sections. */
     sideTab: (panel: SidePanel) => void;
+    /** A press on the side bar's strip beside its tabs: shuts the open panel, or opens the last one. */
+    sideStrip: () => void;
     sideSearch: (text: string) => void;
     sideAll: (visible: boolean, event: Event) => void;
     sideMoveKey: (key: string, event: KeyboardEvent) => void;
@@ -311,6 +317,8 @@ export interface DataGridActions<T = Row> {
     drawerClear: () => void;
     drawerApply: () => void;
     drawerCancel: () => void;
+    /** Opens or shuts the data dictionary's drawer. */
+    dictionaryDrawer: (open: boolean) => void;
     /** Opens or shuts a row of a tree. */
     toggleTree: (row: T, key: string | number, event: Event) => void;
     /** A row's drag handle: dragged, or moved with Ctrl and an arrow key. */
@@ -347,6 +355,7 @@ const pinnedState = (column: ResolvedColumn) => ({
 export function gridView<T>(context: ViewContext<T>): Child[] {
     const { config, part } = context;
     const rootState = {
+        fillRows: !!context.fillRows,
         striped: config.stripedRows,
         gridlines: config.showGridlines,
         size: config.size,
@@ -389,7 +398,16 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                         onPaste: context.cellFocus ? context.on.gridPaste : undefined,
                         onDragover: context.rowDrag ? context.on.rowDragOver : undefined,
                         onDrop: context.rowDrag ? context.on.rowDrop : undefined,
-                        style: withSizing({ 'grid-template-columns': tracks(context) }, config.tableStyle),
+                        style: withSizing(
+                            {
+                                'grid-template-columns': tracks(context),
+                                // The empty rows take what the others leave of the box's height.
+                                ...(context.fillRows
+                                    ? { 'grid-template-rows': [config.caption ? 'auto' : '', 'auto auto 1fr', footPresent(context) ? 'auto' : ''].filter(Boolean).join(' ') }
+                                    : {})
+                            },
+                            config.tableStyle
+                        ),
                         'aria-busy': context.busy ? 'true' : undefined,
                         // With rows or columns left out of view, the table says how many it has.
                         'aria-rowcount': context.virtual ? String(context.virtual.rowCount) : undefined,
@@ -399,6 +417,7 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
                 config.caption ? h('div', mergeAttrs({ key: 'caption', id: context.ids.caption }, part(config.showCaption ? 'caption' : 'hiddenCaption')), config.caption) : null,
                 headView(context),
                 bodyView(context),
+                fillView(context),
                 footView(context)
             )
         );
@@ -406,12 +425,13 @@ export function gridView<T>(context: ViewContext<T>): Child[] {
         headerBar(context),
         paginator && config.paginatorPosition === 'top' ? paginatorView(context) : null,
         // With a side bar, the table and the bar sit side by side; without one, the table is where it always was.
-        context.sideBar ? h('div', mergeAttrs({ key: 'body-area' }, part('bodyArea')), tableArea, sideBarView(context)) : tableArea,
+        context.sideBar ? h('div', mergeAttrs({ key: 'body-area' }, part('bodyArea', { flexScroll: rootState.flexScroll })), tableArea, sideBarView(context)) : tableArea,
         paginator && config.paginatorPosition !== 'top' ? paginatorView(context) : null,
         footerBar(context),
         statusBar(context),
         loadingMask(context),
         context.drawer ? drawerView(context, context.drawer) : null,
+        context.dictionaryDrawer ? dictionaryDrawerView(context, context.dictionaryDrawer) : null,
         h(
             'div',
             mergeAttrs({ key: 'announcer' }, part('announcer'), {
@@ -1208,7 +1228,15 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
     const panelIcon = (panel: SidePanel) => (panel === 'columns' ? 'columns' : panel === 'pivot' ? 'table' : panel === 'dictionary' ? 'bookOpen' : 'filter');
     const tabs = h(
         'div',
-        mergeAttrs(part('sideTabs'), { role: 'toolbar', 'aria-orientation': 'vertical', 'aria-label': words.sideBar }),
+        mergeAttrs(part('sideTabs'), {
+            role: 'toolbar',
+            'aria-orientation': 'vertical',
+            'aria-label': words.sideBar,
+            // The whole strip is a target, down the table's height: a press beside the tabs opens or shuts the panel.
+            onClick: (event: MouseEvent) => {
+                if (event.target === event.currentTarget) context.on.sideStrip();
+            }
+        }),
         side.panels.map((panel) =>
             h(
                 'button',
@@ -1299,54 +1327,7 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
             )
         ];
     };
-    /** Every column, shown or hidden, with what it holds and how it is worked out; the search finds them by either. */
-    const dictionaryPanel = () => [
-        side.dictionaryModule || side.dictionarySubtitle
-            ? h(
-                  'div',
-                  mergeAttrs({ key: 'heading' }, part('dictionaryHeading')),
-                  side.dictionaryModule ? h('span', part('dictionaryModule'), formatMessage(words.module, { module: side.dictionaryModule })) : null,
-                  side.dictionarySubtitle ? h('p', part('dictionarySubtitle'), side.dictionarySubtitle) : null
-              )
-            : null,
-        h(
-            'div',
-            mergeAttrs({ key: 'search' }, part('sidePanelHead')),
-            h(
-                'span',
-                part('filterField'),
-                iconView('search'),
-                h(
-                    'input',
-                    mergeAttrs({ type: 'search' }, part('filterInput'), {
-                        value: side.search,
-                        placeholder: words.searchColumns,
-                        'aria-label': words.searchColumns,
-                        'data-side-search': '',
-                        onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
-                    })
-                )
-            )
-        ),
-        h(
-            'dl',
-            mergeAttrs({ key: 'entries' }, part('dictionary')),
-            (side.dictionary ?? []).map((entry) =>
-                h(
-                    'div',
-                    mergeAttrs({ key: entry.key }, part('dictionaryEntry', { hidden: !entry.visible }), { 'data-dictionary': entry.key }),
-                    h(
-                        'dt',
-                        part('dictionaryTerm'),
-                        h('span', null, entry.header),
-                        kindTag(context, entry.kind),
-                        entry.visible ? null : h('span', part('dictionaryHidden'), words.hiddenColumn)
-                    ),
-                    h('dd', part('dictionaryDetail'), aboutColumn(context, entry))
-                )
-            )
-        )
-    ];
+    const dictionaryPanel = () => dictionaryBody(context, { entries: side.dictionary ?? [], module: side.dictionaryModule, subtitle: side.dictionarySubtitle, search: side.search });
     const filtersPanel = () =>
         side.filters.length
             ? [
@@ -1548,6 +1529,109 @@ function pivotPanelView<T>(context: ViewContext<T>, view: PivotPanelView): Child
     ];
 }
 
+/** What the data dictionary shows, in the side bar's panel or in its drawer. */
+export interface DictionaryView {
+    entries: DictionaryEntry[];
+    /** The module the table belongs to, and a line under the title. */
+    module?: string;
+    subtitle?: string;
+    search: string;
+}
+
+/** Every column, shown or hidden, with what it holds and how it is worked out; the search finds them by either. */
+function dictionaryBody<T>(context: ViewContext<T>, view: DictionaryView): Child[] {
+    const { part, locale } = context;
+    const words = locale.datagrid;
+    return [
+    view.module || view.subtitle
+        ? h(
+              'div',
+              mergeAttrs({ key: 'heading' }, part('dictionaryHeading')),
+              view.module ? h('span', part('dictionaryModule'), formatMessage(words.module, { module: view.module })) : null,
+              view.subtitle ? h('p', part('dictionarySubtitle'), view.subtitle) : null
+          )
+        : null,
+    h(
+        'div',
+        mergeAttrs({ key: 'search' }, part('sidePanelHead')),
+        h(
+            'span',
+            part('filterField'),
+            iconView('search'),
+            h(
+                'input',
+                mergeAttrs({ type: 'search' }, part('filterInput'), {
+                    value: view.search,
+                    placeholder: words.searchColumns,
+                    'aria-label': words.searchColumns,
+                    'data-side-search': '',
+                    onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
+                })
+            )
+        )
+    ),
+    h(
+        'dl',
+        mergeAttrs({ key: 'entries' }, part('dictionary')),
+        view.entries.map((entry) =>
+            h(
+                'div',
+                mergeAttrs({ key: entry.key }, part('dictionaryEntry', { hidden: !entry.visible }), { 'data-dictionary': entry.key }),
+                h(
+                    'dt',
+                    part('dictionaryTerm'),
+                    h('span', null, entry.header),
+                    kindTag(context, entry.kind),
+                    entry.visible ? null : h('span', part('dictionaryHidden'), words.hiddenColumn)
+                ),
+                h('dd', part('dictionaryDetail'), aboutColumn(context, entry))
+            )
+        )
+    )
+];
+}
+
+/**
+ * The data dictionary in a drawer at the page's edge, as a report shows it:
+ * the same entries as the side bar's panel, over the page rather than beside
+ * the table, shut by its button, Escape or a press outside it.
+ */
+function dictionaryDrawerView<T>(context: ViewContext<T>, view: DictionaryView): Child {
+    const { part, locale, on, ids } = context;
+    const words = locale.datagrid;
+    const titleId = `${ids.table}-dictionary-title`;
+    return h(
+        'div',
+        mergeAttrs({ key: 'dictionary-mask' }, part('drawerMask'), {
+            onClick: (event: MouseEvent) => {
+                if (event.target === event.currentTarget) on.dictionaryDrawer(false);
+            }
+        }),
+        h(
+            'div',
+            mergeAttrs(part('drawer'), {
+                role: 'dialog',
+                'aria-modal': 'true',
+                'aria-labelledby': titleId,
+                tabindex: '-1',
+                'data-dictionary-drawer': '',
+                onKeydown: (event: KeyboardEvent) => {
+                    if (event.key !== 'Escape') return;
+                    event.stopPropagation();
+                    on.dictionaryDrawer(false);
+                }
+            }),
+            h(
+                'div',
+                part('drawerHeader'),
+                h('h2', mergeAttrs(part('drawerTitle'), { id: titleId }), words.dictionaryPanel),
+                h('button', mergeAttrs({ type: 'button' }, part('drawerClose'), { 'aria-label': words.drawerCancel, 'data-dictionary-close': '', onClick: () => on.dictionaryDrawer(false) }), iconView('close'))
+            ),
+            h('div', mergeAttrs(part('drawerContent'), { 'data-dictionary-body': '' }), dictionaryBody(context, view))
+        )
+    );
+}
+
 /** A cell of a heading row: a group over a run of columns, a column's own header, the room over one in fewer groups, or a spacer. */
 type HeadEntry<T> =
     | { kind: 'group'; group: ColumnGroupRef<T>; columns: ResolvedColumn<T>[] }
@@ -1671,6 +1755,33 @@ const filterText = (filters: FilterMeta, column: ResolvedColumn) => {
     const value = filterValue(filters, column);
     return value === null || value === undefined ? '' : String(value);
 };
+
+/**
+ * The room the rows leave, down to the box's foot, as empty rows: one row of
+ * the columns' own tracks, so its cells take the columns' widths, their rules
+ * and their pinning, painted as rows of the body's height and stripes. Nothing
+ * to read, so hidden from assistive technology.
+ */
+function fillView<T>(context: ViewContext<T>): Child {
+    const fill = context.fillRows;
+    if (!fill) return null;
+    const { part } = context;
+    const cells = context.drawn.map((entry) =>
+        isSpacer(entry)
+            ? h('div', mergeAttrs({ key: entry.key }, part('bodyCell', {}), part('fillCell')))
+            : h('div', mergeAttrs({ key: entry.key }, part('bodyCell', { align: entry.align, ...pinnedState(entry) }), part('fillCell'), { style: stickyStyle(entry) }))
+    );
+    return h(
+        'div',
+        mergeAttrs({ key: 'fill', 'aria-hidden': 'true', 'data-section': 'fill' }, part('fillRows', { odd: fill.odd }), {
+            style: fill.height ? { '--vt-datagrid-fill-row-height': `${fill.height}px` } : undefined
+        }),
+        h('div', mergeAttrs({ key: 'row' }, part('fillRow')), withFiller(context, cells, 'bodyCell'))
+    );
+}
+
+/** Whether the table has a foot drawn under its body. */
+const footPresent = <T>(context: ViewContext<T>) => hasFooter(context) || !!context.config.totalRow || context.pinnedBottom.length > 0;
 
 function bodyView<T>(context: ViewContext<T>): Child {
     const { config, part, locale, rows, virtual } = context;

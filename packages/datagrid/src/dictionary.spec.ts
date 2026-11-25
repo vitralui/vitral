@@ -110,6 +110,28 @@ describe('the toolbar', () => {
         expect(element.querySelector('.vt-datagrid-side-panel-columns')).not.toBeNull();
     });
 
+    it('opens the dictionary in a drawer when asked, with no side bar at all', () => {
+        const { element, tool } = mount({ toolbar: ['dictionary'], dictionaryDrawer: true, dictionaryModule: 'Sales', dictionarySubtitle: 'What each column holds.' });
+        expect(element.querySelector('[data-side-tab]')).toBeNull();
+        tool('dictionary')!.click();
+        const drawer = () => document.querySelector('[data-dictionary-drawer]');
+        expect(drawer()!.getAttribute('role')).toBe('dialog');
+        expect(tool('dictionary')!.getAttribute('aria-pressed')).toBe('true');
+        expect(drawer()!.textContent).toContain('What each column holds.');
+        expect(Array.from(drawer()!.querySelectorAll('[data-dictionary]'), (entry) => entry.getAttribute('data-dictionary'))).toEqual(['customer', 'gross', 'discount']);
+        const search = drawer()!.querySelector('[data-side-search]') as HTMLInputElement;
+        search.value = 'before discounts';
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+        expect(Array.from(drawer()!.querySelectorAll('[data-dictionary]'), (entry) => entry.getAttribute('data-dictionary'))).toEqual(['gross']);
+        drawer()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        expect(drawer()).toBeNull();
+        tool('dictionary')!.click();
+        // Opened again, the search starts over.
+        expect(drawer()!.querySelectorAll('[data-dictionary]')).toHaveLength(3);
+        (drawer()!.querySelector('[data-dictionary-close]') as HTMLButtonElement).click();
+        expect(drawer()).toBeNull();
+    });
+
     it('says what a button that is only an icon does, on hover, in a tooltip of its own rather than the browser\'s', async () => {
         const { tool } = mount({ toolbar: true, sideBar: ['columns', 'dictionary'] });
         const button = tool('density')!;
@@ -216,6 +238,22 @@ describe('a header laid out as a report’s', () => {
         // With nothing else at the edge, the info button still goes there when asked.
         handle!.update({ columnMenu: false });
         expect(at('customer')).toBe('edge');
+    });
+
+    it('goes on under the rows as empty ones when told to, on the columns\' tracks, striped on from the rows', () => {
+        const { element } = mount({ fillRows: true, minHeight: '20rem', stripedRows: true });
+        const fill = () => element.querySelector('[data-section="fill"]');
+        expect(fill()!.getAttribute('aria-hidden')).toBe('true');
+        // Three rows above: the first empty one is the fourth, an even one, striped.
+        expect(fill()!.classList).toContain('vt-datagrid-fill-rows-odd');
+        expect(fill()!.querySelectorAll('.vt-datagrid-fill-cell')).toHaveLength(3);
+        expect(element.querySelector('.vt-datagrid-table-container')!.classList).toContain('vt-datagrid-table-container-fill');
+        expect((element.querySelector('[data-grid-table]') as HTMLElement).style.gridTemplateRows).toBe('auto auto 1fr');
+        // No rows: the empty message has the room, not empty rows.
+        handle!.update({ value: [] });
+        expect(fill()).toBeNull();
+        handle!.update({ value: sales.slice(0, 2), fillRows: false });
+        expect(fill()).toBeNull();
     });
 
     it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {

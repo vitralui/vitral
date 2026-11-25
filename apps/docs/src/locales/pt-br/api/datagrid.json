@@ -46,6 +46,7 @@
         "headerTools": "Se o botão de menu de um cabeçalho fica sempre à vista (`'always'`, o padrão) ou só enquanto o mouse está sobre o cabeçalho.",
         "headerToolsAt": "Onde ficam os botões de filtro e de menu de um cabeçalho: na borda da coluna oposta ao título (`'edge'`, o padrão), para se alinharem de uma coluna à outra, ou logo depois do título (`'title'`). O `headerToolsAt` próprio de uma coluna prevalece.",
         "headerInfoAt": "Onde fica o botão de informação de um cabeçalho: logo depois do título que ele explica (`'title'`, o padrão) ou na borda da coluna, junto ao filtro e ao menu (`'edge'`). O `headerInfoAt` próprio de uma coluna prevalece.",
+        "fillRows": "O espaço que as linhas deixam numa caixa mais alta que elas (`minHeight`, ou `scrollHeight` igual a `'flex'`) continua como linhas vazias até o pé dela: da altura das linhas, listradas com elas e com as divisórias nas próprias faixas das colunas.",
         "minHeight": "A altura mínima da caixa onde as linhas rolam, um comprimento CSS, para que um grid com poucas linhas ou nenhuma mantenha a forma.",
         "dictionaryModule": "Sobre o dicionário de dados: o módulo a que a tabela pertence, em versaletes.",
         "dictionarySubtitle": "Uma linha sob o título do dicionário de dados.",
@@ -56,6 +57,7 @@
         "exportRows": "As linhas que um download pela barra de ferramentas grava, no lugar das que o DataGrid tem: com `lazy`, todas as linhas que os filtros deixam passar, buscadas no servidor, e não só a página na tela.",
         "aggregates": "Como os valores de cada coluna são calculados num grupo e na linha de totais, pela chave da coluna, acima do `aggregate` da própria coluna: o que quem lê escolhe na gaveta de colunas, guardado por `v-model:aggregates`.",
         "totalRow": "Uma linha no rodapé com o valor de cada coluna calculado sobre todas as linhas que os filtros deixam passar, pelo seu `aggregate`. Um objeto dá os valores pela chave da coluna: o que um servidor calculou.",
+        "dictionaryDrawer": "O botão de dicionário da barra de ferramentas abre o dicionário de dados numa gaveta na borda da página, como um relatório o mostra, em vez do painel da barra lateral — liste ou não a `sideBar` o `'dictionary'`.",
         "columnsDrawer": "O botão de colunas da barra de ferramentas abre uma gaveta na borda da página em vez do painel: as colunas mostradas e a ordem delas, o agrupamento das linhas (ou o pivô) e como cada coluna de números é calculada, mudados juntos e só ao \"Aplicar\"."
     },
     "emits": {

@@ -557,6 +557,13 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      */
     minHeight?: string;
     /**
+     * The room the rows leave in a box taller than them (`minHeight`, or a
+     * `scrollHeight` of `'flex'`) goes on as empty rows down to its foot, as
+     * high as the rows, striped with them and ruled on the columns' own
+     * tracks, so the records and the room left read as one table.
+     */
+    fillRows?: boolean;
+    /**
      * Keeps what the reader arranged between visits, under this name in the
      * browser's storage: the columns' order, widths, pins and the ones hidden,
      * the sort, the page size and how close the rows sit. What was kept wins
@@ -588,6 +595,12 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * and only on "Apply".
      */
     columnsDrawer?: boolean;
+    /**
+     * The toolbar's dictionary button opens the data dictionary in a drawer
+     * at the page's edge, as a report shows it, instead of the side bar's
+     * panel — whether or not the side bar lists `'dictionary'`.
+     */
+    dictionaryDrawer?: boolean;
     /**
      * The rows a download from the toolbar writes, in place of the ones the
      * grid holds: with `lazy`, every row the filters let through, fetched
