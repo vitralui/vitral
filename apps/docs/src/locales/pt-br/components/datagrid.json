@@ -104,6 +104,18 @@
             "title": "Layout: horas como um mapa de calor",
             "description": "Uma semana de turnos lida de relance: as horas de cada dia colorem a célula mais forte conforme crescem, um dia com mais de nove horas na cor de alerta, e o ponteiro parado numa célula diz de quem é o dia e quanto passou. O total da semana é calculado a partir da linha por `value-getter`, vermelho acima de 44 horas, e cada equipe é escrita uma vez."
         },
+        "In another language": {
+            "title": "Em outro idioma",
+            "description": "Toda palavra que o grid mostra ou anuncia vem do locale: o paginador, o menu da coluna, os filtros e suas condições, a barra de status. Aqui só o grid alterna entre inglês, português e uma tradução para espanhol feita no próprio demo por cima da inglesa — uma tradução é um objeto. O demo dá a esta parte da página um locale próprio, fornecendo a configuração da aplicação com outro; defina `locale` ao instalar o Vitral para traduzir a aplicação inteira. Números e anos acompanham o idioma por `value-formatter`."
+        },
+        "Cells that flash when they change": {
+            "title": "Células que piscam quando mudam",
+            "description": "`flash-cells` faz piscar a célula cujo valor mudou — numa cor quando um número subiu, em outra quando desceu — para que a mudança seja vista na hora. Um número é quanto dura o brilho, aqui 700 ms. As cotações mudam a cada segundo; uma cotação que mudou é um objeto novo, e é assim que o grid sabe. Pause para os ticks."
+        },
+        "A menu on the right click": {
+            "title": "Um menu no clique direito",
+            "description": "`context-menu` como função monta o menu para a linha e a célula em que abriu: primeiro as ações da página — abrir, marcar com estrela, um submenu Label com a escolha atual marcada, mover para a lixeira — e os itens do próprio grid (copiar, exportar) onde estavam. Com `navigation=&quot;cell&quot;` as setas chegam a uma célula, e a tecla de menu de contexto ou Shift+F10 abre o menu ali."
+        },
         "Merged cells": {
             "title": "Células mescladas",
             "description": "`row-numbers` põe o número de cada linha primeiro, preso à borda esquerda, contando através das páginas. `span-rows` numa coluna desenha uma sequência do mesmo valor como uma célula só, o valor uma vez no meio dela e cada linha ainda o dizendo a um leitor de tela, e uma sequência mais alta que a área visível mantendo o valor à vista enquanto as linhas rolam (`span-rows-sticky=&quot;false&quot;` o deixa no meio); uma função diz quais células vão juntas no lugar disso. `col-span` estica uma célula sobre as colunas ao lado, por linha: aqui um intervalo não tem sala, então seu nome toma o lugar da sala. O teclado passa por uma célula esticada como por uma só."
