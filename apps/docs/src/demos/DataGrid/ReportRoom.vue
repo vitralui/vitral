@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Column, DataGrid, Tag } from '@vitral/vue';
+import { Button, Column, DataGrid, Tag } from '@vitral/vue';
 
 const orders = [
     { id: 1041, customer: 'Ana Souza', items: 3, total: 418.5, status: 'Quarantine' },
@@ -35,6 +35,12 @@ const severity = (status: string) => (status === 'Shipped' ? 'success' : status 
         <Column field="status" header="Status" :width="150" description="Where the order stands." :notes="['Quarantine holds an order until its checklist is done.']">
             <template #body="{ data }">
                 <Tag :value="data.status" :severity="severity(data.status)" />
+            </template>
+        </Column>
+        <!-- Controls, not data: out of the dictionary, and unlabelled on a card. -->
+        <Column column-key="actions" header="Actions" :width="72" align="center" pinned="right" :toggleable="false" :dictionary="false" :stack-label="false">
+            <template #body>
+                <Button icon="moreVertical" variant="text" size="small" aria-label="Order actions" />
             </template>
         </Column>
     </DataGrid>
