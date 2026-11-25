@@ -45,3 +45,55 @@ export function apiOf(component: string): ApiDoc | null {
 export function memberDoc(component: string, kind: 'props' | 'emits' | 'slots', member: ApiMember): string | undefined {
     return lookup(`api/${component.toLowerCase()}`, `${kind}.${member.name}`) ?? member.doc;
 }
+
+/**
+ * The values a prop's type allows, when it is a choice of words: `'left' |
+ * 'right'`, or a name for one (`Severity`, `Size`) declared in the component's
+ * own `types.ts` or the shared one. Null when anything else is allowed too.
+ */
+export function literalsOf(component: string, type: string, seen = new Set<string>()): string[] | null {
+    const out: string[] = [];
+    for (const piece of type.split('|').map((part) => part.trim())) {
+        if (piece === 'null' || piece === 'undefined') continue;
+        const quoted = piece.match(/^'([^']*)'$|^"([^"]*)"$/);
+        if (quoted) {
+            out.push(quoted[1] ?? quoted[2]!);
+            continue;
+        }
+        if (!/^[A-Z]\w*$/.test(piece) || seen.has(piece)) return null;
+        seen.add(piece);
+        const alias = aliasOf(component, piece);
+        const values = alias === null ? null : literalsOf(component, alias, seen);
+        if (!values) return null;
+        out.push(...values);
+    }
+    return out.length ? [...new Set(out)] : null;
+}
+
+function aliasOf(component: string, name: string): string | null {
+    for (const source of [loaded.get(component) ?? '', sharedTypes]) {
+        const match = source.match(new RegExp(`export type ${name}\\s*=\\s*([^;]+);`));
+        if (match) return match[1]!.replace(/\s+/g, ' ').trim();
+    }
+    return null;
+}
+
+export interface PropControl {
+    kind: 'boolean' | 'choice' | 'number' | 'text';
+    options?: string[];
+}
+
+// A few of the base set, for a prop that takes an icon.
+const icons = ['check', 'plus', 'search', 'user', 'star', 'trash', 'download', 'bell'];
+
+/** The control a playground gives a prop, from its type; null for one a reader cannot type in (a list, a function). */
+export function controlOf(component: string, member: ApiMember): PropControl | null {
+    const type = member.type;
+    if (type === 'boolean') return { kind: 'boolean' };
+    if (/\bIconProp\b/.test(type)) return { kind: 'choice', options: icons };
+    const options = literalsOf(component, type);
+    if (options) return { kind: 'choice', options };
+    if (type === 'number') return { kind: 'number' };
+    if (/^(string|string \| number|number \| string|string \| number \| null)$/.test(type)) return { kind: 'text' };
+    return null;
+}

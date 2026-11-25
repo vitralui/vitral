@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Tag } from '@vitral/vue';
-import { computed, provide } from 'vue';
+import { computed, defineAsyncComponent, provide } from 'vue';
 import { categoryName } from '../demo';
 import { entries, entryOf, entryText, sectionText } from '../lib/catalog';
 import { componentChange, memberChange } from '../lib/changes';
@@ -13,6 +13,10 @@ import ChangeBadge from '../parts/ChangeBadge.vue';
 import CodeBlock from '../parts/CodeBlock.vue';
 import PageEnd from '../parts/PageEnd.vue';
 import Toc from '../parts/Toc.vue';
+import { playgroundNames } from '../lib/playgroundNames';
+
+// The playground brings the components it draws with it: fetched only on the pages that have one.
+const Playground = defineAsyncComponent(() => import('../parts/Playground.vue'));
 
 const entry = computed(() => entryOf(route.value.id) ?? entries[0]!);
 const sources = computed(() => sectionSources(entry.value.file));
@@ -32,6 +36,7 @@ const text = computed(() => entryText(entry.value));
 
 const toc = computed(() => [
     { id: 'import', label: t('Import') },
+    ...(playgroundNames.has(entry.value.file) ? [{ id: 'playground', label: t('Try it') }] : []),
     ...entry.value.sections.map((title) => ({ id: slugify(title), label: sectionText(entry.value, title).title })),
     ...(api.value?.props.length ? [{ id: 'api', label: 'API' }] : []),
     { id: 'related', label: t('Related components') }
@@ -52,6 +57,8 @@ const toc = computed(() => [
 
         <h2 id="import" class="prose" style="margin: 0; font-size: 1.375rem; font-weight: 600; scroll-margin-top: calc(var(--site-sticky) + 1rem)">{{ t('Import') }}</h2>
         <CodeBlock :code="importSnippet" label="main.ts" lang="ts" />
+
+        <Playground v-if="playgroundNames.has(entry.file)" :file="entry.file" />
 
         <component :is="entry.component" :key="entry.id" />
 

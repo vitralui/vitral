@@ -1078,6 +1078,122 @@ a {
     overflow: hidden;
 }
 
+/* ---- the playground: the component, its props, and its code ---- */
+
+.playground {
+    margin: 2rem 0 2.5rem;
+    scroll-margin-top: calc(var(--site-sticky) + 1rem);
+}
+
+.playground h2 {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+}
+
+.playground header p {
+    margin: 0.25rem 0 0.75rem;
+    font-size: 0.875rem;
+    color: var(--vt-text-muted-color);
+}
+
+.playground-card {
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-border-radius-lg);
+    background: var(--vt-content-background);
+    overflow: hidden;
+}
+
+.playground-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    border-bottom: 1px solid var(--vt-content-border-color);
+}
+
+.playground-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 14rem;
+    padding: 1.5rem;
+    background-image: radial-gradient(var(--vt-content-border-color) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+.playground-stage.wide {
+    align-items: stretch;
+    padding: 1rem;
+}
+
+.playground-stage.wide > * {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.playground-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 28rem;
+    overflow-y: auto;
+    padding: 0.75rem;
+    border-inline-start: 1px solid var(--vt-content-border-color);
+}
+
+.playground-controls-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+}
+
+/* A table or a board takes the whole width; its props go under it, in columns. */
+.playground-main.wide {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.playground-main.wide .playground-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    column-gap: 1.5rem;
+    max-height: none;
+    border-inline-start: 0;
+    border-top: 1px solid var(--vt-content-border-color);
+}
+
+.playground-main.wide .playground-controls-head {
+    grid-column: 1 / -1;
+}
+
+.playground-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.playground-control label code {
+    font-size: 0.75rem;
+    color: var(--vt-text-color);
+    overflow-wrap: anywhere;
+}
+
+.playground-control .vt-toggleswitch {
+    justify-self: start;
+}
+
+@media (max-width: 720px) {
+    .playground-main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .playground-controls {
+        max-height: none;
+        border-inline-start: 0;
+        border-top: 1px solid var(--vt-content-border-color);
+    }
+}
+
 /* ---- the example's own bar: its width and its direction ---- */
 
 .demo-tools {
