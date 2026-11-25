@@ -14,8 +14,8 @@ import type { IconDef } from './types';
  * - media transport (`play`, `rewind`, `fastForward`, `skipBack`, `skipForward`) —
  *   a timeline runs left to right in every locale, and every RTL player keeps
  *   the play button pointing right;
- * - `alignLeft`, `alignRight`, `toggleLeft`, `toggleRight` — the name is the
- *   meaning;
+ * - `alignLeft`, `alignRight`, `toggleLeft`, `toggleRight`, `pilcrowLeft`,
+ *   `pilcrowRight` — the name is the meaning;
  * - `rotateLeft`, `rotateRight`, `refresh` — rotation is clockwise or it is
  *   not, and reading direction has no say;
  * - `trendingUp`, `trendingDown` — a chart's time axis is not mirrored either;

@@ -76,7 +76,7 @@ const text = computed(() => sectionText(entryOf(route.value.id), props.title, pr
                 <span class="demo-tools-rule" aria-hidden="true" />
                 <Button
                     v-tooltip.bottom="t('Right to left')"
-                    icon="languages"
+                    icon="pilcrowLeft"
                     :aria-label="t('Right to left')"
                     :aria-pressed="rtl"
                     :class="{ 'is-on': rtl }"

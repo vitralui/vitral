@@ -28,6 +28,8 @@ export const superscript: IconDef = { name: 'superscript', category, tags: ['exp
 export const highlighter: IconDef = { name: 'highlighter', category, tags: ['marker', 'highlight'], body: '<path d="M13.5 4.5a2.1 2.1 0 0 1 3 0l3 3a2.1 2.1 0 0 1 0 3L12 18l-6-6zM6 12l-2.5 2.5 1 1L2.5 18h4l1-1 1 1L12 18M13 21h8"/>' };
 export const eraser: IconDef = { name: 'eraser', category, tags: ['rubber', 'clear', 'delete'], body: '<path d="M7 21l-3.5-3.5a2 2 0 0 1 0-2.8L13.7 4.5a2 2 0 0 1 2.8 0l4 4a2 2 0 0 1 0 2.8L11 21zM7 21h14M8.5 9.7l6.3 6.3"/>' };
 export const pilcrow: IconDef = { name: 'pilcrow', category, tags: ['paragraph', 'mark'], body: '<path d="M13 4v16M17 4v16M19 4H9.5a4.5 4.5 0 0 0 0 9H13"/>' };
+export const pilcrowLeft: IconDef = { name: 'pilcrowLeft', category, tags: ['right to left', 'rtl', 'text direction', 'paragraph'], body: '<path d="M10 3v10M14 3v10M16 3H8.5a3.5 3.5 0 0 0 0 7H10M20 19H4M7 16l-3 3 3 3"/>' };
+export const pilcrowRight: IconDef = { name: 'pilcrowRight', category, tags: ['left to right', 'ltr', 'text direction', 'paragraph'], body: '<path d="M10 3v10M14 3v10M16 3H8.5a3.5 3.5 0 0 0 0 7H10M4 19h16M17 16l3 3-3 3"/>' };
 export const hash: IconDef = { name: 'hash', category, tags: ['number', 'hashtag', 'pound', 'channel'], body: '<path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/>' };
 export const languages: IconDef = { name: 'languages', category, tags: ['translate', 'language', 'i18n'], body: '<path d="M3 5h9M7.5 3v2M10.5 5c-.8 3.8-3 6.8-6.5 8.5M5.5 9c1 2 2.6 3.5 5 4.5M12 21l4.5-10 4.5 10M13.5 18h6"/>' };
 export const spellCheck: IconDef = { name: 'spellCheck', category, tags: ['spelling', 'proofread', 'grammar'], body: '<path d="M3 14l3.5-9 3.5 9M4.2 11h4.6M11 17l3 3 7-7"/>' };
