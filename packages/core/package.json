@@ -1,6 +1,6 @@
 {
   "name": "@vitral/core",
-  "version": "0.2.30",
+  "version": "0.2.31",
   "description": "Framework-agnostic behaviour for Vitral: utilities, accessibility, overlays, data, dates and numbers.",
   "keywords": [
     "vitral",
