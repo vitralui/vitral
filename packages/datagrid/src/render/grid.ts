@@ -1812,7 +1812,7 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
             const open = !!context.editing && context.editing.index === index && context.editing.keys.includes(column.key);
             const focus = context.cellFocus;
             const across = spans.width.get(column.key);
-            const run = rowRuns(context).get(column.key)?.get(index);
+            const run = open ? undefined : rowRuns(context).get(column.key)?.get(index);
             return h(
                 'div',
                 mergeAttrs(
@@ -1831,7 +1831,7 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                         'aria-colindex': colIndex(context, column),
                         'aria-colspan': across ? String(across) : undefined,
                         'data-col': column.key,
-                        'data-row-run': run,
+                        ...runAttrs(column.key, run),
                         'data-editing': open ? '' : undefined,
                         'aria-selected': context.config.cellSelection ? String(!!context.range && context.range.box.rows.includes(index) && context.range.box.keys.includes(column.key)) : undefined,
                         tabindex: focus ? (focus.index === index && focus.key === column.key ? '0' : '-1') : undefined
@@ -2011,10 +2011,14 @@ function rowEditorView<T>(context: ViewContext<T>, index: number): Child {
 function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): Child {
     // `index` counts from the first page's first row; the runs are kept by the place on this page.
     if (column.column.rowNumber) return pinned ? '' : String(index + 1);
-    // Below the top of a run of one value, the cell is drawn empty: the top one says it for all of them.
-    if (!pinned && rowRuns(context).get(column.key)?.get(index - context.rows.offset)?.match(/middle|end/)) return '';
     const cell = cellContextOf(column, row, index, pinned);
-    return content(column.column.body?.(cell)) ?? (column.column.sparkline ? sparklineCell(context, column, row, cell.value) : valueText(context, column.column, cell.value, row));
+    const shown = content(column.column.body?.(cell)) ?? (column.column.sparkline ? sparklineCell(context, column, row, cell.value) : valueText(context, column.column, cell.value, row));
+    // A pinned row's index is its place in its band; a body row's counts from the first page.
+    const run = rowRuns(context, pinned ?? 'body').get(column.key)?.get(pinned ? index : index - context.rows.offset);
+    if (!run) return shown;
+    // The top of a run draws the value once over every row of it; the rows below still say it, to a screen reader.
+    if (run.place !== 'start') return h('span', { class: 'vt-sr-only' }, shown);
+    return h('div', mergeAttrs(context.part('rowRun'), { 'data-row-run-content': '', style: { '--vt-datagrid-row-run-rows': String(run.size) } }), shown);
 }
 
 /** Which columns a row's cells cover beside their own, and which cells that leaves out. */
@@ -2040,42 +2044,67 @@ function colSpans<T>(context: ViewContext<T>, row: T, index: number, pinned?: 't
     return { width, covered };
 }
 
-// Runs of one value down a column, worked out once a drawing: a row's place in its run by column.
-const runsMemo = new WeakMap<object, Map<string, Map<number, 'start' | 'middle' | 'end'>>>();
+/** Where a row stands in a run of one value down a column: its place, and how many rows the run has. */
+type RunPlace = { place: 'start' | 'middle' | 'end'; size: number };
+type Runs = Map<string, Map<number, RunPlace>>;
 
-function rowRuns<T>(context: ViewContext<T>): Map<string, Map<number, 'start' | 'middle' | 'end'>> {
-    let out = runsMemo.get(context);
-    if (out) return out;
-    out = new Map();
-    for (const entry of context.drawn) {
-        if (isSpacer(entry) || !entry.column.spanRows) continue;
-        const rule = entry.column.spanRows;
+// Runs of one value down a column, worked out once a drawing for each band: a row's place in its run by column.
+const runsMemo = new WeakMap<object, Partial<Record<'body' | 'top' | 'bottom', Runs>>>();
+
+/**
+ * The runs among the rows of a band as drawn — the body's rows, or the rows pinned at the top or the bottom,
+ * each band on its own. A virtual grid starts them at the first row in view, so the top of each is always
+ * drawn. A heading between rows ends a run, as does an open row's detail or a different value.
+ */
+function rowRuns<T>(context: ViewContext<T>, band: 'body' | 'top' | 'bottom' = 'body'): Runs {
+    const memo = runsMemo.get(context) ?? {};
+    runsMemo.set(context, memo);
+    const known = memo[band];
+    if (known) return known;
+    const out: Runs = new Map();
+    memo[band] = out;
+    const columns = context.drawn.filter((entry): entry is ResolvedColumn<T> => !isSpacer(entry) && !!entry.column.spanRows);
+    if (!columns.length) return out;
+    // A row, or null where a run must end.
+    let rows: ({ row: T; index: number; closes?: boolean } | null)[];
+    if (band === 'body') {
+        const lines = context.virtual ? context.lines.slice(context.virtual.window.start, context.virtual.window.end) : context.lines;
+        const expandable = !!context.config.content?.rowExpansion && context.columns.some((c) => c.column.expander);
+        const open = (row: T, index: number) => expandable && isExpanded(context.models.expandedRows, expansionKey(context.config, row, index, context.rows.offset));
+        rows = lines.map((line) => (line.kind === 'row' ? { row: line.row, index: line.index, closes: open(line.row, line.index) } : null));
+    } else rows = (band === 'top' ? context.pinnedTop : context.pinnedBottom).map((row, index) => ({ row, index }));
+    for (const entry of columns) {
+        const rule = entry.column.spanRows!;
         const same = typeof rule === 'function' ? rule : (a: { value: unknown }, b: { value: unknown }) => sameValue(a.value, b.value);
-        const places = new Map<number, 'start' | 'middle' | 'end'>();
+        const places = new Map<number, RunPlace>();
         let run: number[] = [];
         let last: { row: T; value: unknown } | null = null;
         const close = () => {
-            if (run.length > 1) run.forEach((index, at) => places.set(index, at === 0 ? 'start' : at === run.length - 1 ? 'end' : 'middle'));
+            const size = run.length;
+            if (size > 1) run.forEach((index, at) => places.set(index, { place: at === 0 ? 'start' : at === size - 1 ? 'end' : 'middle', size }));
             run = [];
+            last = null;
         };
-        // A heading between rows ends a run, as does a different value.
-        for (const line of context.lines) {
-            if (line.kind !== 'row') {
+        for (const item of rows) {
+            if (!item) {
                 close();
-                last = null;
                 continue;
             }
-            const here = { row: line.row, value: valueOf(line.row, entry) };
+            const here = { row: item.row, value: valueOf(item.row, entry) };
             if (last && !same(last, here)) close();
-            run.push(line.index);
+            run.push(item.index);
             last = here;
+            if (item.closes) close();
         }
         close();
         if (places.size) out.set(entry.key, places);
     }
-    runsMemo.set(context, out);
     return out;
 }
+
+/** What a cell in a run says of it, for the CSS and for the height measured once drawn. */
+const runAttrs = (key: string, run: RunPlace | undefined) =>
+    run ? { 'data-row-run': run.place, 'data-row-run-col': key, 'data-row-run-rows': run.place === 'start' ? String(run.size) : undefined } : {};
 
 const sameValue = (a: unknown, b: unknown) => a === b || (a instanceof Date && b instanceof Date && a.getTime() === b.getTime());
 
@@ -2225,7 +2254,8 @@ function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, positi
                 mergeAttrs({ key: column.key, role: cellRole(context) }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), cellLook(context, column, row, index, position), {
                     style: { ...stickyStyle(column), ...(across ? { gridColumn: `span ${across}` } : {}) },
                     'aria-colindex': colIndex(context, column),
-                    'aria-colspan': across ? String(across) : undefined
+                    'aria-colspan': across ? String(across) : undefined,
+                    ...runAttrs(column.key, rowRuns(context, position).get(column.key)?.get(index))
                 }),
                 column.selectionMode || column.column.expander ? null : cellContent(context, column, row, index, position)
             );

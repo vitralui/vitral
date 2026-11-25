@@ -198,6 +198,8 @@ export const datagridStyle = defineStyle({
         /** A row held at the top or the bottom while the rest scroll. */
         pinnedRow: (s: { position?: 'top' | 'bottom' }) => ['vt-datagrid-pinned-row', { 'vt-datagrid-pinned-row-top': s.position === 'top', 'vt-datagrid-pinned-row-bottom': s.position === 'bottom' }],
         pinnedRowCell: 'vt-datagrid-pinned-row-cell',
+        /** A run of one value down a column (`spanRows`), drawn once over every row of it from the top one. */
+        rowRun: 'vt-datagrid-row-run',
         bodyCell: (s: DataGridBodyCellState) => [
             'vt-datagrid-body-cell',
             align(s),

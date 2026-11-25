@@ -32,8 +32,15 @@ function mount(columns: DataGridColumn<Sale>[], config: Record<string, unknown> 
     const row = (index: number) => element.querySelector(`[data-section="body"] [role="row"][data-index="${index}"]`) as HTMLElement;
     const cell = (index: number, key: string) => row(index).querySelector(`[data-col="${key}"]`) as HTMLElement | null;
     const column = (key: string) => Array.from(element.querySelectorAll(`[data-section="body"] [role="row"][data-index] [data-col="${key}"]`), (c) => c.textContent);
+    // What the eye reads: the text a screen reader alone is given left out.
+    const seen = (key: string) =>
+        Array.from(element.querySelectorAll(`[data-section="body"] [role="row"][data-index] [data-col="${key}"]`), (c) => {
+            const copy = c.cloneNode(true) as HTMLElement;
+            copy.querySelectorAll('.vt-sr-only').forEach((hidden) => hidden.remove());
+            return copy.textContent;
+        });
     const key = (target: Element, name: string) => target.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }));
-    return { element, row, cell, column, key };
+    return { element, row, cell, column, seen, key };
 }
 
 const columns: DataGridColumn<Sale>[] = [
@@ -71,39 +78,77 @@ describe('column spanning', () => {
     });
 });
 
+describe('row spanning', () => {
+    it('draws a run of one value once, over its rows, and still says it in each to a screen reader', () => {
+        const { cell, column, seen } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }]);
+        expect(seen('region')).toEqual(['North', '', '', 'South', 'West']);
+        expect(column('region')).toEqual(['North', 'North', 'North', 'South', 'West']);
+        expect([0, 1, 2, 3].map((index) => cell(index, 'region')!.dataset.rowRun)).toEqual(['start', 'middle', 'end', undefined]);
+        const top = cell(0, 'region')!;
+        expect(top.dataset.rowRunRows).toBe('3');
+        expect(top.querySelector<HTMLElement>('[data-row-run-content]')!.style.getPropertyValue('--vt-datagrid-row-run-rows')).toBe('3');
+        expect(seen('city')).toEqual(['Oslo', 'Bergen', 'Tromso', 'Kristiansand', 'Stavanger']);
+    });
+
+    it('goes together by a rule of the host', () => {
+        const { seen } = mount([
+            { field: 'region', header: 'Region' },
+            { field: 'total', header: 'Total', spanRows: (above, below) => (above.value as number) < 25 && (below.value as number) < 25 }
+        ]);
+        expect(seen('total')).toEqual(['10', '', '30', '40', '50']);
+    });
+
+    it('keeps to the page', () => {
+        const { seen } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }], { paginator: true, rows: 2, first: 2 });
+        expect(seen('region')).toEqual(['North', 'South']);
+    });
+
+    it('follows the sort', () => {
+        const { seen } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'total', header: 'Total', sortable: true }], { sortField: 'total', sortOrder: -1 });
+        expect(seen('region')).toEqual(['West', 'South', 'North', '', '']);
+    });
+
+    it('ends at a row opened to its detail', () => {
+        const { seen } = mount([{ expander: true }, { field: 'region', header: 'Region', spanRows: true }], {
+            expandedRows: [2],
+            content: { rowExpansion: ({ row }: { row: Sale }) => row.city }
+        });
+        expect(seen('region')).toEqual(['North', '', 'North', 'South', 'West']);
+    });
+
+    it('draws the cell being edited as it is', () => {
+        const { cell } = mount([{ field: 'region', header: 'Region', spanRows: true, editable: true }]);
+        handle!.startEdit(0, 'region');
+        expect(cell(0, 'region')!.dataset.rowRun).toBeUndefined();
+        expect(cell(0, 'region')!.querySelector('[data-row-run-content]')).toBeNull();
+    });
+});
+
+describe('row spanning in pinned rows', () => {
+    it('runs within each band of pinned rows, apart from the body', () => {
+        const total = (region: string, city: string): Sale => ({ id: 0, region, city, total: 0 });
+        const { element, seen } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }], {
+            pinnedTopRows: [total('Plan', 'Oslo'), total('Plan', 'Bergen')],
+            pinnedBottomRows: [total('North', 'All'), total('North', 'All again'), total('South', 'All')]
+        });
+        const band = (which: string) =>
+            Array.from(element.querySelectorAll(`.vt-datagrid-pinned-row-${which}`), (row) => {
+                const cell = row.querySelector('[data-row-run-col="region"]') as HTMLElement | null;
+                return cell ? `${cell.dataset.rowRun}:${cell.querySelector('[data-row-run-content]')?.textContent ?? ''}` : '-';
+            });
+        expect(band('top')).toEqual(['start:Plan', 'end:']);
+        expect(band('bottom')).toEqual(['start:North', 'end:', '-']);
+        // The body's runs are its own: the bottom band's North does not carry on from it.
+        expect(seen('region')).toEqual(['North', '', '', 'South', 'West']);
+    });
+});
+
 describe('column spanning in pinned rows', () => {
     it('stretches a pinned row\'s cell as a body row\'s', () => {
         const { element } = mount(columns, { pinnedBottomRows: [{ id: 0, region: 'All', city: 'Every city', total: 150, note: 'Totals' }] });
         const pinned = element.querySelector('.vt-datagrid-pinned-row')!;
         expect(pinned.querySelector('[aria-colspan="2"]')!.textContent).toBe('Every city');
         expect(pinned.querySelectorAll(':is([role="cell"],[role="gridcell"])')).toHaveLength(2);
-    });
-});
-
-describe('row spanning', () => {
-    it('writes a run of one value once, at its top, and marks where each row stands in it', () => {
-        const { cell, column } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }]);
-        expect(column('region')).toEqual(['North', '', '', 'South', 'West']);
-        expect([0, 1, 2, 3].map((index) => cell(index, 'region')!.dataset.rowRun)).toEqual(['start', 'middle', 'end', undefined]);
-        expect(column('city')).toEqual(['Oslo', 'Bergen', 'Tromso', 'Kristiansand', 'Stavanger']);
-    });
-
-    it('goes together by a rule of the host', () => {
-        const { column } = mount([
-            { field: 'region', header: 'Region' },
-            { field: 'total', header: 'Total', spanRows: (above, below) => (above.value as number) < 25 && (below.value as number) < 25 }
-        ]);
-        expect(column('total')).toEqual(['10', '', '30', '40', '50']);
-    });
-
-    it('keeps to the page', () => {
-        const { column } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }], { paginator: true, rows: 2, first: 2 });
-        expect(column('region')).toEqual(['North', 'South']);
-    });
-
-    it('follows the sort', () => {
-        const { column } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'total', header: 'Total', sortable: true }], { sortField: 'total', sortOrder: -1 });
-        expect(column('region')).toEqual(['West', 'South', 'North', '', '']);
     });
 });
 

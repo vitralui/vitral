@@ -236,10 +236,68 @@
     border-bottom: 0;
 }
 
-/* A run of one value down a column reads as one cell: no rule between its rows. */
+/* A run of one value down a column reads as one cell: no rule between its rows, and the value drawn once,
+   from the top cell, over all of them, in the middle and on a ground of its own that stripes and hover leave be. */
 .vt-datagrid-body-cell[data-row-run='start'],
 .vt-datagrid-body-cell[data-row-run='middle'] {
     border-bottom-color: transparent;
+}
+
+.vt-datagrid-body-cell[data-row-run='start']:not(.vt-datagrid-pinned) {
+    position: relative;
+}
+
+/* Over the clipping a sized table or rows of one height give their cells: the run clips itself. */
+.vt-datagrid .vt-datagrid-row .vt-datagrid-body-cell[data-row-run='start'] {
+    overflow: visible;
+}
+
+.vt-datagrid-row-run {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Measured once drawn; until then, rows as tall as this one. */
+    height: var(--vt-datagrid-row-run-height, calc((100% + 1px) * var(--vt-datagrid-row-run-rows, 1)));
+    padding: inherit;
+    text-align: inherit;
+    overflow: hidden;
+    background: var(--vt-datagrid-background);
+    border-bottom: 1px solid var(--vt-datagrid-body-cell-border-color);
+}
+
+.vt-datagrid-pinned-row-cell > .vt-datagrid-row-run {
+    background: var(--vt-datagrid-pinned-row-background);
+}
+
+/* At a pinned column's edge the run casts the shadow, once, down all its rows: cell by cell, each shadow's
+   blur showed at the seams between them. */
+.vt-datagrid .vt-datagrid-row .vt-datagrid-pinned-edge[data-row-run] {
+    box-shadow: none;
+}
+
+.vt-datagrid .vt-datagrid-row .vt-datagrid-pinned-edge.vt-datagrid-pinned-left > .vt-datagrid-row-run {
+    box-shadow: var(--vt-datagrid-pinned-shadow-left);
+}
+
+.vt-datagrid .vt-datagrid-row .vt-datagrid-pinned-edge.vt-datagrid-pinned-right > .vt-datagrid-row-run {
+    box-shadow: var(--vt-datagrid-pinned-shadow-right);
+}
+
+.vt-datagrid .vt-datagrid-row .vt-datagrid-pinned-edge.vt-datagrid-pinned-left:dir(rtl) > .vt-datagrid-row-run {
+    box-shadow: var(--vt-datagrid-pinned-shadow-right);
+}
+
+.vt-datagrid .vt-datagrid-row .vt-datagrid-pinned-edge.vt-datagrid-pinned-right:dir(rtl) > .vt-datagrid-row-run {
+    box-shadow: var(--vt-datagrid-pinned-shadow-left);
+}
+
+/* A pinned column's cells below the top of a run let the value drawn over them show. */
+.vt-datagrid .vt-datagrid-row .vt-datagrid-body-cell.vt-datagrid-pinned[data-row-run]:not([data-row-run='start']) {
+    background: transparent;
 }
 
 /* The selection pill at the row's leading edge; transparent in presets that do not draw one. */

@@ -628,7 +628,9 @@ describe('DataGrid merged cells', () => {
             h(Column, { field: 'status', header: 'Status' })
         ]);
         expect(column(0).slice(0, 3)).toEqual(['1', '2', '3']);
-        expect(column(1).slice(0, 3)).toEqual(['Brazil', '', 'Portugal']);
+        expect(column(1).slice(0, 3)).toEqual(['Brazil', 'Brazil', 'Portugal']);
+        expect(bodyRows()[0]!.querySelector('[data-row-run-content]')!.textContent).toBe('Brazil');
+        expect(bodyRows()[1]!.querySelector('[data-col="country"] .vt-sr-only')!.textContent).toBe('Brazil');
         const offline = bodyRows()[3]!;
         expect(offline.querySelector('[data-col="name"]')!.getAttribute('aria-colspan')).toBe('2');
         expect(offline.querySelector('[data-col="status"]')).toBeNull();

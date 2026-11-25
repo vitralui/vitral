@@ -102,6 +102,19 @@ describe('a virtual grid', () => {
         expect(element.querySelectorAll('.vt-datagrid-spacer-row').length).toBeGreaterThanOrEqual(2);
     });
 
+    it('starts a run of one value at the first row in view, so its value is drawn', async () => {
+        const { scrollTo, element } = mount({
+            value: items.map((item) => ({ ...item, group: item.id <= 600 ? 'first' : 'second' })),
+            columns: [{ field: 'group', header: 'Group', spanRows: true }, { field: 'name', header: 'Name' }]
+        });
+        await scrollTo(20000);
+        const runs = Array.from(element.querySelectorAll<HTMLElement>('[data-section="body"] [data-row-run]'));
+        expect(runs[0]!.dataset.rowRun).toBe('start');
+        expect(runs[0]!.closest('[role="row"]')).toBe(element.querySelector('[data-section="body"] [role="row"][data-index]'));
+        expect(runs[0]!.querySelector('[data-row-run-content]')!.textContent).toBe('first');
+        expect(Number(runs[0]!.dataset.rowRunRows)).toBe(runs.length);
+    });
+
     it('keeps each row on the stripe it would have with every row drawn', async () => {
         const { scrollTo, element } = mount({ stripedRows: true });
         for (const top of [20000, 20040, 20080]) {

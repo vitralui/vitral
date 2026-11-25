@@ -2392,6 +2392,25 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         if (changed || sizeChanged) scheduleScroll(true);
     }
 
+    /**
+     * Makes each run of one value down a column (`spanRows`) as tall as its rows turned out: from the top of its
+     * first cell to the foot of its last, which rows of their own heights need. Until it is measured, CSS takes
+     * the rows to be as tall as the first.
+     */
+    function layRuns() {
+        for (const cell of Array.from(element.querySelectorAll<HTMLElement>('[data-section] [data-row-run="start"]'))) {
+            const run = cell.querySelector<HTMLElement>('[data-row-run-content]');
+            // A run's rows stand one after another: nothing that ends a run is drawn between them.
+            let row = cell.closest('[role="row"]');
+            for (let left = Number(cell.dataset.rowRunRows) - 1; row && left > 0; left--) row = row.nextElementSibling;
+            const last = row?.querySelector(`[data-row-run-col="${cssEscape(cell.dataset.rowRunCol!)}"]`);
+            if (!run || !last) continue;
+            const height = last.getBoundingClientRect().bottom - cell.getBoundingClientRect().top;
+            if (height > 0) run.style.setProperty('--vt-datagrid-row-run-height', `${height}px`);
+            else run.style.removeProperty('--vt-datagrid-row-run-height');
+        }
+    }
+
     function scrollToIndex(index: number) {
         if (!current.virtualScroll || !container) {
             render();
@@ -2522,6 +2541,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         else if (filterOverlay.isOpen) filterOverlay.close('request');
         chooserBars.sync();
         measure();
+        layRuns();
         flashChanges();
         if (movedRow) {
             const at = rowsNow().page.indexOf(movedRow);
