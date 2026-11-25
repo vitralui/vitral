@@ -291,6 +291,31 @@ describe('a header laid out as a report’s', () => {
         expect(element.classList).not.toContain('vt-datagrid-stacked');
     });
 
+    it('opens the side bar’s panel as a drawer over the page while the rows are cards, and beside them otherwise', () => {
+        const { element } = mount({ responsiveLayout: 'stack', breakpoint: '600px', sideBar: ['columns'] });
+        let width = 400;
+        Object.defineProperty(element, 'clientWidth', { configurable: true, get: () => width });
+        handle!.refresh();
+        const tab = () => element.querySelector('[data-side-tab="columns"]') as HTMLButtonElement;
+        tab().click();
+        const drawer = element.querySelector('[data-side-drawer="columns"]') as HTMLElement;
+        expect(drawer.getAttribute('role')).toBe('dialog');
+        expect(drawer.querySelector('h2')!.textContent).toBe('Columns');
+        expect(drawer.querySelectorAll('[data-side-column]').length).toBe(3);
+        // Nothing beside the cards takes their width.
+        expect(element.querySelector('.vt-datagrid-side-panel:not(.vt-drawer-content)')).toBeNull();
+        expect(document.activeElement).toBe(drawer.querySelector('[data-side-search]'));
+        drawer.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        expect(element.querySelector('[data-side-drawer]')).toBeNull();
+        expect(document.activeElement).toBe(tab());
+        // Wide again: the panel opens beside the rows, as it always has.
+        width = 800;
+        handle!.refresh();
+        tab().click();
+        expect(element.querySelector('[data-side-drawer]')).toBeNull();
+        expect(element.querySelector('.vt-datagrid-side-panel [data-side-search]')).not.toBeNull();
+    });
+
     it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {
         const { element } = mount({ columnMenu: true, minHeight: '20rem', value: [] });
         expect(element.classList).not.toContain('vt-datagrid-tools-on-hover');
