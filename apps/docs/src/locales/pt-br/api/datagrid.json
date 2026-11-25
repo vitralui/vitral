@@ -44,6 +44,7 @@
         "toolbar": "Botões sobre o grid: `'dictionary'`, `'columns'`, `'export'` (um menu que baixa as linhas em Excel ou CSV), `'pivot'` (liga e desliga o pivô) e `'density'` (o quanto as linhas ficam próximas, guardado por `v-model:size`), ou um objeto para um botão seu. `true` são os que se aplicam.",
         "stateKey": "Guarda entre visitas o que quem lê arrumou, com este nome no armazenamento do navegador: a ordem, as larguras, as fixadas e as ocultas das colunas, a ordenação, o tamanho da página e a densidade das linhas. O que foi guardado vale mais que os valores iniciais, e os `v-model` ligados a eles ficam sabendo; \"Restaurar colunas\" no menu de uma coluna põe as colunas de volta.",
         "headerTools": "Se o botão de menu de um cabeçalho fica sempre à vista (`'always'`, o padrão) ou só enquanto o mouse está sobre o cabeçalho.",
+        "headerToolsAt": "Onde ficam os botões de filtro e de menu de um cabeçalho: na borda da coluna oposta ao título (`'edge'`, o padrão), para se alinharem de uma coluna à outra, ou logo depois do título (`'title'`). O botão de informação fica junto ao título nos dois casos.",
         "minHeight": "A altura mínima da caixa onde as linhas rolam, um comprimento CSS, para que um grid com poucas linhas ou nenhuma mantenha a forma.",
         "dictionaryModule": "Sobre o dicionário de dados: o módulo a que a tabela pertence, em versaletes.",
         "dictionarySubtitle": "Uma linha sob o título do dicionário de dados.",

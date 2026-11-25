@@ -183,6 +183,19 @@ describe('a header laid out as a report’s', () => {
         expect(handle!.state().sortOrder).toBe(1);
     });
 
+    it('keeps the info button by the title and the filter and menu together, at the column\'s edge unless told otherwise', () => {
+        const { element } = mount({ columnMenu: true, filterDisplay: 'menu', columns: columns.map((column) => ({ ...column, filter: true })) });
+        const content = element.querySelector('[data-section="head"] [data-column="customer"] .vt-datagrid-header-content')!;
+        const parts = Array.from(content.children, (child) => (child.hasAttribute('data-info-button') ? 'info' : child.classList.contains('vt-datagrid-header-tools') ? 'tools' : 'title'));
+        expect(parts).toEqual(['title', 'info', 'tools']);
+        const tools = content.querySelector('.vt-datagrid-header-tools')!;
+        expect(tools.querySelector('[data-filter-button]')).not.toBeNull();
+        expect(tools.querySelector('[data-menu-button]')).not.toBeNull();
+        expect(element.classList).not.toContain('vt-datagrid-tools-at-title');
+        handle!.update({ headerToolsAt: 'title' });
+        expect(element.classList).toContain('vt-datagrid-tools-at-title');
+    });
+
     it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {
         const { element } = mount({ columnMenu: true, minHeight: '20rem', value: [] });
         expect(element.classList).not.toContain('vt-datagrid-tools-on-hover');

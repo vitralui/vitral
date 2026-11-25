@@ -531,6 +531,13 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      */
     headerTools?: 'always' | 'hover';
     /**
+     * Where a header's filter and menu buttons sit: at the edge of the column
+     * away from its title (`'edge'`, the default), so they line up from one
+     * column to the next, or right after the title (`'title'`). The info
+     * button stays by the title it explains either way.
+     */
+    headerToolsAt?: 'edge' | 'title';
+    /**
      * The least height of the box the rows scroll in — a CSS length — so a
      * grid with few rows or none keeps its shape, the empty message in the
      * middle of it.

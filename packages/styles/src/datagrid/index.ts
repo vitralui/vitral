@@ -12,6 +12,8 @@ export interface DataGridState {
     fixedRows?: boolean;
     /** A header's menu button shows only while the header is pointed at. */
     toolsOnHover?: boolean;
+    /** A header's filter and menu buttons sit right after its title, not at the column's edge. */
+    toolsAtTitle?: boolean;
 }
 
 export interface DataGridCellState {
@@ -89,7 +91,8 @@ export const datagridStyle = defineStyle({
                 'vt-datagrid-scrollable': s.scrollable,
                 'vt-datagrid-loading': s.loading,
                 'vt-datagrid-fixed-rows': s.fixedRows,
-                'vt-datagrid-tools-on-hover': s.toolsOnHover
+                'vt-datagrid-tools-on-hover': s.toolsOnHover,
+                'vt-datagrid-tools-at-title': s.toolsAtTitle
             }
         ],
         header: 'vt-datagrid-header',

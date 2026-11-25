@@ -210,6 +210,8 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     dictionarySubtitle?: string;
     /** Whether a header's menu button is always there (`'always'`, the default) or only while the header is pointed at. */
     headerTools?: 'always' | 'hover';
+    /** Where a header's filter and menu buttons sit: at the column's edge away from its title (`'edge'`, the default), or right after the title (`'title'`). The info button stays by the title. */
+    headerToolsAt?: 'edge' | 'title';
     /** The least height of the box the rows scroll in, a CSS length, so a grid with few rows or none keeps its shape. */
     minHeight?: string;
     /** A button by each header whose column has a `description`, which opens it. On by default. */

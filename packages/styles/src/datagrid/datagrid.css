@@ -1246,8 +1246,23 @@
     text-align: end;
 }
 
-.vt-datagrid-header-content > .vt-datagrid-header-tools {
+.vt-datagrid-header-content > .vt-datagrid-header-tools,
+.vt-datagrid-header-content > .vt-datagrid-header-tool {
     flex: none;
+}
+
+/*
+ * The filter and the menu at the column's edge away from its title, so they
+ * line up from one column to the next: at the end, or at the start of a
+ * column whose title is to the right. The info button stays by the title.
+ */
+.vt-datagrid:not(.vt-datagrid-tools-at-title) .vt-datagrid-header-content > .vt-datagrid-header-tools {
+    margin-inline-start: auto;
+}
+
+.vt-datagrid:not(.vt-datagrid-tools-at-title) .vt-datagrid-align-right .vt-datagrid-header-content > .vt-datagrid-header-tools {
+    order: -1;
+    margin-inline: 0 auto;
 }
 
 /* ---- groups inside groups, and the values worked out over them ------------- */

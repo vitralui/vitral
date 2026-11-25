@@ -915,23 +915,25 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
     if (!filter && !menu && !info) return null;
     const active = filter && hasFilter(context.filters, column);
     const open = menus.open === column.key;
-    return h(
+    // The info button stays by the title it explains; the filter and the menu, which act on the column, go together.
+    const infoButton = info
+        ? h(
+              'button',
+              mergeAttrs({ type: 'button' }, part('headerToolButton', { kind: 'info', open: menus.infoOpen === column.key }), {
+                  'aria-label': formatMessage(locale.datagrid.columnInfo, { column: column.header }),
+                  'aria-haspopup': 'dialog',
+                  'aria-expanded': String(menus.infoOpen === column.key),
+                  'data-info-button': column.key,
+                  ref: (element: Element | null) => context.on.tip(element, formatMessage(locale.datagrid.columnInfo, { column: column.header })),
+                  onClick: (event: MouseEvent) => context.on.openInfo(column, event)
+              }),
+              iconView('info')
+          )
+        : null;
+    if (!filter && !menu) return infoButton;
+    const group = h(
         'span',
         part('headerTools'),
-        info
-            ? h(
-                  'button',
-                  mergeAttrs({ type: 'button' }, part('headerToolButton', { kind: 'info', open: menus.infoOpen === column.key }), {
-                      'aria-label': formatMessage(locale.datagrid.columnInfo, { column: column.header }),
-                      'aria-haspopup': 'dialog',
-                      'aria-expanded': String(menus.infoOpen === column.key),
-                      'data-info-button': column.key,
-                      ref: (element: Element | null) => context.on.tip(element, formatMessage(locale.datagrid.columnInfo, { column: column.header })),
-                      onClick: (event: MouseEvent) => context.on.openInfo(column, event)
-                  }),
-                  iconView('info')
-              )
-            : null,
         filter
             ? h(
                   'button',
@@ -981,6 +983,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
               )
             : null
     );
+    return infoButton ? [infoButton, group] : group;
 }
 
 /** Whether a column says what it holds, which its header and the data dictionary show. */
