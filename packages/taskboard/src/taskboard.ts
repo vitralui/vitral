@@ -180,7 +180,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         if (!drag || drag.via !== 'pointer' || !settings().placeholder || !drag.to || drag.refused || !preview) return undefined;
         const { from, to } = drag;
         if (from.column === to.column && from.lane === to.lane && from.index === to.index) return undefined;
-        return { column: to.column, lane: to.lane, index: to.index, height: preview.height };
+        return { column: to.column, lane: to.lane, index: to.index, height: preview.height, item: drag.item };
     }
 
     /** Where among the drawn columns a column dragged by the pointer would go, as a slot: before the column now at that place among the others. */

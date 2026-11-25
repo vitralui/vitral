@@ -51,7 +51,7 @@ export interface ViewContext {
     /** The card being dragged, which stays where it is until it is let go. */
     draggingKey: string | null;
     /** Where a card dragged by the pointer would land: a slot as tall as the card, at this place among the cell's other cards. */
-    cardSlot?: { column: unknown; lane?: unknown; index: number; height: number };
+    cardSlot?: { column: unknown; lane?: unknown; index: number; height: number; item: unknown };
     /** Where a column dragged by the pointer would go: a slot before the drawn column at this place, or after the last. */
     columnSlot?: number;
     on: BoardActions;
@@ -275,7 +275,14 @@ const slotHere = (context: ViewContext, column: TaskboardColumn, lane: Taskboard
 function withCardSlot(context: ViewContext, cards: CardView[], column: TaskboardColumn, lane: TaskboardLane | undefined): Child[] {
     const drawn: Child[] = cards.map((card) => cardView(context, card, column, lane));
     if (!slotHere(context, column, lane)) return drawn;
-    const slot = h('li', mergeAttrs({ key: 'slot', 'aria-hidden': 'true' }, context.part('cardSlot'), { style: { height: `${context.cardSlot!.height}px` } }));
+    // The card itself, faded, where it would land: the same look it will have there once it is let go.
+    const { item } = context.cardSlot!;
+    const slot = h(
+        'li',
+        mergeAttrs({ key: 'slot', 'aria-hidden': 'true', inert: '' }, context.part('card', { draggable: false }), context.part('cardSlot'), { style: { 'min-height': `${context.cardSlot!.height}px` } }),
+        content(context.config.content?.card?.({ item, column, lane, index: context.cardSlot!.index, dragging: true, disabled: false, locked: false, copy: 'slot' })) ??
+            h('span', context.part('cardTitle'), labelOf(item, context.settings))
+    );
     let others = 0;
     for (let at = 0; at < cards.length; at++) {
         if (cards[at]!.key === context.draggingKey) continue;
@@ -327,7 +334,7 @@ export function previewView(context: ViewContext, item: unknown, column: Taskboa
         h(
             'div',
             part('card', { dragging: false, draggable: true }),
-            content(context.config.content?.card?.({ item, column, lane: undefined, index, dragging: true, disabled: false, locked: false })) ??
+            content(context.config.content?.card?.({ item, column, lane: undefined, index, dragging: true, disabled: false, locked: false, copy: 'preview' })) ??
                 h('span', part('cardTitle'), labelOf(item, settings))
         )
     ) as VElement;

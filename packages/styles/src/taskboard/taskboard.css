@@ -340,12 +340,14 @@
     box-shadow: none;
 }
 
-/* Where a dragged card would land: a hollow as tall as the card. */
-.vt-taskboard-card-slot {
-    box-sizing: border-box;
+/* Where a dragged card would land: the card itself, faded and outlined, as it will look there once let go. */
+.vt-taskboard-card.vt-taskboard-card-slot {
     flex: 0 0 auto;
-    border-radius: var(--vt-taskboard-slot-border-radius);
-    background: var(--vt-taskboard-slot-background);
+    opacity: var(--vt-taskboard-slot-opacity);
+    border-style: dashed;
+    border-color: var(--vt-taskboard-slot-border-color);
+    box-shadow: none;
+    pointer-events: none;
 }
 
 /* Where a dragged column would go: a hollow track, rounded at its head and its foot. */

@@ -155,6 +155,8 @@ export interface TaskboardCardSlotProps {
     dragging: boolean;
     disabled: boolean;
     locked: boolean;
+    /** A copy of a card being dragged: the one under the pointer (`'preview'`) or the faded one where it would land (`'slot'`). Undefined for the card itself. */
+    copy?: 'preview' | 'slot';
 }
 
 export interface TaskboardColumnSlotProps {

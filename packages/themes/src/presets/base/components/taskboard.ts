@@ -66,7 +66,9 @@ export default {
         lockedIconColor: '{text.mutedColor}'
     },
     slot: {
-        borderRadius: '{borderRadius.md}'
+        borderRadius: '{borderRadius.md}',
+        opacity: '0.55',
+        borderColor: '{primary.color}'
     },
     preview: {
         shadow: '0 12px 28px -6px rgba(0, 0, 0, 0.3)',

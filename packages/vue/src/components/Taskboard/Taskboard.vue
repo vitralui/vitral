@@ -102,7 +102,8 @@ function sweep() {
     }
 }
 
-const cardKey = (context: CardContext) => `card:${context.column.key}:${context.index}:${context.dragging ? 'drag' : ''}`;
+// A dragged card is drawn three times — in its place, under the pointer and where it would land — each in a container of its own.
+const cardKey = (context: CardContext) => `card:${context.column.key}:${context.lane?.key ?? ''}:${context.index}:${context.dragging ? 'drag' : ''}:${context.copy ?? ''}`;
 
 /**
  * The parts a template wrote as children — `<Taskboard.Card>` and the rest —

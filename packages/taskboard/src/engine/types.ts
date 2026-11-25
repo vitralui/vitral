@@ -108,6 +108,12 @@ export interface CardContext {
     dragging: boolean;
     disabled: boolean;
     locked: boolean;
+    /**
+     * A copy of a card being dragged, not the card in its place: the one under
+     * the pointer (`'preview'`) or the faded one where it would land
+     * (`'slot'`). Undefined for the card itself.
+     */
+    copy?: 'preview' | 'slot';
 }
 
 export interface ColumnContext {
