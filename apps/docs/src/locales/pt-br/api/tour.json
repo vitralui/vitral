@@ -17,9 +17,13 @@
         "scrollIntoView": "Traz o elemento de cada passo à vista. O padrão é true; desligado, a página fica parada e o popover continua na tela.",
         "scrollBlock": "Onde um elemento rolado até a vista fica na janela. O padrão é `'center'`.",
         "keepInView": "Mantém o popover na tela mesmo quando o elemento não está. O padrão é true.",
-        "navigate": "Vai a outra página para um passo cuja `page` não é esta — o `push` de um router: `(page) => router.push(page)`. Sem ele, a página é carregada, e um `<Tour>` lá retoma o tour sozinho."
+        "navigate": "Vai a outra página para um passo cuja `page` não é esta — o `push` de um router: `(page) => router.push(page)`. Sem ele, a página é carregada, e um `<Tour>` lá retoma o tour sozinho.",
+        "lostElement": "O elemento em exibição tirado da página pelo leitor, não pelo tour: o balão se esconde na hora e o passo volta com o elemento. Passado o `elementTimeout`, `element-lost` é emitido e o tour continua escondido (`'hide'`, o padrão), centraliza o passo ou termina."
     },
     "slots": {
         "content": "Desenhado no popover abaixo da descrição, em todo passo."
+    },
+    "emits": {
+        "element-lost": "O elemento do passo saiu da página e não voltou dentro do `elementTimeout`."
     }
 }

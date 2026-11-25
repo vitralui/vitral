@@ -257,6 +257,18 @@
     pointer-events: none !important;
 }
 
+/* Between steps, or with the element gone: nothing points at a place that is not there.
+   Hidden rather than taken out, so the step after comes back in the same box. */
+.vt-tour-pending .vt-tour-popover,
+.vt-tour-pending .vt-tour-pulse {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity var(--vt-tour-transition-duration) ease,
+        visibility 0s linear var(--vt-tour-transition-duration);
+}
+
 /* "Press this": a ring round the hole that grows and fades, over and over. It never takes a press. */
 .vt-tour-pulse {
     position: absolute;

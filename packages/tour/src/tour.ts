@@ -144,10 +144,15 @@ export function createTour(config: TourConfig = {}): TourHandle {
     /** Loading another page to reach the next step. */
     let leaving = false;
     let resizeObserver: ResizeObserver | null = null;
+    /** Between steps: from the start of a move until the step it reaches is drawn and placed. */
+    let pending = false;
+    /** The element on show left the page by other means than the tour; the watch for its return. */
+    let lost = false;
+    let stopWatch: (() => void) | null = null;
 
-    /** The gap around the element: snug by default, the element and two pixels. */
     /** A ring is drawn only round an element: a step in the middle of the screen has nothing to point at. */
     const pulsing = (step: TourStep) => !!step.element && (step.pulse ?? current.pulse ?? false);
+    /** The gap around the element: snug by default, the element and two pixels. */
     const paddingOf = (step: TourStep | undefined) => step?.stagePadding ?? current.stagePadding ?? 2;
 
     const hookOptions = (): TourHookOptions<TourHandle> => ({ config: current, state, tour: handle });
@@ -239,6 +244,10 @@ export function createTour(config: TourConfig = {}): TourHandle {
 
     function teardown() {
         token++;
+        stopWatch?.();
+        stopWatch = null;
+        pending = false;
+        lost = false;
         cancelAnimationFrame(frame);
         stopAnchor?.();
         stopAnchor = null;
@@ -379,6 +388,23 @@ export function createTour(config: TourConfig = {}): TourHandle {
 
     // ---- drawing
 
+    /** Nothing to point at: a move under way, or an element no longer on the page. */
+    const hidden = () => pending || lost || (!!state.activeElement && !state.activeElement.isConnected);
+
+    function rootAttrs() {
+        return mergeAttrs(
+            part('root', { animate: animate(), pending: hidden() }),
+            { 'data-pending': hidden() ? '' : undefined },
+            // A duration of its own reaches the popover's fade, which the stylesheet times.
+            current.animationDuration !== undefined ? { style: { '--vt-tour-transition-duration': `${duration()}ms` } } : null
+        );
+    }
+
+    function setPending(on: boolean) {
+        pending = on;
+        root?.attrs(rootAttrs());
+    }
+
     function render() {
         if (!root || !layer || state.activeIndex === undefined || !state.activeStep) return;
         const list = steps();
@@ -396,8 +422,7 @@ export function createTour(config: TourConfig = {}): TourHandle {
         const centered = !state.activeElement;
 
         layer.setAttribute('dir', direction());
-        // A duration of its own reaches the popover's fade, which the stylesheet times.
-        root.attrs(mergeAttrs(part('root', { animate: animate() }), current.animationDuration !== undefined ? { style: { '--vt-tour-transition-duration': `${duration()}ms` } } : null));
+        root.attrs(rootAttrs());
         root.render(
             tourView({
                 id,
@@ -455,7 +480,8 @@ export function createTour(config: TourConfig = {}): TourHandle {
         const popover = els.popover as HTMLElement | undefined;
         const element = state.activeElement;
         const side = sideOf(state.activeStep);
-        if (!popover || !element || side === 'over') {
+        // An element off the page measures as nothing: placed against it, the popover would land in the corner.
+        if (!popover || !element || !element.isConnected || side === 'over') {
             stopAnchor?.();
             stopAnchor = null;
             anchored = null;
@@ -609,10 +635,15 @@ export function createTour(config: TourConfig = {}): TourHandle {
         const step = list[index];
         if (!step) return;
         const context: TourStepContext = { step, index, total: list.length, direction: dir };
+        // The step on show is hidden while the tour moves, and stops watching its element: going is the tour's doing.
+        stopWatch?.();
+        stopWatch = null;
+        if (state.activeStep) setPending(true);
 
         if (step.beforeShow) {
             const answer = await step.beforeShow(context);
-            if (run !== token || answer === false) return;
+            if (run !== token) return;
+            if (answer === false) return stay();
         }
         // A step on another page: go there first.
         let arrived = false;
@@ -666,9 +697,13 @@ export function createTour(config: TourConfig = {}): TourHandle {
             if (outside) element.scrollIntoView({ behavior: current.smoothScroll ? 'smooth' : 'auto', block: current.scrollBlock ?? 'center', inline: 'nearest' });
         }
 
+        lost = false;
         render();
         moveStage(animate() && !!previous);
         (els.popover as HTMLElement | undefined)?.focus({ preventScroll: true });
+        // Shown once placed: the anchoring settles in the frame after.
+        if (pending) afterFrame(() => run === token && setPending(false));
+        watchElement(step, run);
         state.popover = popoverDom();
 
         call(step.onHighlighted, element, step);
@@ -682,6 +717,79 @@ export function createTour(config: TourConfig = {}): TourHandle {
         if (!lone && storeKey()) save(index, false);
         if (!previous) emit('start', index);
         emit('step-change', { index, step, element });
+    }
+
+    const afterFrame = (fn: () => void) => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => fn()) : fn());
+
+    /** A move that did not happen: the step on show comes back as it was. */
+    function stay() {
+        setPending(false);
+        if (state.activeStep && state.activeIndex !== undefined) watchElement(state.activeStep, token);
+    }
+
+    /**
+     * Keeps an eye on the element on show. Taken off the page — the reader
+     * went elsewhere on their own — the popover hides rather than point at
+     * nothing; the step comes back when the element does (the same one, or
+     * the one the page draws in its place), and `lostElement` decides once
+     * `elementTimeout` has passed without it.
+     */
+    function watchElement(step: TourStep, run: number) {
+        stopWatch?.();
+        stopWatch = null;
+        if (!step.element || typeof MutationObserver === 'undefined') return;
+        let limit: ReturnType<typeof setTimeout> | undefined;
+        let given = false;
+        const check = () => {
+            if (run !== token || pending || state.activeStep !== step) return;
+            const now = state.activeElement;
+            if (now?.isConnected) return;
+            const back = findElement(step.element);
+            if (back?.isConnected) return recover(step, back);
+            if (!lost && !given) {
+                lost = true;
+                stopAnchor?.();
+                stopAnchor = null;
+                anchored = null;
+                root?.attrs(rootAttrs());
+                drawStage(null);
+                limit = setTimeout(giveUp, current.elementTimeout ?? 0);
+            }
+        };
+        const giveUp = () => {
+            if (run !== token || state.activeStep !== step || !lost) return;
+            given = true;
+            const index = state.activeIndex!;
+            emit('element-lost', { index, step });
+            const mode = current.lostElement ?? 'hide';
+            if (mode === 'end') return end('element-lost');
+            if (mode === 'center') {
+                lost = false;
+                unmark();
+                state.activeElement = undefined;
+                stop();
+                render();
+                drawStage(null);
+            }
+        };
+        const recover = (target: TourStep, element: Element) => {
+            clearTimeout(limit);
+            lost = false;
+            given = false;
+            state.activeElement = element;
+            mark(element, target);
+            render();
+            drawStage(stageNow());
+            listenForAdvance(target, element);
+        };
+        const observer = new MutationObserver(() => queueMicrotask(check));
+        observer.observe(document.body, { childList: true, subtree: true });
+        const stop = () => {
+            observer.disconnect();
+            clearTimeout(limit);
+            if (stopWatch === stop) stopWatch = null;
+        };
+        stopWatch = stop;
     }
 
     function listenForAdvance(step: TourStep, element: Element | undefined) {

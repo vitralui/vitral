@@ -28,7 +28,7 @@ export interface TourComponentLike {
 export type TourElement = string | Element | TourComponentLike | (() => Element | TourComponentLike | null | undefined) | null | undefined;
 
 /** Why the tour ended. */
-export type TourEndReason = 'complete' | 'close' | 'escape' | 'overlay' | 'api';
+export type TourEndReason = 'complete' | 'close' | 'escape' | 'overlay' | 'api' | 'element-lost';
 
 /** How a step's progress is drawn: the text, a dot a step, or a bar. */
 export type TourProgressStyle = 'text' | 'dots' | 'bar';
@@ -232,6 +232,16 @@ export interface TourConfig {
     elementTimeout?: number;
     /** A step whose element is not there: shown in the middle of the screen (the default), or passed over. */
     missingElement?: 'center' | 'skip';
+    /**
+     * The element of the step on show taken off the page, other than by the
+     * tour moving — the reader went to another screen on their own. The
+     * popover is hidden at once, never left pointing at nothing, and the step
+     * comes back if the element does. If it has not come back within
+     * `elementTimeout`, `element-lost` is emitted and the tour stays hidden
+     * waiting for it (`'hide'`, the default), shows the step in the middle of
+     * the screen (`'center'`), or ends (`'end'`).
+     */
+    lostElement?: 'hide' | 'center' | 'end';
     progressStyle?: TourProgressStyle;
     /**
      * Remembers where the reader got to under this key, and whether they
@@ -258,5 +268,7 @@ export interface TourConfig {
         start?: (index: number) => void;
         'step-change'?: (context: { index: number; step: TourStep; element: Element | undefined }) => void;
         end?: (context: { reason: TourEndReason; index: number | undefined }) => void;
+        /** The step's element left the page and did not come back within `elementTimeout`. */
+        'element-lost'?: (context: { index: number; step: TourStep }) => void;
     };
 }

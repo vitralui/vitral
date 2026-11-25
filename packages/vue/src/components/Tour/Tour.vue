@@ -117,6 +117,7 @@ const inputs = (): TourConfig => ({
         allowHtml: props.allowHtml,
         elementTimeout: props.elementTimeout,
         missingElement: props.missingElement,
+        lostElement: props.lostElement,
         storageKey: props.storageKey
     }),
     locale: config.locale,
@@ -133,6 +134,10 @@ const inputs = (): TourConfig => ({
             step.value = context.index;
             emit('step-change', context);
             props.options?.on?.['step-change']?.(context);
+        },
+        'element-lost': (context) => {
+            emit('element-lost', context);
+            props.options?.on?.['element-lost']?.(context);
         },
         end: (context) => {
             open.value = false;

@@ -5,13 +5,19 @@ export interface TourState {
     /** The popover sits in the middle of the screen, with nothing to point at. */
     centered?: boolean;
     animate?: boolean;
+    /**
+     * Between steps — a step's `beforeShow`, a route change, the wait for its
+     * element — or while the element on show has left the page: the popover
+     * and the pulse are hidden, the overlay stays.
+     */
+    pending?: boolean;
 }
 
 export const tourStyle = defineStyle({
     name: 'tour',
     css,
     classes: {
-        root: (s: TourState) => ['vt-tour', { 'vt-tour-animated': s.animate }],
+        root: (s: TourState) => ['vt-tour', { 'vt-tour-animated': s.animate, 'vt-tour-pending': s.pending }],
         overlay: 'vt-tour-overlay',
         overlayPath: 'vt-tour-overlay-path',
         /** The ring round the element of a step with `pulse`. */

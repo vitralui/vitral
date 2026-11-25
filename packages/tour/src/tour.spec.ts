@@ -66,6 +66,82 @@ describe('createTour', () => {
         expect(ring()).toBeNull();
     });
 
+    it('hides the popover and the pulse between steps, until the next is drawn, and brings it back when a move is refused', async () => {
+        const layer = () => document.querySelector<HTMLElement>('.vt-tour')!;
+        const frame = () => new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+        let go: (answer?: boolean) => void = () => {};
+        const later = () => new Promise<boolean | void>((resolve) => (go = (answer) => resolve(answer)));
+        tour = createTour({ steps: [{ ...steps[0]!, pulse: true }, { ...steps[1]!, beforeShow: later }] });
+        await tour.drive();
+        expect(layer().hasAttribute('data-pending')).toBe(false);
+        // A beforeShow that goes to another screen: meanwhile, nothing points at the step before.
+        const moving = tour.moveNext();
+        await tick();
+        expect(layer().hasAttribute('data-pending')).toBe(true);
+        expect(layer().classList).toContain('vt-tour-pending');
+        go();
+        await moving;
+        await frame();
+        expect(layer().hasAttribute('data-pending')).toBe(false);
+        expect(popover()!.textContent).toContain('Search');
+        // Refused, the step on show comes back as it was.
+        await tour.movePrevious();
+        await frame();
+        const refused = tour.moveNext();
+        await tick();
+        expect(layer().hasAttribute('data-pending')).toBe(true);
+        go(false);
+        await refused;
+        expect(layer().hasAttribute('data-pending')).toBe(false);
+        expect(popover()!.textContent).toContain('Create');
+    });
+
+    it('hides the popover while the element is off the page, and brings the step back with it', async () => {
+        const layer = () => document.querySelector<HTMLElement>('.vt-tour')!;
+        const lost = vi.fn();
+        tour = createTour({ steps, on: { 'element-lost': lost } });
+        await tour.drive();
+        const element = document.getElementById('new')!;
+        element.remove();
+        await tick();
+        expect(layer().hasAttribute('data-pending')).toBe(true);
+        // The page draws it again (a route back): the step is on it, not on the one that went.
+        const again = document.createElement('button');
+        again.id = 'new';
+        document.body.prepend(again);
+        await tick();
+        expect(layer().hasAttribute('data-pending')).toBe(false);
+        expect(tour.getActiveElement()).toBe(again);
+        expect(again.classList).toContain('vt-tour-active-element');
+        // Hidden is the default once the wait is over: told, and still waiting.
+        again.remove();
+        await tick();
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        expect(lost).toHaveBeenCalledWith({ index: 0, step: steps[0] });
+        expect(tour.isActive()).toBe(true);
+        expect(layer().hasAttribute('data-pending')).toBe(true);
+    });
+
+    it('centres the step, or ends the tour, when its element does not come back in time', async () => {
+        const end = vi.fn();
+        tour = createTour({ steps, lostElement: 'center', elementTimeout: 1 });
+        await tour.drive();
+        document.getElementById('new')!.remove();
+        await tick();
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(tour.getActiveElement()).toBeUndefined();
+        expect(popover()!.className).toContain('vt-tour-popover-centered');
+        expect(document.querySelector('.vt-tour')!.hasAttribute('data-pending')).toBe(false);
+        tour.destroy();
+        page();
+        tour = createTour({ steps, lostElement: 'end', on: { end } });
+        await tour.drive();
+        document.getElementById('new')!.remove();
+        await tick();
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        expect(end).toHaveBeenCalledWith({ reason: 'element-lost', index: 0 });
+    });
+
     it('moves with the buttons, names the last one Done, and ends there', async () => {
         const end = vi.fn();
         tour = createTour({ steps, on: { end } });

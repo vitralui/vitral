@@ -61,6 +61,13 @@ export interface TourProps extends BaseProps {
     /** How long a step waits for its element to appear, in milliseconds. */
     elementTimeout?: number;
     missingElement?: 'center' | 'skip';
+    /**
+     * The element on show taken off the page by the reader rather than the
+     * tour: the popover hides at once and the step comes back with the
+     * element. Past `elementTimeout`, `element-lost` is emitted and the tour
+     * stays hidden (`'hide'`, the default), centres the step, or ends.
+     */
+    lostElement?: 'hide' | 'center' | 'end';
     /** Remembers where the reader got to, and whether they finished, under this key. */
     storageKey?: string;
     /** Everything else `createTour` takes: the hooks, `storage`, `dir`. */
@@ -72,6 +79,8 @@ export interface TourEmits {
     start: [index: number];
     'step-change': [context: { index: number; step: TourStep; element: Element | undefined }];
     end: [context: { reason: TourEndReason; index: number | undefined }];
+    /** The step's element left the page and did not come back within `elementTimeout`. */
+    'element-lost': [context: { index: number; step: TourStep }];
 }
 
 export interface TourSlots {
