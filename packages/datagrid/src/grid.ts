@@ -3075,9 +3075,11 @@ function writeState(key: string, models: DataGridModels, size: 'small' | 'large'
 /** The configuration a pivot asks for: its rows and columns in place of the ones handed in, none of them to edit. */
 const ABOUT = ['description', 'formula', 'kind', 'source', 'notes'] as const;
 // The columns as the dictionary fills them, kept while neither changes, so a column stays the same object between draws.
-const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; defaults?: object; numbers: boolean; columns: DataGridColumn<any>[] }>();
-// The column `rowNumbers` puts first: the same object every draw, so its key and width hold.
-const ROW_NUMBER_COLUMN: DataGridColumn = { key: 'row-number', header: '#', rowNumber: true, align: 'right', toggleable: false, exportable: false };
+const describedCache = new WeakMap<object, { dictionary: object; aggregates?: object; defaults?: object; numbers?: DataGridConfig['rowNumbers']; columns: DataGridColumn<any>[] }>();
+// The column `rowNumbers` puts first, held to the left edge: the same object every draw, so its key and width hold.
+const ROW_NUMBER_COLUMN: DataGridColumn = { key: 'row-number', header: '#', rowNumber: true, align: 'right', pinned: 'left', toggleable: false, exportable: false };
+const rowNumberColumn = <T,>(given: NonNullable<DataGridConfig<T>['rowNumbers']>): DataGridColumn<T> =>
+    (given === true ? ROW_NUMBER_COLUMN : { ...ROW_NUMBER_COLUMN, ...given, rowNumber: true }) as DataGridColumn<T>;
 const NO_DICTIONARY: Record<string, DataGridColumnAbout> = {};
 
 /** The columns with what the grid's `dictionary` says of each filled in where the column says nothing itself. */
@@ -3085,7 +3087,7 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
     const { columns, aggregates, columnDefaults } = config;
     const dictionary = config.dictionary ?? NO_DICTIONARY;
     // The rows' numbers stand first, unless a column of the host's own already shows them.
-    const numbers = !!config.rowNumbers && !!columns && !columns.some((column) => column.rowNumber);
+    const numbers = (!!config.rowNumbers && !!columns && !columns.some((column) => column.rowNumber) && config.rowNumbers) || undefined;
     if ((dictionary === NO_DICTIONARY && !aggregates && !columnDefaults && !numbers) || !columns) return config;
     const cached = describedCache.get(columns);
     if (cached?.dictionary === dictionary && cached.aggregates === aggregates && cached.defaults === columnDefaults && cached.numbers === numbers) return { ...config, columns: cached.columns };
@@ -3106,7 +3108,7 @@ function described<T>(config: DataGridConfig<T>): DataGridConfig<T> {
             if (picked) out.aggregate = how ?? undefined;
             return out as DataGridColumn<T>;
         });
-    const filled = numbers ? [ROW_NUMBER_COLUMN as DataGridColumn<T>, ...fill(columns)] : fill(columns);
+    const filled = numbers ? [rowNumberColumn(numbers), ...fill(columns)] : fill(columns);
     describedCache.set(columns, { dictionary, aggregates, defaults: columnDefaults, numbers, columns: filled });
     return { ...config, columns: filled };
 }

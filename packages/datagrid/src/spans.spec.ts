@@ -105,6 +105,14 @@ describe('row numbers', () => {
         expect(element.querySelector('[data-section="body"] [role="row"][data-index] > *')!.getAttribute('data-col')).toBe('row-number');
     });
 
+    it('holds the numbers to the left edge, unless told otherwise', () => {
+        const { cell } = mount(columns, { rowNumbers: true });
+        expect(cell(0, 'row-number')!.style.position).toBe('sticky');
+        handle!.update({ rowNumbers: { pinned: undefined, header: 'No.' } });
+        expect(cell(0, 'row-number')!.style.position).toBe('');
+        expect(document.querySelector('[data-section="head"]')!.textContent).toContain('No.');
+    });
+
     it('leaves the other columns their keys, so a stored layout still fits', () => {
         const unkeyed: DataGridColumn<Sale>[] = [{ header: 'Region', body: ({ row }) => row.region }];
         const { element } = mount(unkeyed, { rowNumbers: true });

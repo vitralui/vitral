@@ -508,8 +508,11 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      * anything else — the search, the sort, the totals. Give a new function to filter again.
      */
     externalFilter?: (row: T) => boolean;
-    /** A column at the start with each row's number, counting from 1 across the pages. */
-    rowNumbers?: boolean;
+    /**
+     * A column at the start with each row's number, counting from 1 across the pages, held to the left edge.
+     * An object is that column's own settings over these: `{ pinned: undefined }` lets it scroll, `{ header: 'No.' }` names it.
+     */
+    rowNumbers?: boolean | Partial<DataGridColumn<T>>;
     /**
      * What every column has unless it says otherwise: `{ filter: true, sortable: true }` gives each column a
      * filter of its values' kind and a sort at once. The columns that select, expand, edit or drag rows are

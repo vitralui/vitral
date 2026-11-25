@@ -449,7 +449,7 @@ const inputs = (): DataGridConfig => ({
     dictionary: props.dictionary as DataGridConfig['dictionary'],
     columnDefaults: props.columnDefaults as DataGridConfig['columnDefaults'],
     externalFilter: props.externalFilter as DataGridConfig['externalFilter'],
-    rowNumbers: props.rowNumbers,
+    rowNumbers: props.rowNumbers as DataGridConfig['rowNumbers'],
     dictionaryModule: props.dictionaryModule,
     dictionarySubtitle: props.dictionarySubtitle,
     virtualScroll: props.virtualScroll,

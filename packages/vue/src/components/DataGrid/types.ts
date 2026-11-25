@@ -187,8 +187,12 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /** A filter of the host's own, over the reader's: the rows it refuses are left out before the search, the sort and the totals. A new function filters again. */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     externalFilter?: (row: any) => boolean;
-    /** A column at the start with each row's number, counting from 1 across the pages. */
-    rowNumbers?: boolean;
+    /**
+     * A column at the start with each row's number, counting from 1 across the pages, held to the left edge.
+     * An object is that column's own settings over these: `{ pinned: undefined }` lets it scroll, `{ header: 'No.' }` names it.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rowNumbers?: boolean | Partial<DataGridColumn<any>>;
     /**
      * The toolbar's columns button opens a drawer at the page's edge instead of the panel: the columns shown and their
      * order, the rows' grouping (or the pivot) and how each number column is worked out, changed together and only on
