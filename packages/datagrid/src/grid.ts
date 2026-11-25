@@ -26,7 +26,7 @@ import {
     type Locale
 } from '@vitral/core';
 import { createMenu, createOverlay, createSelect, createTooltips, type MenuItem, type SelectHandle } from '@vitral/controls';
-import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
+import { createRoot, partResolver, scrollbarSlot, type ScrollbarInset } from '@vitral/dom';
 import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, sigma, table as tableIcon } from '@vitral/icons';
 import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
 import type { ColumnsDrawerView, DrawerTab } from './render/drawer';
@@ -271,9 +271,39 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     const styleOptions = () => ({ nonce: current.nonce, cssLayer: current.cssLayer });
 
+    /**
+     * What of the table stays put while its rows scroll — the sticky head
+     * (with the rows pinned to the top), the sticky foot, the pinned columns —
+     * so the drawn bars run beside the rows that move, the vertical one below
+     * the head as a native bar of a grid does, and no header covers its thumb.
+     */
+    function stuck(box: HTMLElement): ScrollbarInset {
+        const held = (node: Element | null) => (node && getComputedStyle(node).position === 'sticky' ? (node as HTMLElement).offsetHeight : 0);
+        const room: ScrollbarInset = { top: held(box.querySelector(':scope [data-section="head"]')), bottom: held(box.querySelector(':scope [data-section="foot"]')) };
+        const row = box.querySelector('[data-section="head"] [role="row"]:last-child');
+        if (row) {
+            const edge = box.getBoundingClientRect();
+            const rtl = getComputedStyle(box).direction === 'rtl';
+            const left = edge.left + box.clientLeft;
+            const right = left + box.clientWidth;
+            let start = 0;
+            let end = 0;
+            for (const cell of Array.from(row.children) as HTMLElement[]) {
+                if (cell.style.position !== 'sticky') continue;
+                const at = cell.getBoundingClientRect();
+                const leading = cell.style.getPropertyValue('inset-inline-start') !== '';
+                if (leading === !rtl) start = Math.max(start, rtl ? right - at.left : at.right - left);
+                else end = Math.max(end, rtl ? at.right - left : right - at.left);
+            }
+            // Pinned columns that fill the box leave nothing to scroll beside: the bar keeps its length.
+            if (start + end < box.clientWidth - 40) Object.assign(room, { start, end });
+        }
+        return room;
+    }
+
     // The drawn scrollbars wear the ScrollPanel's classes, so one theme dresses every bar.
     const barOptions = () => ({ mode: current.scrollbar, arrows: current.scrollbarArrows, style: scrollpanelStyle, unstyled: current.unstyled, ...styleOptions() });
-    const tableBars = scrollbarSlot(barOptions);
+    const tableBars = scrollbarSlot(() => ({ ...barOptions(), inset: stuck }));
     const chooserBars = scrollbarSlot(barOptions);
 
     // The boxes' layout is how the grid works, not how it looks: an unstyled grid has it too.

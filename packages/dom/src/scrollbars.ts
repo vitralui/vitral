@@ -44,6 +44,21 @@ export interface ScrollbarsOptions {
     arrows?: boolean;
     /** How far one arrow press scrolls, in pixels. 40 by default. */
     step?: number;
+    /**
+     * What of the box stays put while the rest scrolls under it — a table's
+     * sticky head and foot, its pinned columns — in pixels from each edge,
+     * read at every measure. Each bar runs beside the part that scrolls only,
+     * so nothing stuck is drawn over its thumb.
+     */
+    inset?: () => ScrollbarInset;
+}
+
+/** Room kept clear at the box's edges: `start` and `end` follow the reading direction. */
+export interface ScrollbarInset {
+    top?: number;
+    bottom?: number;
+    start?: number;
+    end?: number;
 }
 
 export interface Scrollbars {
@@ -96,8 +111,9 @@ const cancelFrame = (id: number) => (typeof cancelAnimationFrame === 'function' 
  * The bars follow the box and what is inside it: they are measured again when
  * the box changes size, when anything in it does (an image that loads, a
  * section that opens with an animation), when its children change, and when
- * it scrolls. The track lets presses through to the content under it, so only
- * the thumb is a target. The bars are for the pointer and are hidden from
+ * it scrolls. A press on the track pages towards it and, held, keeps paging
+ * until the thumb reaches the pointer, as a native bar does; while the bars
+ * are hidden the track lets presses through to the content under it. The bars are for the pointer and are hidden from
  * assistive technology, which hears the box itself.
  */
 export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Scrollbars {
@@ -122,6 +138,9 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
             button.style.pointerEvents = 'auto';
             button.addEventListener('pointerdown', (event) => press(direction, event));
             return { button, direction };
+        });
+        track.addEventListener('pointerdown', (event) => {
+            if (event.target === track) page(axis, event);
         });
         bar.style.display = 'none';
         track.style.position = 'relative';
@@ -161,7 +180,11 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
                 for (const arrow of bars[axis].arrows) dress(arrow.button, part('arrow', { direction: arrow.direction, active: held === arrow.direction }));
             }
         }
-        for (const axis of ['y', 'x'] as const) for (const arrow of bars[axis].arrows) arrow.button.style.display = arrows ? '' : 'none';
+        for (const axis of ['y', 'x'] as const) {
+            for (const arrow of bars[axis].arrows) arrow.button.style.display = arrows ? '' : 'none';
+            // Hidden, the track is no target: what is under it takes the press.
+            bars[axis].track.style.pointerEvents = shown ? 'auto' : '';
+        }
         bars.y.track.style.position = 'relative';
         bars.x.track.style.position = 'relative';
         layer.style.position = 'absolute';
@@ -234,11 +257,23 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         }
     }
 
+    /** Keeps each bar beside what scrolls, clear of what stays put. */
+    function clear() {
+        const room = options.inset?.() ?? {};
+        const px = (value: number | undefined) => (value && value > 0 ? `${value}px` : '');
+        bars.y.bar.style.marginTop = px(room.top);
+        bars.y.bar.style.marginBottom = px(room.bottom);
+        // The horizontal bar is laid out left to right whatever the direction.
+        bars.x.bar.style.marginLeft = px(rtl ? room.end : room.start);
+        bars.x.bar.style.marginRight = px(rtl ? room.start : room.end);
+    }
+
     function refresh() {
         if (pending) cancelFrame(pending);
         pending = 0;
         dressAll();
         place();
+        clear();
         const corner = bars.y.state.visible && bars.x.state.visible;
         thumbs();
         // Both bars appearing, or one going, moves where each ends: dress and measure again.
@@ -407,6 +442,54 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         dressAll();
     }
 
+    // ---- the track -------------------------------------------------------------------
+
+    let pageDelay: ReturnType<typeof setTimeout> | undefined;
+    let pageEvery: ReturnType<typeof setInterval> | undefined;
+    let pageTo = 0;
+    let paging: 'x' | 'y' = 'y';
+    /** Where the pointer is along the track, against where the thumb is: -1 before it, 1 after, 0 on it. */
+    function side(axis: 'x' | 'y'): number {
+        const { track, state } = bars[axis];
+        const box = track.getBoundingClientRect();
+        let at = axis === 'y' ? pageTo - box.top : pageTo - box.left;
+        if (axis === 'x' && rtl) at = box.width - at;
+        return at < state.position ? -1 : at > state.position + state.size ? 1 : 0;
+    }
+    function pageOnce(axis: 'x' | 'y') {
+        const sign = side(axis);
+        if (!sign) return letGoPage();
+        const room = options.inset?.() ?? {};
+        if (axis === 'y') el.scrollTop += sign * Math.max(1, (el.clientHeight - (room.top ?? 0) - (room.bottom ?? 0)) * 0.9);
+        else el.scrollLeft += (rtl ? -sign : sign) * Math.max(1, (el.clientWidth - (room.start ?? 0) - (room.end ?? 0)) * 0.9);
+        thumbs();
+    }
+    // A press pages towards it; held, it keeps paging after a pause until the thumb is under the pointer.
+    function page(axis: 'x' | 'y', event: PointerEvent) {
+        if (event.button > 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        letGoPage();
+        paging = axis;
+        pageTo = axis === 'y' ? event.clientY : event.clientX;
+        pageOnce(axis);
+        pageDelay = setTimeout(() => (pageEvery = setInterval(() => pageOnce(axis), 60)), 350);
+        doc.addEventListener('pointermove', aim);
+        doc.addEventListener('pointerup', letGoPage);
+        doc.addEventListener('pointercancel', letGoPage);
+    }
+    /** The pointer moved while held: paging heads for where it is now. */
+    function aim(event: PointerEvent) {
+        pageTo = paging === 'y' ? event.clientY : event.clientX;
+    }
+    function letGoPage() {
+        clearTimeout(pageDelay);
+        clearInterval(pageEvery);
+        doc.removeEventListener('pointermove', aim);
+        doc.removeEventListener('pointerup', letGoPage);
+        doc.removeEventListener('pointercancel', letGoPage);
+    }
+
     // ---- the arrows ------------------------------------------------------------------
 
     let repeatDelay: ReturnType<typeof setTimeout> | undefined;
@@ -451,6 +534,7 @@ export function scrollbars(el: HTMLElement, initial: ScrollbarsOptions = {}): Sc
         destroy() {
             release();
             letGo();
+            letGoPage();
             if (pending) cancelFrame(pending);
             clearTimeout(scrollTimer);
             resize?.disconnect();
@@ -490,6 +574,8 @@ export interface ScrollbarSlotOptions {
     part?: ScrollbarsOptions['part'];
     /** Arrows at the ends of each bar. */
     arrows?: boolean;
+    /** What of each box stays put while the rest scrolls, kept clear of the bars. */
+    inset?: (el: HTMLElement) => ScrollbarInset;
 }
 
 function slotPart(next: ScrollbarSlotOptions): ScrollbarsOptions['part'] {
@@ -533,8 +619,9 @@ export function scrollbarSet(options: () => ScrollbarSlotOptions) {
             for (const el of wanted) {
                 const bars = live.get(el);
                 const wantsArrows = !!next.arrows;
-                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part, arrows: wantsArrows }));
-                else if (chosen !== mode || wantsArrows !== arrows) bars.update({ visibility: chosen, part, arrows: wantsArrows });
+                const inset = next.inset ? () => next.inset!(el) : undefined;
+                if (!bars) live.set(el, scrollbars(el, { visibility: chosen, part, arrows: wantsArrows, inset }));
+                else if (chosen !== mode || wantsArrows !== arrows) bars.update({ visibility: chosen, part, arrows: wantsArrows, inset });
                 // A draw may scroll the box right after (to a selected row, to
                 // working hours) and not every browser says so at once.
                 else bars.later();
