@@ -16,3 +16,4 @@ export { createSelect, type SelectConfig, type SelectHandle, type SelectOption }
 export { createMenu, type MenuConfig, type MenuHandle, type MenuItem } from './menu';
 export { createTooltips, type Tooltips, type TooltipsOptions } from './tooltip';
 export { createDatePicker, type DatePickerConfig, type DatePickerHandle } from './datepicker';
+export { createDateRange, type DateRangeConfig, type DateRangeHandle } from './daterange';

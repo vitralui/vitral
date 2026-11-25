@@ -18,7 +18,9 @@ export const FilterMatchMode = {
     DATE_IS: 'dateIs',
     DATE_IS_NOT: 'dateIsNot',
     DATE_BEFORE: 'dateBefore',
-    DATE_AFTER: 'dateAfter'
+    DATE_AFTER: 'dateAfter',
+    /** From one day to another, both whole days in; either end may be left open. The filter is `[from, to]`. */
+    DATE_BETWEEN: 'dateBetween'
 } as const;
 
 export type FilterMatchModeValue = (typeof FilterMatchMode)[keyof typeof FilterMatchMode];
@@ -105,7 +107,17 @@ const registry: Record<string, FilterFn> = {
     dateIs: (value, filter) => isBlankFilter(filter) || sameDay(value, filter),
     dateIsNot: (value, filter) => isBlankFilter(filter) || !sameDay(value, filter),
     dateBefore: order((v, f) => v < f),
-    dateAfter: order((v, f) => v > f)
+    dateAfter: order((v, f) => v > f),
+    dateBetween: (value, filter) => {
+        if (!Array.isArray(filter) || (!(filter[0] instanceof Date) && !(filter[1] instanceof Date))) return true;
+        if (!(value instanceof Date)) return false;
+        const [from, to] = filter as [Date | null, Date | null];
+        // By the day: the last day counts to its end, whatever the times.
+        const day = new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+        const start = from instanceof Date ? new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime() : -Infinity;
+        const end = to instanceof Date ? new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime() : Infinity;
+        return day >= Math.min(start, end) && day <= Math.max(start, end);
+    }
 };
 
 export const FilterService = {

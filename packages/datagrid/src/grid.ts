@@ -25,7 +25,7 @@ import {
     type FilterMeta,
     type Locale
 } from '@vitral/core';
-import { createDatePicker, createMenu, createOverlay, createSelect, createTooltips, type DatePickerHandle, type MenuItem, type SelectHandle } from '@vitral/controls';
+import { createDatePicker, createDateRange, createMenu, createOverlay, createSelect, createTooltips, type DateRangeHandle, type DatePickerHandle, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot, type ScrollbarInset } from '@vitral/dom';
 import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, sigma, table as tableIcon } from '@vitral/icons';
 import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
@@ -61,7 +61,7 @@ import { childrenOf, groupFields, groupKeys, treeKeys } from './engine/rows';
 import { fillSeries, parseClipboard, rangeBox, rangeStats, toClipboard, type CellRef, type RangeBox } from './engine/range';
 import { toXlsx, type DataGridXlsxOptions } from './engine/xlsx';
 import { pivotOf, PIVOT_KEY, type PivotConfig } from './engine/pivot';
-import { distinctValues, filterKind, optionLabel, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, type FilterKind } from './engine/filters';
+import { distinctValues, filterKind, isSpanMode, optionLabel, filterText as filterBoxText, filterValue as readFilterValue, fromPanel, matchModesFor, panelFilter, spanText, spanTexts, type FilterKind } from './engine/filters';
 import { columnAbout, columnInfoView, hasDescription, type DictionaryEntry, type PivotPanelView, type PivotZone, type SideBarView, type SidePanel, type ToolbarView } from './render/grid';
 import { chooserView, filterPanelView, filtersByMenu, frameRows, gridView, offersMenu, type FilterPanelView, type DataGridActions, type DrawnColumn, type EditingView, type ViewContext, type VirtualRows } from './render/grid';
 
@@ -243,6 +243,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     const modeSelects: (SelectHandle | undefined)[] = [];
     const dateHosts: HTMLElement[] = [];
     const datePickers: (DatePickerHandle | undefined)[] = [];
+    // A condition comparing with a span (between two dates) takes a range field rather than a date field.
+    const rangeHosts: HTMLElement[] = [];
+    const rangePickers: (DateRangeHandle | undefined)[] = [];
     /** The date fields of the cells being edited, by column key; let go when the editing stops. */
     const dateEditors = new Map<string, { host: HTMLElement; picker: DatePickerHandle }>();
 
@@ -1464,7 +1467,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             const all = draft.checked.size === draft.options.length;
             writeFilter(column.filterField, all ? undefined : { value: draft.options.filter((_, at) => draft!.checked.has(at)), matchMode: 'anyOf' });
         } else {
-            const constraints = draft.texts.map((text, at) => ({ matchMode: draft!.matchModes[at], value: readFilterValue(text, draft!.kind, locale()) })) as [FilterConstraint, FilterConstraint];
+            const constraints = draft.texts.map((text, at) => ({ matchMode: draft!.matchModes[at], value: readFilterValue(text, draft!.kind, locale(), draft!.matchModes[at]) })) as [FilterConstraint, FilterConstraint];
             const empty = constraints.every((constraint) => constraint.value === null);
             writeFilter(column.filterField, empty ? undefined : fromPanel({ operator: draft.operator, constraints }));
         }
@@ -1505,7 +1508,10 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 ...settings,
                 onChange: (value) => {
                     if (!draft) return;
-                    draft.matchModes[at] = String(value);
+                    const mode = String(value);
+                    // From a span to one value, the start is kept; from one value to a span, it is the start.
+                    if (isSpanMode(draft.matchModes[at]) && !isSpanMode(mode)) draft.texts[at] = spanTexts(draft.texts[at])[0];
+                    draft.matchModes[at] = mode;
                     applyDraft();
                 }
             });
@@ -1514,6 +1520,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
 
     /** A date condition's value: the kit's date field, as the Vue DatePicker looks, rather than the browser's. */
     function dateControl(at: 0 | 1, state: FilterDraft, header: string): Content {
+        if (isSpanMode(state.matchModes[at])) return rangeControl(at, state, header);
         const host = (dateHosts[at] ??= document.createElement('span'));
         const settings = {
             value: isoDate(state.texts[at]),
@@ -1532,6 +1539,35 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const picker = datePickers[at];
         if (picker) picker.update(settings);
         else datePickers[at] = createDatePicker(host, { ...settings, onChange: (date) => actions.filterText(at, date ? isoText(date) : '') });
+        return host;
+    }
+
+    /** A between condition's value: the kit's range field, one month in the panel's room, as the Vue DateRange looks. */
+    function rangeControl(at: 0 | 1, state: FilterDraft, header: string): Content {
+        const host = (rangeHosts[at] ??= document.createElement('span'));
+        const [start, end] = spanTexts(state.texts[at]);
+        const settings = {
+            value: { start: isoDate(start), end: isoDate(end) },
+            months: 1,
+            size: 'small' as const,
+            fluid: true,
+            ariaLabel: `${header}: ${locale().datagrid.filterValue} ${at + 1}`,
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer,
+            inputAttrs: { 'data-filter-value': String(at) },
+            pt: { root: { class: 'vt-datagrid-filter-date' } }
+        };
+        const picker = rangePickers[at];
+        if (picker) picker.update(settings);
+        else
+            rangePickers[at] = createDateRange(host, {
+                ...settings,
+                onChange: (range) => actions.filterText(at, spanText(range.start ? isoText(range.start) : '', range.end ? isoText(range.end) : ''))
+            });
         return host;
     }
 
@@ -3330,6 +3366,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
             datePickers.forEach((picker) => picker?.destroy());
+            rangePickers.forEach((picker) => picker?.destroy());
             releaseDateEditors();
             howSelects.forEach(({ select }) => select.destroy());
             pageSize?.destroy();

@@ -13,7 +13,7 @@ export type FilterKind = 'text' | 'number' | 'date' | 'set';
 const MODES: Record<Exclude<FilterKind, 'set'>, string[]> = {
     text: ['contains', 'notContains', 'startsWith', 'endsWith', 'equals', 'notEquals'],
     number: ['equals', 'notEquals', 'lt', 'lte', 'gt', 'gte'],
-    date: ['dateIs', 'dateIsNot', 'dateBefore', 'dateAfter']
+    date: ['dateIs', 'dateIsNot', 'dateBefore', 'dateAfter', 'dateBetween']
 };
 
 /** The kind a column filters as: what it says, or the kind of the first value it holds. */
@@ -53,11 +53,29 @@ export function fromPanel(panel: PanelFilter): CompositeFilter {
     return { operator: panel.operator, constraints: used.map((constraint) => ({ ...constraint })) };
 }
 
-/** What a condition's box shows for its value, and what it reads back: a number in the reader's decimals, a date as a date input has it. */
-export const filterText = (value: unknown, locale?: string): string => editorText(value, locale);
+/** A condition that takes two values, from and to, kept in its box as both with this between. */
+export const isSpanMode = (mode: string | undefined): boolean => mode === 'dateBetween';
+const SPAN = '/';
 
-export function filterValue(text: string, kind: FilterKind, locale: Locale): unknown {
+/** What a condition's box shows for its value, and what it reads back: a number in the reader's decimals, a date as a date input has it, a span as its two ends. */
+export const filterText = (value: unknown, locale?: string): string =>
+    Array.isArray(value) ? `${editorText(value[0], locale)}${SPAN}${editorText(value[1], locale)}` : editorText(value, locale);
+
+/** The two ends of a span's text; a text of one value is the start. */
+export const spanTexts = (text: string): [string, string] => {
+    const [start = '', end = ''] = text.split(SPAN);
+    return [start, end];
+};
+
+/** The text of a span from its two ends' texts. */
+export const spanText = (start: string, end: string): string => (start || end ? `${start}${SPAN}${end}` : '');
+
+export function filterValue(text: string, kind: FilterKind, locale: Locale, mode?: string): unknown {
     if (!text.trim()) return null;
+    if (isSpanMode(mode)) {
+        const [start, end] = spanTexts(text).map((part) => filterValue(part, kind, locale)) as [unknown, unknown];
+        return start === null && end === null ? null : [start, end];
+    }
     if (kind === 'number' || kind === 'date') {
         const result = parseEdit(text, kind === 'number' ? 0 : new Date(), { field: '' }, {}, locale);
         // Text that is no number yet (a minus sign on its own) filters nothing until it is one.

@@ -1443,7 +1443,8 @@ export const en: Locale = {
             dateIs: 'On',
             dateIsNot: 'Not on',
             dateBefore: 'Before',
-            dateAfter: 'After'
+            dateAfter: 'After',
+            dateBetween: 'Between'
         },
         condition: 'Condition',
         and: 'And',
@@ -2095,7 +2096,8 @@ export const ptBR: Locale = {
             dateIs: 'Em',
             dateIsNot: 'Fora de',
             dateBefore: 'Antes de',
-            dateAfter: 'Depois de'
+            dateAfter: 'Depois de',
+            dateBetween: 'Entre'
         },
         condition: 'Condição',
         and: 'E',

@@ -20,7 +20,7 @@
         "styles": "O CSS e o mapa de classes de cada componente, escritos sobre tokens, também distribuídos como um único <code>vitral.css</code>",
         "icons": "Ícones SVG como dados",
         "dom": "Aquilo com que os pacotes sem framework renderizam: um patcher com chaves, classes de parte com pass-through, um arrasto de ponteiro, uma rolagem automática e um ícone",
-        "controls": "O select, o menu e o painel ancorado de que esses pacotes precisam, sobre a mesma aritmética do core e com os mesmos estilos",
+        "controls": "O select, o menu, os campos de data e o painel ancorado de que esses pacotes precisam, sobre a mesma aritmética do core e com os mesmos estilos",
         "chart": "Gráficos em SVG: o motor e <code>createChart()</code>, um renderizador com legenda, tooltip, barra de ferramentas, zoom, brush e teclado. O componente <code>&lt;Chart&gt;</code> o envolve",
         "datagrid": "A tabela de dados: o motor (consulta, ordenação, filtro, páginas, seleção, o layout das colunas) e <code>createDataGrid()</code>, que desenha uma <code>&lt;table&gt;</code> de verdade",
         "schedule": "O calendário e a agenda: o motor (visões, períodos, recorrência, layout) e <code>createSchedule()</code>, com o teclado e os gestos de ponteiro",

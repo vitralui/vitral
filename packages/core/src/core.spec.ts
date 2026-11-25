@@ -55,6 +55,15 @@ describe('filtering, sorting and querying', () => {
         expect(FilterService.matches('São Paulo', 'sao', 'startsWith')).toBe(true);
         expect(FilterService.matches('JOÃO', 'joao', 'equals')).toBe(true);
         expect(FilterService.matches('x', '', 'equals')).toBe(true);
+        // Between two days, both whole days in, either end open, the ends either way round.
+        const at = (d: number, h = 0) => new Date(2026, 2, d, h);
+        expect(FilterService.matches(at(10, 23), [at(1), at(10)], 'dateBetween')).toBe(true);
+        expect(FilterService.matches(at(11), [at(1), at(10)], 'dateBetween')).toBe(false);
+        expect(FilterService.matches(at(5), [at(10), at(1)], 'dateBetween')).toBe(true);
+        expect(FilterService.matches(at(20), [at(10), null], 'dateBetween')).toBe(true);
+        expect(FilterService.matches(at(2), [null, at(1)], 'dateBetween')).toBe(false);
+        expect(FilterService.matches(null, [null, null], 'dateBetween')).toBe(true);
+        expect(FilterService.matches(null, [at(1), null], 'dateBetween')).toBe(false);
         expect(FilterService.matches(5, [1, 10], 'between')).toBe(true);
     });
 

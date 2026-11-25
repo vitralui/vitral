@@ -143,6 +143,35 @@ describe('filtering from a header', () => {
         expect((panel()!.querySelector('[data-filter-value="0"]') as HTMLInputElement).value).toBe('03/21/2026');
     });
 
+    it('filters dates between two days in the kit’s range field, chosen from its month or typed', () => {
+        const { panel, openFilter, type, names, on } = mount();
+        openFilter('placed');
+        (panel()!.querySelector('.vt-datagrid-filter-mode') as HTMLElement).click();
+        (Array.from(document.querySelectorAll('[role="option"]')).find((option) => option.textContent === 'Between') as HTMLElement).click();
+        const box = () => panel()!.querySelector('[data-filter-value="0"]') as HTMLInputElement;
+        expect(box().closest('.vt-daterange')).not.toBeNull();
+        // One month, in the panel's room; the first day starts the span, the second ends it.
+        (panel()!.querySelector('.vt-daterange-dropdown') as HTMLButtonElement).click();
+        const months = document.querySelector('.vt-daterange-panel')!;
+        expect(months.querySelectorAll('.vt-daterange-month').length).toBe(1);
+        type(box(), '01/05/2026 - 03/21/2026');
+        box().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        // Both ends are whole days in.
+        expect(names()).toEqual(['Ana', 'Bruno', 'Carla']);
+        expect(box().value).toBe('01/05/2026 – 03/21/2026');
+        // A start alone is from that day on.
+        type(box(), '03/01/2026');
+        expect(names()).toEqual(['Carla', 'Diego', 'Elisa']);
+        expect(on.filter.mock.lastCall![0].filters.placed).toEqual({ operator: 'and', constraints: [{ matchMode: 'dateBetween', value: [new Date(2026, 2, 1), null] }] });
+    });
+
+    it('opens a between filter set from outside on its span', () => {
+        const { panel, openFilter, names } = mount({ filters: { placed: { value: [new Date(2026, 1, 1), new Date(2026, 3, 2)], matchMode: 'dateBetween' } } });
+        expect(names()).toEqual(['Bruno', 'Carla', 'Diego']);
+        openFilter('placed');
+        expect((panel()!.querySelector('[data-filter-value="0"]') as HTMLInputElement).value).toBe('02/01/2026 – 04/02/2026');
+    });
+
     it('ticks values in a list, searches it, and selects all of what it found', () => {
         const { panel, openFilter, names, type } = mount();
         openFilter('city');

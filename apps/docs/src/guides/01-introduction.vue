@@ -97,7 +97,7 @@ const cities = [
                 </tr>
                 <tr>
                     <td>@vitral/controls</td>
-                    <T k="packages.controls" as="td" class="doc">The select, the menu and the anchored panel those packages need, over the same core arithmetic and wearing the same styles</T>
+                    <T k="packages.controls" as="td" class="doc">The select, the menu, the date fields and the anchored panel those packages need, over the same core arithmetic and wearing the same styles</T>
                     <T k="packages.none" as="td" class="doc">None</T>
                 </tr>
                 <tr>

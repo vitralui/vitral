@@ -5,6 +5,7 @@ import { expectNoA11yViolations } from '../../../test/a11y';
 import { createMenu, type MenuHandle } from './menu';
 import { createOverlay, type Overlay } from './overlay';
 import { createDatePicker } from './datepicker';
+import { createDateRange } from './daterange';
 import { createSelect, type SelectHandle } from './select';
 
 const key = (target: Element | Document, k: string, options: KeyboardEventInit = {}) =>
@@ -393,6 +394,78 @@ describe('a date field', () => {
     it('has nothing axe objects to, open', async () => {
         const { host, panel } = mount({ value: new Date(2026, 2, 5) });
         (host.querySelector('.vt-datepicker-dropdown') as HTMLButtonElement).click();
+        await expectNoA11yViolations(host);
+        await expectNoA11yViolations(panel()!);
+    });
+});
+
+describe('a range field', () => {
+    function mount(options: Record<string, unknown> = {}) {
+        const host = document.createElement('span');
+        document.body.appendChild(host);
+        const onChange = vi.fn();
+        const field = track(createDateRange(host, { locale: ptBR, ariaLabel: 'Estadia', onChange, ...options }));
+        const input = () => host.querySelector('input') as HTMLInputElement;
+        const type = (text: string) => {
+            input().value = text;
+            input().dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        const panel = () => document.querySelector('.vt-daterange-panel') as HTMLElement | null;
+        const day = (date: string) => panel()!.querySelector(`[data-date="${date}"]:not([data-blank])`) as HTMLElement;
+        return { host, field, input, type, onChange, panel, day };
+    }
+
+    it('takes a span typed in the locale’s format, either way round, and writes it with its separator', () => {
+        const { input, type, onChange, field } = mount();
+        type('20/03/2026 - 05/03/2026');
+        expect(onChange).toHaveBeenLastCalledWith({ start: new Date(2026, 2, 5), end: new Date(2026, 2, 20) });
+        input().dispatchEvent(new Event('blur'));
+        expect(input().value).toBe('05/03/2026 – 20/03/2026');
+        // A start alone, the end still to come.
+        type('05/03/2026');
+        expect(onChange).toHaveBeenLastCalledWith({ start: new Date(2026, 2, 5), end: null });
+        // Something that is no span is put back when the box is left.
+        type('05/03/2026 - 31/02/2026');
+        input().dispatchEvent(new Event('blur'));
+        expect(input().value).toBe('05/03/2026');
+        expect(field.value()).toEqual({ start: new Date(2026, 2, 5), end: null });
+    });
+
+    it('opens two months, starts with one press and ends with the next, showing the span as it is chosen', () => {
+        const { host, panel, day, onChange, input } = mount({ value: { start: new Date(2026, 2, 5), end: new Date(2026, 2, 9) } });
+        (host.querySelector('.vt-daterange-dropdown') as HTMLButtonElement).click();
+        expect(Array.from(panel()!.querySelectorAll('.vt-daterange-title'), (t) => t.textContent)).toEqual(['março 2026', 'abril 2026']);
+        expect(day('2026-3-7').className).toContain('vt-daterange-day-in-range');
+        day('2026-4-2').click();
+        expect(onChange).toHaveBeenLastCalledWith({ start: new Date(2026, 3, 2), end: null });
+        // Under the pointer, the day stands for the end: the span shows before it is chosen.
+        day('2026-3-28').dispatchEvent(new MouseEvent('mouseenter'));
+        expect(day('2026-3-30').className).toContain('vt-daterange-day-in-range');
+        expect(day('2026-3-30').className).toContain('vt-daterange-day-preview');
+        day('2026-3-28').click();
+        expect(onChange).toHaveBeenLastCalledWith({ start: new Date(2026, 2, 28), end: new Date(2026, 3, 2) });
+        expect(panel()).toBeNull();
+        expect(input().value).toBe('28/03/2026 – 02/04/2026');
+        expect(document.activeElement).toBe(input());
+    });
+
+    it('chooses by the keyboard and keeps to its limits', () => {
+        const { host, panel, day, onChange } = mount({ value: { start: new Date(2026, 2, 5), end: null }, min: new Date(2026, 2, 3), months: 1 });
+        (host.querySelector('.vt-daterange-dropdown') as HTMLButtonElement).click();
+        expect(panel()!.querySelectorAll('.vt-daterange-month').length).toBe(1);
+        expect(document.activeElement!.getAttribute('data-date')).toBe('2026-3-5');
+        day('2026-3-2').click();
+        expect(onChange).not.toHaveBeenCalled();
+        key(document.activeElement!, 'ArrowDown');
+        // The keyboard's day previews the end too.
+        expect(day('2026-3-8').className).toContain('vt-daterange-day-in-range');
+        key(document.activeElement!, 'Enter');
+        expect(onChange).toHaveBeenLastCalledWith({ start: new Date(2026, 2, 5), end: new Date(2026, 2, 12) });
+    });
+
+    it('has nothing axe objects to, open', async () => {
+        const { host, panel } = mount({ value: { start: new Date(2026, 2, 5), end: new Date(2026, 2, 9) }, showClearButton: true });
+        (host.querySelector('.vt-daterange-dropdown') as HTMLButtonElement).click();
         await expectNoA11yViolations(host);
         await expectNoA11yViolations(panel()!);
     });

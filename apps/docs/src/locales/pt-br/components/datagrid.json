@@ -134,7 +134,7 @@
         },
         "Filters and menus": {
             "title": "Filtros e menus",
-            "description": "Com `filter-display=\"menu\"`, uma coluna com `filter` desenha um botão no cabeçalho que abre o seu painel de filtro. O tipo acompanha os valores: texto, números e datas ganham duas condições unidas por E ou Ou, comparadas do jeito que você escolher; `filter=\"set\"` lista os valores da coluna para marcar, com uma busca para listas longas — dados como `{ label, value }` ou nomeados por `filter-label` quando os valores são códigos, e desenhados pelo slot `#filteroption`, aqui como as mesmas tags das células. `column-menu` acrescenta um menu a cada cabeçalho — ordenar, fixar, ocultar, restaurar — e `context-menu` um no clique direito sobre uma célula, aqui com um comando da própria página antes de Copy, Copy row e Export."
+            "description": "Com `filter-display=\"menu\"`, uma coluna com `filter` desenha um botão no cabeçalho que abre o seu painel de filtro. O tipo acompanha os valores: texto, números e datas ganham duas condições unidas por E ou Ou, comparadas do jeito que você escolher, uma data no próprio campo de data do kit e Entre no seu campo de intervalo; `filter=\"set\"` lista os valores da coluna para marcar, com uma busca para listas longas — dados como `{ label, value }` ou nomeados por `filter-label` quando os valores são códigos, e desenhados pelo slot `#filteroption`, aqui como as mesmas tags das células. `column-menu` acrescenta um menu a cada cabeçalho — ordenar, fixar, ocultar, restaurar — e `context-menu` um no clique direito sobre uma célula, aqui com um comando da própria página antes de Copy, Copy row e Export."
         },
         "Groups inside groups": {
             "title": "Grupos dentro de grupos",

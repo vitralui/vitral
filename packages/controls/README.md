@@ -37,6 +37,19 @@ select behaves.
 menu takes the keyboard, the arrows walk it around the ends, Enter chooses and
 Escape puts the keyboard back on the button.
 
+`createDatePicker` is a date field, drawn as the Vue DatePicker is: a text box
+that takes a date typed in the locale's format, read as soon as it is whole,
+and a button that opens a month following the WAI-ARIA date picker dialog —
+arrows by day and week, Page Up and Page Down by month, Enter to choose — with
+Today and Clear under it, and `min` and `max`.
+
+`createDateRange` is a span of days, drawn as the Vue DateRange is: two dates
+typed with the separator between, or pressed on months side by side (`months`,
+two by default), the first press starting the span and the second ending it,
+the days up to the one under the pointer or the keyboard showing it as it is
+chosen. `onChange` has `{ start, end }`, a start alone while the end is still
+to come.
+
 A framework component that already has a better control hands it to the addon
 instead — that is what an addon's `content` hooks are for.
 
