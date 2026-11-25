@@ -76,31 +76,33 @@ const panel = ref<'columns' | 'dictionary' | null>(null);
         resizable-columns
         reorderable-columns
         column-menu
+        filter-display="menu"
         paginator
         :rows="25"
         :rows-per-page-options="[25, 50, 100]"
         paginator-template="RowsPerPageLabel RowsPerPageDropdown CurrentPageReport FirstPageLink PrevPageLink PageInput NextPageLink LastPageLink"
         scrollable
         scroll-height="26rem"
+        min-height="26rem"
         class="demo-report"
     >
         <template #header>
             <strong>Sales report</strong>
         </template>
-        <Column field="date" header="Order date" sortable kind="dimension" source="orders.placed_at" description="The day the order was placed, not the day it was invoiced.">
+        <Column field="date" header="Order date" sortable filter kind="dimension" source="orders.placed_at" description="The day the order was placed, not the day it was invoiced.">
             <template #body="{ data }">{{ day.format(data.date) }}</template>
         </Column>
-        <Column field="customer" header="Customer" sortable kind="dimension" source="orders.customer_id" notes="Orders without a customer are left out of the report." description="Who bought, as on the order." />
-        <Column field="product" header="Product" sortable description="What was sold, one line of the order." />
-        <Column field="seller" header="Seller" sortable kind="dimension" notes="Can be empty, for orders placed online." description="The person credited with the sale." />
-        <Column field="quantity" header="Quantity" align="right" sortable kind="metric" aggregate="sum" description="Units on the line." />
-        <Column field="price" header="Unit price" align="right" sortable description="The price of one unit when the order was placed.">
+        <Column field="customer" header="Customer" sortable filter kind="dimension" source="orders.customer_id" notes="Orders without a customer are left out of the report." description="Who bought, as on the order." />
+        <Column field="product" header="Product" sortable filter="set" description="What was sold, one line of the order." />
+        <Column field="seller" header="Seller" sortable filter="set" kind="dimension" notes="Can be empty, for orders placed online." description="The person credited with the sale." />
+        <Column field="quantity" header="Quantity" align="right" sortable filter kind="metric" aggregate="sum" description="Units on the line." />
+        <Column field="price" header="Unit price" align="right" sortable filter description="The price of one unit when the order was placed.">
             <template #body="{ data }">{{ money.format(data.price) }}</template>
         </Column>
         <Column header="Gross sale" align="right" :export-value="gross" kind="metric" description="What the line is worth before discounts and freight." formula="quantity × unit price">
             <template #body="{ data }">{{ money.format(gross(data)) }}</template>
         </Column>
-        <Column field="discount" header="Discount" align="right" sortable aggregate="sum" description="Taken off the line, by a coupon or by the seller.">
+        <Column field="discount" header="Discount" align="right" sortable filter aggregate="sum" description="Taken off the line, by a coupon or by the seller.">
             <template #body="{ data }">{{ money.format(data.discount) }}</template>
         </Column>
         <Column field="freight" header="Freight" align="right" sortable :visible="false" description="What the customer paid for delivery.">
