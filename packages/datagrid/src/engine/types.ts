@@ -8,6 +8,9 @@ import type { PassThrough, ScrollbarMode } from '@vitral/dom';
  */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+/** Where a header's buttons sit: right after its title, or at the column's edge away from it. */
+export type HeaderPlace = 'title' | 'edge';
+
 export type Row = any;
 
 /** What a cell is given: the row, where it is, and the column it belongs to. */
@@ -196,6 +199,10 @@ export interface DataGridColumn<T = Row> {
     /** The cells' class: one for all of them, or one by cell — a rule of the value, say, to colour a loss. */
     bodyClass?: string | ((context: CellContext<T>) => string | string[] | Record<string, boolean> | null | undefined);
     headerStyle?: Record<string, string>;
+    /** Where this header's filter and menu buttons sit, over the grid's `headerToolsAt`. */
+    headerToolsAt?: HeaderPlace;
+    /** Where this header's info button sits, over the grid's `headerInfoAt`. */
+    headerInfoAt?: HeaderPlace;
     /** The cells' style: one for all of them, or one by cell. */
     bodyStyle?: Record<string, string> | ((context: CellContext<T>) => Record<string, string> | null | undefined);
     /** Draws the cell. Without it, the field's value is shown as text. */
@@ -533,10 +540,16 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     /**
      * Where a header's filter and menu buttons sit: at the edge of the column
      * away from its title (`'edge'`, the default), so they line up from one
-     * column to the next, or right after the title (`'title'`). The info
-     * button stays by the title it explains either way.
+     * column to the next, or right after the title (`'title'`). A column's
+     * own `headerToolsAt` wins.
      */
-    headerToolsAt?: 'edge' | 'title';
+    headerToolsAt?: HeaderPlace;
+    /**
+     * Where a header's info button sits: right after the title it explains
+     * (`'title'`, the default), or at the column's edge with the filter and
+     * the menu (`'edge'`). A column's own `headerInfoAt` wins.
+     */
+    headerInfoAt?: HeaderPlace;
     /**
      * The least height of the box the rows scroll in — a CSS length — so a
      * grid with few rows or none keeps its shape, the empty message in the

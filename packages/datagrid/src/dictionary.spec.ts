@@ -191,9 +191,31 @@ describe('a header laid out as a report’s', () => {
         const tools = content.querySelector('.vt-datagrid-header-tools')!;
         expect(tools.querySelector('[data-filter-button]')).not.toBeNull();
         expect(tools.querySelector('[data-menu-button]')).not.toBeNull();
-        expect(element.classList).not.toContain('vt-datagrid-tools-at-title');
+        const cell = (key: string) => element.querySelector(`[data-section="head"] [data-column="${key}"]`)!;
+        expect(cell('customer').classList).not.toContain('vt-datagrid-header-tools-at-title');
         handle!.update({ headerToolsAt: 'title' });
-        expect(element.classList).toContain('vt-datagrid-tools-at-title');
+        expect(cell('customer').classList).toContain('vt-datagrid-header-tools-at-title');
+    });
+
+    it('puts the info button with the filter and the menu when told to, for the grid or for one column', () => {
+        const at = (key: string) => {
+            const info = element.querySelector(`[data-info-button="${key}"]`)!;
+            return info.parentElement!.classList.contains('vt-datagrid-header-tools') ? 'edge' : 'title';
+        };
+        const { element } = mount({
+            columnMenu: true,
+            headerInfoAt: 'edge',
+            columns: [
+                { field: 'customer', header: 'Customer', description: 'Who bought.' },
+                { field: 'gross', header: 'Gross sale', description: 'Before discounts.', headerInfoAt: 'title', headerToolsAt: 'title' }
+            ]
+        });
+        expect(at('customer')).toBe('edge');
+        expect(at('gross')).toBe('title');
+        expect(element.querySelector('[data-section="head"] [data-column="gross"]')!.classList).toContain('vt-datagrid-header-tools-at-title');
+        // With nothing else at the edge, the info button still goes there when asked.
+        handle!.update({ columnMenu: false });
+        expect(at('customer')).toBe('edge');
     });
 
     it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {

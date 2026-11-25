@@ -12,8 +12,6 @@ export interface DataGridState {
     fixedRows?: boolean;
     /** A header's menu button shows only while the header is pointed at. */
     toolsOnHover?: boolean;
-    /** A header's filter and menu buttons sit right after its title, not at the column's edge. */
-    toolsAtTitle?: boolean;
 }
 
 export interface DataGridCellState {
@@ -46,6 +44,8 @@ export interface DataGridHeaderCellState extends DataGridCellState {
     dragging?: boolean;
     /** A dragged column would land before this one. */
     dropping?: boolean;
+    /** Its buttons sit right after the title rather than at the column's edge. */
+    toolsAtTitle?: boolean;
 }
 
 export interface DataGridRowState {
@@ -91,8 +91,7 @@ export const datagridStyle = defineStyle({
                 'vt-datagrid-scrollable': s.scrollable,
                 'vt-datagrid-loading': s.loading,
                 'vt-datagrid-fixed-rows': s.fixedRows,
-                'vt-datagrid-tools-on-hover': s.toolsOnHover,
-                'vt-datagrid-tools-at-title': s.toolsAtTitle
+                'vt-datagrid-tools-on-hover': s.toolsOnHover
             }
         ],
         header: 'vt-datagrid-header',
@@ -143,7 +142,13 @@ export const datagridStyle = defineStyle({
         headerRow: 'vt-datagrid-header-row',
         headerCell: (s: DataGridHeaderCellState) => [
             'vt-datagrid-header-cell',
-            { 'vt-datagrid-header-cell-sortable': s.sortable, 'vt-datagrid-header-cell-sorted': s.sorted, 'vt-datagrid-dragging': s.dragging, 'vt-datagrid-dropping': s.dropping },
+            {
+                'vt-datagrid-header-cell-sortable': s.sortable,
+                'vt-datagrid-header-cell-sorted': s.sorted,
+                'vt-datagrid-dragging': s.dragging,
+                'vt-datagrid-dropping': s.dropping,
+                'vt-datagrid-header-tools-at-title': s.toolsAtTitle
+            },
             align(s),
             pinned(s)
         ],

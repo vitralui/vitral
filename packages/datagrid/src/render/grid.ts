@@ -808,6 +808,7 @@ function headerCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): VEle
                 role: 'columnheader'
             },
             part('headerCell', {
+                toolsAtTitle: (column.column.headerToolsAt ?? config.headerToolsAt) === 'title',
                 sortable: column.column.sortable,
                 sorted: sortIndex >= 0,
                 align: column.align,
@@ -915,7 +916,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
     if (!filter && !menu && !info) return null;
     const active = filter && hasFilter(context.filters, column);
     const open = menus.open === column.key;
-    // The info button stays by the title it explains; the filter and the menu, which act on the column, go together.
+    // The filter and the menu, which act on the column, go together; the info button goes by the title it explains, or with them.
     const infoButton = info
         ? h(
               'button',
@@ -930,10 +931,12 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
               iconView('info')
           )
         : null;
-    if (!filter && !menu) return infoButton;
+    const infoWithTools = (column.column.headerInfoAt ?? config.headerInfoAt) === 'edge';
+    if (!filter && !menu && !infoWithTools) return infoButton;
     const group = h(
         'span',
         part('headerTools'),
+        infoWithTools ? infoButton : null,
         filter
             ? h(
                   'button',
@@ -983,7 +986,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
               )
             : null
     );
-    return infoButton ? [infoButton, group] : group;
+    return infoButton && !infoWithTools ? [infoButton, group] : group;
 }
 
 /** Whether a column says what it holds, which its header and the data dictionary show. */
