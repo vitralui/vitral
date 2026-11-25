@@ -207,6 +207,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         headerInfoAt: p.headerInfoAt as 'edge' | 'title' | undefined,
         dictionary: maybe(p.dictionary),
         stackLabel: p.stackLabel as string | false | undefined,
+        stackRole: p.stackRole as 'title' | 'actions' | undefined,
         rowNumber: truthy(p.rowNumber),
         valueGetter: p.valueGetter as DataGridColumn['valueGetter'],
         valueFormatter: p.valueFormatter as DataGridColumn['valueFormatter'],

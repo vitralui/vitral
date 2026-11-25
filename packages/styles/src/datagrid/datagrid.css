@@ -2485,6 +2485,9 @@
 }
 
 .vt-datagrid-stacked .vt-datagrid-tbody > .vt-datagrid-row {
+    /* A column, so a card's title can go first and its actions last, whatever the columns' order. */
+    display: flex;
+    flex-direction: column;
     margin: 0.5rem;
     padding: 0.25rem 0;
     border: 1px solid var(--vt-datagrid-border-color);
@@ -2529,4 +2532,19 @@
 .vt-datagrid-stacked .vt-datagrid-filler-cell,
 .vt-datagrid-stacked .vt-datagrid-spacer-cell {
     display: none;
+}
+
+/* The card's title: first, set apart, unlabelled. */
+.vt-datagrid-stacked .vt-datagrid-body-cell[data-stack-role='title'] {
+    order: -1;
+    font-size: 1.0625em;
+    font-weight: 600;
+}
+
+/* The card's actions: last, under a rule, to the end of the line. */
+.vt-datagrid-stacked .vt-datagrid-body-cell[data-stack-role='actions'] {
+    order: 1;
+    justify-items: end;
+    margin-top: 0.25rem;
+    border-top: 1px solid var(--vt-datagrid-body-cell-border-color);
 }

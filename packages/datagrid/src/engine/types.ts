@@ -207,6 +207,13 @@ export interface DataGridColumn<T = Row> {
     dictionary?: boolean;
     /** What labels the column's cells when the rows are cards (`responsiveLayout: 'stack'`): its header by default, other words, or none (`false`). */
     stackLabel?: string | false;
+    /**
+     * The column's place on a card (`responsiveLayout: 'stack'`): `'title'`
+     * heads the card, set apart and unlabelled — the row's name, say;
+     * `'actions'` closes it, under a rule, unlabelled. Elsewhere, a line
+     * among the others, in the columns' order.
+     */
+    stackRole?: 'title' | 'actions';
     /** The cells' style: one for all of them, or one by cell. */
     bodyStyle?: Record<string, string> | ((context: CellContext<T>) => Record<string, string> | null | undefined);
     /** Draws the cell. Without it, the field's value is shown as text. */

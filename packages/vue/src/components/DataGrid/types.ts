@@ -619,6 +619,8 @@ export interface ColumnProps {
     dictionary?: boolean;
     /** What labels the column's cells when the rows are cards (`responsiveLayout: 'stack'`): its header by default, other words, or none (`false`). */
     stackLabel?: string | false;
+    /** The column's place on a card: `'title'` heads it, set apart and unlabelled; `'actions'` closes it under a rule, unlabelled. */
+    stackRole?: 'title' | 'actions';
     /** The cells' class, as Vue takes one, or a function of the cell (`{ value, row }`) giving it by cell. */
     bodyClass?: unknown;
     /** The cells' style, as Vue takes one, or a function of the cell giving it by cell. */

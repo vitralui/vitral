@@ -282,6 +282,11 @@ describe('a header laid out as a report’s', () => {
         handle!.update({ columns: [{ ...columns[0], stackLabel: false }, { ...columns[1], stackLabel: 'Sale' }, columns[2]] });
         const label = (key: string) => element.querySelector(`[data-section="body"] [role="row"][data-index="0"] [data-col="${key}"]`)!.getAttribute('data-label');
         expect([label('customer'), label('gross'), label('discount')]).toEqual(['', 'Sale', 'Discount']);
+        handle!.update({ columns: [columns[0], { ...columns[1], stackRole: 'title' }, { ...columns[2], stackRole: 'actions', stackLabel: 'Off' }] });
+        const role = (key: string) => element.querySelector(`[data-section="body"] [role="row"][data-index="0"] [data-col="${key}"]`)!.getAttribute('data-stack-role');
+        expect([role('customer'), role('gross'), role('discount')]).toEqual([null, 'title', 'actions']);
+        // A title and actions go unlabelled, unless the column gives words.
+        expect([label('customer'), label('gross'), label('discount')]).toEqual(['Customer', '', 'Off']);
         handle!.update({ responsiveLayout: undefined });
         expect(element.classList).not.toContain('vt-datagrid-stacked');
     });

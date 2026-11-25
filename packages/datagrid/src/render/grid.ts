@@ -1758,6 +1758,14 @@ const filterText = (filters: FilterMeta, column: ResolvedColumn) => {
     return value === null || value === undefined ? '' : String(value);
 };
 
+/** What labels a cell on a card: its header, the column's own words, or nothing — a card's title and actions go unlabelled unless given words. */
+function stackLabelOf<T>(column: ResolvedColumn<T>): string {
+    const own = column.column.stackLabel;
+    if (own === false) return '';
+    if (typeof own === 'string') return own;
+    return column.column.stackRole ? '' : column.header;
+}
+
 /**
  * The room the rows leave, down to the box's foot, as empty rows: one row of
  * the columns' own tracks, so its cells take the columns' widths, their rules
@@ -1969,7 +1977,8 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                         'aria-colspan': across ? String(across) : undefined,
                         'data-col': column.key,
                         // Stacked, a cell reads its column's header as its label.
-                        'data-label': context.stacked ? (column.column.stackLabel === false ? '' : (column.column.stackLabel ?? column.header)) : undefined,
+                        'data-label': context.stacked ? stackLabelOf(column) : undefined,
+                        'data-stack-role': context.stacked ? column.column.stackRole : undefined,
                         ...runAttrs(column.key, run),
                         'data-editing': open ? '' : undefined,
                         'aria-selected': context.config.cellSelection ? String(!!context.range && context.range.box.rows.includes(index) && context.range.box.keys.includes(column.key)) : undefined,
