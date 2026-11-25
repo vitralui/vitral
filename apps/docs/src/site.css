@@ -1078,6 +1078,45 @@ a {
     overflow: hidden;
 }
 
+/* ---- the example's own bar: its width and its direction ---- */
+
+.demo-tools {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.375rem;
+    border-bottom: 1px solid var(--vt-content-border-color);
+}
+
+.demo-tools .vt-button.is-on {
+    color: var(--vt-primary-color);
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.demo-tools-rule {
+    width: 1px;
+    height: 1.25rem;
+    margin-inline: 0.25rem;
+    background: var(--vt-content-border-color);
+}
+
+/* At a device's width the example stands in a frame on a tinted ground, centred, and scrolls sideways when the page is narrower still. */
+.demo-stage.is-framed {
+    overflow-x: auto;
+    padding: 1rem;
+    background: var(--vt-navigation-item-focus-background);
+}
+
+.demo-stage.is-framed > .demo-body {
+    box-sizing: border-box;
+    max-width: none;
+    margin-inline: auto;
+    border: 1px solid var(--vt-content-border-color);
+    border-radius: var(--vt-border-radius-md);
+    background: var(--vt-content-background);
+}
+
 /* ---- the code under an example: a glimpse, then the whole file ---- */
 
 .demo-code {

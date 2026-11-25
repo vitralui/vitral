@@ -26,7 +26,9 @@ export type AnalyticsEvent =
     /** The preset, the scheme or the direction changed. */
     | 'change_theme'
     /** Another package manager picked for the install commands. */
-    | 'change_install_manager';
+    | 'change_install_manager'
+    /** An example narrowed to a phone's or a tablet's width. */
+    | 'demo_width';
 
 export function track(event: AnalyticsEvent, params: Record<string, string | number> = {}): void {
     if (typeof window === 'undefined') return;
