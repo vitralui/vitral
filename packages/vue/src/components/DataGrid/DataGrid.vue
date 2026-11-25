@@ -46,6 +46,7 @@ defineOptions({ name: 'VtDataGrid', inheritAttrs: false });
 
 const props = withDefaults(defineProps<DataGridProps>(), {
     scrollbarGutter: true,
+    emptyInView: true,
     unstyled: undefined,
     value: () => [],
     sortMode: 'single',
@@ -485,6 +486,7 @@ const inputs = (): DataGridConfig => ({
     scrollbarArrows: config.scrollbarArrows,
     scrollbarGutter: props.scrollbarGutter,
     emptyMessage: props.emptyMessage,
+    emptyInView: props.emptyInView,
     rowClass: (row: unknown) => normalizeClass(props.rowClass?.(row)) || undefined,
     tableStyle: props.tableStyle,
     caption: props.caption,
@@ -647,6 +649,7 @@ watch(
         config.scrollbarArrows,
         props.scrollbarGutter,
         props.emptyMessage,
+        props.emptyInView,
         props.tableStyle,
         props.caption,
         props.showCaption

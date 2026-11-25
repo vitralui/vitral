@@ -96,6 +96,8 @@ export interface ViewContext<T = Row> {
      * hold still as other rows scroll in.
      */
     floors?: Record<string, number>;
+    /** How wide the box shows, which the empty message is as wide as, held at the box's start so it stays in the middle of the view; undefined when it spans the columns (`emptyInView: false`). */
+    emptyWidth?: number;
     /** The data dictionary's drawer, while it is open. */
     dictionaryDrawer?: DictionaryView;
     /** The filter panel, while one is open. */
@@ -1828,7 +1830,17 @@ function bodyView<T>(context: ViewContext<T>): Child {
             h(
                 'div',
                 mergeAttrs({ role: 'row' }, part('emptyRow')),
-                h('div', mergeAttrs({ role: cellRole(context) }, part('emptyCell'), spanAll(context)), content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage)
+                h(
+                    'div',
+                    mergeAttrs({ role: cellRole(context) }, part('emptyCell'), spanAll(context)),
+                    h(
+                        'div',
+                        mergeAttrs(part('emptyContent', { inView: context.emptyWidth !== undefined }), {
+                            style: context.emptyWidth ? { width: `${context.emptyWidth}px` } : undefined
+                        }),
+                        content(config.content?.empty?.()) ?? config.emptyMessage ?? locale.emptyMessage
+                    )
+                )
             )
         );
     }

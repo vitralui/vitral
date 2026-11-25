@@ -738,6 +738,12 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
     scrollable?: boolean;
     scrollHeight?: string;
     emptyMessage?: string;
+    /**
+     * With no rows, the message (or `content.empty`) stays in the middle of
+     * what is in view as the grid scrolls sideways, rather than in the middle
+     * of all its columns — buttons in it are always at hand. Defaults to true.
+     */
+    emptyInView?: boolean;
     rowClass?: (row: T) => string | undefined;
     tableStyle?: string | Record<string, string>;
     caption?: string;

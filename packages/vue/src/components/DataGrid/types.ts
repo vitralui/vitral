@@ -295,6 +295,8 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
     /** The table's drawn bars keep a lane of their own beside and under the rows, so no cell is under a bar; false lays them over the rows' edge. Defaults to true. */
     scrollbarGutter?: boolean;
     emptyMessage?: string;
+    /** With no rows, the message (or the `empty` slot) stays in the middle of what is in view as the grid scrolls sideways, rather than of all its columns. Defaults to true. */
+    emptyInView?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rowClass?: (data: any) => unknown;
     tableStyle?: string | Record<string, string>;

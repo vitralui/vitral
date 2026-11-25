@@ -276,6 +276,21 @@ describe('what the host draws itself', () => {
         expect(element.querySelector('.vt-datagrid-empty-cell')!.textContent).toBe('Nobody here');
     });
 
+    it('keeps its empty message in the middle of what is in view, unless told not to', () => {
+        const { element } = mount({ value: [] });
+        const box = element.querySelector('.vt-datagrid-table-container') as HTMLElement;
+        Object.defineProperty(box, 'clientWidth', { configurable: true, value: 400 });
+        handle!.update({ emptyMessage: 'Nothing yet' });
+        const message = () => element.querySelector<HTMLElement>('.vt-datagrid-empty-content')!;
+        // As wide as the box shows, held at its start: in the middle of the view however far it scrolls.
+        expect(message().classList.contains('vt-datagrid-empty-content-in-view')).toBe(true);
+        expect(message().style.width).toBe('400px');
+        expect(message().textContent).toBe('Nothing yet');
+        handle!.update({ emptyInView: false });
+        expect(message().classList.contains('vt-datagrid-empty-content-in-view')).toBe(false);
+        expect(message().style.width).toBe('');
+    });
+
     it('takes a paginator of its own, where the built-in one would be', () => {
         const seen: unknown[] = [];
         const { element } = mount({

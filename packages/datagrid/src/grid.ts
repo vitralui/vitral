@@ -199,6 +199,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     /** Whether the data dictionary's drawer is open, and the trap that keeps focus in it. */
     /** The side panel open last, which a press on the strip opens again. */
     let lastSidePanel: SidePanel | null = null;
+    /** How wide the box shows, which the empty message is as wide as to stay in the middle of the view (`emptyInView`). */
+    let emptyWidth = 0;
     /** Whether columns are scrolled under the pinned ones at the start and at the end (`markUnder`), which is when their edge casts a shadow. */
     let under = { start: false, end: false };
     /** The widest each column of no width has been drawn while the rows are virtual (`fitFloors`). */
@@ -2313,6 +2315,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         watcher = null;
         if (!el || typeof ResizeObserver === 'undefined') return;
         watcher = new ResizeObserver(() => {
+            fitEmpty();
             if (!current.virtualScroll && !current.virtualColumns) return;
             if (el.clientHeight === viewHeight && el.clientWidth === viewWidth) return;
             scheduleScroll(true);
@@ -2513,6 +2516,16 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         if (grew) render();
     }
 
+    /** Reads how wide the box shows while the empty message is drawn in view, and draws it again at that width. */
+    function fitEmpty() {
+        if (current.emptyInView === false || rowsNow().page.length) return;
+        const box = container ?? (element.querySelector('.vt-datagrid-table-container') as HTMLElement | null);
+        const width = box?.clientWidth ?? 0;
+        if (!width || width === emptyWidth) return;
+        emptyWidth = width;
+        render();
+    }
+
     /**
      * A pinned block's edge casts its shadow only while columns are scrolled
      * under it; at rest it is a rule like any other, and the two never
@@ -2652,6 +2665,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             stacked,
             fillRows: current.fillRows && !stacked && rowsNow().page.length ? fill : undefined,
             floors: current.virtualScroll && !stacked ? floors : undefined,
+            emptyWidth: current.emptyInView === false ? undefined : emptyWidth,
             dictionaryDrawer: dictionaryOpen ? { entries: dictionaryEntries(), module: current.dictionaryModule, subtitle: current.dictionarySubtitle, search: sideSearch } : undefined,
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
@@ -2703,6 +2717,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         fitFill();
         fitFloors();
         markUnder();
+        fitEmpty();
         flashChanges();
         if (movedRow) {
             const at = rowsNow().page.indexOf(movedRow);

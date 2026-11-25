@@ -455,6 +455,19 @@
     text-align: center;
 }
 
+/* Held at the start of what is in view and as wide as it (`emptyInView`), the message stays in the
+   middle of the view as the grid scrolls sideways; the cell's own sides move inside it. */
+.vt-datagrid-empty-cell:has(> .vt-datagrid-empty-content-in-view) {
+    padding-inline: 0;
+}
+
+.vt-datagrid-empty-content-in-view {
+    position: sticky;
+    inset-inline-start: 0;
+    box-sizing: border-box;
+    padding-inline: 1rem;
+}
+
 /* ---- sizes and grid lines -------------------------------------------- */
 
 /* The type scales with the padding, as a button's does: a small grid read at

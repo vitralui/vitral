@@ -355,6 +355,8 @@ export const datagridStyle = defineStyle({
         groupCount: 'vt-datagrid-group-count',
         emptyRow: 'vt-datagrid-empty-row',
         emptyCell: 'vt-datagrid-empty-cell',
+        /** What the empty cell says; held in the middle of the view as the grid scrolls sideways (`emptyInView`). */
+        emptyContent: (s: { inView?: boolean }) => ['vt-datagrid-empty-content', { 'vt-datagrid-empty-content-in-view': s.inView }],
         /** `sticky`: it holds rows pinned to the bottom, and stays at the bottom of the box. */
         tfoot: (s: { sticky?: boolean }) => ['vt-datagrid-tfoot', { 'vt-datagrid-tfoot-sticky': s.sticky }],
         footerRow: 'vt-datagrid-footer-row',
