@@ -90,6 +90,18 @@ describe('row spanning', () => {
         expect(seen('city')).toEqual(['Oslo', 'Bergen', 'Tromso', 'Kristiansand', 'Stavanger']);
     });
 
+    it('keeps the value of a tall run to the part in view, unless told not to', () => {
+        const value = (sticky?: boolean) => {
+            const { cell } = mount([{ field: 'region', header: 'Region', spanRows: true, spanRowsSticky: sticky }]);
+            const found = cell(0, 'region')!.querySelector('[data-row-run-content] > *')!;
+            handle!.destroy();
+            handle = null;
+            return found.classList.contains('vt-datagrid-row-run-value-sticky');
+        };
+        expect(value()).toBe(true);
+        expect(value(false)).toBe(false);
+    });
+
     it('goes together by a rule of the host', () => {
         const { seen } = mount([
             { field: 'region', header: 'Region' },

@@ -569,6 +569,8 @@ export interface ColumnProps {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spanRows?: boolean | ((above: { row: any; value: unknown }, below: { row: any; value: unknown }) => boolean);
+    /** A run taller than what is in view keeps its value to the part shown as the rows scroll; false leaves it in the run's middle. True by default. */
+    spanRowsSticky?: boolean;
     /** The row's number on the whole, from 1: the column `rowNumbers` puts first, written as your own. */
     rowNumber?: boolean;
     /** The value worked out from the row, `(row) => row.price * row.quantity`: shown, sorted, filtered, totalled and exported. */

@@ -271,7 +271,7 @@
 }
 
 /* In the middle of the run, but never past the edge of what is in view: below the stuck header, above the stuck foot. */
-.vt-datagrid-row-run-value {
+.vt-datagrid-row-run-value-sticky {
     position: sticky;
     top: var(--vt-datagrid-row-run-top, 0px);
     bottom: var(--vt-datagrid-row-run-bottom, 0px);

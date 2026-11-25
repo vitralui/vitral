@@ -201,7 +201,7 @@ export const datagridStyle = defineStyle({
         /** A run of one value down a column (`spanRows`), drawn once over every row of it from the top one. */
         rowRun: 'vt-datagrid-row-run',
         /** The run's value, kept to the part of the run in view as the grid scrolls. */
-        rowRunValue: 'vt-datagrid-row-run-value',
+        rowRunValue: (s: { sticky?: boolean }) => ['vt-datagrid-row-run-value', { 'vt-datagrid-row-run-value-sticky': s.sticky }],
         bodyCell: (s: DataGridBodyCellState) => [
             'vt-datagrid-body-cell',
             align(s),

@@ -182,6 +182,8 @@ export interface DataGridColumn<T = Row> {
      * True merges equal values; a function says whether two cells, one above the other, go together.
      */
     spanRows?: boolean | ((above: { row: T; value: unknown }, below: { row: T; value: unknown }) => boolean);
+    /** A run taller than what is in view keeps its value to the part shown as the rows scroll; false leaves it in the run's middle. True by default. */
+    spanRowsSticky?: boolean;
     /** The row's number on the whole, from 1: what `rowNumbers` puts at the start. */
     rowNumber?: boolean;
     /** A share of the room the other columns leave: two columns of `flex: 1` split it, `flex: 2` takes twice. A width the reader drags wins. */

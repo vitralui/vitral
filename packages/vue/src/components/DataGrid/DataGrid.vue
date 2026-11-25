@@ -202,6 +202,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         colSpan: p.colSpan as DataGridColumn['colSpan'],
         // A bare `span-rows` merges equal values; a function says which go together.
         spanRows: typeof p.spanRows === 'function' ? (p.spanRows as DataGridColumn['spanRows']) : p.spanRows === undefined ? undefined : truthy(p.spanRows),
+        spanRowsSticky: maybe(p.spanRowsSticky),
         rowNumber: truthy(p.rowNumber),
         valueGetter: p.valueGetter as DataGridColumn['valueGetter'],
         valueFormatter: p.valueFormatter as DataGridColumn['valueFormatter'],

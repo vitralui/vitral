@@ -78,7 +78,7 @@
         },
         "Merged cells": {
             "title": "Células mescladas",
-            "description": "`row-numbers` põe o número de cada linha primeiro, preso à borda esquerda, contando através das páginas. `span-rows` numa coluna desenha uma sequência do mesmo valor como uma célula só, o valor uma vez no meio dela e cada linha ainda o dizendo a um leitor de tela; uma função diz quais células vão juntas no lugar disso. `col-span` estica uma célula sobre as colunas ao lado, por linha: aqui um intervalo não tem sala, então seu nome toma o lugar da sala. O teclado passa por uma célula esticada como por uma só."
+            "description": "`row-numbers` põe o número de cada linha primeiro, preso à borda esquerda, contando através das páginas. `span-rows` numa coluna desenha uma sequência do mesmo valor como uma célula só, o valor uma vez no meio dela e cada linha ainda o dizendo a um leitor de tela, e uma sequência mais alta que a área visível mantendo o valor à vista enquanto as linhas rolam (`span-rows-sticky=&quot;false&quot;` o deixa no meio); uma função diz quais células vão juntas no lugar disso. `col-span` estica uma célula sobre as colunas ao lado, por linha: aqui um intervalo não tem sala, então seu nome toma o lugar da sala. O teclado passa por uma célula esticada como por uma só."
         },
         "Layout: stock, by category": {
             "title": "Layout: estoque, por categoria",
