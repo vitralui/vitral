@@ -110,6 +110,15 @@ describe('the toolbar', () => {
         expect(element.querySelector('.vt-datagrid-side-panel-columns')).not.toBeNull();
     });
 
+    it('says what a button that is only an icon does, on hover, in a tooltip of its own rather than the browser\'s', async () => {
+        const { tool } = mount({ toolbar: true, sideBar: ['columns', 'dictionary'] });
+        const button = tool('density')!;
+        expect(button.getAttribute('title')).toBeNull();
+        button.dispatchEvent(new MouseEvent('mouseenter'));
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        expect(document.querySelector('[role="tooltip"]')?.textContent).toBe(button.getAttribute('aria-label'));
+    });
+
     it('leaves out what does not apply, and takes buttons of the host’s own', () => {
         const press = vi.fn();
         const { element, tool } = mount({ toolbar: ['dictionary', 'columns', { key: 'refresh', label: 'Refresh', icon: 'refresh', onClick: press }] });

@@ -25,7 +25,7 @@ import {
     type FilterMeta,
     type Locale
 } from '@vitral/core';
-import { createMenu, createOverlay, createSelect, type MenuItem, type SelectHandle } from '@vitral/controls';
+import { createMenu, createOverlay, createSelect, createTooltips, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot } from '@vitral/dom';
 import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, sigma, table as tableIcon } from '@vitral/icons';
 import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
@@ -622,6 +622,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         chooserButton(el) {
             chooserEl = el as HTMLElement | null;
         },
+        tip(el, text) {
+            tooltips.attach(el, text);
+        },
         scroller(el) {
             tableBars.ref(el);
             watch(el as HTMLElement | null);
@@ -1193,6 +1196,9 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         }
     });
 
+    // What each button that shows only an icon is, the way every other Vitral control says it —
+    // rather than the browser's own `title`, which waits a second, wears the system's colours and never shows for a keyboard.
+    const tooltips = createTooltips(() => ({ placement: 'bottom', unstyled: current.unstyled, nonce: current.nonce, cssLayer: current.cssLayer, zIndex: current.zIndex }));
     const menuSettings = () => ({ locale: locale(), unstyled: current.unstyled, overlayTarget: current.overlayTarget, zIndex: current.zIndex, nonce: current.nonce, cssLayer: current.cssLayer });
 
     // A header's menu, and a cell's: the kit's menu, which takes the keyboard and gives it back.
@@ -3047,6 +3053,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             stopGroup?.();
             tableBars.destroy();
             chooserBars.destroy();
+            tooltips.destroy();
             chooser.destroy();
             filterOverlay.destroy();
             stopPointer?.();

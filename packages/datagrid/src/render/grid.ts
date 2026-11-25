@@ -235,6 +235,8 @@ export interface DataGridActions<T = Row> {
     toggleChooser: () => void;
     /** The button the column list hangs from, as it is drawn. */
     chooserButton: (element: Element | null) => void;
+    /** Gives a button that shows only an icon the words it stands for, as a tooltip; `undefined` takes it away. */
+    tip: (element: Element | null, text: string | undefined) => void;
     scrolled: (event: Event) => void;
     /** The keyboard, clicks and double clicks over the cells: moving between them and editing them. */
     gridKeydown: (event: KeyboardEvent) => void;
@@ -617,7 +619,7 @@ function headerBar<T>(context: ViewContext<T>): Child {
                               'aria-pressed': tool.pressed === undefined ? undefined : String(tool.pressed),
                               'aria-haspopup': tool.popup,
                               'data-toolbar': tool.key,
-                              title: tool.showLabel ? undefined : tool.label,
+                              ref: (element: Element | null) => context.on.tip(element, tool.showLabel ? undefined : tool.label),
                               onClick: (event: MouseEvent) => context.on.toolbar(tool.key, event)
                           }),
                           tool.icon ? iconView(tool.icon, part('toolbarIcon')) : null,
@@ -924,6 +926,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
                       'aria-haspopup': 'dialog',
                       'aria-expanded': String(menus.infoOpen === column.key),
                       'data-info-button': column.key,
+                      ref: (element: Element | null) => context.on.tip(element, formatMessage(locale.datagrid.columnInfo, { column: column.header })),
                       onClick: (event: MouseEvent) => context.on.openInfo(column, event)
                   }),
                   iconView('info')
@@ -947,6 +950,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
                           'aria-expanded': String(open && !!context.filterPanel),
                           'aria-pressed': undefined,
                           'data-filter-button': column.key,
+                          ref: (element: Element | null) => context.on.tip(element, formatMessage(locale.aria.filterColumn, { column: column.header })),
                           onClick: (event: MouseEvent) => context.on.openFilter(column, event)
                       }
                   ),
@@ -969,6 +973,7 @@ function headerTools<T>(context: ViewContext<T>, column: ResolvedColumn<T>, info
                           'aria-haspopup': 'menu',
                           'aria-expanded': String(open && !context.filterPanel),
                           'data-menu-button': column.key,
+                          ref: (element: Element | null) => context.on.tip(element, formatMessage(locale.datagrid.columnMenu, { column: column.header })),
                           onClick: (event: MouseEvent) => context.on.openColumnMenu(column, event)
                       }
                   ),
