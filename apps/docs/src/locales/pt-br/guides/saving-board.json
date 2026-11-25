@@ -1,0 +1,17 @@
+{
+    "title": "Um quadro que salva cada movimento",
+    "description": "Um Taskboard sobre os seus próprios registros: o card se move na hora, o servidor é avisado, e se ele disser não o quadro volta ao que o servidor tem.",
+    "intro": "O quadro move o card no momento em que ele é solto, então o leitor nunca fica esperando a rede. O servidor é avisado depois, e a lista como o servidor a aceitou por último fica guardada ao lado do quadro: se o servidor disser não, essa lista volta. Ligue a chave abaixo e mova um card para vê-lo voltar.",
+    "move": {
+        "title": "Salvar ao mover",
+        "body": "<code>v-model:items</code> recebe a nova lista antes de <code>card-move</code> ser emitido, então o quadro já mostra o movimento quando você fica sabendo dele. O evento traz o card, de onde ele veio (<code>from</code>) e para onde foi (<code>to</code>): uma coluna, uma raia quando o quadro tem raias, e um lugar na coluna."
+    },
+    "rules": {
+        "title": "Recusar antes de soltar",
+        "body": "O que o servidor recusaria por um motivo que a página já conhece fica melhor recusado no quadro: <code>can-drop</code> é consultado enquanto o card está sobre uma coluna, e a coluna mostra que não vai aceitá-lo; <code>locked-field</code> prende um card no lugar; <code>drop-refused</code> diz o porquê, para uma mensagem."
+    },
+    "limits": {
+        "title": "Limites numa coluna",
+        "body": "O <code>wipLimit</code> de uma coluna é quantos cards ela aceita. No limite ela parece cheia e recusa mais, com <code>drop-refused</code> e <code>reason: 'wip'</code>, e a <a href=\"/components/taskboard\">página do Taskboard</a> tem o resto: raias, um resumo por coluna e movimentos pelo teclado."
+    }
+}

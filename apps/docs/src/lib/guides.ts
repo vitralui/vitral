@@ -5,13 +5,13 @@ import { lazyComponent } from './lazy';
 /** Every page in `src/guides/` exports one of these from a plain `<script>` block. */
 export interface GuideMeta {
     title: string;
-    section: 'Get started' | 'Theming' | 'Customisation' | 'Reference' | 'AI';
+    section: 'Get started' | 'Theming' | 'Customisation' | 'Recipes' | 'Reference' | 'AI';
     description: string;
     /** Headings the "on this page" list links to, in the order they appear. */
     outline?: string[];
 }
 
-export const guideOrder: GuideMeta['section'][] = ['Get started', 'Theming', 'Customisation', 'Reference', 'AI'];
+export const guideOrder: GuideMeta['section'][] = ['Get started', 'Theming', 'Customisation', 'Recipes', 'Reference', 'AI'];
 
 /** A section's name as the page's language reads it; the English one stays the key. */
 export function sectionName(section: GuideMeta['section']): string {

@@ -1,0 +1,21 @@
+{
+    "title": "Um grid alimentado pelo seu servidor",
+    "description": "Um DataGrid sobre uma tabela grande demais para mandar inteira: o grid pede uma página, com a ordenação e a busca dela, e o seu endpoint responde com as linhas e uma contagem.",
+    "intro": "Sessenta mil pedidos não vão para o navegador. O grid pede a página que está mostrando, ordenada e filtrada como o leitor deixou, e o seu endpoint responde com essas linhas e quantas correspondem no total, que é o que o paginador conta. Ordene uma coluna, digite na busca ou passe a página abaixo, e veja o que ele pede.",
+    "loader": {
+        "title": "O loader",
+        "body": "<code>createDataSource({ load })</code> é chamado com o estado do grid toda vez que ele muda: <code>first</code> e <code>rows</code> para a página, <code>sort</code> como uma lista de campos e direções, <code>filters</code> por coluna e <code>globalFilter</code> para a busca. Ele responde com <code>{ items, total }</code>. Uma resposta que chega depois de uma pergunta mais nova é descartada, então uma página lenta nunca sobrescreve uma rápida."
+    },
+    "grid": {
+        "title": "O grid",
+        "body": "O grid é o mesmo que você escreveria sobre um array, com <code>data-source</code> no lugar de <code>value</code>. <code>filter-delay</code> espera o leitor parar de digitar antes de perguntar, e <code>loading-mode=\"skeleton\"</code> mantém a forma da tabela enquanto uma página está a caminho, em vez de cobri-la."
+    },
+    "endpoint": {
+        "title": "O endpoint",
+        "body": "Duas consultas: a página, e a contagem com as mesmas condições e sem limite. A ordenação vem do endereço, então só os nomes das colunas que você permite são escritos no SQL; a busca entra como parâmetro."
+    },
+    "edit": {
+        "title": "Depois de uma edição",
+        "body": "Quando uma linha muda no servidor, <code>reload()</code> pede a mesma página de novo, com a ordenação e a busca que o leitor deixou. O <a href=\"/components/datagrid#from-a-data-source\">exemplo de fonte de dados</a> tem o resto do grid em volta."
+    }
+}
