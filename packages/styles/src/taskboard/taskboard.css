@@ -350,17 +350,20 @@
     pointer-events: none;
 }
 
-/* Where a dragged column would go: a hollow track, rounded at its head and its foot. */
+/* Where a dragged column would go: the column itself, faded, its track outlined. */
 .vt-taskboard-column-slot {
-    background: var(--vt-taskboard-slot-background);
+    min-width: 0;
+    opacity: var(--vt-taskboard-slot-opacity);
+    border-inline: 1px dashed var(--vt-taskboard-slot-border-color);
+    pointer-events: none;
 }
 
 .vt-taskboard-column-slot-header {
-    border-radius: var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius) 0 0;
+    border-top: 1px dashed var(--vt-taskboard-slot-border-color);
 }
 
 .vt-taskboard-column-slot-footer {
-    border-radius: 0 0 var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius);
+    border-bottom: 1px dashed var(--vt-taskboard-slot-border-color);
 }
 
 .vt-taskboard-card-disabled {

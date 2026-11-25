@@ -133,8 +133,8 @@ const slotContent = (): TaskboardConfig['content'] => {
     const empty = contentFor('empty', 'Empty');
     return {
         card: card && ((context: CardContext) => node(cardKey(context), () => card(context))),
-        columnHeader: columnHeader && ((context: ColumnContext) => node(`column-header:${context.column.key}`, () => columnHeader(context))),
-        columnFooter: columnFooter && ((context: ColumnContext) => node(`column-footer:${context.column.key}`, () => columnFooter(context))),
+        columnHeader: columnHeader && ((context: ColumnContext) => node(`column-header:${context.column.key}:${context.copy ?? ''}`, () => columnHeader(context))),
+        columnFooter: columnFooter && ((context: ColumnContext) => node(`column-footer:${context.column.key}:${context.copy ?? ''}`, () => columnFooter(context))),
         addCard:
             addCard && ((context: { column: TaskboardColumn; lane?: TaskboardLane }) => node(`add-card:${context.column.key}:${context.lane?.key ?? ''}`, () => addCard(context))),
         laneHeader:

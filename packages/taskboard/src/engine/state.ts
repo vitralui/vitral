@@ -197,7 +197,7 @@ export function countText(entries: readonly BoardEntry[], column: TaskboardColum
     const count = countOf(entries, column);
     return column.wipLimit !== undefined && column.wipLimit !== null
         ? formatMessage(locale.aria.taskboardCountLimit, { count, limit: column.wipLimit })
-        : formatMessage(locale.aria.taskboardCount, { count });
+        : formatMessage(locale.aria.taskboardCount, { count }, locale.code);
 }
 
 export const laneTitle = (lanes: TaskboardLane[] | null, key: BoardKey | undefined): string => lanes?.find((lane) => lane.key === key)?.title ?? String(key ?? '');

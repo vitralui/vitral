@@ -659,6 +659,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             columnState: (column) => columnState(drawn, column),
             cardSlot: cardSlot(),
             columnSlot: columnSlot(),
+            draggingColumn: columnDrag?.key ?? null,
             draggingKey: drag?.key ?? null,
             cellState: (column, lane) => {
                 const state = columnState(drawn, column);

@@ -2,7 +2,7 @@ import { cellEntries, formatMessage, visuallyHidden, type BoardEntry, type Local
 import { h, iconNode, mergeAttrs, type Child, type Props, type VElement } from '@vitral/dom';
 import { getIcon } from '@vitral/icons';
 import { countOf, countText, isDisabled, isLocked, laneCount, labelOf, summaryOf, wipOf, type BoardSettings } from '../engine/state';
-import type { Content, TaskboardColumn, TaskboardConfig, TaskboardLane } from '../engine/types';
+import type { Content, TaskboardColumn, TaskboardConfig, TaskboardKey, TaskboardLane } from '../engine/types';
 
 /**
  * The board as plain objects: a grid of column headers, lane headers and
@@ -54,6 +54,8 @@ export interface ViewContext {
     cardSlot?: { column: unknown; lane?: unknown; index: number; height: number; item: unknown };
     /** Where a column dragged by the pointer would go: a slot before the drawn column at this place, or after the last. */
     columnSlot?: number;
+    /** The column being dragged by the pointer, drawn again where it would go. */
+    draggingColumn?: TaskboardKey | null;
     on: BoardActions;
 }
 
@@ -79,11 +81,14 @@ export function boardView(context: ViewContext): Child[] {
     const tracks = context.columns.map((column) => (context.isCollapsed(column) ? 'var(--vt-taskboard-column-collapsed-width)' : 'var(--vt-taskboard-column-width)'));
     if (slotAt !== undefined) tracks.splice(slotAt, 0, 'var(--vt-taskboard-column-width)');
     const gridStyle = { 'grid-template-columns': tracks.join(' ') };
-    /** A row's pieces with the column slot's own among them, where the dragged column would go. */
-    const withSlot = (pieces: Child[], edge: 'header' | 'cell' | 'footer', row = 0): Child[] => {
+    const dragged = context.columns.find((column) => column.key === context.draggingColumn);
+    /** A row's pieces with the dragged column's faded copy among them, where it would go. */
+    const withSlot = (pieces: Child[], edge: 'header' | 'cell' | 'footer', row = 0, lane?: TaskboardLane): Child[] => {
         if (slotAt === undefined) return pieces;
         const out = [...pieces];
-        out.splice(slotAt, 0, h('div', mergeAttrs({ key: `slot-${edge}-${row}`, 'aria-hidden': 'true' }, part('columnSlot', { edge }))));
+        // Dressed as the column's own head, cell and foot, so it looks the way the column will.
+        const own = dragged ? (edge === 'cell' ? part('cell', { ...context.cellState(dragged, lane), last: row === laneRows.length - 1 }) : part(edge, context.columnState(dragged))) : {};
+        out.splice(slotAt, 0, h('div', mergeAttrs({ key: `slot-${edge}-${row}`, 'aria-hidden': 'true', inert: '' }, own, part('columnSlot', { edge })), dragged ? columnCopy(context, dragged, edge, lane) : null));
         return out;
     };
 
@@ -102,7 +107,8 @@ export function boardView(context: ViewContext): Child[] {
                     : withSlot(
                           context.columns.map((column) => cellView(context, column, lane, row, laneRows.length)),
                           'cell',
-                          row
+                          row,
+                          lane
                       ))
             ]),
             withSlot(context.columns.map((column) =>
@@ -261,6 +267,41 @@ function cellView(context: ViewContext, column: TaskboardColumn, lane: Taskboard
                   cards.length || slotHere(context, column, lane) ? null : h('div', mergeAttrs({ key: 'empty' }, part('empty')), content(config.content?.empty?.({ column, lane })) ?? locale.aria.taskboardEmpty),
                   config.content?.addCard ? h('div', mergeAttrs({ key: 'add' }, part('addCard')), content(config.content.addCard({ column, lane }))) : null
               ]
+    );
+}
+
+/**
+ * What a dragged column looks like where it would go, one row's piece of it:
+ * its head with its title and count, its cards, its foot. Drawn with the
+ * board's own parts but none of a column's ids or drop targets, so nothing
+ * finds it but the eye.
+ */
+function columnCopy(context: ViewContext, column: TaskboardColumn, edge: 'header' | 'cell' | 'footer', lane: TaskboardLane | undefined): Child {
+    const { part, config } = context;
+    const count = countOf(context.entries, column);
+    const wip = wipOf(context.entries, column);
+    const toggle = () => {};
+    if (edge === 'header') {
+        const own = content(config.content?.columnHeader?.({ column, count, wip, collapsed: false, toggle, copy: 'slot' }));
+        return [
+            column.color ? h('span', mergeAttrs({ key: 'accent' }, part('accent'), { style: { background: column.color } })) : null,
+            own === null ? h('span', mergeAttrs({ key: 'title' }, part('title')), column.title ?? String(column.key)) : h('span', mergeAttrs({ key: 'heading' }, part('heading')), own),
+            h('span', mergeAttrs({ key: 'count' }, part('count', { wip })), column.wipLimit !== undefined ? `${count}/${column.wipLimit}` : String(count)),
+            column.subtitle ? h('span', mergeAttrs({ key: 'subtitle' }, part('subtitle')), column.subtitle) : null
+        ];
+    }
+    if (edge === 'footer') return content(config.content?.columnFooter?.({ column, count, wip, collapsed: false, toggle, copy: 'slot' }));
+    return h(
+        'ul',
+        mergeAttrs({ key: 'list' }, part('list')),
+        cardsIn(context, column, lane).map(({ item, key, index }) =>
+            h(
+                'li',
+                mergeAttrs({ key }, part('card', { draggable: false })),
+                content(config.content?.card?.({ item, column, lane, index, dragging: false, disabled: false, locked: false, copy: 'slot' })) ??
+                    h('span', part('cardTitle'), labelOf(item, context.settings))
+            )
+        )
     );
 }
 

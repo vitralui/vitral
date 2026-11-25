@@ -122,6 +122,8 @@ export interface ColumnContext {
     wip: 'under' | 'at' | 'over';
     collapsed: boolean;
     toggle: () => void;
+    /** The faded copy drawn where a dragged column would go (`'slot'`). Undefined for the column itself. */
+    copy?: 'slot';
 }
 
 /**

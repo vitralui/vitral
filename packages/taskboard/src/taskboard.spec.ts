@@ -288,6 +288,33 @@ describe('what it says to a reader who cannot see it', () => {
     });
 });
 
+describe('a column dragged by the pointer', () => {
+    it('stays in its place, and is drawn again, faded, where it would go, until it is let go', () => {
+        const moved = vi.fn();
+        const { element, counts } = mount({ on: { 'column-move': moved } });
+        // Three headers a hundred pixels wide, side by side.
+        element.querySelectorAll<HTMLElement>('[data-vt-column-header]').forEach((header, index) => {
+            header.getBoundingClientRect = () => ({ left: index * 100, width: 100, top: 0, height: 40, right: index * 100 + 100, bottom: 40 }) as DOMRect;
+        });
+        const at = (type: string, x: number) => new PointerEvent(type, { bubbles: true, clientX: x, clientY: 20, pointerId: 1, pointerType: 'mouse', button: 0 });
+        element.querySelector('.vt-taskboard-handle')!.dispatchEvent(at('pointerdown', 50));
+        document.dispatchEvent(at('pointermove', 60));
+        document.dispatchEvent(at('pointermove', 280));
+        // Past Done: the copy goes last, with To do's title, count and cards, and nothing that takes a drop.
+        const headers = [...element.querySelectorAll('[data-vt-column-header]')].map((el) => el.getAttribute('data-key'));
+        expect(headers).toEqual(['todo', 'doing', 'done']);
+        const copy = element.querySelector('.vt-taskboard-column-slot-header')!;
+        expect(copy.textContent).toContain('To do');
+        expect(element.querySelector('.vt-taskboard-column-slot-cell')!.textContent).toBe('Write the specRead the spec');
+        expect(element.querySelector('.vt-taskboard-column-slot-cell [data-vt-card], .vt-taskboard-column-slot [data-vt-cell], .vt-taskboard-column-slot [id]')).toBeNull();
+        expect(counts()).toEqual(['2', '1', '1', '2']);
+        expect(moved).not.toHaveBeenCalled();
+        document.dispatchEvent(at('pointerup', 280));
+        expect(moved).toHaveBeenCalledWith(expect.objectContaining({ from: 0, to: 2 }));
+        expect(element.querySelector('.vt-taskboard-column-slot')).toBeNull();
+    });
+});
+
 describe('a filtered board', () => {
     it('shows only the cards that match, counts them, and holds them still', () => {
         const { allCards, counts, card, status } = mount({ filter: 'SPEC' });
