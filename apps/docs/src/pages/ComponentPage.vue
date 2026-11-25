@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Tag } from '@vitral/vue';
-import { computed, defineAsyncComponent, provide } from 'vue';
+import { IconField, InputIcon, InputText, Tag } from '@vitral/vue';
+import { computed, defineAsyncComponent, provide, ref, watch } from 'vue';
 import { categoryName } from '../demo';
 import { entries, entryOf, entryText, sectionText } from '../lib/catalog';
 import { componentChange, memberChange } from '../lib/changes';
@@ -33,6 +33,24 @@ const previous = computed(() => entries[index.value - 1]);
 const next = computed(() => entries[index.value + 1]);
 
 const text = computed(() => entryText(entry.value));
+
+/*
+ * A long props table is searched rather than read: a word matches a prop's
+ * name, its type or what it is for, in the page's language.
+ */
+const propQuery = ref('');
+// Without case or accents: "selecao" finds "seleção".
+const plain = (text: string) => text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+watch(() => entry.value.id, () => (propQuery.value = ''));
+const shownProps = computed(() => {
+    const props = api.value?.props ?? [];
+    const words = plain(propQuery.value).split(/\s+/).filter(Boolean);
+    if (!words.length) return props;
+    return props.filter((prop) => {
+        const text = plain(`${prop.name} ${prop.type} ${memberDoc(entry.value.file, 'props', prop) ?? ''}`);
+        return words.every((word) => text.includes(word));
+    });
+});
 
 const toc = computed(() => [
     { id: 'import', label: t('Import') },
@@ -70,8 +88,16 @@ const toc = computed(() => [
             </p>
 
             <template v-if="api.props.length">
-                <h3 style="margin: 1.25rem 0 0; font-size: 1rem">Props</h3>
-                <div class="api-scroll"><table class="api-table">
+                <div class="api-head">
+                    <h3>Props</h3>
+                    <IconField v-if="api.props.length > 12">
+                        <InputIcon icon="search" />
+                        <InputText v-model="propQuery" type="search" size="small" :placeholder="t('Find a prop')" :aria-label="t('Find a prop')" />
+                    </IconField>
+                    <span v-if="propQuery" class="api-count" aria-live="polite">{{ t('{shown} of {total}', { shown: shownProps.length, total: api.props.length }) }}</span>
+                </div>
+                <p v-if="!shownProps.length" class="api-none">{{ t('No prop matches that.') }}</p>
+                <div v-else class="api-scroll"><table class="api-table">
                     <thead>
                         <tr>
                             <th>{{ t('Name') }}</th>
@@ -80,7 +106,7 @@ const toc = computed(() => [
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="prop in api.props" :key="prop.name">
+                        <tr v-for="prop in shownProps" :key="prop.name">
                             <td>{{ prop.name }}{{ prop.optional ? '' : ' *' }} <ChangeBadge :change="memberChange(entry.file, 'props', prop.name)" detail /></td>
                             <td class="type">{{ prop.type }}</td>
                             <td class="doc">{{ memberDoc(entry.file, 'props', prop) ?? '—' }}</td>

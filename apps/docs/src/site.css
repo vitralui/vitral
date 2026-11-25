@@ -1078,6 +1078,31 @@ a {
     overflow: hidden;
 }
 
+/* ---- the props table's head: its name, and a search when it is long ---- */
+
+.api-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 1.25rem 0 0.5rem;
+}
+
+.api-head h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.api-head .vt-iconfield {
+    flex: 0 1 18rem;
+}
+
+.api-count,
+.api-none {
+    font-size: 0.8125rem;
+    color: var(--vt-text-muted-color);
+}
+
 /* ---- the playground: the component, its props, and its code ---- */
 
 .playground {
