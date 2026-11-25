@@ -71,6 +71,15 @@ describe('column spanning', () => {
     });
 });
 
+describe('column spanning in pinned rows', () => {
+    it('stretches a pinned row\'s cell as a body row\'s', () => {
+        const { element } = mount(columns, { pinnedBottomRows: [{ id: 0, region: 'All', city: 'Every city', total: 150, note: 'Totals' }] });
+        const pinned = element.querySelector('.vt-datagrid-pinned-row')!;
+        expect(pinned.querySelector('[aria-colspan="2"]')!.textContent).toBe('Every city');
+        expect(pinned.querySelectorAll(':is([role="cell"],[role="gridcell"])')).toHaveLength(2);
+    });
+});
+
 describe('row spanning', () => {
     it('writes a run of one value once, at its top, and marks where each row stands in it', () => {
         const { cell, column } = mount([{ field: 'region', header: 'Region', spanRows: true }, { field: 'city', header: 'City' }]);

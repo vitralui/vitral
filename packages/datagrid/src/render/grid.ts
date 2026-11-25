@@ -1789,7 +1789,7 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
     const treeColumn = tree ? treeColumnOf(columns) : undefined;
     const drag = context.rowDrag;
     const dropHere = drag && drag.over === index && drag.index !== index;
-    const spans = colSpans(context, row, index);
+    const spans = colSpans(context, row, rows.offset + index);
     const main = h(
         'div',
         mergeAttrs({ key, role: 'row' }, part('row', { selectable, selected, expanded, dragging: drag?.index === index, dropBefore: dropHere && !drag.after, dropAfter: dropHere && drag.after }), {
@@ -2018,14 +2018,14 @@ function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row:
 }
 
 /** Which columns a row's cells cover beside their own, and which cells that leaves out. */
-function colSpans<T>(context: ViewContext<T>, row: T, index: number): { width: Map<string, number>; covered: Set<string> } {
+function colSpans<T>(context: ViewContext<T>, row: T, index: number, pinned?: 'top' | 'bottom'): { width: Map<string, number>; covered: Set<string> } {
     const width = new Map<string, number>();
     const covered = new Set<string>();
     const drawn = context.drawn;
     for (let at = 0; at < drawn.length; at++) {
         const entry = drawn[at]!;
         if (isSpacer(entry) || covered.has(entry.key) || !entry.column.colSpan) continue;
-        let n = Math.floor(entry.column.colSpan(cellContextOf(entry, row, context.rows.offset + index)) || 1);
+        let n = Math.floor(entry.column.colSpan(cellContextOf(entry, row, index, pinned)) || 1);
         // A span stops at a spacer: the columns past it are not drawn.
         for (let next = at + 1; next < at + n; next++) {
             const other = drawn[next];
@@ -2209,6 +2209,7 @@ const fixedHeight = <T>(context: ViewContext<T>) => (context.config.rowHeight ? 
 function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, position: 'top' | 'bottom'): VElement {
     const { part } = context;
     const before = position === 'top' ? headRowCount(context) - context.pinnedTop.length : 0;
+    const spans = colSpans(context, row, index, position);
     return h(
         'div',
         mergeAttrs({ key: `pinned-${position}-${index}`, role: 'row' }, part('row', {}), part('pinnedRow', { position }), {
@@ -2216,16 +2217,19 @@ function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, positi
             style: fixedHeight(context),
             'aria-rowindex': context.virtual ? String(position === 'top' ? before + index + 1 : context.virtual.rowCount - context.pinnedBottom.length - footRows(context) + index + 1) : undefined
         }),
-        cells(context, 'bodyCell', (column) =>
-            h(
+        cells(context, 'bodyCell', (column) => {
+            if (spans.covered.has(column.key)) return null;
+            const across = spans.width.get(column.key);
+            return h(
                 'div',
                 mergeAttrs({ key: column.key, role: cellRole(context) }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), cellLook(context, column, row, index, position), {
-                    style: stickyStyle(column),
-                    'aria-colindex': colIndex(context, column)
+                    style: { ...stickyStyle(column), ...(across ? { gridColumn: `span ${across}` } : {}) },
+                    'aria-colindex': colIndex(context, column),
+                    'aria-colspan': across ? String(across) : undefined
                 }),
                 column.selectionMode || column.column.expander ? null : cellContent(context, column, row, index, position)
-            )
-        )
+            );
+        })
     );
 }
 
