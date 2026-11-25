@@ -164,6 +164,10 @@
             "title": "Onde ficam os botões do cabeçalho",
             "description": "`header-tools-at` põe os botões de filtro e de menu de um cabeçalho na borda da coluna oposta ao título (`'edge'`, o padrão), alinhados de uma coluna à outra, ou logo depois do título (`'title'`); `header-info-at` põe o botão de informação junto ao título (o padrão) ou na borda, com eles. O `header-tools-at` e o `header-info-at` de uma coluna prevalecem sobre os do grid — Cost mantém os dois junto ao título. Numa coluna alinhada à direita, a borda é a esquerda."
         },
+        "A short list that keeps its shape": {
+            "title": "Uma lista curta que mantém a forma",
+            "description": "`dictionary-drawer` faz o botão Data dictionary da barra de ferramentas abrir o dicionário numa gaveta na borda da página, sem precisar do painel da barra lateral. `fill-rows` com `min-height` (ou `scroll-height=&quot;flex&quot;`) continua uma página curta como linhas vazias até o fim, listradas e com as divisórias nas próprias faixas das colunas. Uma barra lateral de um só painel é uma faixa que abre e fecha com um clique em qualquer ponto dela. `responsive-layout=&quot;stack&quot;` transforma cada linha num cartão de células rotuladas quando o grid fica mais estreito que o `breakpoint` — estreite a janela para ver."
+        },
         "A side bar": {
             "title": "Um painel lateral",
             "description": "`side-bar` coloca painéis ao lado do grid, abertos pelas suas abas. O painel de colunas lista todas as colunas — marque uma para mostrá-la ou escondê-la, busque na lista, ou arraste uma coluna pela alça (Ctrl com uma seta no teclado) para outro lugar. O painel de filtros guarda o filtro de cada coluna, um aberto por vez, com um botão para limpar todos. `side-bar-open` diz qual painel começa aberto; uma lista como `['columns']` mantém só alguns."
