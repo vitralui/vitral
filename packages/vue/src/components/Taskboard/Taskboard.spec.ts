@@ -230,6 +230,38 @@ describe('Taskboard', () => {
         expect(document.querySelector('.vt-taskboard-card-slot')).toBeNull();
     });
 
+    it('puts a subtitle on a line of its own, and places the empty message and a collapsed title where told', async () => {
+        const columns = ref<TaskboardColumn[]>([
+            { key: 'a', title: 'A', subtitle: 'Quarantine', items: [] },
+            { key: 'b', title: 'B', collapsed: true, items: [] }
+        ]);
+        const place = ref<'start' | 'center' | 'end' | undefined>(undefined);
+        mountVt(defineComponent(() => () => h(Taskboard, { columns: columns.value, minHeight: '20rem', emptyAt: place.value, collapsedTitleAt: place.value })));
+        const root = () => document.querySelector('.vt-taskboard')!;
+        expect(document.querySelector('.vt-taskboard-subtitle')!.textContent).toBe('Quarantine');
+        const cell = document.querySelector<HTMLElement>('[data-vt-cell]')!;
+        expect(cell.style.minHeight).toBe('20rem');
+        expect(cell.classList.contains('vt-taskboard-cell-empty')).toBe(true);
+        // At the top unless told otherwise: no class for it.
+        expect(root().className).not.toMatch(/-at-/);
+        place.value = 'center';
+        await nextTick();
+        expect(root().classList.contains('vt-taskboard-empty-at-center')).toBe(true);
+        expect(root().classList.contains('vt-taskboard-collapsed-title-at-center')).toBe(true);
+    });
+
+    it('names a list by a header of the host\'s own', () => {
+        mountVt(
+            defineComponent(() => () =>
+                h(Taskboard, { columns: [{ key: 'a', title: 'A', items: [{ id: 1, title: 'One' }] }] }, { 'column-header': ({ column }: { column: TaskboardColumn }) => h('b', `Stage ${column.title}`) })
+            )
+        );
+        const list = document.querySelector('[data-vt-list]')!;
+        const title = document.getElementById(list.getAttribute('aria-labelledby')!.split(' ')[0]!)!;
+        expect(title.textContent).toBe('Stage A');
+        expect(title.classList.contains('vt-taskboard-heading')).toBe(true);
+    });
+
     it('has no accessibility violations, at rest and while carrying a card', async () => {
         const { card } = mountFlat({ laneField: 'lane' });
         await expectNoA11yViolations();

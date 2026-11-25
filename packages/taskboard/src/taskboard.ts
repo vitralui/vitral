@@ -682,7 +682,15 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         drawing = true;
         try {
             const drawn = context();
-            root.attrs({ ...part('root', { disabled: settings().disabled, dragging: cardDrag.active() || handleDrag.active() }), onFocusout: focusout });
+            root.attrs({
+                ...part('root', {
+                    disabled: settings().disabled,
+                    dragging: cardDrag.active() || handleDrag.active(),
+                    emptyAt: current.emptyAt ?? 'start',
+                    collapsedTitleAt: current.collapsedTitleAt ?? 'start'
+                }),
+                onFocusout: focusout
+            });
             root.render(boardView(drawn));
             bars.sync([element, ...Array.from(element.querySelectorAll('[data-vt-list]'))]);
             renderPreview(drawn);

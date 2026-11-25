@@ -23,7 +23,16 @@ export interface TaskboardColumn {
     locked?: boolean;
     /** An accent for the column's header, any CSS colour. */
     color?: string;
+    /**
+     * Words under the column's title, in a smaller, muted line of their own —
+     * a stage, a queue — so the header's first line stays level with the
+     * other columns'. A line break starts another line.
+     */
+    subtitle?: string;
 }
+
+/** Where something sits along a column: at its top, in its middle, or at its foot. */
+export type TaskboardPlace = 'start' | 'center' | 'end';
 
 export interface TaskboardSummary {
     /** The field (a dotted path) holding each card's number. */
@@ -189,6 +198,12 @@ export interface TaskboardConfig extends Partial<TaskboardModels> {
     placeholder?: boolean;
     /** The height of a column's card list; it scrolls past it. */
     scrollHeight?: string;
+    /** The least height of each column's cards area (per lane, with lanes), any CSS length: a board with few cards still fills its room. */
+    minHeight?: string;
+    /** Where the empty message sits in a column with room to spare: at the top (`'start'`, the default), in the middle, or at the foot. */
+    emptyAt?: TaskboardPlace;
+    /** Where a collapsed column's title runs down its strip: from the top (`'start'`, the default), in the middle, or at the foot. */
+    collapsedTitleAt?: TaskboardPlace;
     disabled?: boolean;
 
     locale?: Locale;

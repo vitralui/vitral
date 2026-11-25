@@ -50,7 +50,11 @@
 .vt-taskboard-header {
     position: relative;
     display: flex;
+    /* Every header's first line at the top, level across the columns however tall the tallest header is;
+       a subtitle wraps to a line of its own. */
+    flex-wrap: wrap;
     align-items: center;
+    align-content: flex-start;
     gap: var(--vt-taskboard-header-gap);
     padding: var(--vt-taskboard-header-padding);
     border-bottom: 0;
@@ -96,8 +100,9 @@
     opacity: var(--vt-taskboard-column-dragging-opacity);
 }
 
-.vt-taskboard-title {
-    flex: 1 1 auto;
+.vt-taskboard-title,
+.vt-taskboard-heading {
+    flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -177,12 +182,35 @@
     opacity: var(--vt-disabled-opacity);
 }
 
-/* A collapsed column is a narrow strip with its title running down it. */
+/* A header of the host's own may run to several lines; its own layout inside. */
+.vt-taskboard-heading {
+    display: block;
+    overflow: visible;
+    white-space: normal;
+}
+
+.vt-taskboard-subtitle {
+    flex: 1 0 100%;
+    min-width: 0;
+    /* Under the title, past the toggle when there is one. */
+    padding-inline-start: calc(var(--vt-taskboard-handle-size) + var(--vt-taskboard-header-gap));
+    font-size: var(--vt-taskboard-count-font-size);
+    font-weight: normal;
+    color: var(--vt-text-muted-color);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+/* A collapsed column is a narrow strip with its title running down it; its toggle on the first line, level with the others'. */
 .vt-taskboard-header.vt-taskboard-collapsed {
     flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
     padding-inline: 0;
 }
 
+.vt-taskboard-header.vt-taskboard-collapsed .vt-taskboard-heading,
 .vt-taskboard-header.vt-taskboard-collapsed .vt-taskboard-title {
     position: absolute;
     width: 1px;
@@ -207,6 +235,30 @@
 
 .vt-taskboard-cell.vt-taskboard-collapsed {
     padding-inline: 0;
+}
+
+/* Nothing to hold: the list takes no room, and the empty message or the collapsed title sits where it is told. */
+.vt-taskboard-cell-empty .vt-taskboard-list,
+.vt-taskboard-cell.vt-taskboard-collapsed .vt-taskboard-list {
+    min-height: 0;
+}
+
+.vt-taskboard-empty-at-center .vt-taskboard-empty {
+    margin-block: auto;
+}
+
+.vt-taskboard-empty-at-end .vt-taskboard-empty {
+    margin-block-start: auto;
+}
+
+/* The strip's text runs down it (vertical-rl), so its own block axis is across: top and bottom by name. */
+.vt-taskboard-collapsed-title-at-center .vt-taskboard-strip {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.vt-taskboard-collapsed-title-at-end .vt-taskboard-strip {
+    margin-top: auto;
 }
 
 /* ---- lanes ---- */

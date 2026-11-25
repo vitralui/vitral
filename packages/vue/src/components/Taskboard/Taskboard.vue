@@ -193,6 +193,9 @@ const inputs = (): TaskboardConfig => ({
     touchDelay: props.touchDelay,
     placeholder: props.placeholder,
     scrollHeight: props.scrollHeight,
+    minHeight: props.minHeight,
+    emptyAt: props.emptyAt,
+    collapsedTitleAt: props.collapsedTitleAt,
     disabled: props.disabled,
     collapsedColumns: collapsedColumns.value,
     collapsedLanes: collapsedLanes.value,
@@ -265,6 +268,9 @@ watch(
         props.touchDelay,
         props.placeholder,
         props.scrollHeight,
+        props.minHeight,
+        props.emptyAt,
+        props.collapsedTitleAt,
         props.disabled
     ],
     () => push(inputs())

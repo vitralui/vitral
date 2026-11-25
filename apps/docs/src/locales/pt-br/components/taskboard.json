@@ -13,6 +13,10 @@
             "title": "Colunas aninhadas",
             "description": "Colunas que carregam os próprios cards (v-model:columns). Later começa recolhida, mas ainda aceita cards soltos; Frozen está travada, e seu card está desabilitado."
         },
+        "Columns that keep their shape": {
+            "title": "Colunas que mantêm a forma",
+            "description": "`min-height` deixa toda coluna da altura do espaço do quadro, por poucos cartões que tenha. O `subtitle` de uma coluna é uma linha discreta própria sob o título, então a primeira linha de todo cabeçalho fica nivelada — a seta, o título, a contagem e a alça — por mais alto que seja o cabeçalho mais alto, inclusive um seu. `empty-at` põe a mensagem de vazio no topo, no meio ou no pé de uma coluna com espaço sobrando, e `collapsed-title-at` faz o mesmo com o título de uma coluna recolhida."
+        },
         "canDrop": {
             "title": "canDrop",
             "description": "Um hook dá a palavra final: aqui, só tarefas de alta prioridade podem ir para Done, e de qualquer lugar menos de In progress."

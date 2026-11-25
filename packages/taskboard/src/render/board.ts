@@ -159,9 +159,10 @@ function columnHeader(context: ViewContext, column: TaskboardColumn): Child {
                   iconView(collapsed ? 'chevronRight' : 'chevronDown')
               )
             : null,
-        content(
-            context.config.content?.columnHeader?.({ column, count, wip: wipOf(context.entries, column), collapsed, toggle: () => context.on.toggleColumn(column) })
-        ) ?? h('span', mergeAttrs({ key: 'title', id: context.ids.title(column.key) }, part('title')), name),
+        // A header of the host's own sits where the title does, as wide as the title would be.
+        ((own: Child) => (own === null ? h('span', mergeAttrs({ key: 'title', id: context.ids.title(column.key) }, part('title')), name) : h('span', mergeAttrs({ key: 'heading', id: context.ids.title(column.key) }, part('heading')), own)))(
+            content(context.config.content?.columnHeader?.({ column, count, wip: wipOf(context.entries, column), collapsed, toggle: () => context.on.toggleColumn(column) }))
+        ),
         h(
             'span',
             mergeAttrs({ key: 'count', 'aria-hidden': 'true' }, part('count', { wip: wipOf(context.entries, column) })),
@@ -182,7 +183,9 @@ function columnHeader(context: ViewContext, column: TaskboardColumn): Child {
                   }),
                   iconView('grip')
               )
-            : null
+            : null,
+        // A line of its own under the title, so the first line stays level with the other columns'.
+        column.subtitle && !collapsed ? h('span', mergeAttrs({ key: 'subtitle' }, part('subtitle')), column.subtitle) : null
     );
 }
 
@@ -239,7 +242,8 @@ function cellView(context: ViewContext, column: TaskboardColumn, lane: Taskboard
                 'data-column': String(context.declaredColumns.indexOf(column)),
                 'data-lane': lane ? String(context.lanes!.indexOf(lane)) : undefined
             },
-            part('cell', { ...context.cellState(column, lane), last: row === rows - 1 })
+            part('cell', { ...context.cellState(column, lane), last: row === rows - 1, empty: !cards.length && !slotHere(context, column, lane) }),
+            config.minHeight ? { style: { 'min-height': config.minHeight } } : {}
         ),
         h(
             'ul',
