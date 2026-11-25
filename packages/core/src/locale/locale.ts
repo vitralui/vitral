@@ -807,7 +807,7 @@ export interface Locale {
         pivotRemove: string;
         pivotFieldOptions: string;
         pivotHow: string;
-        aggregates: { sum: string; avg: string; min: string; max: string; count: string; custom: string };
+        aggregates: { sum: string; avg: string; min: string; max: string; count: string; first: string; last: string; custom: string };
         /** The status bar. `{count}` `{total}` `{value}` */
         statusRows: string;
         statusFiltered: string;
@@ -1464,7 +1464,7 @@ export const en: Locale = {
         pivotRemove: 'Remove {field} from {zone}',
         pivotFieldOptions: 'Options for {field}',
         pivotHow: 'How {field} is worked out',
-        aggregates: { sum: 'Sum', avg: 'Average', min: 'Min', max: 'Max', count: 'Count', custom: 'Custom' },
+        aggregates: { sum: 'Sum', avg: 'Average', min: 'Min', max: 'Max', count: 'Count', first: 'First', last: 'Last', custom: 'Custom' },
         statusRows: '{count} rows',
         statusFiltered: '{count} of {total} rows',
         statusSelected: '{count} selected',
@@ -2116,7 +2116,7 @@ export const ptBR: Locale = {
         pivotRemove: 'Remover {field} de {zone}',
         pivotFieldOptions: 'Opções de {field}',
         pivotHow: 'Como {field} é calculado',
-        aggregates: { sum: 'Soma', avg: 'Média', min: 'Mínimo', max: 'Máximo', count: 'Contagem', custom: 'Personalizado' },
+        aggregates: { sum: 'Soma', avg: 'Média', min: 'Mínimo', max: 'Máximo', count: 'Contagem', first: 'Primeiro', last: 'Último', custom: 'Personalizado' },
         statusRows: '{count} linhas',
         statusFiltered: '{count} de {total} linhas',
         statusSelected: '{count} selecionadas',

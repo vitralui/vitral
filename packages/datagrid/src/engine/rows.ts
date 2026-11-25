@@ -1,4 +1,5 @@
 import { getField, groupKeyOf, isBlankFilter, queryData, type GroupedRow, type LoadOptions, type RowGroup } from '@vitral/core';
+import { readValue } from './edit';
 import type { DataGridColumn, Row } from './types';
 
 /**
@@ -77,9 +78,11 @@ export const groupFields = (groupBy: string | readonly string[] | undefined): st
 export function aggregateOf<T>(column: DataGridColumn<T>, rows: readonly T[]): unknown {
     const how = column.aggregate;
     if (!how) return undefined;
-    const values = column.field ? rows.map((row) => getField(row, column.field!)) : [];
+    const values = column.field || column.valueGetter ? rows.map((row) => readValue(column, row, column.field)) : [];
     if (typeof how === 'function') return how({ rows: [...rows], values });
     if (how === 'count') return rows.length;
+    if (how === 'first') return values[0];
+    if (how === 'last') return values[values.length - 1];
     const numbers = values.map((value) => (value instanceof Date ? value.getTime() : value)).filter((value): value is number => typeof value === 'number' && !Number.isNaN(value));
     if (!numbers.length) return null;
     switch (how) {

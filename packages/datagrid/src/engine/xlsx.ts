@@ -1,4 +1,4 @@
-import { getField } from '@vitral/core';
+import { readValue } from './edit';
 import { exportColumns } from './export';
 import type { ResolvedColumn } from './state';
 import type { Row } from './types';
@@ -60,7 +60,7 @@ function cell(ref: string, value: unknown, style?: number): string {
 
 /** The sheet's XML: the heading row, then a row for each row, its widths from what it holds. */
 function sheetXml<T>(rows: readonly T[], columns: readonly ResolvedColumn<T>[], header: boolean): string {
-    const values = rows.map((row) => columns.map((c) => (c.column.exportValue ? c.column.exportValue(row) : getField(row, c.field))));
+    const values = rows.map((row) => columns.map((c) => (c.column.exportValue ? c.column.exportValue(row) : readValue(c.column, row, c.field))));
     const headings = columns.map((c) => c.column.exportHeader ?? c.header);
     const width = (at: number) => {
         const longest = Math.max(header ? String(headings[at] ?? '').length : 0, ...values.slice(0, 500).map((line) => (line[at] instanceof Date ? 11 : String(line[at] ?? '').length)));

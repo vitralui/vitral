@@ -103,6 +103,21 @@ export interface DataGridColumn<T = Row> {
     columns?: DataGridColumn<T>[];
     /** The field (dotted path) a cell shows, sorts and filters by. */
     field?: string;
+    /**
+     * The value worked out from the row rather than read from a field: `(row) => row.price * row.quantity`.
+     * It is what the cell shows, sorts, filters, groups, totals and exports; with no `field`, the column's
+     * `key` names it to a sort and a filter.
+     */
+    valueGetter?: (row: T) => unknown;
+    /**
+     * The value as text, wherever it is written as text: the cell, a total, a group's heading, a set filter's
+     * choices. A total has no row. The sort, the filters and the export keep the value itself.
+     */
+    valueFormatter?: (value: unknown, row?: T) => string;
+    /** An order of its own: a comparison of two values, as `Array.sort` takes. Empty cells still go last. */
+    comparator?: (a: unknown, b: unknown) => number;
+    /** What a pointer resting on a cell reads: the cell's text (`true`), or words worked out from it. */
+    tooltip?: boolean | ((context: CellContext<T>) => string | null | undefined);
     header?: string;
     /**
      * What the column holds, in a sentence or two. A button by its header
@@ -160,14 +175,18 @@ export interface DataGridColumn<T = Row> {
     /** This column can be resized; every column can when the table says so. */
     resizable?: boolean;
     minWidth?: number;
+    /** A share of the room the other columns leave: two columns of `flex: 1` split it, `flex: 2` takes twice. A width the reader drags wins. */
+    flex?: number;
     width?: number;
     pinned?: 'left' | 'right';
     /** Offer this column in the column list. A selection column never is. */
     toggleable?: boolean;
     headerClass?: string;
-    bodyClass?: string;
+    /** The cells' class: one for all of them, or one by cell — a rule of the value, say, to colour a loss. */
+    bodyClass?: string | ((context: CellContext<T>) => string | string[] | Record<string, boolean> | null | undefined);
     headerStyle?: Record<string, string>;
-    bodyStyle?: Record<string, string>;
+    /** The cells' style: one for all of them, or one by cell. */
+    bodyStyle?: Record<string, string> | ((context: CellContext<T>) => Record<string, string> | null | undefined);
     /** Draws the cell. Without it, the field's value is shown as text. */
     body?: (context: CellContext<T>) => Content;
     /**
@@ -201,7 +220,7 @@ export interface DataGridColumn<T = Row> {
      * group's heading: `'sum'`, `'avg'`, `'min'`, `'max'` or `'count'`, or a
      * function of the rows and their values in this column.
      */
-    aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | ((context: { rows: T[]; values: unknown[] }) => unknown);
+    aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last' | ((context: { rows: T[]; values: unknown[] }) => unknown);
     /** How the value worked out over a group is drawn; a number in the reader's own way by default. */
     aggregateContent?: (context: { value: unknown; rows: T[]; column: DataGridColumn<T> }) => Content;
     /** A handle that drags the row to another place, or moves it with Ctrl and an arrow key. */
@@ -476,6 +495,11 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      */
     dictionary?: Record<string, DataGridColumnAbout>;
     /**
+     * A filter of the host's own, over the filters the reader sets: the rows it refuses are left out before
+     * anything else — the search, the sort, the totals. Give a new function to filter again.
+     */
+    externalFilter?: (row: T) => boolean;
+    /**
      * What every column has unless it says otherwise: `{ filter: true, sortable: true }` gives each column a
      * filter of its values' kind and a sort at once. The columns that select, expand, edit or drag rows are
      * left as they are.
@@ -713,4 +737,4 @@ export interface DataGridColumnAbout {
 }
 
 /** The ways a column's values are worked out over many rows, by name. */
-export type DataGridAggregate = 'sum' | 'avg' | 'min' | 'max' | 'count';
+export type DataGridAggregate = 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last';

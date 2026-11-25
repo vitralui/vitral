@@ -75,7 +75,10 @@ export function validateEdit<T>(value: unknown, column: DataGridColumn<T>, row: 
 }
 
 /** What a cell holds, as the column reads it. */
-export const cellValue = <T,>(column: DataGridColumn<T>, row: T): unknown => (column.field ? getField(row, column.field) : undefined);
+export const cellValue = <T,>(column: DataGridColumn<T>, row: T): unknown => readValue(column, row, column.field);
+
+/** A column's value in a row: what its `valueGetter` works out, or what is at the field. */
+export const readValue = <T,>(column: DataGridColumn<T>, row: T, field?: string): unknown => (column.valueGetter ? column.valueGetter(row) : field ? getField(row, field) : undefined);
 
 /** Writes a kept value into the row: through the column's own setter, or at its field. */
 export function writeCell<T>(column: DataGridColumn<T>, row: T, value: unknown): void {

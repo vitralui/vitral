@@ -59,7 +59,7 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * How each column's values are worked out over a group and in the totals row, by column key, over the columns'
      * own `aggregate`: what the reader picks in the columns drawer, kept by `v-model:aggregates`.
      */
-    aggregates?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>;
+    aggregates?: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last'>;
     /**
      * A row at the foot with each column's value worked out over every row the filters let through, by its
      * `aggregate`. An object gives the values by column key instead: what a server worked out.
@@ -184,6 +184,9 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     columnDefaults?: Partial<DataGridColumn<any>>;
+    /** A filter of the host's own, over the reader's: the rows it refuses are left out before the search, the sort and the totals. A new function filters again. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    externalFilter?: (row: any) => boolean;
     /**
      * The toolbar's columns button opens a drawer at the page's edge instead of the panel: the columns shown and their
      * order, the rows' grouping (or the pivot) and how each number column is worked out, changed together and only on
@@ -324,7 +327,7 @@ export interface DataGridPivot {
     values: {
         field: string;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | ((context: { rows: any[]; values: unknown[] }) => unknown);
+        aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last' | ((context: { rows: any[]; values: unknown[] }) => unknown);
         header?: string;
         /** How the value is drawn: text, or a node. */
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -387,7 +390,7 @@ export type DataGridEmits = {
     /** The reader grouped the rows, or took the grouping away. */
     'update:groupBy': [groupBy: string[]];
     /** The reader changed how a column's values are worked out. */
-    'update:aggregates': [aggregates: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count'>];
+    'update:aggregates': [aggregates: Record<string, 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last'>];
     /** The reader picked how close the rows sit, from the toolbar. */
     'update:size': [size: 'small' | 'large' | undefined];
     /** A side bar's panel was opened or shut. */
@@ -447,6 +450,8 @@ export interface ColumnProps {
     resizable?: boolean;
     /** The smallest this column may be dragged to, in pixels. */
     minWidth?: number;
+    /** A share of the room the other columns leave: `flex: 2` takes twice what `flex: 1` does. A dragged width wins. */
+    flex?: number;
     /** Its width to start from, in pixels, before the reader changes it. */
     width?: number;
     /** Stick this column to an edge while the rest scrolls. */
@@ -540,7 +545,7 @@ export interface ColumnProps {
      * TreeTable, on each row with rows under it, over the rows its branches end in, in place of the row's own value.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | ((context: { rows: any[]; values: unknown[] }) => unknown);
+    aggregate?: 'sum' | 'avg' | 'min' | 'max' | 'count' | 'first' | 'last' | ((context: { rows: any[]; values: unknown[] }) => unknown);
     /** In a DataGrid, a handle that drags the row to another place, or moves it with Ctrl and an arrow key. */
     rowDrag?: boolean;
     /**
@@ -549,9 +554,22 @@ export interface ColumnProps {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sparkline?: DataGridSparkline<any>;
+    /** The value worked out from the row, `(row) => row.price * row.quantity`: shown, sorted, filtered, totalled and exported. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    valueGetter?: (row: any) => unknown;
+    /** The value as text wherever it is written: the cell, a total, a set filter's choices. Sort, filter and export keep the value. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    valueFormatter?: (value: unknown, row?: any) => string;
+    /** An order of its own: a comparison of two values. Empty cells still go last. */
+    comparator?: (a: unknown, b: unknown) => number;
+    /** What a pointer resting on a cell reads: its text (`true`), or words worked out from the cell. */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tooltip?: boolean | ((context: any) => string | null | undefined);
     headerClass?: unknown;
     headerStyle?: unknown;
+    /** The cells' class, as Vue takes one, or a function of the cell (`{ value, row }`) giving it by cell. */
     bodyClass?: unknown;
+    /** The cells' style, as Vue takes one, or a function of the cell giving it by cell. */
     bodyStyle?: unknown;
 }
 

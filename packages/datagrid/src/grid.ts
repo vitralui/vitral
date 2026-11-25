@@ -1438,7 +1438,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         const shown = columnsNow().filter((entry) => !entry.selectionMode);
         const at = shown.findIndex((entry) => entry.key === column.key);
         const how = typeof column.column.aggregate === 'string' ? column.column.aggregate : null;
-        const hows: (DataGridAggregate | null)[] = [null, 'sum', 'min', 'max', 'avg', 'count'];
+        const hows: (DataGridAggregate | null)[] = [null, 'sum', 'min', 'max', 'avg', 'count', 'first', 'last'];
         const canPick = current.columnsDrawer || sidePanels().includes('columns') || !!current.columnToggle;
         return [
             ...(column.column.sortable

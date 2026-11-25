@@ -1,4 +1,4 @@
-import { getField } from '../utils/object';
+import { getField as readField } from '../utils/object';
 import { FilterMatchMode, FilterService } from './filter';
 import { sortData, type SortMeta } from './sort';
 
@@ -33,6 +33,10 @@ export interface LoadOptions {
     filters?: FilterMeta;
     globalFilter?: GlobalFilter;
     locale?: string;
+    /** How a field's value is read from an item: its dotted path, by default. A worked-out column reads its own way. */
+    getValue?: (item: unknown, field: string) => unknown;
+    /** An order of their own for some fields, by field: a comparison of two values, as `Array.sort` takes. */
+    comparators?: Record<string, (a: unknown, b: unknown) => number>;
 }
 
 export interface LoadResult<T> {
@@ -43,8 +47,9 @@ export interface LoadResult<T> {
 
 const isComposite = (filter: FilterConstraint | CompositeFilter): filter is CompositeFilter => 'constraints' in filter;
 
-export function filterData<T>(data: readonly T[], options: Pick<LoadOptions, 'filters' | 'globalFilter' | 'locale'>): T[] {
+export function filterData<T>(data: readonly T[], options: Pick<LoadOptions, 'filters' | 'globalFilter' | 'locale' | 'getValue'>): T[] {
     const { filters = {}, globalFilter, locale } = options;
+    const getField = options.getValue ?? readField;
     const fields = Object.keys(filters);
     return data.filter((item) => {
         for (const field of fields) {
@@ -69,7 +74,7 @@ export function filterData<T>(data: readonly T[], options: Pick<LoadOptions, 'fi
 /** Filters, sorts, then pages: the order a server would do it in, so a lazy table and a local one agree. */
 export function queryData<T>(data: readonly T[], options: LoadOptions = {}): LoadResult<T> {
     let rows = filterData(data, options);
-    rows = sortData(rows, options.sort ?? [], options.locale);
+    rows = sortData(rows, options.sort ?? [], options.locale, options);
     const total = rows.length;
     if (options.rows != null && options.rows > 0) {
         const first = Math.max(0, options.first ?? 0);

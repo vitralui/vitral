@@ -252,7 +252,7 @@ describe('a column’s menu', () => {
         open();
         expect(items().map((item) => item.textContent)).toContain('Value aggregation');
         pick('Value aggregation');
-        expect(Array.from(document.querySelectorAll('[data-submenu] [role="menuitemradio"]'), (item) => item.textContent)).toEqual(['None', 'Sum', 'Min', 'Max', 'Average', 'Count']);
+        expect(Array.from(document.querySelectorAll('[data-submenu] [role="menuitemradio"]'), (item) => item.textContent)).toEqual(['None', 'Sum', 'Min', 'Max', 'Average', 'Count', 'First', 'Last']);
         pick('Sum');
         expect(aggregates).toHaveBeenLastCalledWith({ aggregates: { total: 'sum' } });
         expect(element.querySelector('[data-section="foot"]')?.textContent ?? element.textContent).toContain('755');

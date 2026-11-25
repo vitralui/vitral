@@ -1,5 +1,5 @@
 import { getField, type CompositeFilter, type FilterConstraint, type FilterMeta, type Locale } from '@vitral/core';
-import { editorKind, editorText, parseEdit } from './edit';
+import { editorKind, editorText, parseEdit, readValue } from './edit';
 import type { DataGridColumn } from './types';
 
 /**
@@ -21,7 +21,7 @@ export function filterKind<T>(column: DataGridColumn<T>, rows: readonly T[], fie
     if (typeof column.filter === 'string') return column.filter;
     // A list of values to choose from is a list filter: nothing else would use it.
     if (column.filterOptions) return 'set';
-    const sample = rows.map((row) => getField(row, field)).find((value) => value !== null && value !== undefined && value !== '');
+    const sample = rows.map((row) => readValue(column, row, field)).find((value) => value !== null && value !== undefined && value !== '');
     const kind = editorKind(sample);
     return kind === 'number' || kind === 'date' ? kind : 'text';
 }
@@ -73,7 +73,7 @@ export const labelled = (option: unknown): option is { label: string; value: unk
 /** The words a list filter gives a value: its option's label, the column's own `filterLabel`, or none, which leaves it to the grid. */
 export function optionLabel<T>(column: DataGridColumn<T>, value: unknown): string | undefined {
     const option = column.filterOptions?.find((entry) => labelled(entry) && entry.value === value) as { label: string } | undefined;
-    return option?.label ?? column.filterLabel?.(value);
+    return option?.label ?? column.filterLabel?.(value) ?? (value === null || value === undefined ? undefined : column.valueFormatter?.(value));
 }
 
 /**
@@ -85,7 +85,7 @@ export function distinctValues<T>(column: DataGridColumn<T>, rows: readonly T[],
     const seen = new Map<string, unknown>();
     let blank = false;
     for (const row of rows) {
-        const value = getField(row, field);
+        const value = readValue(column, row, field);
         if (value === null || value === undefined || value === '') {
             blank = true;
             continue;

@@ -11,7 +11,7 @@ Each line that is done has a spec that shows it; a line still open is the next w
 |---|---|---|
 | Column definitions, groups of headers | `columns`, `columns: [...]` nested | done |
 | Sizing: drag, min width, fit modes | `resizableColumns`, `columnResizeMode`, `minWidth` | done |
-| Flex widths (a share of the room left) | | open |
+| Flex widths (a share of the room left) | `flex` | done |
 | Autosize a column / all columns | column menu | done |
 | Moving by drag, by menu | `reorderableColumns`, column menu | done |
 | Pinning left and right | `pinned`, column menu | done |
@@ -43,11 +43,11 @@ Each line that is done has a spec that shows it; a line still open is the next w
 | AG Grid | Here | |
 |---|---|---|
 | Cell renderers | `body`, Vue `#body` | done |
-| Value getters | | open |
-| Value formatters (used by text, export, filter) | | open |
+| Value getters | `valueGetter` | done |
+| Value formatters (used by text, totals, set filter) | `valueFormatter` | done |
 | Cell data types (number, date, boolean, text inferred) | filter and editor kind inferred | part |
-| Cell class rules, cell style by value | `bodyClass`/`bodyStyle` fixed only | part |
-| Tooltips on cells | | open |
+| Cell class rules, cell style by value | `bodyClass`/`bodyStyle` as functions | done |
+| Tooltips on cells | `tooltip` | done |
 | Highlight changes (flash) | `flashCells` | done |
 | Overlays: loading, no rows | `loading`, `loadingMode`, `emptyMessage` | done |
 | Sparklines: line, area, column, bar, markers, tooltip | `sparkline` | done |
@@ -57,14 +57,14 @@ Each line that is done has a spec that shows it; a line still open is the next w
 | AG Grid | Here | |
 |---|---|---|
 | Single and multiple sort | `sortMode` | done |
-| Custom comparator | | open |
+| Custom comparator | `comparator` | done |
 | Text, number, date filters, conditions | `filter` | done |
 | Set filter with labels, search | `filter: 'set'`, `filterOptions` | done |
 | Set filter tree list, Excel mode | | open |
 | Multi filter (set and condition together) | | open |
 | Floating filters | `filterDisplay: 'row'` | done |
 | Quick filter | `globalFilterFields` | done |
-| External filter | | open |
+| External filter | `externalFilter` | done |
 | Advanced filter (a builder of conditions) | | open |
 | Filters tool panel | side bar `filters` | done |
 
@@ -95,7 +95,7 @@ Each line that is done has a spec that shows it; a line still open is the next w
 | Group display: single group column, multiple columns | | open |
 | Row group panel (drag a column to group by it) | drawer, pivot panel | part |
 | Aggregation: sum, min, max, count, avg, custom | `aggregate` | done |
-| Aggregation: first, last | | open |
+| Aggregation: first, last | `aggregate: 'first' \| 'last'` | done |
 | Show values as (percent of total, of row, of column) | | open |
 | Total row, grand total | `totalRow` | done |
 | Group footers | | open |

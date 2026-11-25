@@ -181,6 +181,7 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         visible: maybe(p.visible),
         resizable: maybe(p.resizable),
         minWidth: size(p.minWidth),
+        flex: p.flex === undefined ? undefined : Number(p.flex),
         width: size(p.width),
         pinned: p.pinned as 'left' | 'right' | undefined,
         toggleable: p.toggleable === undefined ? !p.selectionMode && !p.expander : truthy(p.toggleable),
@@ -198,6 +199,10 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
         aggregateContent: own.aggregate && ((context: { value: unknown; rows: unknown[] }) => node(`aggregate:${def.key}:${context.rows.length}:${String(context.value)}`, () => own.aggregate!({ value: context.value, rows: context.rows, column: p }))),
         rowDrag: truthy(p.rowDrag),
         sparkline: p.sparkline as DataGridColumn['sparkline'],
+        valueGetter: p.valueGetter as DataGridColumn['valueGetter'],
+        valueFormatter: p.valueFormatter as DataGridColumn['valueFormatter'],
+        comparator: p.comparator as DataGridColumn['comparator'],
+        tooltip: p.tooltip === '' ? true : (p.tooltip as DataGridColumn['tooltip']),
         editor:
             own.editor &&
             ((context: EditorContext) =>
@@ -216,9 +221,10 @@ function toTableColumn(def: ColumnDef): DataGridColumn {
                     })
                 )),
         headerClass: normalizeClass(p.headerClass) || undefined,
-        bodyClass: normalizeClass(p.bodyClass) || undefined,
+        // A function works the class out by cell; anything else is Vue's own class value.
+        bodyClass: typeof p.bodyClass === 'function' ? (p.bodyClass as DataGridColumn['bodyClass']) : normalizeClass(p.bodyClass) || undefined,
         headerStyle: normalizeStyle(p.headerStyle) as Record<string, string> | undefined,
-        bodyStyle: normalizeStyle(p.bodyStyle) as Record<string, string> | undefined,
+        bodyStyle: typeof p.bodyStyle === 'function' ? (p.bodyStyle as DataGridColumn['bodyStyle']) : (normalizeStyle(p.bodyStyle) as Record<string, string> | undefined),
         body:
             own.body &&
             ((context: CellContext) =>
@@ -438,6 +444,7 @@ const inputs = (): DataGridConfig => ({
     minHeight: props.minHeight,
     dictionary: props.dictionary as DataGridConfig['dictionary'],
     columnDefaults: props.columnDefaults as DataGridConfig['columnDefaults'],
+    externalFilter: props.externalFilter as DataGridConfig['externalFilter'],
     dictionaryModule: props.dictionaryModule,
     dictionarySubtitle: props.dictionarySubtitle,
     virtualScroll: props.virtualScroll,

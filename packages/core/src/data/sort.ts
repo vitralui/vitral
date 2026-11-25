@@ -54,12 +54,23 @@ function ranked(values: unknown[], collator: Intl.Collator): unknown[] {
  * both directions, since flipping a column to descending should not bring every
  * blank cell to the top.
  */
-export function sortData<T>(data: readonly T[], sorts: readonly SortMeta[], locale?: string): T[] {
+export function sortData<T>(
+    data: readonly T[],
+    sorts: readonly SortMeta[],
+    locale?: string,
+    /** How a field is read, and the fields with an order of their own; see `LoadOptions`. */
+    options: { getValue?: (item: unknown, field: string) => unknown; comparators?: Record<string, (a: unknown, b: unknown) => number> } = {}
+): T[] {
     if (sorts.length === 0) return [...data];
     const collator = collatorFor(locale);
+    const read = options.getValue ?? getField;
+    const own = sorts.map(({ field }) => options.comparators?.[field]);
     // Each field read once a row, before the sort, rather than twice a comparison;
-    // a column of text turned into ranks, so the rows compare numbers.
-    const keys = sorts.map(({ field }) => ranked(data.map((item) => getField(item, field)), collator));
+    // a column of text turned into ranks, so the rows compare numbers — unless it has an order of its own.
+    const keys = sorts.map(({ field }, at) => {
+        const values = data.map((item) => read(item, field));
+        return own[at] ? values : ranked(values, collator);
+    });
     const orders = sorts.map(({ order }) => order);
     return data
         .map((_, index) => index)
@@ -73,7 +84,8 @@ export function sortData<T>(data: readonly T[], sorts: readonly SortMeta[], loca
                     if (aEmpty && bEmpty) continue;
                     return aEmpty ? 1 : -1;
                 }
-                const result = typeof a === 'string' && typeof b === 'string' ? collator.compare(a, b) : compareValues(a, b, locale);
+                const compare = own[at];
+                const result = compare ? compare(a, b) : typeof a === 'string' && typeof b === 'string' ? collator.compare(a, b) : compareValues(a, b, locale);
                 if (result !== 0) return result * orders[at]!;
             }
             return x - y;

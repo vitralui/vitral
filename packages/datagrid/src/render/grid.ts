@@ -7,7 +7,7 @@ import type { FilterKind } from '../engine/filters';
 import { cellText, expansionKey, groupDepth, groupTitle, isExpanded, isFilterable, rowKey, type ColumnGroupRef, type ResolvedColumn, type ResolvedRows } from '../engine/state';
 import type { VirtualWindow } from '../engine/virtual';
 import { cellValue, editorKind, isEditable, type EditorKind } from '../engine/edit';
-import type { Content, PageContext, Row, DataGridAggregate, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
+import type { CellContext, Content, PageContext, Row, DataGridAggregate, DataGridColumn, DataGridConfig, DataGridModels, StatusContext } from '../engine/types';
 import { drawerView, type ColumnsDrawerView, type DrawerTab } from './drawer';
 import { sparklineDomain, sparklinePoints, sparklineView } from './sparkline';
 
@@ -445,6 +445,8 @@ function track<T>(column: ResolvedColumn<T>): string {
     if (column.width) return `${Math.max(0, column.width)}px`;
     const own = column.column;
     if (column.selectionMode || own.expander || own.rowEditor || own.rowDrag) return 'max-content';
+    // A flex column takes its share of the room the others leave, as fr tracks share it.
+    if (own.flex) return `minmax(${own.minWidth ?? 0}px, ${own.flex}fr)`;
     return own.minWidth ? `minmax(${own.minWidth}px, auto)` : 'auto';
 }
 
@@ -1719,7 +1721,7 @@ function groupRowWithValues<T>(context: ViewContext<T>, line: Extract<GridLine<T
         cells(context, 'bodyCell', (column) => {
             const value = column.column.aggregate ? aggregateOf(column.column, line.group.rows) : undefined;
             const shown = column.column.aggregate
-                ? (content(column.column.aggregateContent?.({ value, rows: line.group.rows, column: column.column })) ?? cellText(value, context.locale.code))
+                ? (content(column.column.aggregateContent?.({ value, rows: line.group.rows, column: column.column })) ?? valueText(context, column.column, value))
                 : null;
             const lead = column === first;
             return h(
@@ -1819,9 +1821,9 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                         ...rangeState(context, index, column.key)
                     }),
                     column.selectionMode ? part('selectionCell') : {},
+                    cellLook(context, column, row, index),
                     {
-                        style: { ...stickyStyle(column), ...column.column.bodyStyle },
-                        class: column.column.bodyClass,
+                        style: stickyStyle(column),
                         'aria-colindex': colIndex(context, column),
                         'data-col': column.key,
                         'data-editing': open ? '' : undefined,
@@ -2001,20 +2003,37 @@ function rowEditorView<T>(context: ViewContext<T>, index: number): Child {
 
 /** What a cell shows: what its column draws, or its value as text. */
 function cellContent<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): Child {
-    const value = valueOf(row, column);
-    return (
-        content(
-            column.column.body?.({
-                row,
-                index,
-                field: column.field,
-                value,
-                column: column.column,
-                pinned,
-                key: column.key
-            })
-        ) ?? (column.column.sparkline ? sparklineCell(context, column, row, value) : cellText(value, context.locale.code))
-    );
+    const cell = cellContextOf(column, row, index, pinned);
+    return content(column.column.body?.(cell)) ?? (column.column.sparkline ? sparklineCell(context, column, row, cell.value) : valueText(context, column.column, cell.value, row));
+}
+
+/** What a cell's own functions are given. */
+const cellContextOf = <T,>(column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): CellContext<T> => ({
+    row,
+    index,
+    field: column.field,
+    value: valueOf(row, column),
+    column: column.column,
+    pinned,
+    key: column.key
+});
+
+/** A value as text: the column's own way of writing it, or the plain one. */
+export function valueText<T>(context: ViewContext<T>, column: DataGridColumn<T>, value: unknown, row?: T): string {
+    return column.valueFormatter ? column.valueFormatter(value, row) : cellText(value, context.locale.code);
+}
+
+/** A cell's class, style and tooltip, as its column works them out for it. */
+function cellLook<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: T, index: number, pinned?: 'top' | 'bottom'): Props {
+    const own = column.column;
+    if (!own.bodyClass && !own.bodyStyle && !own.tooltip) return {};
+    const cell = cellContextOf(column, row, index, pinned);
+    const tip = typeof own.tooltip === 'function' ? own.tooltip(cell) : own.tooltip ? valueText(context, own, cell.value, row) : undefined;
+    return {
+        class: typeof own.bodyClass === 'function' ? own.bodyClass(cell) : own.bodyClass,
+        style: (typeof own.bodyStyle === 'function' ? own.bodyStyle(cell) : own.bodyStyle) ?? undefined,
+        title: tip || undefined
+    };
 }
 
 // The range a column's sparklines share, worked out once a drawing — a row's numbers may change in place between two.
@@ -2128,9 +2147,8 @@ function pinnedRowView<T>(context: ViewContext<T>, row: T, index: number, positi
         cells(context, 'bodyCell', (column) =>
             h(
                 'div',
-                mergeAttrs({ key: column.key, role: cellRole(context) }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), {
-                    style: { ...stickyStyle(column), ...column.column.bodyStyle },
-                    class: column.column.bodyClass,
+                mergeAttrs({ key: column.key, role: cellRole(context) }, part('bodyCell', { align: column.align, ...pinnedState(column) }), part('pinnedRowCell'), cellLook(context, column, row, index, position), {
+                    style: stickyStyle(column),
                     'aria-colindex': colIndex(context, column)
                 }),
                 column.selectionMode || column.column.expander ? null : cellContent(context, column, row, index, position)
@@ -2149,7 +2167,7 @@ function totalCell<T>(context: ViewContext<T>, column: ResolvedColumn<T>): Child
     const rows = context.rows.all;
     const value = typeof given === 'object' ? given[column.key] : column.column.aggregate ? aggregateOf(column.column, rows) : undefined;
     if (value === undefined) return '';
-    return content(column.column.aggregateContent?.({ value, rows, column: column.column })) ?? cellText(value, context.locale.code);
+    return content(column.column.aggregateContent?.({ value, rows, column: column.column })) ?? valueText(context, column.column, value);
 }
 
 /** How many rows the head and the foot add to the body's, for `aria-rowcount`. */
@@ -2192,8 +2210,8 @@ function skeletonBody<T>(context: ViewContext<T>): Child {
                     h(
                         'div',
                         mergeAttrs({ key: column.key }, part('bodyCell', { align: column.align, ...pinnedState(column) }), column.selectionMode ? part('selectionCell') : {}, {
-                            style: { ...stickyStyle(column), ...column.column.bodyStyle },
-                            class: column.column.bodyClass
+                            style: { ...stickyStyle(column), ...(typeof column.column.bodyStyle === 'object' ? column.column.bodyStyle : {}) },
+                            class: typeof column.column.bodyClass === 'string' ? column.column.bodyClass : undefined
                         }),
                         content(column.column.skeleton?.({ column: column.column, index })) ??
                             (column.selectionMode
@@ -2422,4 +2440,4 @@ function paginatorView<T>(context: ViewContext<T>): Child {
     );
 }
 
-const valueOf = <T,>(row: T, column: ResolvedColumn<T>): unknown => (column.field ? getField(row, column.field) : undefined);
+const valueOf = <T,>(row: T, column: ResolvedColumn<T>): unknown => (column.column.valueGetter ? column.column.valueGetter(row) : column.field ? getField(row, column.field) : undefined);

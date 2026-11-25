@@ -1,4 +1,4 @@
-import { getField } from '@vitral/core';
+import { readValue } from './edit';
 import type { ResolvedColumn } from './state';
 import type { Row } from './types';
 
@@ -35,7 +35,7 @@ export function csvField(value: unknown, separator = ',', sanitize = true): stri
 
 /** The columns an export writes: those on show with something to write, never a selection column. */
 export function exportColumns<T>(columns: readonly ResolvedColumn<T>[], keys?: readonly string[]): ResolvedColumn<T>[] {
-    const wanted = columns.filter((c) => !c.selectionMode && c.column.exportable !== false && (c.field || c.column.exportValue));
+    const wanted = columns.filter((c) => !c.selectionMode && c.column.exportable !== false && (c.field || c.column.exportValue || c.column.valueGetter));
     return keys ? keys.map((key) => wanted.find((c) => c.key === key)).filter((c): c is ResolvedColumn<T> => !!c) : wanted;
 }
 
@@ -46,7 +46,7 @@ export function toCSV<T = Row>(rows: readonly T[], columns: readonly ResolvedCol
     const lines: string[] = [];
     if (header) lines.push(chosen.map((c) => csvField(c.column.exportHeader ?? c.header, separator, sanitize)).join(separator));
     for (const row of rows) {
-        lines.push(chosen.map((c) => csvField(c.column.exportValue ? c.column.exportValue(row) : getField(row, c.field), separator, sanitize)).join(separator));
+        lines.push(chosen.map((c) => csvField(c.column.exportValue ? c.column.exportValue(row) : readValue(c.column, row, c.field), separator, sanitize)).join(separator));
     }
     return lines.join(lineEnding);
 }

@@ -11,6 +11,7 @@ import {
     type CompositeFilter,
     type FilterConstraint,
     type FilterMeta,
+    type LoadOptions,
     type SortMeta
 } from '@vitral/core';
 import { childrenOf, groupFields, groupLines, treeRows, type GridLine, type TreePlace } from './rows';
@@ -130,8 +131,9 @@ export function tableColumns<T>(config: DataGridConfig<T>, models: DataGridModel
                 column,
                 key,
                 field: column.field,
-                sortField: String(column.sortField ?? column.field ?? ''),
-                filterField: String(column.filterField ?? column.field ?? ''),
+                // A worked-out column with no field answers to its key.
+                sortField: String(column.sortField ?? column.field ?? (column.valueGetter ? key : '')),
+                filterField: String(column.filterField ?? column.field ?? (column.valueGetter ? key : '')),
                 header: column.header ?? column.field ?? '',
                 sticky: sticky[key],
                 width: layout.widths?.[key],
@@ -186,21 +188,52 @@ export interface ResolvedRows<T = Row> {
     offset: number;
 }
 
+type Readers = Pick<LoadOptions, 'getValue' | 'comparators'>;
+const readersCache = new WeakMap<object, Readers>();
+
+/**
+ * How the query reads the columns that work their value out, and orders the ones with an order of their
+ * own, by the field or key a sort and a filter name them by. Nothing, when no column does either.
+ */
+export function readers<T>(config: DataGridConfig<T>): Readers {
+    const columns = config.columns;
+    if (!columns) return {};
+    const cached = readersCache.get(columns);
+    if (cached) return cached;
+    const getters = new Map<string, (row: T) => unknown>();
+    const comparators: Record<string, (a: unknown, b: unknown) => number> = {};
+    for (const { column, key } of declaredColumns(config)) {
+        const names = [column.sortField ?? column.field ?? key, column.filterField ?? column.field ?? key].map(String);
+        for (const name of names) {
+            if (column.valueGetter) getters.set(name, column.valueGetter);
+            if (column.comparator) comparators[name] = column.comparator;
+        }
+    }
+    const out: Readers = {
+        ...(getters.size ? { getValue: (row: unknown, field: string) => (getters.has(field) ? getters.get(field)!(row as T) : getField(row, field)) } : {}),
+        ...(Object.keys(comparators).length ? { comparators } : {})
+    };
+    readersCache.set(columns, out);
+    return out;
+}
+
 /** The rows to draw. `remote` is what a data source last answered. */
 export function resolveRows<T>(config: DataGridConfig<T>, models: DataGridModels, filters: FilterMeta, remote?: { items: T[]; total: number }): ResolvedRows<T> {
     const mode = modeOf(config);
-    const value = config.value ?? [];
+    const own = config.value ?? [];
+    const outside = config.externalFilter;
+    const value = mode === 'local' && outside ? own.filter((row) => outside(row)) : own;
     const offset = config.paginator ? models.first : 0;
     if (mode === 'lazy') return { page: value, all: value, total: config.totalRecords ?? value.length, offset };
     if (mode === 'source') return { page: remote?.items ?? [], all: remote?.items ?? [], total: remote?.total ?? 0, offset };
     const request = loadRequest(config, models, filters);
     if (config.treeData) {
         // A tree pages over the rows it shows, the open rows' rows among them.
-        const tree = treeRows(value, childrenOf(config.treeData), request, new Set((models.expandedTree ?? []).map(String)), (row, path) => treeKey(config, row, path));
+        const tree = treeRows(value, childrenOf(config.treeData), { ...request, ...readers(config) }, new Set((models.expandedTree ?? []).map(String)), (row, path) => treeKey(config, row, path));
         const page = config.paginator ? tree.rows.slice(models.first, models.first + models.rows) : tree.rows;
         return { page, all: tree.rows, total: tree.rows.length, offset, tree: tree.places };
     }
-    const processed = queryData(value, { ...request, first: undefined, rows: undefined });
+    const processed = queryData(value, { ...request, ...readers(config), first: undefined, rows: undefined });
     const page = config.paginator ? queryData(processed.items, { first: models.first, rows: models.rows }).items : processed.items;
     return { page, all: processed.items, total: processed.total, offset };
 }
