@@ -28,6 +28,10 @@
         "One tour for the whole app": {
             "title": "Um tour para o app inteiro",
             "description": "`useGlobalTour()` devolve o tour da própria aplicação, o mesmo a partir de qualquer componente: ele pertence ao app e não à página que o iniciou, então um onboarding que passa por várias telas continua através das trocas de rota. A opção `tour` do plugin define de onde todo tour parte — `<Tour>`, `useTour()` e este — e as props de cada tour ficam por cima."
+        },
+        "Press this": {
+            "title": "Clique aqui",
+            "description": "Um passo com `pulse` desenha em volta do seu elemento um anel que cresce e esmaece, sem parar, para o único controle que o leitor deve apertar. `pulse` no tour faz isso em todo passo que aponta para algo; o `false` de um passo o deixa de fora. Na cor primária do tema, e um anel parado sob movimento reduzido."
         }
     }
 }

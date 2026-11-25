@@ -138,6 +138,12 @@ export interface TourStep {
     /** This step's own gap around the element and corner. */
     stagePadding?: number;
     stageRadius?: number;
+    /**
+     * A ring behind the element that grows and fades, over and over: "press
+     * this", for a step that points at one control. A still ring under
+     * reduced motion.
+     */
+    pulse?: boolean;
 }
 
 export interface TourConfig {
@@ -188,6 +194,8 @@ export interface TourConfig {
     stagePadding?: number;
     /** The corner of the gap, in pixels. Defaults to the element's own corner, grown by the padding. */
     stageRadius?: number;
+    /** A ring that grows and fades behind every step's element; a step's own `pulse` decides for it. Off by default. */
+    pulse?: boolean;
     disableActiveInteraction?: boolean;
     /** Escape and the arrow keys. Defaults to true. */
     allowKeyboardControl?: boolean;

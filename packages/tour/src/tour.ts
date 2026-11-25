@@ -16,7 +16,7 @@ import {
     type TourRect
 } from './engine/state';
 import type { TourConfig, TourElement, TourElementHook, TourEndReason, TourHookOptions, TourPopoverDom, TourState, TourStep, TourStepContext } from './engine/types';
-import { tourView } from './render/popover';
+import { pulseStyle, tourView } from './render/popover';
 
 /**
  * A guided tour with no framework in it: a highlight and a popover a step,
@@ -127,7 +127,7 @@ export function createTour(config: TourConfig = {}): TourHandle {
 
     let layer: HTMLElement | null = null;
     let root: ReturnType<typeof createRoot> | null = null;
-    const els: Partial<Record<keyof TourPopoverDom | 'path' | 'popover', Element | null>> = {};
+    const els: Partial<Record<keyof TourPopoverDom | 'path' | 'popover' | 'pulse', Element | null>> = {};
     let stopAnchor: (() => void) | null = null;
     let anchored: { element: Element; popover: Element; placement: string; arrow: boolean } | null = null;
     let stopLayer: (() => void) | null = null;
@@ -146,6 +146,8 @@ export function createTour(config: TourConfig = {}): TourHandle {
     let resizeObserver: ResizeObserver | null = null;
 
     /** The gap around the element: snug by default, the element and two pixels. */
+    /** A ring is drawn only round an element: a step in the middle of the screen has nothing to point at. */
+    const pulsing = (step: TourStep) => !!step.element && (step.pulse ?? current.pulse ?? false);
     const paddingOf = (step: TourStep | undefined) => step?.stagePadding ?? current.stagePadding ?? 2;
 
     const hookOptions = (): TourHookOptions<TourHandle> => ({ config: current, state, tour: handle });
@@ -326,6 +328,9 @@ export function createTour(config: TourConfig = {}): TourHandle {
         drawn = stage;
         const { width, height } = layerBox();
         els.path?.setAttribute('d', overlayPath(width, height, stage, radius()));
+        // The ring follows the hole as it moves, scrolls and resizes.
+        const ring = els.pulse as HTMLElement | null | undefined;
+        if (ring?.isConnected && stage) Object.assign(ring.style, pulseStyle(stage, radius()));
         const overlay = els.path?.parentElement;
         overlay?.setAttribute('viewBox', `0 0 ${width} ${height}`);
         placeOver(stage);
@@ -417,10 +422,13 @@ export function createTour(config: TourConfig = {}): TourHandle {
                 ariaLabel: current.ariaLabel,
                 viewport: { width: layerBox().width, height: layerBox().height },
                 path: overlayPath(layerBox().width, layerBox().height, drawn, radius()),
+                // Drawn from the first frame, the stage measured now if it has not been drawn yet; drawStage keeps it on the hole after.
+                pulse: pulsing(step) ? { rect: drawn ?? stageNow() ?? { x: 0, y: 0, width: 0, height: 0 }, radius: radius() } : null,
                 overlayStyle,
                 content: current.slots?.content?.(context),
                 refs: {
                     path: (el) => (els.path = el),
+                    pulse: (el) => (els.pulse = el),
                     popover: (el) => (els.wrapper = els.popover = el),
                     arrow: (el) => (els.arrow = el),
                     title: (el) => (els.title = el),

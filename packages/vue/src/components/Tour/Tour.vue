@@ -101,6 +101,7 @@ const inputs = (): TourConfig => ({
         arrow: props.arrow,
         stagePadding: props.stagePadding,
         stageRadius: props.stageRadius,
+        pulse: props.pulse,
         disableActiveInteraction: props.disableActiveInteraction,
         allowKeyboardControl: props.allowKeyboardControl,
         popoverClass: props.popoverClass,

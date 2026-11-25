@@ -14,6 +14,8 @@ export const tourStyle = defineStyle({
         root: (s: TourState) => ['vt-tour', { 'vt-tour-animated': s.animate }],
         overlay: 'vt-tour-overlay',
         overlayPath: 'vt-tour-overlay-path',
+        /** The ring round the element of a step with `pulse`. */
+        pulse: 'vt-tour-pulse',
         popover: (s: TourState) => ['vt-tour-popover', { 'vt-tour-popover-centered': s.centered }],
         arrow: 'vt-tour-arrow',
         closeButton: 'vt-tour-close-button',

@@ -4,6 +4,7 @@
         "allowClose": "Escape, o botão de fechar e um toque na sobreposição encerram o tour. O padrão é true.",
         "stagePadding": "O espaço em volta do elemento, em pixels. O padrão é 2, para que o destaque o contorne de perto.",
         "stageRadius": "O canto do recorte. O padrão é o canto do próprio elemento, somado ao espaço em volta.",
+        "pulse": "Um anel que cresce e esmaece atrás do elemento de cada passo, \"clique aqui\"; o `pulse` do próprio passo decide por ele. Desligado por padrão; parado sob movimento reduzido.",
         "allowKeyboardControl": "O padrão é true.",
         "progressText": "`'{current} de {total}'`; o da locale caso contrário.",
         "allowHtml": "Títulos e descrições são HTML. Só para texto que você escreveu.",

@@ -43,6 +43,29 @@ describe('createTour', () => {
         expect(document.querySelector('.vt-tour-overlay-path')!.getAttribute('d')).toMatch(/^M0,0H/);
     });
 
+    it('pulses a ring round the element of a step that asks, on the stage and following it, and of no other', async () => {
+        const ring = () => document.querySelector<HTMLElement>('.vt-tour-pulse');
+        const target = document.getElementById('new')!;
+        target.getBoundingClientRect = () => ({ top: 100, bottom: 140, left: 50, right: 150, width: 100, height: 40, x: 50, y: 100, toJSON: () => ({}) }) as DOMRect;
+        tour = createTour({ steps: [{ ...steps[0]!, pulse: true }, steps[1]!, { popover: { title: 'Done', description: 'Nothing to point at.' } }] });
+        await tour.drive();
+        await tick();
+        expect(ring()!.getAttribute('aria-hidden')).toBe('true');
+        // The stage: the element grown by the padding, 2px each way.
+        expect([ring()!.style.left, ring()!.style.top, ring()!.style.width, ring()!.style.height]).toEqual(['48px', '98px', '104px', '44px']);
+        await tour.moveNext();
+        expect(ring()).toBeNull();
+        tour.destroy();
+        // On for the whole tour, but not round a step in the middle of the screen, nor one that says no.
+        tour = createTour({ pulse: true, steps: [steps[0]!, { ...steps[1]!, pulse: false }, { popover: { title: 'Done', description: 'Nothing to point at.' } }] });
+        await tour.drive();
+        expect(ring()).not.toBeNull();
+        await tour.moveNext();
+        expect(ring()).toBeNull();
+        await tour.moveNext();
+        expect(ring()).toBeNull();
+    });
+
     it('moves with the buttons, names the last one Done, and ends there', async () => {
         const end = vi.fn();
         tour = createTour({ steps, on: { end } });

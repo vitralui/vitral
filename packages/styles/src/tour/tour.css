@@ -257,9 +257,36 @@
     pointer-events: none !important;
 }
 
+/* "Press this": a ring round the hole that grows and fades, over and over. It never takes a press. */
+.vt-tour-pulse {
+    position: absolute;
+    box-sizing: border-box;
+    pointer-events: none;
+    border: var(--vt-tour-pulse-width) solid var(--vt-tour-pulse-color);
+    animation: vt-tour-pulse var(--vt-tour-pulse-duration) ease-out infinite;
+}
+
+@keyframes vt-tour-pulse {
+    from {
+        opacity: 0.9;
+        box-shadow: 0 0 0 0 var(--vt-tour-pulse-color);
+    }
+
+    to {
+        opacity: 0;
+        box-shadow: 0 0 0 var(--vt-tour-pulse-spread) var(--vt-tour-pulse-color);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .vt-tour-animated .vt-tour-popover {
         animation: none;
+    }
+
+    /* Still, under reduced motion: a ring that stays. */
+    .vt-tour-pulse {
+        animation: none;
+        opacity: 1;
     }
 
     .vt-tour-dot,

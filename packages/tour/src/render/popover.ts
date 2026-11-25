@@ -32,9 +32,12 @@ export interface TourView {
     viewport: { width: number; height: number };
     path: string;
     overlayStyle: Record<string, string>;
+    /** Where the pulsing ring goes, when the step has one: the stage and its corner. */
+    pulse?: { rect: TourRect; radius: number } | null;
     content?: Node | null;
     refs: {
         path: (el: Element | null) => void;
+        pulse: (el: Element | null) => void;
         popover: (el: Element | null) => void;
         arrow: (el: Element | null) => void;
         title: (el: Element | null) => void;
@@ -173,5 +176,27 @@ export function tourView(v: TourView): Child[] {
         )
     ) as VElement;
 
-    return [overlay, popoverEl];
+    // Over the dimmed page, around the hole: the ring is seen whether the element is light or dark.
+    const pulse = v.pulse
+        ? h(
+              'span',
+              mergeAttrs(part('pulse'), {
+                  key: 'pulse',
+                  'aria-hidden': 'true',
+                  ref: v.refs.pulse,
+                  style: pulseStyle(v.pulse.rect, v.pulse.radius)
+              })
+          )
+        : null;
+
+    return [overlay, pulse, popoverEl];
 }
+
+/** The ring's place and corner, in the layer's coordinates. */
+export const pulseStyle = (rect: TourRect, radius: number): Record<string, string> => ({
+    left: `${rect.x}px`,
+    top: `${rect.y}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    'border-radius': `${radius}px`
+});

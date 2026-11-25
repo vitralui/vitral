@@ -21,6 +21,12 @@ export default {
     arrow: {
         size: '0.75rem'
     },
+    pulse: {
+        color: '{primary.color}',
+        width: '2px',
+        spread: '14px',
+        duration: '1.6s'
+    },
     image: {
         borderRadius: '{borderRadius.md}'
     },

@@ -40,6 +40,8 @@ export interface TourProps extends BaseProps {
     stagePadding?: number;
     /** The corner of the gap. Defaults to the element's own corner, grown by the padding. */
     stageRadius?: number;
+    /** A ring that grows and fades behind every step's element, "press this"; a step's own `pulse` decides for it. Off by default; still under reduced motion. */
+    pulse?: boolean;
     disableActiveInteraction?: boolean;
     /** Defaults to true. */
     allowKeyboardControl?: boolean;
