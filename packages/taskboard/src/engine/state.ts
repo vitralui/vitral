@@ -38,6 +38,7 @@ export interface BoardSettings {
     collapsible: boolean;
     autoScroll: boolean;
     touchDelay: number;
+    placeholder: boolean;
     disabled: boolean;
 }
 
@@ -52,6 +53,7 @@ export const settingsOf = (config: TaskboardConfig): BoardSettings => ({
     collapsible: config.collapsible ?? true,
     autoScroll: config.autoScroll ?? true,
     touchDelay: config.touchDelay ?? 250,
+    placeholder: config.placeholder ?? true,
     disabled: !!config.disabled
 });
 

@@ -15,6 +15,7 @@
         "collapsible": "As colunas (e raias) ganham um botão que as recolhe. O padrão é true.",
         "autoScroll": "Rola o quadro e as colunas enquanto um card é arrastado perto das bordas. O padrão é true.",
         "touchDelay": "Milissegundos que um dedo repousa num card antes de arrastá-lo, para que um deslize ainda role. O padrão é 250.",
+        "placeholder": "Enquanto um card ou uma coluna é arrastado com o ponteiro, ele fica no lugar, esmaecido, e um espaço do tamanho dele se abre onde cairia; só sai do lugar quando é solto. Com false, o quadro se rearranja durante o arrasto. O padrão é true.",
         "scrollHeight": "A altura da lista de cards de uma coluna; além dela, rola.",
         "summary": "Um número ao lado da contagem de cada coluna e raia, a partir de um campo dos seus cartões: `{ field: 'points', format: '{value} pts' }`.",
         "filter": "Mostra só alguns cartões: palavras procuradas no texto e nos números de cada cartão (sem ligar para maiúsculas e acentos), ou uma função que mantém um cartão. Os cartões não podem ser arrastados enquanto um filtro esconde alguns.",

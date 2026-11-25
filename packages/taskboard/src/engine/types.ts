@@ -180,6 +180,13 @@ export interface TaskboardConfig extends Partial<TaskboardModels> {
     autoScroll?: boolean;
     /** Milliseconds a finger rests on a card before it drags, so a swipe still scrolls. Defaults to 250. */
     touchDelay?: number;
+    /**
+     * While a card or a column is dragged by the pointer, it stays in its
+     * place, faded, and a slot as big as it opens where it would land; it
+     * leaves its place only when it is let go. False reflows the board as it
+     * is dragged instead. Defaults to true.
+     */
+    placeholder?: boolean;
     /** The height of a column's card list; it scrolls past it. */
     scrollHeight?: string;
     disabled?: boolean;

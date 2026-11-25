@@ -200,6 +200,36 @@ describe('Taskboard', () => {
         expect(document.querySelector('.vt-taskboard-preview')).toBeNull();
     });
 
+    it.each([true, false])('keeps a dragged card in its place behind a slot until it is let go, unless placeholder is %s', async (placeholder) => {
+        const columns = ref<TaskboardColumn[]>([
+            { key: 'a', title: 'A', items: [{ id: 1, title: 'One' }, { id: 2, title: 'Two' }] },
+            { key: 'b', title: 'B', items: [{ id: 3, title: 'Three' }] }
+        ]);
+        mountVt(defineComponent(() => () => h(Taskboard, { placeholder, columns: columns.value, 'onUpdate:columns': (v: TaskboardColumn[]) => (columns.value = v) })));
+        const cells = () => document.querySelectorAll<HTMLElement>('[data-vt-cell]');
+        const titles = (cell: HTMLElement) => [...cell.querySelectorAll('[data-vt-card]')].map((el) => el.textContent);
+        document.querySelectorAll<HTMLElement>('[data-vt-card]')[2]!.getBoundingClientRect = () => ({ top: 0, height: 20, left: 0, width: 100 }) as DOMRect;
+        document.elementFromPoint = () => cells()[1]!;
+        const at = (type: string, x: number, y: number) => new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0 });
+        document.querySelectorAll<HTMLElement>('[data-vt-card]')[0]!.dispatchEvent(at('pointerdown', 0, 0));
+        document.dispatchEvent(at('pointermove', 30, 50));
+        await nextTick();
+        if (placeholder) {
+            // The card stays in A, faded; B opens a slot after Three.
+            expect(titles(cells()[0]!)).toEqual(['One', 'Two']);
+            expect(cells()[0]!.querySelector('[data-vt-card]')!.classList.contains('vt-taskboard-card-dragging')).toBe(true);
+            expect([...cells()[1]!.querySelectorAll('[data-vt-list] > li')].map((el) => (el.classList.contains('vt-taskboard-card-slot') ? 'slot' : el.textContent))).toEqual(['Three', 'slot']);
+        } else {
+            expect(titles(cells()[0]!)).toEqual(['Two']);
+            expect(titles(cells()[1]!)).toEqual(['Three', 'One']);
+            expect(document.querySelector('.vt-taskboard-card-slot')).toBeNull();
+        }
+        document.dispatchEvent(at('pointerup', 30, 50));
+        await settle();
+        expect(columns.value.map((c) => c.items!.map((i) => (i as { title: string }).title))).toEqual([['Two'], ['Three', 'One']]);
+        expect(document.querySelector('.vt-taskboard-card-slot')).toBeNull();
+    });
+
     it('has no accessibility violations, at rest and while carrying a card', async () => {
         const { card } = mountFlat({ laneField: 'lane' });
         await expectNoA11yViolations();

@@ -288,6 +288,27 @@
     box-shadow: none;
 }
 
+/* Where a dragged card would land: a hollow as tall as the card. */
+.vt-taskboard-card-slot {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    border-radius: var(--vt-taskboard-slot-border-radius);
+    background: var(--vt-taskboard-slot-background);
+}
+
+/* Where a dragged column would go: a hollow track, rounded at its head and its foot. */
+.vt-taskboard-column-slot {
+    background: var(--vt-taskboard-slot-background);
+}
+
+.vt-taskboard-column-slot-header {
+    border-radius: var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius) 0 0;
+}
+
+.vt-taskboard-column-slot-footer {
+    border-radius: 0 0 var(--vt-taskboard-column-border-radius) var(--vt-taskboard-column-border-radius);
+}
+
 .vt-taskboard-card-disabled {
     opacity: var(--vt-taskboard-card-disabled-opacity);
     cursor: default;

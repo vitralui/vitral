@@ -72,6 +72,10 @@ export const taskboardStyle = defineStyle({
         addCard: 'vt-taskboard-add',
         footer: (s: TaskboardColumnState) => column('vt-taskboard-footer', s),
         preview: 'vt-taskboard-preview',
+        /** Where a dragged card would land, opened among the cards while it is dragged. */
+        cardSlot: 'vt-taskboard-card-slot',
+        /** Where a dragged column would go: a piece in the head, in each row of cells and in the foot. */
+        columnSlot: (s: { edge?: 'header' | 'cell' | 'footer' }) => ['vt-taskboard-column-slot', `vt-taskboard-column-slot-${s.edge}`],
         status: 'vt-sr-only',
         instructions: 'vt-sr-only'
     }

@@ -65,6 +65,9 @@ export default {
         disabledOpacity: '{disabledOpacity}',
         lockedIconColor: '{text.mutedColor}'
     },
+    slot: {
+        borderRadius: '{borderRadius.md}'
+    },
     preview: {
         shadow: '0 12px 28px -6px rgba(0, 0, 0, 0.3)',
         rotate: '2deg',
@@ -92,11 +95,13 @@ export default {
         light: {
             column: { background: '{surface.100}', borderColor: 'transparent', dropBackground: '{primary.50}' },
             card: { background: '{surface.0}' },
+            slot: { background: '{surface.200}' },
             preview: { background: '{surface.0}' }
         },
         dark: {
             column: { background: '{surface.900}', borderColor: '{surface.800}', dropBackground: 'color-mix(in srgb, {primary.400} 10%, {surface.900})' },
             card: { background: '{surface.800}' },
+            slot: { background: '{surface.950}' },
             preview: { background: '{surface.800}' }
         }
     }

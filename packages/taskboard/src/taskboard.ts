@@ -100,7 +100,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
     let columnDrag: ColumnDrag | null = null;
     let activeKey: string | null = null;
     let announcement = '';
-    let preview: { x: number; y: number; offsetX: number; offsetY: number; width: number } | null = null;
+    let preview: { x: number; y: number; offsetX: number; offsetY: number; width: number; height: number } | null = null;
     let hoverList: Element | null = null;
     let lastPoint = { x: 0, y: 0 };
     let stopPreview: (() => void) | null = null;
@@ -158,16 +158,39 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
 
     const dragAt = () => (drag ? entries().findIndex((entry) => keyOf(entry.item) === drag!.key) : -1);
 
-    /** The cards as they are drawn: with the move in progress applied, unless it would be refused. */
+    /**
+     * The cards as they are drawn. A card carried by the keyboard is drawn
+     * where it would land, so focus and the reader go with it; one dragged by
+     * the pointer stays where it is, faded, and a slot opens where it would
+     * land (`slotOf`) — it leaves its place only when it is let go.
+     */
     function shown(): BoardEntry[] {
         const list = entries();
         if (isFiltering(current.filter)) return list.filter((entry) => matchesTaskboardFilter(entry.item, current.filter, locale().code));
-        if (!drag || !drag.to || drag.refused) return list;
+        if (!drag || !drag.to || drag.refused || (drag.via === 'pointer' && settings().placeholder)) return list;
         const at = dragAt();
         return at < 0 ? list : moveCard(list, at, drag.to).entries;
     }
 
-    const shownColumns = () => (columnDrag ? moveItem(columns(), columnDrag.from, columnDrag.to) : columns());
+    // A column moved by the keyboard is drawn moved; one dragged by the pointer stays, faded, with a slot where it would go.
+    const shownColumns = () => (columnDrag && (columnDrag.via === 'keyboard' || !settings().placeholder) ? moveItem(columns(), columnDrag.from, columnDrag.to) : columns());
+
+    /** Where a card dragged by the pointer would land, as a slot as tall as the card — none over its own place, or where it is refused. */
+    function cardSlot(): ViewContext['cardSlot'] {
+        if (!drag || drag.via !== 'pointer' || !settings().placeholder || !drag.to || drag.refused || !preview) return undefined;
+        const { from, to } = drag;
+        if (from.column === to.column && from.lane === to.lane && from.index === to.index) return undefined;
+        return { column: to.column, lane: to.lane, index: to.index, height: preview.height };
+    }
+
+    /** Where among the drawn columns a column dragged by the pointer would go, as a slot: before the column now at that place among the others. */
+    function columnSlot(): number | undefined {
+        if (!columnDrag || columnDrag.via !== 'pointer' || !settings().placeholder || columnDrag.from === columnDrag.to) return undefined;
+        const drawn = columns();
+        const others = drawn.filter((column) => column.key !== columnDrag!.key);
+        const before = others[columnDrag.to];
+        return before ? drawn.indexOf(before) : drawn.length;
+    }
 
     function emit<K extends keyof NonNullable<TaskboardConfig['on']>>(name: K, payload: Parameters<NonNullable<NonNullable<TaskboardConfig['on']>[K]>>[0]) {
         const handler = current.on?.[name] as ((value: unknown) => void) | undefined;
@@ -452,7 +475,7 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
         onStart: ({ item, el }, info) => {
             if (!grab(item, 'pointer')) return false;
             const rect = el.getBoundingClientRect();
-            preview = { x: info.x, y: info.y, offsetX: info.x - rect.left - info.dx, offsetY: info.y - rect.top - info.dy, width: rect.width };
+            preview = { x: info.x, y: info.y, offsetX: info.x - rect.left - info.dx, offsetY: info.y - rect.top - info.dy, width: rect.width, height: rect.height };
             activeKey = keyOf(item);
             render();
         },
@@ -634,6 +657,9 @@ export function createTaskboard(element: HTMLElement, config: TaskboardConfig = 
             tabbableKey: tabbableKey(),
             movable,
             columnState: (column) => columnState(drawn, column),
+            cardSlot: cardSlot(),
+            columnSlot: columnSlot(),
+            draggingKey: drag?.key ?? null,
             cellState: (column, lane) => {
                 const state = columnState(drawn, column);
                 const here = drag?.to?.column === column.key && drag?.to?.lane === lane?.key;

@@ -48,7 +48,8 @@ const props = withDefaults(defineProps<TaskboardProps>(), {
     reorderColumns: true,
     collapsible: true,
     autoScroll: true,
-    touchDelay: 250
+    touchDelay: 250,
+    placeholder: true
 });
 const collapsedColumns = defineModel<TaskboardKey[]>('collapsedColumns');
 const collapsedLanes = defineModel<TaskboardKey[]>('collapsedLanes');
@@ -190,6 +191,7 @@ const inputs = (): TaskboardConfig => ({
     collapsible: props.collapsible,
     autoScroll: props.autoScroll,
     touchDelay: props.touchDelay,
+    placeholder: props.placeholder,
     scrollHeight: props.scrollHeight,
     disabled: props.disabled,
     collapsedColumns: collapsedColumns.value,
@@ -261,6 +263,7 @@ watch(
         props.collapsible,
         props.autoScroll,
         props.touchDelay,
+        props.placeholder,
         props.scrollHeight,
         props.disabled
     ],

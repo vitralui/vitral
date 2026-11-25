@@ -48,6 +48,12 @@ export interface ViewContext {
     columnState: (column: TaskboardColumn) => Record<string, unknown>;
     cellState: (column: TaskboardColumn, lane: TaskboardLane | undefined) => Record<string, unknown>;
     cardState: (key: string, item: unknown) => Record<string, unknown>;
+    /** The card being dragged, which stays where it is until it is let go. */
+    draggingKey: string | null;
+    /** Where a card dragged by the pointer would land: a slot as tall as the card, at this place among the cell's other cards. */
+    cardSlot?: { column: unknown; lane?: unknown; index: number; height: number };
+    /** Where a column dragged by the pointer would go: a slot before the drawn column at this place, or after the last. */
+    columnSlot?: number;
     on: BoardActions;
 }
 
@@ -69,22 +75,37 @@ const cardsIn = (context: ViewContext, column: TaskboardColumn, lane: TaskboardL
 export function boardView(context: ViewContext): Child[] {
     const { part, locale, settings } = context;
     const laneRows: (TaskboardLane | undefined)[] = context.lanes ?? [undefined];
-    const gridStyle = {
-        'grid-template-columns': context.columns
-            .map((column) => (context.isCollapsed(column) ? 'var(--vt-taskboard-column-collapsed-width)' : 'var(--vt-taskboard-column-width)'))
-            .join(' ')
+    const slotAt = context.columnSlot;
+    const tracks = context.columns.map((column) => (context.isCollapsed(column) ? 'var(--vt-taskboard-column-collapsed-width)' : 'var(--vt-taskboard-column-width)'));
+    if (slotAt !== undefined) tracks.splice(slotAt, 0, 'var(--vt-taskboard-column-width)');
+    const gridStyle = { 'grid-template-columns': tracks.join(' ') };
+    /** A row's pieces with the column slot's own among them, where the dragged column would go. */
+    const withSlot = (pieces: Child[], edge: 'header' | 'cell' | 'footer', row = 0): Child[] => {
+        if (slotAt === undefined) return pieces;
+        const out = [...pieces];
+        out.splice(slotAt, 0, h('div', mergeAttrs({ key: `slot-${edge}-${row}`, 'aria-hidden': 'true' }, part('columnSlot', { edge }))));
+        return out;
     };
 
     return [
         h(
             'div',
             mergeAttrs({ key: 'grid' }, part('grid'), { style: gridStyle }),
-            context.columns.map((column) => columnHeader(context, column)),
+            withSlot(
+                context.columns.map((column) => columnHeader(context, column)),
+                'header'
+            ),
             laneRows.flatMap((lane, row) => [
                 lane ? laneHeader(context, lane) : null,
-                ...(lane && context.isLaneCollapsed(lane) ? [] : context.columns.map((column) => cellView(context, column, lane, row, laneRows.length)))
+                ...(lane && context.isLaneCollapsed(lane)
+                    ? []
+                    : withSlot(
+                          context.columns.map((column) => cellView(context, column, lane, row, laneRows.length)),
+                          'cell',
+                          row
+                      ))
             ]),
-            context.columns.map((column) =>
+            withSlot(context.columns.map((column) =>
                 h(
                     'div',
                     mergeAttrs({ key: `f-${column.key}` }, part('footer', context.columnState(column))),
@@ -100,7 +121,7 @@ export function boardView(context: ViewContext): Child[] {
                               })
                           )
                 )
-            )
+            ), 'footer')
         ),
         h('span', { key: 'help', id: context.ids.help, hidden: true }, locale.aria.taskboardInstructions),
         h('span', { key: 'column-help', id: context.ids.columnHelp, hidden: true }, locale.aria.taskboardColumnInstructions),
@@ -227,16 +248,41 @@ function cellView(context: ViewContext, column: TaskboardColumn, lane: Taskboard
                 'aria-label': lane ? formatMessage(locale.aria.taskboardCell, { column: name, lane: lane.title ?? String(lane.key) }) : undefined,
                 style: config.scrollHeight ? { 'max-height': config.scrollHeight } : undefined
             }),
-            collapsed ? null : cards.map((card) => cardView(context, card, column, lane))
+            collapsed ? null : withCardSlot(context, cards, column, lane)
         ),
         collapsed && row === 0 ? h('span', mergeAttrs({ key: 'strip', 'aria-hidden': 'true' }, part('strip')), name) : null,
         collapsed
             ? null
             : [
-                  cards.length ? null : h('div', mergeAttrs({ key: 'empty' }, part('empty')), content(config.content?.empty?.({ column, lane })) ?? locale.aria.taskboardEmpty),
+                  cards.length || slotHere(context, column, lane) ? null : h('div', mergeAttrs({ key: 'empty' }, part('empty')), content(config.content?.empty?.({ column, lane })) ?? locale.aria.taskboardEmpty),
                   config.content?.addCard ? h('div', mergeAttrs({ key: 'add' }, part('addCard')), content(config.content.addCard({ column, lane }))) : null
               ]
     );
+}
+
+const slotHere = (context: ViewContext, column: TaskboardColumn, lane: TaskboardLane | undefined) =>
+    !!context.cardSlot && context.cardSlot.column === column.key && context.cardSlot.lane === lane?.key;
+
+/**
+ * A cell's cards, with the slot where a dragged card would land opened among
+ * them: before the card at that place among the others, the dragged one,
+ * still in its place, not counted.
+ */
+function withCardSlot(context: ViewContext, cards: CardView[], column: TaskboardColumn, lane: TaskboardLane | undefined): Child[] {
+    const drawn: Child[] = cards.map((card) => cardView(context, card, column, lane));
+    if (!slotHere(context, column, lane)) return drawn;
+    const slot = h('li', mergeAttrs({ key: 'slot', 'aria-hidden': 'true' }, context.part('cardSlot'), { style: { height: `${context.cardSlot!.height}px` } }));
+    let others = 0;
+    for (let at = 0; at < cards.length; at++) {
+        if (cards[at]!.key === context.draggingKey) continue;
+        if (others === context.cardSlot!.index) {
+            drawn.splice(at, 0, slot);
+            return drawn;
+        }
+        others++;
+    }
+    drawn.push(slot);
+    return drawn;
 }
 
 function cardView(context: ViewContext, card: CardView, column: TaskboardColumn, lane: TaskboardLane | undefined): Child {
