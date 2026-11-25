@@ -76,6 +76,34 @@
             "title": "Sparklines",
             "description": "`sparkline` numa coluna desenha seus números como um gráfico da altura da célula: uma linha com o menor, o maior e o último ponto marcados, uma área com todas as linhas na mesma escala (`domain: &quot;column&quot;`), colunas com os resgates abaixo do zero, e uma barra para um número só, colorida pelo valor. O ponteiro parado num ponto lê o valor, e um leitor de tela ouve o primeiro, o último, o menor e o maior. Os preços mudam conforme os fundos fecham."
         },
+        "Values worked out": {
+            "title": "Valores calculados",
+            "description": "Uma coluna pode mostrar um valor que a linha não guarda: `value-getter` calcula o total de cada linha a partir do preço, da quantidade e do desconto, e o grid ordena, filtra e soma esse valor como qualquer outro. `value-formatter` escreve um valor do seu jeito — como dinheiro, como porcentagem — enquanto a ordenação, o filtro e a exportação ficam com o número. `comparator` ordena Size do menor para o maior em vez de pelo alfabeto."
+        },
+        "Cells styled by their value": {
+            "title": "Células com estilo pelo valor",
+            "description": "`body-class` e `body-style` aceitam uma função da célula, então a aparência segue os dados: a carga de CPU é desenhada atrás do número na cor de quão alta está, uma latência lenta fica vermelha, e `row-class` risca um servidor que não responde. `tooltip` como função diz o porquê, nas células que precisam."
+        },
+        "Defaults for every column, and flex widths": {
+            "title": "Padrões para todas as colunas, e larguras flex",
+            "description": "`column-defaults` dá a cada coluna o que ela não diz por si: aqui `{ sortable: true, filter: true }` torna todas ordenáveis e filtráveis de uma vez, e Rating sai da ordenação. `flex` divide o espaço que as colunas fixas deixam: Title fica com o dobro de Author, qualquer que seja a largura do grid."
+        },
+        "A filter of the page's own": {
+            "title": "Um filtro da própria página",
+            "description": "`external-filter` é uma função da página: as linhas que ela recusa ficam de fora antes da busca, da ordenação e dos totais. Aqui os botões acima a escolhem — tudo, o que está abaixo do ponto de reposição, ou o que esgotou — e a busca no cabeçalho continua estreitando o que sobra."
+        },
+        "Right to left": {
+            "title": "Da direita para a esquerda",
+            "description": "Dentro de `dir=&quot;rtl&quot;` o grid lê a partir da direita: as colunas fixas grudam na borda direita, a rolagem começa ali, as setas e o paginador se invertem, e os números continuam alinhados ao seu fim."
+        },
+        "Layout: a ledger, month by month": {
+            "title": "Layout: um livro-caixa, mês a mês",
+            "description": "Entradas e saídas como um contador lê: cada mês escrito uma vez sobre seus lançamentos com `span-rows`, cada linha numerada, as saídas e um saldo abaixo de zero em vermelho por `body-style`, e uma linha de totais em que Amount é uma soma e Balance é o último saldo, por um `aggregate` próprio."
+        },
+        "Layout: hours as a heat map": {
+            "title": "Layout: horas como um mapa de calor",
+            "description": "Uma semana de turnos lida de relance: as horas de cada dia colorem a célula mais forte conforme crescem, um dia com mais de nove horas na cor de alerta, e o ponteiro parado numa célula diz de quem é o dia e quanto passou. O total da semana é calculado a partir da linha por `value-getter`, vermelho acima de 44 horas, e cada equipe é escrita uma vez."
+        },
         "Merged cells": {
             "title": "Células mescladas",
             "description": "`row-numbers` põe o número de cada linha primeiro, preso à borda esquerda, contando através das páginas. `span-rows` numa coluna desenha uma sequência do mesmo valor como uma célula só, o valor uma vez no meio dela e cada linha ainda o dizendo a um leitor de tela, e uma sequência mais alta que a área visível mantendo o valor à vista enquanto as linhas rolam (`span-rows-sticky=&quot;false&quot;` o deixa no meio); uma função diz quais células vão juntas no lugar disso. `col-span` estica uma célula sobre as colunas ao lado, por linha: aqui um intervalo não tem sala, então seu nome toma o lugar da sala. O teclado passa por uma célula esticada como por uma só."
