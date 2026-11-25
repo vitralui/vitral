@@ -365,6 +365,10 @@ export interface DataGridMenuItem {
     disabled?: boolean;
     separator?: boolean;
     onSelect?: () => void;
+    /** Items opened beside this one: a submenu. */
+    items?: DataGridMenuItem[];
+    /** One of a choice: ticked when true, and announced as a radio item either way. */
+    checked?: boolean;
 }
 
 /** A change the reader made to a cell; the row already holds `newValue`. */
