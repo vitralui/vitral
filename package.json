@@ -17,6 +17,7 @@
     "test": "vitest run",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "check:nuxt": "node scripts/check-nuxt.mjs",
+    "check:release": "node scripts/check-release.mjs",
     "build": "pnpm gen && pnpm -r --filter \"./packages/*\" build"
   },
   "devDependencies": {
