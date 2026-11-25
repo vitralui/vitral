@@ -280,7 +280,8 @@ export const datagridStyle = defineStyle({
         sideTabIcon: 'vt-datagrid-side-tab-icon',
         sideTabLabel: 'vt-datagrid-side-tab-label',
         sidePanel: (s: { panel?: string }) => ['vt-datagrid-side-panel', s.panel ? `vt-datagrid-side-panel-${s.panel}` : ''],
-        sidePanelTitle: 'vt-datagrid-side-panel-title',
+        /** What stays at the top of a side panel while the rest of it scrolls: a search, a switch. */
+        sidePanelHead: 'vt-datagrid-side-panel-head',
         sideColumns: 'vt-datagrid-side-columns',
         sideColumn: (s: { dragging?: boolean; dropping?: boolean }) => ['vt-datagrid-side-column', { 'vt-datagrid-side-column-dragging': s.dragging, 'vt-datagrid-side-column-drop': s.dropping }],
         sideColumnHandle: 'vt-datagrid-side-column-handle',

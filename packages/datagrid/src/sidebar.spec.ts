@@ -69,6 +69,18 @@ describe('the side bar', () => {
         expect(listed()).toEqual(['Total']);
     });
 
+    it('names a panel by its tab alone, keeping its search and its tick for all at the top as the list scrolls', () => {
+        const { element, tab } = mount();
+        tab('columns').click();
+        const panel = element.querySelector('.vt-datagrid-side-panel')!;
+        expect(panel.querySelector('h2')).toBeNull();
+        expect(panel.getAttribute('aria-label')).toBe('Columns');
+        const head = panel.querySelector('.vt-datagrid-side-panel-head')!;
+        expect(head.querySelector('[data-side-search]')).not.toBeNull();
+        expect(head.querySelector('input[type="checkbox"]')).not.toBeNull();
+        expect(head.querySelector('[data-side-column]')).toBeNull();
+    });
+
     it('shows every column at once, and keeps one when hiding them all', () => {
         const { element, tab, headers } = mount();
         tab('columns').click();

@@ -1222,30 +1222,35 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
         const shown = side.columns.filter((entry) => !search || entry.header.toLocaleLowerCase(locale.code).includes(search));
         const visible = side.columns.filter((entry) => entry.visible).length;
         return [
+            // The search and the tick for all of them stay at the top while the list scrolls under them.
             h(
-                'span',
-                mergeAttrs({ key: 'search' }, part('filterField')),
+                'div',
+                mergeAttrs({ key: 'head' }, part('sidePanelHead')),
                 h(
-                    'input',
-                    mergeAttrs({ type: 'search' }, part('filterInput'), {
-                        value: side.search,
-                        placeholder: words.searchColumns,
-                        'aria-label': words.searchColumns,
-                        'data-side-search': '',
-                        onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
-                    })
+                    'span',
+                    mergeAttrs({ key: 'search' }, part('filterField')),
+                    h(
+                        'input',
+                        mergeAttrs({ type: 'search' }, part('filterInput'), {
+                            value: side.search,
+                            placeholder: words.searchColumns,
+                            'aria-label': words.searchColumns,
+                            'data-side-search': '',
+                            onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
+                        })
+                    )
+                ),
+                h(
+                    'label',
+                    mergeAttrs({ key: 'all' }, part('filterValue', { all: true })),
+                    h('input', {
+                        type: 'checkbox',
+                        checked: visible === side.columns.length,
+                        ref: (el: Element) => ((el as HTMLInputElement).indeterminate = visible > 0 && visible < side.columns.length),
+                        onChange: (event: Event) => context.on.sideAll((event.target as HTMLInputElement).checked, event)
+                    }),
+                    h('span', null, words.selectAll)
                 )
-            ),
-            h(
-                'label',
-                mergeAttrs({ key: 'all' }, part('filterValue', { all: true })),
-                h('input', {
-                    type: 'checkbox',
-                    checked: visible === side.columns.length,
-                    ref: (el: Element) => ((el as HTMLInputElement).indeterminate = visible > 0 && visible < side.columns.length),
-                    onChange: (event: Event) => context.on.sideAll((event.target as HTMLInputElement).checked, event)
-                }),
-                h('span', null, words.selectAll)
             ),
             h(
                 'ul',
@@ -1299,18 +1304,22 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
               )
             : null,
         h(
-            'span',
-            mergeAttrs({ key: 'search' }, part('filterField')),
-            iconView('search'),
+            'div',
+            mergeAttrs({ key: 'search' }, part('sidePanelHead')),
             h(
-                'input',
-                mergeAttrs({ type: 'search' }, part('filterInput'), {
-                    value: side.search,
-                    placeholder: words.searchColumns,
-                    'aria-label': words.searchColumns,
-                    'data-side-search': '',
-                    onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
-                })
+                'span',
+                part('filterField'),
+                iconView('search'),
+                h(
+                    'input',
+                    mergeAttrs({ type: 'search' }, part('filterInput'), {
+                        value: side.search,
+                        placeholder: words.searchColumns,
+                        'aria-label': words.searchColumns,
+                        'data-side-search': '',
+                        onInput: (event: Event) => context.on.sideSearch((event.target as HTMLInputElement).value)
+                    })
+                )
             )
         ),
         h(
@@ -1380,7 +1389,6 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                       role: 'region',
                       'aria-label': panelName(side.open)
                   }),
-                  h('h2', part('sidePanelTitle'), panelName(side.open)),
                   side.open === 'columns'
                       ? columnsPanel()
                       : side.open === 'pivot'
@@ -1461,17 +1469,22 @@ function pivotPanelView<T>(context: ViewContext<T>, view: PivotPanelView): Child
         );
     };
     return [
+        // The switch stays at the top while the places and the fields scroll under it.
         h(
-            'label',
-            mergeAttrs({ key: 'mode' }, part('filterValue', { all: true })),
-            h('input', {
-                type: 'checkbox',
-                role: 'switch',
-                checked: view.enabled,
-                'data-pivot-mode': '',
-                onChange: (event: Event) => context.on.pivotEnable((event.target as HTMLInputElement).checked)
-            }),
-            h('span', null, words.pivotMode)
+            'div',
+            mergeAttrs({ key: 'mode' }, part('sidePanelHead')),
+            h(
+                'label',
+                part('filterValue', { all: true }),
+                h('input', {
+                    type: 'checkbox',
+                    role: 'switch',
+                    checked: view.enabled,
+                    'data-pivot-mode': '',
+                    onChange: (event: Event) => context.on.pivotEnable((event.target as HTMLInputElement).checked)
+                }),
+                h('span', null, words.pivotMode)
+            )
         ),
         zone('rows'),
         zone('columns'),
