@@ -564,6 +564,14 @@ export interface DataGridConfig<T = Row> extends Partial<DataGridModels> {
      */
     fillRows?: boolean;
     /**
+     * `'stack'`: once the grid is narrower than `breakpoint`, each row is a
+     * card of its cells, one under another, each labelled with its column's
+     * header — for a phone, where columns side by side do not fit.
+     */
+    responsiveLayout?: 'stack';
+    /** The grid's width under which `responsiveLayout` stacks the rows, in pixels or a CSS pixel length. `960` by default. */
+    breakpoint?: number | string;
+    /**
      * Keeps what the reader arranged between visits, under this name in the
      * browser's storage: the columns' order, widths, pins and the ones hidden,
      * the sort, the page size and how close the rows sit. What was kept wins

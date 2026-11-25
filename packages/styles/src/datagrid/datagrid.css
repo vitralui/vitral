@@ -2459,3 +2459,74 @@
 .vt-datagrid-gridlines .vt-datagrid-fill-row > :last-child {
     border-inline-end: 0;
 }
+
+/* ---- rows as cards (`responsiveLayout: 'stack'`, under the breakpoint) ---- */
+
+/* One card a row, its cells one under another; the columns' tracks no longer hold. */
+.vt-datagrid-stacked [data-grid-table] {
+    display: block;
+    width: auto;
+    min-width: 0;
+}
+
+.vt-datagrid-stacked [data-grid-table] > [data-section],
+.vt-datagrid-stacked [data-grid-table] > [data-section] > * {
+    display: block;
+}
+
+/* The head is left to assistive technology: each cell says its column itself. */
+.vt-datagrid-stacked [data-section='head'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.vt-datagrid-stacked .vt-datagrid-tbody > .vt-datagrid-row {
+    margin: 0.5rem;
+    padding: 0.25rem 0;
+    border: 1px solid var(--vt-datagrid-border-color);
+    border-radius: var(--vt-border-radius-md, 0.5rem);
+}
+
+/* Each cell a line: its column's name, then its value. A pinned cell stays in its card. */
+.vt-datagrid-stacked .vt-datagrid-body-cell {
+    display: grid;
+    grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+    justify-items: start;
+    position: static !important;
+    border: 0;
+    text-align: start;
+}
+
+/* A pinned cell is one more line of its card: no ground or shadow of its own. */
+.vt-datagrid-stacked .vt-datagrid-body-cell.vt-datagrid-pinned {
+    background: none;
+    box-shadow: none;
+}
+
+.vt-datagrid-stacked .vt-datagrid-body-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--vt-text-muted-color, var(--vt-datagrid-row-color));
+}
+
+/* A cell with no column name (a checkbox, an expander) has its value alone. */
+.vt-datagrid-stacked .vt-datagrid-body-cell[data-label='']::before,
+.vt-datagrid-stacked .vt-datagrid-body-cell:not([data-label])::before {
+    content: none;
+}
+
+.vt-datagrid-stacked .vt-datagrid-body-cell[data-label=''],
+.vt-datagrid-stacked .vt-datagrid-body-cell:not([data-label]) {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.vt-datagrid-stacked .vt-datagrid-filler-cell,
+.vt-datagrid-stacked .vt-datagrid-spacer-cell {
+    display: none;
+}

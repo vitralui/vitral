@@ -85,6 +85,8 @@ export interface ViewContext<T = Row> {
     toolbar?: ToolbarView[];
     /** The columns drawer, while it is open. */
     drawer?: ColumnsDrawerView;
+    /** The rows drawn as cards of labelled cells (`responsiveLayout: 'stack'`, under the breakpoint). */
+    stacked?: boolean;
     /** Empty rows down to the box's foot: as high as a row, and whether the rows above are an odd count. */
     fillRows?: { height: number; odd: boolean };
     /** The data dictionary's drawer, while it is open. */
@@ -1966,6 +1968,8 @@ function lineView<T>(context: ViewContext<T>, line: ViewContext<T>['lines'][numb
                         'aria-colindex': colIndex(context, column),
                         'aria-colspan': across ? String(across) : undefined,
                         'data-col': column.key,
+                        // Stacked, a cell reads its column's header as its label.
+                        'data-label': context.stacked ? column.header : undefined,
                         ...runAttrs(column.key, run),
                         'data-editing': open ? '' : undefined,
                         'aria-selected': context.config.cellSelection ? String(!!context.range && context.range.box.rows.includes(index) && context.range.box.keys.includes(column.key)) : undefined,

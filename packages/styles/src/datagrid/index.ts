@@ -4,6 +4,8 @@ import css from './datagrid.css?raw';
 export interface DataGridState {
     /** The room under the rows goes on as empty rows. */
     fillRows?: boolean;
+    /** The rows are cards of labelled cells. */
+    stacked?: boolean;
     striped?: boolean;
     gridlines?: boolean;
     size?: 'small' | 'large';
@@ -93,7 +95,8 @@ export const datagridStyle = defineStyle({
                 'vt-datagrid-scrollable': s.scrollable,
                 'vt-datagrid-loading': s.loading,
                 'vt-datagrid-fixed-rows': s.fixedRows,
-                'vt-datagrid-tools-on-hover': s.toolsOnHover
+                'vt-datagrid-tools-on-hover': s.toolsOnHover,
+                'vt-datagrid-stacked': s.stacked
             }
         ],
         header: 'vt-datagrid-header',

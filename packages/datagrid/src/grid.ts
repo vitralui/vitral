@@ -201,6 +201,23 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     let lastSidePanel: SidePanel | null = null;
     /** The empty rows' height and stripe, as last read (`fitFill`). */
     let fill = { height: 0, odd: false };
+    /** Whether the rows are drawn as cards: `responsiveLayout: 'stack'` and the grid narrower than its breakpoint. */
+    let stacked = false;
+    const stackWatch =
+        typeof ResizeObserver === 'undefined'
+            ? null
+            : new ResizeObserver(() => {
+                  const next = isStacked();
+                  if (next === stacked) return;
+                  stacked = next;
+                  render();
+              });
+    stackWatch?.observe(element);
+    function isStacked() {
+        if (current.responsiveLayout !== 'stack') return false;
+        const below = typeof current.breakpoint === 'number' ? current.breakpoint : Number.parseFloat(current.breakpoint ?? '') || 960;
+        return element.clientWidth > 0 && element.clientWidth < below;
+    }
     let dictionaryOpen = false;
     let dictionaryTrap: FocusTrap | null = null;
     let sideDragging: string | null = null;
@@ -2523,6 +2540,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     // ---- drawing --------------------------------------------------------------------
 
     function render(state = frame()) {
+        // The option or the breakpoint may have changed since the width was last looked at.
+        stacked = isStacked();
         // An edited row the rows no longer hold — the data changed under it — has nothing left to edit.
         if (editing) {
             const at = state.rows.page.indexOf(editing.rowData);
@@ -2576,7 +2595,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             menus: { filter: true, column: !!current.columnMenu, open: menuKey, info: current.columnInfo !== false, infoOpen: infoKey },
             toolbar: toolbarView(),
             drawer: drawerViewOf(),
-            fillRows: current.fillRows && rowsNow().page.length ? fill : undefined,
+            stacked,
+            fillRows: current.fillRows && !stacked && rowsNow().page.length ? fill : undefined,
             dictionaryDrawer: dictionaryOpen ? { entries: dictionaryEntries(), module: current.dictionaryModule, subtitle: current.dictionarySubtitle, search: sideSearch } : undefined,
             rowDrag: rowDrag ?? (columnsNow().some((column) => column.column.rowDrag) ? { index: -1, over: null, after: false } : undefined),
             status: current.statusBar ? statusOf(rows) : undefined,
@@ -2597,7 +2617,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                 scrollable,
                 loading: context.busy,
                 fixedRows: !!current.rowHeight,
-                toolsOnHover: current.headerTools === 'hover'
+                toolsOnHover: current.headerTools === 'hover',
+                stacked
             })
         );
         drawn = {
@@ -3153,6 +3174,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             infoOverlay.destroy();
             drawerTrap?.deactivate();
             dictionaryTrap?.deactivate();
+            stackWatch?.disconnect();
             destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
             howSelects.forEach(({ select }) => select.destroy());

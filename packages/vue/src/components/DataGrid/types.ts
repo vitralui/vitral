@@ -226,6 +226,13 @@ export interface DataGridProps extends BaseProps, ScrollbarProps {
      * empty rows down to its foot: as high as the rows, striped with them and ruled on the columns' own tracks.
      */
     fillRows?: boolean;
+    /**
+     * `'stack'`: once the grid is narrower than `breakpoint`, each row is a card of its cells, one under another, each
+     * labelled with its column's header.
+     */
+    responsiveLayout?: 'stack';
+    /** The grid's width under which `responsiveLayout` stacks the rows, in pixels or a CSS pixel length. `960` by default. */
+    breakpoint?: number | string;
     /** A button by each header whose column has a `description`, which opens it. On by default. */
     columnInfo?: boolean;
     /**

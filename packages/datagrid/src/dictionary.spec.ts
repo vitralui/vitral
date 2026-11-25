@@ -256,6 +256,23 @@ describe('a header laid out as a report’s', () => {
         expect(fill()).toBeNull();
     });
 
+    it('stacks each row into a card of labelled cells under its breakpoint, when told to', () => {
+        const { element } = mount({ responsiveLayout: 'stack', breakpoint: '600px' });
+        let width = 400;
+        Object.defineProperty(element, 'clientWidth', { configurable: true, get: () => width });
+        handle!.refresh();
+        expect(element.classList).toContain('vt-datagrid-stacked');
+        const cell = element.querySelector('[data-section="body"] [role="row"][data-index="0"] [data-col="gross"]')!;
+        expect(cell.getAttribute('data-label')).toBe('Gross sale');
+        width = 800;
+        handle!.refresh();
+        expect(element.classList).not.toContain('vt-datagrid-stacked');
+        expect(element.querySelector('[data-label]')).toBeNull();
+        width = 400;
+        handle!.update({ responsiveLayout: undefined });
+        expect(element.classList).not.toContain('vt-datagrid-stacked');
+    });
+
     it('keeps the menu button in view unless told to show it on pointing, and keeps a least height', () => {
         const { element } = mount({ columnMenu: true, minHeight: '20rem', value: [] });
         expect(element.classList).not.toContain('vt-datagrid-tools-on-hover');
