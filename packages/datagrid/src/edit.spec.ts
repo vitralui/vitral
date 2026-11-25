@@ -160,12 +160,14 @@ describe('editing a cell', () => {
         expect(rows[0]!.name).toBe('Desk');
     });
 
-    it('edits a date in a date input and a boolean in a checkbox', () => {
-        const { cell, editor, key, rows, element } = mount();
+    it('edits a date in the kit’s date field and a boolean in a checkbox', () => {
+        const { cell, editor, key, rows, element, type } = mount();
         cell(0, 'due').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
-        expect(editor()!.type).toBe('date');
-        expect(editor()!.value).toBe('2026-01-15');
-        key(editor()!, 'Escape');
+        expect(editor()!.closest('.vt-datepicker')).not.toBeNull();
+        expect(editor()!.value).toBe('01/15/2026');
+        type('01/20/2026');
+        key(editor()!, 'Enter');
+        expect(rows[0]!.due).toEqual(new Date(2026, 0, 20));
         cell(1, 'active').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
         const box = element.querySelector('input[type="checkbox"][data-editor]') as HTMLInputElement;
         box.checked = true;

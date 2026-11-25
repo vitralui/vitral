@@ -122,13 +122,25 @@ describe('filtering from a header', () => {
         expect(names()).toEqual(['Ana', 'Carla', 'Elisa']);
     });
 
-    it('filters dates with a date input', () => {
+    it('filters dates in the kit’s date field, typed in the locale’s format or picked from its month', () => {
         const { panel, openFilter, type, names } = mount();
         openFilter('placed');
         const box = panel()!.querySelector('[data-filter-value="0"]') as HTMLInputElement;
-        expect(box.type).toBe('date');
-        type(box, '2026-02-03');
+        // Not the browser's date input: a text box in a date field with a calendar button beside it.
+        expect(box.type).toBe('text');
+        expect(box.closest('.vt-datepicker')).not.toBeNull();
+        type(box, '02/03/2026');
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         expect(names()).toEqual(['Bruno']);
+        // The month opens on the date chosen; another day is a press away.
+        (panel()!.querySelector('.vt-datepicker-dropdown') as HTMLButtonElement).click();
+        const month = document.querySelector('.vt-datepicker-panel')!;
+        expect(month.querySelector('[aria-selected="true"]')!.getAttribute('data-date')).toBe('2026-2-3');
+        expect(month.querySelector('.vt-datepicker-title')!.textContent).toBe('February 2026');
+        (month.querySelector('.vt-datepicker-next') as HTMLButtonElement).click();
+        (document.querySelector('[data-date="2026-3-21"]') as HTMLElement).click();
+        expect(names()).toEqual(['Carla']);
+        expect((panel()!.querySelector('[data-filter-value="0"]') as HTMLInputElement).value).toBe('03/21/2026');
     });
 
     it('ticks values in a list, searches it, and selects all of what it found', () => {

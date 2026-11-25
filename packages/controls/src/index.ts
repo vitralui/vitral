@@ -15,3 +15,4 @@ export { createOverlay, type CloseReason, type Overlay, type OverlayOptions, typ
 export { createSelect, type SelectConfig, type SelectHandle, type SelectOption } from './select';
 export { createMenu, type MenuConfig, type MenuHandle, type MenuItem } from './menu';
 export { createTooltips, type Tooltips, type TooltipsOptions } from './tooltip';
+export { createDatePicker, type DatePickerConfig, type DatePickerHandle } from './datepicker';

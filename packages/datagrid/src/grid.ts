@@ -25,7 +25,7 @@ import {
     type FilterMeta,
     type Locale
 } from '@vitral/core';
-import { createMenu, createOverlay, createSelect, createTooltips, type MenuItem, type SelectHandle } from '@vitral/controls';
+import { createDatePicker, createMenu, createOverlay, createSelect, createTooltips, type DatePickerHandle, type MenuItem, type SelectHandle } from '@vitral/controls';
 import { createRoot, partResolver, scrollbarSlot, type ScrollbarInset } from '@vitral/dom';
 import { bookOpen, columns as columnsIcon, download, info as infoIcon, pin, registerIcons, rows as rowsIcon, sigma, table as tableIcon } from '@vitral/icons';
 import { baseStyle, buttonStyle, datagridLayoutStyle, datagridStyle, drawerStyle, paginatorStyle, scrollpanelStyle, toggleswitchStyle } from '@vitral/styles';
@@ -216,6 +216,11 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
                   const next = isStacked();
                   if (next === stacked) return;
                   stacked = next;
+                  // A panel open beside the rows is shut rather than turned into a drawer over the page by a narrower window;
+                  // a drawer the window widens out of becomes the panel beside them again, with focus free.
+                  if (next && sidePanel) return showPanel(null);
+                  sideTrap?.deactivate();
+                  sideTrap = null;
                   render();
               });
     stackWatch?.observe(element);
@@ -226,6 +231,8 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     }
     let dictionaryOpen = false;
     let dictionaryTrap: FocusTrap | null = null;
+    /** Keeps focus in the side bar's panel while it is a drawer, as it is over rows drawn as cards. */
+    let sideTrap: FocusTrap | null = null;
     let sideDragging: string | null = null;
     let sideDropOn: string | null = null;
     // The pivot panel: a field being dragged, where it would land, and the selects that say how each value is worked out.
@@ -234,6 +241,41 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     const howSelects = new Map<string, { host: HTMLElement; select: ReturnType<typeof createSelect> }>();
     const modeHosts: HTMLElement[] = [];
     const modeSelects: (SelectHandle | undefined)[] = [];
+    const dateHosts: HTMLElement[] = [];
+    const datePickers: (DatePickerHandle | undefined)[] = [];
+    /** The date fields of the cells being edited, by column key; let go when the editing stops. */
+    const dateEditors = new Map<string, { host: HTMLElement; picker: DatePickerHandle }>();
+
+    function dateEditor(key: string, text: string, attrs: Record<string, unknown>): Content {
+        const settings = {
+            value: isoDate(text),
+            size: 'small' as const,
+            fluid: true,
+            invalid: attrs['aria-invalid'] === 'true',
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer,
+            inputAttrs: attrs,
+            pt: { root: { class: 'vt-datagrid-editor-date' } }
+        };
+        const kept = dateEditors.get(key);
+        if (kept) {
+            kept.picker.update(settings);
+            return kept.host;
+        }
+        const host = document.createElement('span');
+        const picker = createDatePicker(host, { ...settings, onChange: (date) => actions.editInput(key, date ? isoText(date) : '', true) });
+        dateEditors.set(key, { host, picker });
+        return host;
+    }
+
+    function releaseDateEditors() {
+        for (const { picker } of dateEditors.values()) picker.destroy();
+        dateEditors.clear();
+    }
     /** The context the last draw produced, which the column list draws from. */
     let drawn: ViewContext<T> | null = null;
     let pageSizeHost: HTMLElement | null = null;
@@ -1301,12 +1343,22 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
     function showPanel(panel: SidePanel | null) {
         const next = panel && sidePanels().includes(panel) ? panel : null;
         if (next === sidePanel) return;
+        const prev = sidePanel;
         sidePanel = next;
         if (next) lastSidePanel = next;
         if (draft?.inline) draft = null;
+        if (next && stacked && !current.unstyled) drawerStyles();
+        sideTrap?.deactivate();
+        sideTrap = null;
         render();
         emit('side-panel-change', { panel: sidePanel });
-        if (sidePanel) (element.querySelector('[data-side-search], [data-side-filter]') as HTMLElement | null)?.focus();
+        const drawer = sidePanel && stacked ? (element.querySelector('[data-side-drawer]') as HTMLElement | null) : null;
+        if (drawer) {
+            sideTrap = createFocusTrap(drawer, { initialFocus: '[data-side-search], [data-side-filter]' });
+            sideTrap.activate();
+        } else if (sidePanel) (element.querySelector('[data-side-search], [data-side-filter]') as HTMLElement | null)?.focus();
+        // Shut, the focus goes back to the tab that opened it.
+        if (!sidePanel && prev) (element.querySelector(`[data-side-tab="${prev}"]`) as HTMLElement | null)?.focus();
     }
 
     /** How close the rows sit, as the reader picked it; kept until the host hands another. */
@@ -1460,6 +1512,29 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
         return host;
     }
 
+    /** A date condition's value: the kit's date field, as the Vue DatePicker looks, rather than the browser's. */
+    function dateControl(at: 0 | 1, state: FilterDraft, header: string): Content {
+        const host = (dateHosts[at] ??= document.createElement('span'));
+        const settings = {
+            value: isoDate(state.texts[at]),
+            size: 'small' as const,
+            fluid: true,
+            ariaLabel: `${header}: ${locale().datagrid.filterValue} ${at + 1}`,
+            locale: locale(),
+            unstyled: current.unstyled,
+            overlayTarget: current.overlayTarget,
+            zIndex: current.zIndex,
+            nonce: current.nonce,
+            cssLayer: current.cssLayer,
+            inputAttrs: { 'data-filter-value': String(at) },
+            pt: { root: { class: 'vt-datagrid-filter-date' } }
+        };
+        const picker = datePickers[at];
+        if (picker) picker.update(settings);
+        else datePickers[at] = createDatePicker(host, { ...settings, onChange: (date) => actions.filterText(at, date ? isoText(date) : '') });
+        return host;
+    }
+
     function panelView(state: FilterDraft): FilterPanelView | undefined {
         const column = columnByKey(state.key);
         if (!column) return undefined;
@@ -1473,6 +1548,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             operator: state.operator,
             texts: state.texts,
             modes: state.kind === 'set' ? [null, null] : [modeControl(0, state, column.header), modeControl(1, state, column.header)],
+            dates: state.kind === 'date' ? [dateControl(0, state, column.header), dateControl(1, state, column.header)] : undefined,
             values: state.shown.map((at) => ({
                 label: state.labels[at]!,
                 checked: state.checked.has(at),
@@ -2672,6 +2748,7 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             sideBar: sideBarOf(),
             range: range && (boxSize(range.box) > 1 || current.fillHandle) ? { box: range.box, fill: fillTo, handle: !!current.fillHandle } : undefined,
             filterPanel: draft ? panelView(draft) : undefined,
+            dateEditor: editing ? dateEditor : (releaseDateEditors(), undefined),
             editing: editing ?? undefined,
             announcement
         };
@@ -3248,9 +3325,12 @@ export function createDataGrid<T = Row>(element: HTMLElement, config: DataGridCo
             infoOverlay.destroy();
             drawerTrap?.deactivate();
             dictionaryTrap?.deactivate();
+            sideTrap?.deactivate();
             stackWatch?.disconnect();
             destroyed = true;
             modeSelects.forEach((select) => select?.destroy());
+            datePickers.forEach((picker) => picker?.destroy());
+            releaseDateEditors();
             howSelects.forEach(({ select }) => select.destroy());
             pageSize?.destroy();
             root.clear();
@@ -3378,4 +3458,12 @@ interface FilterDraft {
     labels: string[];
     checked: Set<number>;
     shown: number[];
+}
+
+/** A day as a date input writes it, `yyyy-mm-dd`, which is how a date condition's text is kept. */
+const isoText = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+function isoDate(text: string): Date | null {
+    const match = text.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : null;
 }

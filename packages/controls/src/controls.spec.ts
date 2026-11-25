@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../../../test/a11y';
 import { createMenu, type MenuHandle } from './menu';
 import { createOverlay, type Overlay } from './overlay';
+import { createDatePicker } from './datepicker';
 import { createSelect, type SelectHandle } from './select';
 
 const key = (target: Element | Document, k: string, options: KeyboardEventInit = {}) =>
@@ -326,5 +327,73 @@ describe('a menu of commands', () => {
         const { button, menu } = mount();
         menu.open(button);
         await expectNoA11yViolations(document.body);
+    });
+});
+
+describe('a date field', () => {
+    function mount(options: Record<string, unknown> = {}) {
+        const host = document.createElement('span');
+        document.body.appendChild(host);
+        const onChange = vi.fn();
+        const picker = track(createDatePicker(host, { locale: ptBR, ariaLabel: 'Entrega', onChange, ...options }));
+        const input = () => host.querySelector('input') as HTMLInputElement;
+        const type = (text: string) => {
+            input().value = text;
+            input().dispatchEvent(new Event('input', { bubbles: true }));
+        };
+        return { host, picker, input, type, onChange, panel: () => document.querySelector('.vt-datepicker-panel') as HTMLElement | null };
+    }
+
+    it('reads a date typed in the locale’s format as soon as it is whole, and writes it back the same way', () => {
+        const { input, type, onChange, picker } = mount({ value: new Date(2026, 2, 5) });
+        expect(input().value).toBe('05/03/2026');
+        type('20/03/20');
+        expect(onChange).not.toHaveBeenCalled();
+        type('20/03/2026');
+        expect(onChange).toHaveBeenLastCalledWith(new Date(2026, 2, 20));
+        type('');
+        expect(onChange).toHaveBeenLastCalledWith(null);
+        // Something that is no date is put back when the box is left.
+        type('31/02/2026');
+        input().dispatchEvent(new Event('blur'));
+        expect(input().value).toBe('');
+        expect(picker.value()).toBeNull();
+    });
+
+    it('opens a month on the date, moves by the keyboard, and chooses with Enter', () => {
+        const { host, panel, onChange, input } = mount({ value: new Date(2026, 2, 5) });
+        (host.querySelector('.vt-datepicker-dropdown') as HTMLButtonElement).click();
+        expect(panel()!.getAttribute('role')).toBe('dialog');
+        expect(panel()!.querySelector('.vt-datepicker-title')!.textContent).toBe('março 2026');
+        expect(document.activeElement!.getAttribute('data-date')).toBe('2026-3-5');
+        key(document.activeElement!, 'ArrowDown');
+        key(document.activeElement!, 'PageDown');
+        expect(document.activeElement!.getAttribute('data-date')).toBe('2026-4-12');
+        expect(panel()!.querySelector('.vt-datepicker-title')!.textContent).toBe('abril 2026');
+        key(document.activeElement!, 'Enter');
+        expect(onChange).toHaveBeenLastCalledWith(new Date(2026, 3, 12));
+        expect(panel()).toBeNull();
+        expect(input().value).toBe('12/04/2026');
+        expect(document.activeElement).toBe(input());
+    });
+
+    it('keeps to its limits, and has Today and Clear', () => {
+        const { host, panel, onChange } = mount({ value: new Date(2026, 2, 5), min: new Date(2026, 2, 3) });
+        (host.querySelector('.vt-datepicker-dropdown') as HTMLButtonElement).click();
+        const day = (date: string) => panel()!.querySelector(`[data-date="${date}"]`) as HTMLElement;
+        expect(day('2026-3-2').getAttribute('aria-disabled')).toBe('true');
+        day('2026-3-2').click();
+        expect(onChange).not.toHaveBeenCalled();
+        const [, clear] = Array.from(panel()!.querySelectorAll('.vt-datepicker-footer button')) as HTMLButtonElement[];
+        expect(clear!.textContent).toBe('Limpar');
+        clear!.click();
+        expect(onChange).toHaveBeenLastCalledWith(null);
+    });
+
+    it('has nothing axe objects to, open', async () => {
+        const { host, panel } = mount({ value: new Date(2026, 2, 5) });
+        (host.querySelector('.vt-datepicker-dropdown') as HTMLButtonElement).click();
+        await expectNoA11yViolations(host);
+        await expectNoA11yViolations(panel()!);
     });
 });

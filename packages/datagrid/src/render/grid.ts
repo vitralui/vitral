@@ -25,6 +25,8 @@ import { sparklineDomain, sparklinePoints, sparklineView } from './sparkline';
 
 /** Everything the view needs that is not the configuration itself. */
 export interface ViewContext<T = Row> {
+    /** A date cell's editor: the kit's date field, kept by the grid between draws. */
+    dateEditor?: (key: string, text: string, attrs: Record<string, unknown>) => Content;
     config: DataGridConfig<T>;
     models: DataGridModels;
     columns: ResolvedColumn<T>[];
@@ -181,6 +183,8 @@ export interface FilterPanelView {
     texts: [string, string];
     /** The control choosing how each condition compares. */
     modes: [Content, Content];
+    /** For a date column, the field each condition's date is picked in, in place of a text box. */
+    dates?: [Content, Content];
     /** The values to tick, as many as are drawn, and how many more the search would find. */
     values: { label: string; checked: boolean; content?: Content }[];
     more: number;
@@ -1105,14 +1109,15 @@ export function filterPanelView<T>(context: ViewContext<T>, inline = false): VEl
             'div',
             mergeAttrs({ key: `condition-${at}` }, part('filterCondition')),
             view.modes[at] ?? null,
-            h(
+            // A date's field draws its own box; a text or a number is given the panel's.
+            view.dates ? content(view.dates[at]) : h(
                 'span',
                 part('filterField'),
                 h(
                     'input',
                     mergeAttrs(
                         {
-                            type: view.kind === 'date' ? 'date' : 'text',
+                            type: 'text',
                             inputmode: view.kind === 'number' ? 'decimal' : undefined
                         },
                         part('filterInput'),
@@ -1378,6 +1383,50 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                   )
               ]
             : [h('p', mergeAttrs({ key: 'none' }, part('filterMore')), words.noFilters)];
+    const panelBody = (panel: SidePanel) =>
+        panel === 'columns' ? columnsPanel() : panel === 'pivot' ? (side.pivot ? pivotPanelView(context, side.pivot) : null) : panel === 'dictionary' ? dictionaryPanel() : filtersPanel();
+    // Rows drawn as cards leave no room for a panel beside them: it opens as a drawer over the page instead, the way a phone shows one.
+    if (context.stacked && side.open) {
+        const open = side.open;
+        const titleId = `${panelId(open)}-title`;
+        const close = () => context.on.sideTab(open);
+        return h(
+            'aside',
+            mergeAttrs({ key: 'side-bar' }, part('sideBar', { open: false }), { 'aria-label': words.sideBar }),
+            tabs,
+            h(
+                'div',
+                mergeAttrs({ key: 'side-mask' }, part('drawerMask'), {
+                    onClick: (event: MouseEvent) => {
+                        if (event.target === event.currentTarget) close();
+                    }
+                }),
+                h(
+                    'div',
+                    mergeAttrs(part('drawer'), {
+                        id: panelId(open),
+                        role: 'dialog',
+                        'aria-modal': 'true',
+                        'aria-labelledby': titleId,
+                        tabindex: '-1',
+                        'data-side-drawer': open,
+                        onKeydown: (event: KeyboardEvent) => {
+                            if (event.key !== 'Escape') return;
+                            event.stopPropagation();
+                            close();
+                        }
+                    }),
+                    h(
+                        'div',
+                        part('drawerHeader'),
+                        h('h2', mergeAttrs(part('drawerTitle'), { id: titleId }), panelName(open)),
+                        h('button', mergeAttrs({ type: 'button' }, part('drawerClose'), { 'aria-label': words.drawerCancel, 'data-side-close': '', onClick: close }), iconView('close'))
+                    ),
+                    h('div', mergeAttrs(part('drawerContent'), part('sidePanel', { panel: open })), panelBody(open))
+                )
+            )
+        ) as VElement;
+    }
     return h(
         'aside',
         mergeAttrs({ key: 'side-bar' }, part('sideBar', { open: !!side.open }), { 'aria-label': words.sideBar }),
@@ -1388,15 +1437,7 @@ function sideBarView<T>(context: ViewContext<T>): VElement {
                       role: 'region',
                       'aria-label': panelName(side.open)
                   }),
-                  side.open === 'columns'
-                      ? columnsPanel()
-                      : side.open === 'pivot'
-                        ? side.pivot
-                            ? pivotPanelView(context, side.pivot)
-                            : null
-                        : side.open === 'dictionary'
-                          ? dictionaryPanel()
-                          : filtersPanel()
+                  panelBody(side.open)
               )
             : null,
         tabs
@@ -2152,9 +2193,11 @@ function editorView<T>(context: ViewContext<T>, column: ResolvedColumn<T>, row: 
         h(
             'span',
             mergeAttrs({ key: 'editor' }, part('editorField', { invalid: !!error })),
-            h(
+            kind === 'date' && context.dateEditor
+                ? content(context.dateEditor(key, value === null || value === undefined ? '' : String(value), shared))
+                : h(
                 'input',
-                mergeAttrs({ type: kind === 'date' ? 'date' : 'text' }, part('editorInput'), shared, {
+                mergeAttrs({ type: 'text' }, part('editorInput'), shared, {
                     inputmode: kind === 'number' ? 'decimal' : undefined,
                     value: value === null || value === undefined ? '' : String(value),
                     onInput: (event: Event) => context.on.editInput(key, (event.target as HTMLInputElement).value)
